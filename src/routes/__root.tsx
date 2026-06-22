@@ -84,6 +84,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Behalte alle Software-Abos und wiederkehrenden Kosten deiner Agentur an einem Ort im Blick." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Toolfolio – Dein Software-Cockpit" },
+      { name: "twitter:description", content: "Behalte alle Software-Abos und wiederkehrenden Kosten deiner Agentur an einem Ort im Blick." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/50298807-494f-4640-a827-ad442312ba1a/id-preview-4e8b2978--ee9c436d-2adf-420c-9ae5-f6fc5e79f995.lovable.app-1782163806064.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/50298807-494f-4640-a827-ad442312ba1a/id-preview-4e8b2978--ee9c436d-2adf-420c-9ae5-f6fc5e79f995.lovable.app-1782163806064.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
