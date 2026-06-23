@@ -15,6 +15,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as FristenRouteImport } from './routes/fristen'
 import { Route as BenachrichtigungenRouteImport } from './routes/benachrichtigungen'
+import { Route as AiCreditsRouteImport } from './routes/ai-credits'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
@@ -51,6 +52,11 @@ const BenachrichtigungenRoute = BenachrichtigungenRouteImport.update({
   path: '/benachrichtigungen',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiCreditsRoute = AiCreditsRouteImport.update({
+  id: '/ai-credits',
+  path: '/ai-credits',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -79,6 +85,7 @@ const AbosAboIdRoute = AbosAboIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-credits': typeof AiCreditsRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-credits': typeof AiCreditsRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
@@ -106,6 +114,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-credits': typeof AiCreditsRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-credits'
     | '/benachrichtigungen'
     | '/fristen'
     | '/import'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai-credits'
     | '/benachrichtigungen'
     | '/fristen'
     | '/import'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ai-credits'
     | '/benachrichtigungen'
     | '/fristen'
     | '/import'
@@ -161,6 +173,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiCreditsRoute: typeof AiCreditsRoute
   BenachrichtigungenRoute: typeof BenachrichtigungenRoute
   FristenRoute: typeof FristenRoute
   ImportRoute: typeof ImportRoute
@@ -217,6 +230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BenachrichtigungenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-credits': {
+      id: '/ai-credits'
+      path: '/ai-credits'
+      fullPath: '/ai-credits'
+      preLoaderRoute: typeof AiCreditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -257,6 +277,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiCreditsRoute: AiCreditsRoute,
   BenachrichtigungenRoute: BenachrichtigungenRoute,
   FristenRoute: FristenRoute,
   ImportRoute: ImportRoute,
