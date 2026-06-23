@@ -35,6 +35,7 @@ type Cluster = {
 };
 
 const clusters: Cluster[] = [
+  { name: "Vertragsmanagement", slug: "vertragsmanagement-software", color: "#6C5CE7", icon: FileSignature, count: 6, top: ["CLM", "E-Signatur (QES)", "KI-Vertragsanalyse"] },
   { name: "Design", slug: "design", color: "#E84393", icon: PenTool, count: 24, top: ["UI Design", "Prototyping", "Illustration"] },
   { name: "SEO & Marketing", slug: "seo-marketing", color: "#16A34A", icon: Megaphone, count: 31, top: ["SEO", "E-Mail Marketing", "Social Media"] },
   { name: "KI & API", slug: "ki-api", color: "#6C5CE7", icon: Cpu, count: 28, top: ["LLM-Plattformen", "Bildgenerierung", "Automatisierung"] },
