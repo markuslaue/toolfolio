@@ -18,6 +18,7 @@ import { Route as SeatsRouteImport } from './routes/seats'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as FristenRouteImport } from './routes/fristen'
+import { Route as FreigabenRouteImport } from './routes/freigaben'
 import { Route as BudgetRouteImport } from './routes/budget'
 import { Route as BerichteRouteImport } from './routes/berichte'
 import { Route as BenchmarkRouteImport } from './routes/benchmark'
@@ -74,6 +75,11 @@ const ImportRoute = ImportRouteImport.update({
 const FristenRoute = FristenRouteImport.update({
   id: '/fristen',
   path: '/fristen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FreigabenRoute = FreigabenRouteImport.update({
+  id: '/freigaben',
+  path: '/freigaben',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BudgetRoute = BudgetRouteImport.update({
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/benchmark': typeof BenchmarkRoute
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
+  '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/benchmark': typeof BenchmarkRoute
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
+  '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/benchmark': typeof BenchmarkRoute
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
+  '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/benchmark'
     | '/berichte'
     | '/budget'
+    | '/freigaben'
     | '/fristen'
     | '/import'
     | '/onboarding'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/benchmark'
     | '/berichte'
     | '/budget'
+    | '/freigaben'
     | '/fristen'
     | '/import'
     | '/onboarding'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/benchmark'
     | '/berichte'
     | '/budget'
+    | '/freigaben'
     | '/fristen'
     | '/import'
     | '/onboarding'
@@ -288,6 +300,7 @@ export interface RootRouteChildren {
   BenchmarkRoute: typeof BenchmarkRoute
   BerichteRoute: typeof BerichteRoute
   BudgetRoute: typeof BudgetRoute
+  FreigabenRoute: typeof FreigabenRoute
   FristenRoute: typeof FristenRoute
   ImportRoute: typeof ImportRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -366,6 +379,13 @@ declare module '@tanstack/react-router' {
       path: '/fristen'
       fullPath: '/fristen'
       preLoaderRoute: typeof FristenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/freigaben': {
+      id: '/freigaben'
+      path: '/freigaben'
+      fullPath: '/freigaben'
+      preLoaderRoute: typeof FreigabenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/budget': {
@@ -464,6 +484,7 @@ const rootRouteChildren: RootRouteChildren = {
   BenchmarkRoute: BenchmarkRoute,
   BerichteRoute: BerichteRoute,
   BudgetRoute: BudgetRoute,
+  FreigabenRoute: FreigabenRoute,
   FristenRoute: FristenRoute,
   ImportRoute: ImportRoute,
   OnboardingRoute: OnboardingRoute,
