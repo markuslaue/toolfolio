@@ -36,6 +36,7 @@ import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as EinstellungenIndexRouteImport } from './routes/einstellungen.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
 import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
+import { Route as FuerSlugRouteImport } from './routes/fuer.$slug'
 import { Route as FeaturesSlugRouteImport } from './routes/features.$slug'
 import { Route as EinstellungenUnternehmenRouteImport } from './routes/einstellungen.unternehmen'
 import { Route as EinstellungenTeamRouteImport } from './routes/einstellungen.team'
@@ -179,6 +180,11 @@ const KundenKundeIdRoute = KundenKundeIdRouteImport.update({
   path: '/kunden/$kundeId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FuerSlugRoute = FuerSlugRouteImport.update({
+  id: '/fuer/$slug',
+  path: '/fuer/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeaturesSlugRoute = FeaturesSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -248,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/features/$slug': typeof FeaturesSlugRoute
+  '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
@@ -283,6 +290,7 @@ export interface FileRoutesByTo {
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/features/$slug': typeof FeaturesSlugRoute
+  '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos': typeof AbosIndexRoute
   '/einstellungen': typeof EinstellungenIndexRoute
@@ -320,6 +328,7 @@ export interface FileRoutesById {
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/features/$slug': typeof FeaturesSlugRoute
+  '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
@@ -358,6 +367,7 @@ export interface FileRouteTypes {
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
     | '/features/$slug'
+    | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/abos/'
     | '/einstellungen/'
@@ -393,6 +403,7 @@ export interface FileRouteTypes {
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
     | '/features/$slug'
+    | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/abos'
     | '/einstellungen'
@@ -429,6 +440,7 @@ export interface FileRouteTypes {
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
     | '/features/$slug'
+    | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/abos/'
     | '/einstellungen/'
@@ -460,6 +472,7 @@ export interface RootRouteChildren {
   VerzeichnisRoute: typeof VerzeichnisRoute
   ZahlungskanaeleRoute: typeof ZahlungskanaeleRoute
   AbosAboIdRoute: typeof AbosAboIdRoute
+  FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
   AbosIndexRoute: typeof AbosIndexRoute
   KundenIndexRoute: typeof KundenIndexRoute
@@ -656,6 +669,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KundenKundeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fuer/$slug': {
+      id: '/fuer/$slug'
+      path: '/fuer/$slug'
+      fullPath: '/fuer/$slug'
+      preLoaderRoute: typeof FuerSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/features/$slug': {
       id: '/features/$slug'
       path: '/$slug'
@@ -767,6 +787,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerzeichnisRoute: VerzeichnisRoute,
   ZahlungskanaeleRoute: ZahlungskanaeleRoute,
   AbosAboIdRoute: AbosAboIdRoute,
+  FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
   AbosIndexRoute: AbosIndexRoute,
   KundenIndexRoute: KundenIndexRoute,
