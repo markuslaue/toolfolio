@@ -117,6 +117,7 @@ export function Nav() {
       ],
     },
     { label: "Preise", href: "/preise" },
+    { label: "Über uns", href: "/ueber-uns" },
   ];
 
   return (
