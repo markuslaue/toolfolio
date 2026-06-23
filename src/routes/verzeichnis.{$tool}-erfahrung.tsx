@@ -6,25 +6,23 @@ import {
 } from "@/components/marketing/software-detail-page";
 
 const tools: Record<string, SoftwareDetailData> = {
-  [`${toolfolioDetail.clusterSlug}/${toolfolioDetail.categorySlug}/${toolfolioDetail.name.toLowerCase()}`]:
-    toolfolioDetail,
+  toolfolio: toolfolioDetail,
 };
 
-export const Route = createFileRoute("/verzeichnis/$cluster/$category/$tool")({
+export const Route = createFileRoute("/verzeichnis/{$tool}-erfahrung")({
   beforeLoad: ({ params }) => {
-    const key = `${params.cluster}/${params.category}/${params.tool}`;
-    if (!tools[key]) throw notFound();
+    if (!tools[params.tool]) throw notFound();
   },
   head: ({ params }) => {
-    const d = tools[`${params.cluster}/${params.category}/${params.tool}`];
+    const d = tools[params.tool];
     if (!d) return { meta: [{ title: "Tool nicht gefunden – Toolfolio" }] };
-    const url = `https://toolfolio.lovable.app/verzeichnis/${d.clusterSlug}/${d.categorySlug}/${d.name.toLowerCase()}`;
+    const url = `https://toolfolio.lovable.app/verzeichnis/${params.tool}-erfahrung`;
     const description = `${d.name}: ${d.tagline} Preise, Funktionen, Bewertungen und faire Alternativen in der Kategorie ${d.categoryName}.`;
     return {
       meta: [
-        { title: `${d.name} – ${d.categoryName} | Toolfolio Verzeichnis` },
+        { title: `${d.name} Erfahrungen – ${d.categoryName} | Toolfolio` },
         { name: "description", content: description },
-        { property: "og:title", content: `${d.name} – ${d.categoryName}` },
+        { property: "og:title", content: `${d.name} Erfahrungen – ${d.categoryName}` },
         { property: "og:description", content: description },
         { property: "og:url", content: url },
         { property: "og:type", content: "product" },
@@ -97,8 +95,8 @@ export const Route = createFileRoute("/verzeichnis/$cluster/$category/$tool")({
 });
 
 function Page() {
-  const { cluster, category, tool } = Route.useParams();
-  const data = tools[`${cluster}/${category}/${tool}`];
+  const { tool } = Route.useParams();
+  const data = tools[tool];
   if (!data) return null;
   return <SoftwareDetailPage data={data} />;
 }

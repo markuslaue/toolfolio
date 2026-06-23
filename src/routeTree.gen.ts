@@ -43,6 +43,7 @@ import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as FeaturesIndexRouteImport } from './routes/features.index'
 import { Route as EinstellungenIndexRouteImport } from './routes/einstellungen.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
+import { Route as VerzeichnisChar123toolChar125ErfahrungRouteImport } from './routes/verzeichnis.{$tool}-erfahrung'
 import { Route as VergleichSlugRouteImport } from './routes/vergleich.$slug'
 import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
 import { Route as FuerSlugRouteImport } from './routes/fuer.$slug'
@@ -55,7 +56,6 @@ import { Route as EinstellungenBenachrichtigungenRouteImport } from './routes/ei
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 import { Route as VerzeichnisClusterIndexRouteImport } from './routes/verzeichnis.$cluster.index'
 import { Route as VerzeichnisClusterCategoryRouteImport } from './routes/verzeichnis.$cluster.$category'
-import { Route as VerzeichnisClusterCategoryToolRouteImport } from './routes/verzeichnis.$cluster.$category.$tool'
 
 const ZahlungskanaeleRoute = ZahlungskanaeleRouteImport.update({
   id: '/zahlungskanaele',
@@ -227,6 +227,12 @@ const AbosIndexRoute = AbosIndexRouteImport.update({
   path: '/abos/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerzeichnisChar123toolChar125ErfahrungRoute =
+  VerzeichnisChar123toolChar125ErfahrungRouteImport.update({
+    id: '/verzeichnis/{$tool}-erfahrung',
+    path: '/verzeichnis/{$tool}-erfahrung',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const VergleichSlugRoute = VergleichSlugRouteImport.update({
   id: '/vergleich/$slug',
   path: '/vergleich/$slug',
@@ -290,12 +296,6 @@ const VerzeichnisClusterCategoryRoute =
     path: '/verzeichnis/$cluster/$category',
     getParentRoute: () => rootRouteImport,
   } as any)
-const VerzeichnisClusterCategoryToolRoute =
-  VerzeichnisClusterCategoryToolRouteImport.update({
-    id: '/$tool',
-    path: '/$tool',
-    getParentRoute: () => VerzeichnisClusterCategoryRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -337,14 +337,14 @@ export interface FileRoutesByFullPath {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/{$tool}-erfahrung': typeof VerzeichnisChar123toolChar125ErfahrungRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
   '/kunden/': typeof KundenIndexRoute
   '/verzeichnis/': typeof VerzeichnisIndexRoute
-  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRouteWithChildren
+  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRoute
   '/verzeichnis/$cluster/': typeof VerzeichnisClusterIndexRoute
-  '/verzeichnis/$cluster/$category/$tool': typeof VerzeichnisClusterCategoryToolRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -384,14 +384,14 @@ export interface FileRoutesByTo {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/{$tool}-erfahrung': typeof VerzeichnisChar123toolChar125ErfahrungRoute
   '/abos': typeof AbosIndexRoute
   '/einstellungen': typeof EinstellungenIndexRoute
   '/features': typeof FeaturesIndexRoute
   '/kunden': typeof KundenIndexRoute
   '/verzeichnis': typeof VerzeichnisIndexRoute
-  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRouteWithChildren
+  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRoute
   '/verzeichnis/$cluster': typeof VerzeichnisClusterIndexRoute
-  '/verzeichnis/$cluster/$category/$tool': typeof VerzeichnisClusterCategoryToolRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -434,14 +434,14 @@ export interface FileRoutesById {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/{$tool}-erfahrung': typeof VerzeichnisChar123toolChar125ErfahrungRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
   '/kunden/': typeof KundenIndexRoute
   '/verzeichnis/': typeof VerzeichnisIndexRoute
-  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRouteWithChildren
+  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRoute
   '/verzeichnis/$cluster/': typeof VerzeichnisClusterIndexRoute
-  '/verzeichnis/$cluster/$category/$tool': typeof VerzeichnisClusterCategoryToolRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -485,6 +485,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/{$tool}-erfahrung'
     | '/abos/'
     | '/einstellungen/'
     | '/features/'
@@ -492,7 +493,6 @@ export interface FileRouteTypes {
     | '/verzeichnis/'
     | '/verzeichnis/$cluster/$category'
     | '/verzeichnis/$cluster/'
-    | '/verzeichnis/$cluster/$category/$tool'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -532,6 +532,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/{$tool}-erfahrung'
     | '/abos'
     | '/einstellungen'
     | '/features'
@@ -539,7 +540,6 @@ export interface FileRouteTypes {
     | '/verzeichnis'
     | '/verzeichnis/$cluster/$category'
     | '/verzeichnis/$cluster'
-    | '/verzeichnis/$cluster/$category/$tool'
   id:
     | '__root__'
     | '/'
@@ -581,6 +581,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/{$tool}-erfahrung'
     | '/abos/'
     | '/einstellungen/'
     | '/features/'
@@ -588,7 +589,6 @@ export interface FileRouteTypes {
     | '/verzeichnis/'
     | '/verzeichnis/$cluster/$category'
     | '/verzeichnis/$cluster/'
-    | '/verzeichnis/$cluster/$category/$tool'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -625,10 +625,11 @@ export interface RootRouteChildren {
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
   VergleichSlugRoute: typeof VergleichSlugRoute
+  VerzeichnisChar123toolChar125ErfahrungRoute: typeof VerzeichnisChar123toolChar125ErfahrungRoute
   AbosIndexRoute: typeof AbosIndexRoute
   KundenIndexRoute: typeof KundenIndexRoute
   VerzeichnisIndexRoute: typeof VerzeichnisIndexRoute
-  VerzeichnisClusterCategoryRoute: typeof VerzeichnisClusterCategoryRouteWithChildren
+  VerzeichnisClusterCategoryRoute: typeof VerzeichnisClusterCategoryRoute
   VerzeichnisClusterIndexRoute: typeof VerzeichnisClusterIndexRoute
 }
 
@@ -872,6 +873,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verzeichnis/{$tool}-erfahrung': {
+      id: '/verzeichnis/{$tool}-erfahrung'
+      path: '/verzeichnis/{$tool}-erfahrung'
+      fullPath: '/verzeichnis/{$tool}-erfahrung'
+      preLoaderRoute: typeof VerzeichnisChar123toolChar125ErfahrungRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vergleich/$slug': {
       id: '/vergleich/$slug'
       path: '/vergleich/$slug'
@@ -956,13 +964,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerzeichnisClusterCategoryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/verzeichnis/$cluster/$category/$tool': {
-      id: '/verzeichnis/$cluster/$category/$tool'
-      path: '/$tool'
-      fullPath: '/verzeichnis/$cluster/$category/$tool'
-      preLoaderRoute: typeof VerzeichnisClusterCategoryToolRouteImport
-      parentRoute: typeof VerzeichnisClusterCategoryRoute
-    }
   }
 }
 
@@ -1002,20 +1003,6 @@ const FeaturesRouteWithChildren = FeaturesRoute._addFileChildren(
   FeaturesRouteChildren,
 )
 
-interface VerzeichnisClusterCategoryRouteChildren {
-  VerzeichnisClusterCategoryToolRoute: typeof VerzeichnisClusterCategoryToolRoute
-}
-
-const VerzeichnisClusterCategoryRouteChildren: VerzeichnisClusterCategoryRouteChildren =
-  {
-    VerzeichnisClusterCategoryToolRoute: VerzeichnisClusterCategoryToolRoute,
-  }
-
-const VerzeichnisClusterCategoryRouteWithChildren =
-  VerzeichnisClusterCategoryRoute._addFileChildren(
-    VerzeichnisClusterCategoryRouteChildren,
-  )
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiCreditsRoute: AiCreditsRoute,
@@ -1050,10 +1037,12 @@ const rootRouteChildren: RootRouteChildren = {
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
   VergleichSlugRoute: VergleichSlugRoute,
+  VerzeichnisChar123toolChar125ErfahrungRoute:
+    VerzeichnisChar123toolChar125ErfahrungRoute,
   AbosIndexRoute: AbosIndexRoute,
   KundenIndexRoute: KundenIndexRoute,
   VerzeichnisIndexRoute: VerzeichnisIndexRoute,
-  VerzeichnisClusterCategoryRoute: VerzeichnisClusterCategoryRouteWithChildren,
+  VerzeichnisClusterCategoryRoute: VerzeichnisClusterCategoryRoute,
   VerzeichnisClusterIndexRoute: VerzeichnisClusterIndexRoute,
 }
 export const routeTree = rootRouteImport
