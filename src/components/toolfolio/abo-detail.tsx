@@ -53,13 +53,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { fmtEUR, fmtDate } from "@/lib/toolfolio-data";
 import { alleAbos, kategorieFarben, statusFarben } from "@/lib/abos-data";
