@@ -14,7 +14,7 @@ import {
   X,
   PartyPopper,
   Ticket,
-  ShieldPercent,
+  ShieldCheck,
   Copy,
   ExternalLink,
   Handshake,
