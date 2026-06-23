@@ -21,6 +21,7 @@ import { Route as GesellschaftenRouteImport } from './routes/gesellschaften'
 import { Route as FristenRouteImport } from './routes/fristen'
 import { Route as FreigabenRouteImport } from './routes/freigaben'
 import { Route as EinstellungenRouteImport } from './routes/einstellungen'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BudgetRouteImport } from './routes/budget'
 import { Route as BerichteRouteImport } from './routes/berichte'
 import { Route as BenchmarkRouteImport } from './routes/benchmark'
@@ -98,6 +99,11 @@ const FreigabenRoute = FreigabenRouteImport.update({
 const EinstellungenRoute = EinstellungenRouteImport.update({
   id: '/einstellungen',
   path: '/einstellungen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BudgetRoute = BudgetRouteImport.update({
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/benchmark': typeof BenchmarkRoute
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
+  '/dashboard': typeof DashboardRoute
   '/einstellungen': typeof EinstellungenRouteWithChildren
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
@@ -234,6 +241,7 @@ export interface FileRoutesByTo {
   '/benchmark': typeof BenchmarkRoute
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
+  '/dashboard': typeof DashboardRoute
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
   '/gesellschaften': typeof GesellschaftenRoute
@@ -266,6 +274,7 @@ export interface FileRoutesById {
   '/benchmark': typeof BenchmarkRoute
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
+  '/dashboard': typeof DashboardRoute
   '/einstellungen': typeof EinstellungenRouteWithChildren
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
@@ -300,6 +309,7 @@ export interface FileRouteTypes {
     | '/benchmark'
     | '/berichte'
     | '/budget'
+    | '/dashboard'
     | '/einstellungen'
     | '/freigaben'
     | '/fristen'
@@ -332,6 +342,7 @@ export interface FileRouteTypes {
     | '/benchmark'
     | '/berichte'
     | '/budget'
+    | '/dashboard'
     | '/freigaben'
     | '/fristen'
     | '/gesellschaften'
@@ -363,6 +374,7 @@ export interface FileRouteTypes {
     | '/benchmark'
     | '/berichte'
     | '/budget'
+    | '/dashboard'
     | '/einstellungen'
     | '/freigaben'
     | '/fristen'
@@ -396,6 +408,7 @@ export interface RootRouteChildren {
   BenchmarkRoute: typeof BenchmarkRoute
   BerichteRoute: typeof BerichteRoute
   BudgetRoute: typeof BudgetRoute
+  DashboardRoute: typeof DashboardRoute
   EinstellungenRoute: typeof EinstellungenRouteWithChildren
   FreigabenRoute: typeof FreigabenRoute
   FristenRoute: typeof FristenRoute
@@ -498,6 +511,13 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen'
       fullPath: '/einstellungen'
       preLoaderRoute: typeof EinstellungenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/budget': {
@@ -660,6 +680,7 @@ const rootRouteChildren: RootRouteChildren = {
   BenchmarkRoute: BenchmarkRoute,
   BerichteRoute: BerichteRoute,
   BudgetRoute: BudgetRoute,
+  DashboardRoute: DashboardRoute,
   EinstellungenRoute: EinstellungenRouteWithChildren,
   FreigabenRoute: FreigabenRoute,
   FristenRoute: FristenRoute,
