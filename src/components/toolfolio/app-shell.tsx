@@ -22,6 +22,7 @@ import {
   Archive,
   TrendingUp,
   Armchair,
+  UsersRound,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ const navItems = [
   { label: "Archiv", icon: Archive, to: "/archiv" },
   { label: "Budget & Forecast", icon: TrendingUp, to: "/budget" },
   { label: "Seats & Lizenzen", icon: Armchair, to: "/seats" },
+  { label: "Team", icon: UsersRound, to: "/team" },
   { label: "Einstellungen", icon: Settings, to: "/einstellungen" },
 ];
 
