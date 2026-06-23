@@ -9,13 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ZahlungskanaeleRouteImport } from './routes/zahlungskanaele'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
-import { Route as ZahlungskanaeleRouteImport } from './routes/zahlungskanaele'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 
+const ZahlungskanaeleRoute = ZahlungskanaeleRouteImport.update({
+  id: '/zahlungskanaele',
+  path: '/zahlungskanaele',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -24,11 +29,6 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const ImportRoute = ImportRouteImport.update({
   id: '/import',
   path: '/import',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ZahlungskanaeleRoute = ZahlungskanaeleRouteImport.update({
-  id: '/zahlungskanaele',
-  path: '/zahlungskanaele',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -74,10 +74,29 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/import' | '/onboarding' | '/zahlungskanaele' | '/abos/$aboId' | '/abos/'
+  fullPaths:
+    | '/'
+    | '/import'
+    | '/onboarding'
+    | '/zahlungskanaele'
+    | '/abos/$aboId'
+    | '/abos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/import' | '/onboarding' | '/zahlungskanaele' | '/abos/$aboId' | '/abos'
-  id: '__root__' | '/' | '/import' | '/onboarding' | '/zahlungskanaele' | '/abos/$aboId' | '/abos/'
+  to:
+    | '/'
+    | '/import'
+    | '/onboarding'
+    | '/zahlungskanaele'
+    | '/abos/$aboId'
+    | '/abos'
+  id:
+    | '__root__'
+    | '/'
+    | '/import'
+    | '/onboarding'
+    | '/zahlungskanaele'
+    | '/abos/$aboId'
+    | '/abos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -91,6 +110,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/zahlungskanaele': {
+      id: '/zahlungskanaele'
+      path: '/zahlungskanaele'
+      fullPath: '/zahlungskanaele'
+      preLoaderRoute: typeof ZahlungskanaeleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -103,13 +129,6 @@ declare module '@tanstack/react-router' {
       path: '/import'
       fullPath: '/import'
       preLoaderRoute: typeof ImportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/zahlungskanaele': {
-      id: '/zahlungskanaele'
-      path: '/zahlungskanaele'
-      fullPath: '/zahlungskanaele'
-      preLoaderRoute: typeof ZahlungskanaeleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {

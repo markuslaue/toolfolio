@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Plus,
@@ -876,7 +876,7 @@ function Hinweis({ children }: { children: React.ReactNode }) {
 // reset-on-open helper
 function useMemoReset(trigger: boolean, fn: () => void) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useMemo(() => {
+  useEffect(() => {
     if (trigger) fn();
   }, [trigger]);
 }
