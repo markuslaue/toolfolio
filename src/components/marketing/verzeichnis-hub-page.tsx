@@ -20,6 +20,7 @@ import {
   MapPin,
   Star,
   Plus,
+  FileSignature,
 } from "lucide-react";
 import { Nav, Footer, Reveal } from "./marketing-home";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ type Cluster = {
 };
 
 const clusters: Cluster[] = [
+  { name: "Vertragsmanagement", slug: "vertragsmanagement-software", color: "#6C5CE7", icon: FileSignature, count: 6, top: ["CLM", "E-Signatur (QES)", "KI-Vertragsanalyse"] },
   { name: "Design", slug: "design", color: "#E84393", icon: PenTool, count: 24, top: ["UI Design", "Prototyping", "Illustration"] },
   { name: "SEO & Marketing", slug: "seo-marketing", color: "#16A34A", icon: Megaphone, count: 31, top: ["SEO", "E-Mail Marketing", "Social Media"] },
   { name: "KI & API", slug: "ki-api", color: "#6C5CE7", icon: Cpu, count: 28, top: ["LLM-Plattformen", "Bildgenerierung", "Automatisierung"] },
@@ -91,7 +93,7 @@ export function VerzeichnisHubPage() {
   const allResults = useMemo(
     () => [
       ...popularTools.map((t) => ({ type: "Tool" as const, name: t.name, meta: t.category, color: t.catColor, href: "/verzeichnis#tools" })),
-      ...clusters.map((c) => ({ type: "Kategorie" as const, name: c.name, meta: `${c.count} Kategorien`, color: c.color, href: `/verzeichnis#cluster-${c.slug}` })),
+      ...clusters.map((c) => ({ type: "Kategorie" as const, name: c.name, meta: `${c.count} Kategorien`, color: c.color, href: `/verzeichnis/${c.slug}` })),
     ],
     [],
   );
@@ -227,7 +229,7 @@ export function VerzeichnisHubPage() {
             return (
               <Reveal key={c.slug} delay={i * 40}>
                 <a
-                  href={`/verzeichnis#cluster-${c.slug}`}
+                  href={`/verzeichnis/${c.slug}`}
                   className="group block rounded-3xl border border-border bg-card p-6 shadow-soft hover:shadow-lift hover:-translate-y-0.5 transition-all"
                   style={{ borderTop: `4px solid ${c.color}` }}
                 >
