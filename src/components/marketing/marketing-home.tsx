@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const fmtEUR = (n: number) =>
+export const fmtEUR = (n: number) =>
   new Intl.NumberFormat("de-DE", {
     style: "currency",
     currency: "EUR",
@@ -46,7 +46,7 @@ function useReveal<T extends HTMLElement>() {
   return { ref, shown };
 }
 
-function Reveal({
+export function Reveal({
   children,
   className,
   delay = 0,
@@ -71,7 +71,7 @@ function Reveal({
   );
 }
 
-function Nav() {
+export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -1007,7 +1007,7 @@ function FinalCTA() {
   );
 }
 
-function Footer() {
+export function Footer() {
   const cols = [
     {
       title: "Produkt",
