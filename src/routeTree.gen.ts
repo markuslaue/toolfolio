@@ -43,7 +43,6 @@ import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as FeaturesIndexRouteImport } from './routes/features.index'
 import { Route as EinstellungenIndexRouteImport } from './routes/einstellungen.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
-import { Route as VerzeichnisChar123toolChar125ErfahrungRouteImport } from './routes/verzeichnis.{$tool}-erfahrung'
 import { Route as VerzeichnisSucheRouteImport } from './routes/verzeichnis.suche'
 import { Route as VergleichSlugRouteImport } from './routes/vergleich.$slug'
 import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
@@ -228,12 +227,6 @@ const AbosIndexRoute = AbosIndexRouteImport.update({
   path: '/abos/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VerzeichnisChar123toolChar125ErfahrungRoute =
-  VerzeichnisChar123toolChar125ErfahrungRouteImport.update({
-    id: '/verzeichnis/{$tool}-erfahrung',
-    path: '/verzeichnis/{$tool}-erfahrung',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const VerzeichnisSucheRoute = VerzeichnisSucheRouteImport.update({
   id: '/verzeichnis/suche',
   path: '/verzeichnis/suche',
@@ -344,7 +337,6 @@ export interface FileRoutesByFullPath {
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
-  '/verzeichnis/{$tool}-erfahrung': typeof VerzeichnisChar123toolChar125ErfahrungRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
@@ -392,7 +384,6 @@ export interface FileRoutesByTo {
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
-  '/verzeichnis/{$tool}-erfahrung': typeof VerzeichnisChar123toolChar125ErfahrungRoute
   '/abos': typeof AbosIndexRoute
   '/einstellungen': typeof EinstellungenIndexRoute
   '/features': typeof FeaturesIndexRoute
@@ -443,7 +434,6 @@ export interface FileRoutesById {
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
-  '/verzeichnis/{$tool}-erfahrung': typeof VerzeichnisChar123toolChar125ErfahrungRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
@@ -495,7 +485,6 @@ export interface FileRouteTypes {
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
     | '/verzeichnis/suche'
-    | '/verzeichnis/{$tool}-erfahrung'
     | '/abos/'
     | '/einstellungen/'
     | '/features/'
@@ -543,7 +532,6 @@ export interface FileRouteTypes {
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
     | '/verzeichnis/suche'
-    | '/verzeichnis/{$tool}-erfahrung'
     | '/abos'
     | '/einstellungen'
     | '/features'
@@ -593,7 +581,6 @@ export interface FileRouteTypes {
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
     | '/verzeichnis/suche'
-    | '/verzeichnis/{$tool}-erfahrung'
     | '/abos/'
     | '/einstellungen/'
     | '/features/'
@@ -638,7 +625,6 @@ export interface RootRouteChildren {
   KundenKundeIdRoute: typeof KundenKundeIdRoute
   VergleichSlugRoute: typeof VergleichSlugRoute
   VerzeichnisSucheRoute: typeof VerzeichnisSucheRoute
-  VerzeichnisChar123toolChar125ErfahrungRoute: typeof VerzeichnisChar123toolChar125ErfahrungRoute
   AbosIndexRoute: typeof AbosIndexRoute
   KundenIndexRoute: typeof KundenIndexRoute
   VerzeichnisIndexRoute: typeof VerzeichnisIndexRoute
@@ -886,13 +872,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/verzeichnis/{$tool}-erfahrung': {
-      id: '/verzeichnis/{$tool}-erfahrung'
-      path: '/verzeichnis/{$tool}-erfahrung'
-      fullPath: '/verzeichnis/{$tool}-erfahrung'
-      preLoaderRoute: typeof VerzeichnisChar123toolChar125ErfahrungRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/verzeichnis/suche': {
       id: '/verzeichnis/suche'
       path: '/verzeichnis/suche'
@@ -1058,8 +1037,6 @@ const rootRouteChildren: RootRouteChildren = {
   KundenKundeIdRoute: KundenKundeIdRoute,
   VergleichSlugRoute: VergleichSlugRoute,
   VerzeichnisSucheRoute: VerzeichnisSucheRoute,
-  VerzeichnisChar123toolChar125ErfahrungRoute:
-    VerzeichnisChar123toolChar125ErfahrungRoute,
   AbosIndexRoute: AbosIndexRoute,
   KundenIndexRoute: KundenIndexRoute,
   VerzeichnisIndexRoute: VerzeichnisIndexRoute,
