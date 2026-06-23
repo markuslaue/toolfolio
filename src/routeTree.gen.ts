@@ -35,6 +35,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as EinstellungenIndexRouteImport } from './routes/einstellungen.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
+import { Route as VergleichSlugRouteImport } from './routes/vergleich.$slug'
 import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
 import { Route as FuerSlugRouteImport } from './routes/fuer.$slug'
 import { Route as FeaturesSlugRouteImport } from './routes/features.$slug'
@@ -175,6 +176,11 @@ const AbosIndexRoute = AbosIndexRouteImport.update({
   path: '/abos/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VergleichSlugRoute = VergleichSlugRouteImport.update({
+  id: '/vergleich/$slug',
+  path: '/vergleich/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KundenKundeIdRoute = KundenKundeIdRouteImport.update({
   id: '/kunden/$kundeId',
   path: '/kunden/$kundeId',
@@ -256,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/features/$slug': typeof FeaturesSlugRoute
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
+  '/vergleich/$slug': typeof VergleichSlugRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/kunden/': typeof KundenIndexRoute
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/features/$slug': typeof FeaturesSlugRoute
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
+  '/vergleich/$slug': typeof VergleichSlugRoute
   '/abos': typeof AbosIndexRoute
   '/einstellungen': typeof EinstellungenIndexRoute
   '/kunden': typeof KundenIndexRoute
@@ -330,6 +338,7 @@ export interface FileRoutesById {
   '/features/$slug': typeof FeaturesSlugRoute
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
+  '/vergleich/$slug': typeof VergleichSlugRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/kunden/': typeof KundenIndexRoute
@@ -369,6 +378,7 @@ export interface FileRouteTypes {
     | '/features/$slug'
     | '/fuer/$slug'
     | '/kunden/$kundeId'
+    | '/vergleich/$slug'
     | '/abos/'
     | '/einstellungen/'
     | '/kunden/'
@@ -405,6 +415,7 @@ export interface FileRouteTypes {
     | '/features/$slug'
     | '/fuer/$slug'
     | '/kunden/$kundeId'
+    | '/vergleich/$slug'
     | '/abos'
     | '/einstellungen'
     | '/kunden'
@@ -442,6 +453,7 @@ export interface FileRouteTypes {
     | '/features/$slug'
     | '/fuer/$slug'
     | '/kunden/$kundeId'
+    | '/vergleich/$slug'
     | '/abos/'
     | '/einstellungen/'
     | '/kunden/'
@@ -474,6 +486,7 @@ export interface RootRouteChildren {
   AbosAboIdRoute: typeof AbosAboIdRoute
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
+  VergleichSlugRoute: typeof VergleichSlugRoute
   AbosIndexRoute: typeof AbosIndexRoute
   KundenIndexRoute: typeof KundenIndexRoute
 }
@@ -662,6 +675,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vergleich/$slug': {
+      id: '/vergleich/$slug'
+      path: '/vergleich/$slug'
+      fullPath: '/vergleich/$slug'
+      preLoaderRoute: typeof VergleichSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/kunden/$kundeId': {
       id: '/kunden/$kundeId'
       path: '/kunden/$kundeId'
@@ -789,6 +809,7 @@ const rootRouteChildren: RootRouteChildren = {
   AbosAboIdRoute: AbosAboIdRoute,
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
+  VergleichSlugRoute: VergleichSlugRoute,
   AbosIndexRoute: AbosIndexRoute,
   KundenIndexRoute: KundenIndexRoute,
 }
