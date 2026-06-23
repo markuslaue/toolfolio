@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZahlungskanaeleRouteImport } from './routes/zahlungskanaele'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as KundenRouteImport } from './routes/kunden'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
@@ -24,6 +25,11 @@ const ZahlungskanaeleRoute = ZahlungskanaeleRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KundenRoute = KundenRouteImport.update({
+  id: '/kunden',
+  path: '/kunden',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImportRoute = ImportRouteImport.update({
@@ -50,6 +56,7 @@ const AbosAboIdRoute = AbosAboIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
+  '/kunden': typeof KundenRoute
   '/onboarding': typeof OnboardingRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
+  '/kunden': typeof KundenRoute
   '/onboarding': typeof OnboardingRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
+  '/kunden': typeof KundenRoute
   '/onboarding': typeof OnboardingRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/import'
+    | '/kunden'
     | '/onboarding'
     | '/zahlungskanaele'
     | '/abos/$aboId'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/import'
+    | '/kunden'
     | '/onboarding'
     | '/zahlungskanaele'
     | '/abos/$aboId'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/import'
+    | '/kunden'
     | '/onboarding'
     | '/zahlungskanaele'
     | '/abos/$aboId'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ImportRoute: typeof ImportRoute
+  KundenRoute: typeof KundenRoute
   OnboardingRoute: typeof OnboardingRoute
   ZahlungskanaeleRoute: typeof ZahlungskanaeleRoute
   AbosAboIdRoute: typeof AbosAboIdRoute
@@ -122,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kunden': {
+      id: '/kunden'
+      path: '/kunden'
+      fullPath: '/kunden'
+      preLoaderRoute: typeof KundenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/import': {
@@ -158,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ImportRoute: ImportRoute,
+  KundenRoute: KundenRoute,
   OnboardingRoute: OnboardingRoute,
   ZahlungskanaeleRoute: ZahlungskanaeleRoute,
   AbosAboIdRoute: AbosAboIdRoute,
