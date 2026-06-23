@@ -43,6 +43,7 @@ import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as FeaturesIndexRouteImport } from './routes/features.index'
 import { Route as EinstellungenIndexRouteImport } from './routes/einstellungen.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
+import { Route as VerzeichnisChar123toolChar125ErfahrungRouteImport } from './routes/verzeichnis.{$tool}-erfahrung'
 import { Route as VergleichSlugRouteImport } from './routes/vergleich.$slug'
 import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
 import { Route as FuerSlugRouteImport } from './routes/fuer.$slug'
@@ -226,6 +227,12 @@ const AbosIndexRoute = AbosIndexRouteImport.update({
   path: '/abos/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerzeichnisChar123toolChar125ErfahrungRoute =
+  VerzeichnisChar123toolChar125ErfahrungRouteImport.update({
+    id: '/verzeichnis/{$tool}-erfahrung',
+    path: '/verzeichnis/{$tool}-erfahrung',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const VergleichSlugRoute = VergleichSlugRouteImport.update({
   id: '/vergleich/$slug',
   path: '/vergleich/$slug',
@@ -330,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/{$tool}-erfahrung': typeof VerzeichnisChar123toolChar125ErfahrungRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
@@ -376,6 +384,7 @@ export interface FileRoutesByTo {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/{$tool}-erfahrung': typeof VerzeichnisChar123toolChar125ErfahrungRoute
   '/abos': typeof AbosIndexRoute
   '/einstellungen': typeof EinstellungenIndexRoute
   '/features': typeof FeaturesIndexRoute
@@ -425,6 +434,7 @@ export interface FileRoutesById {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/{$tool}-erfahrung': typeof VerzeichnisChar123toolChar125ErfahrungRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
@@ -475,6 +485,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/{$tool}-erfahrung'
     | '/abos/'
     | '/einstellungen/'
     | '/features/'
@@ -521,6 +532,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/{$tool}-erfahrung'
     | '/abos'
     | '/einstellungen'
     | '/features'
@@ -569,6 +581,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/{$tool}-erfahrung'
     | '/abos/'
     | '/einstellungen/'
     | '/features/'
@@ -612,6 +625,7 @@ export interface RootRouteChildren {
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
   VergleichSlugRoute: typeof VergleichSlugRoute
+  VerzeichnisChar123toolChar125ErfahrungRoute: typeof VerzeichnisChar123toolChar125ErfahrungRoute
   AbosIndexRoute: typeof AbosIndexRoute
   KundenIndexRoute: typeof KundenIndexRoute
   VerzeichnisIndexRoute: typeof VerzeichnisIndexRoute
@@ -859,6 +873,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verzeichnis/{$tool}-erfahrung': {
+      id: '/verzeichnis/{$tool}-erfahrung'
+      path: '/verzeichnis/{$tool}-erfahrung'
+      fullPath: '/verzeichnis/{$tool}-erfahrung'
+      preLoaderRoute: typeof VerzeichnisChar123toolChar125ErfahrungRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vergleich/$slug': {
       id: '/vergleich/$slug'
       path: '/vergleich/$slug'
@@ -1016,6 +1037,8 @@ const rootRouteChildren: RootRouteChildren = {
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
   VergleichSlugRoute: VergleichSlugRoute,
+  VerzeichnisChar123toolChar125ErfahrungRoute:
+    VerzeichnisChar123toolChar125ErfahrungRoute,
   AbosIndexRoute: AbosIndexRoute,
   KundenIndexRoute: KundenIndexRoute,
   VerzeichnisIndexRoute: VerzeichnisIndexRoute,
