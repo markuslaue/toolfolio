@@ -1,3 +1,4 @@
+import { useState, type ReactNode } from "react";
 import {
   ArrowRight,
   ChevronRight,
@@ -7,15 +8,33 @@ import {
   CheckCircle2,
   BellRing,
   PiggyBank,
-  Receipt,
-  Archive,
   Users,
-  Brain,
-  Wallet,
-  BarChart3,
   Globe2,
+  Plug,
+  ShieldCheck,
+  Lock,
+  Building2,
+  Briefcase,
+  UserRound,
+  ThumbsUp,
+  ThumbsDown,
+  Server,
+  KeyRound,
 } from "lucide-react";
-import { Nav, Footer, Reveal } from "./marketing-home";
+import {
+  Nav,
+  Footer,
+  Reveal,
+  ScreenshotFrame,
+  PreviewDashboard,
+  PreviewImport,
+  PreviewFristen,
+  PreviewAiCredits,
+  PreviewBenchmark,
+  PreviewSparvorschlaege,
+  PreviewKunde,
+  PreviewVerzeichnis,
+} from "./marketing-home";
 import {
   Accordion,
   AccordionContent,
