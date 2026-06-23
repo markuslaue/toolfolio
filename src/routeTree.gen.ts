@@ -17,6 +17,7 @@ import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
 import { Route as SeatsRouteImport } from './routes/seats'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
+import { Route as GesellschaftenRouteImport } from './routes/gesellschaften'
 import { Route as FristenRouteImport } from './routes/fristen'
 import { Route as FreigabenRouteImport } from './routes/freigaben'
 import { Route as BudgetRouteImport } from './routes/budget'
@@ -70,6 +71,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const ImportRoute = ImportRouteImport.update({
   id: '/import',
   path: '/import',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GesellschaftenRoute = GesellschaftenRouteImport.update({
+  id: '/gesellschaften',
+  path: '/gesellschaften',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FristenRoute = FristenRouteImport.update({
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/budget': typeof BudgetRoute
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
+  '/gesellschaften': typeof GesellschaftenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/seats': typeof SeatsRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/budget': typeof BudgetRoute
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
+  '/gesellschaften': typeof GesellschaftenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/seats': typeof SeatsRoute
@@ -203,6 +211,7 @@ export interface FileRoutesById {
   '/budget': typeof BudgetRoute
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
+  '/gesellschaften': typeof GesellschaftenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/seats': typeof SeatsRoute
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/budget'
     | '/freigaben'
     | '/fristen'
+    | '/gesellschaften'
     | '/import'
     | '/onboarding'
     | '/seats'
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/budget'
     | '/freigaben'
     | '/fristen'
+    | '/gesellschaften'
     | '/import'
     | '/onboarding'
     | '/seats'
@@ -277,6 +288,7 @@ export interface FileRouteTypes {
     | '/budget'
     | '/freigaben'
     | '/fristen'
+    | '/gesellschaften'
     | '/import'
     | '/onboarding'
     | '/seats'
@@ -302,6 +314,7 @@ export interface RootRouteChildren {
   BudgetRoute: typeof BudgetRoute
   FreigabenRoute: typeof FreigabenRoute
   FristenRoute: typeof FristenRoute
+  GesellschaftenRoute: typeof GesellschaftenRoute
   ImportRoute: typeof ImportRoute
   OnboardingRoute: typeof OnboardingRoute
   SeatsRoute: typeof SeatsRoute
@@ -372,6 +385,13 @@ declare module '@tanstack/react-router' {
       path: '/import'
       fullPath: '/import'
       preLoaderRoute: typeof ImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gesellschaften': {
+      id: '/gesellschaften'
+      path: '/gesellschaften'
+      fullPath: '/gesellschaften'
+      preLoaderRoute: typeof GesellschaftenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fristen': {
@@ -486,6 +506,7 @@ const rootRouteChildren: RootRouteChildren = {
   BudgetRoute: BudgetRoute,
   FreigabenRoute: FreigabenRoute,
   FristenRoute: FristenRoute,
+  GesellschaftenRoute: GesellschaftenRoute,
   ImportRoute: ImportRoute,
   OnboardingRoute: OnboardingRoute,
   SeatsRoute: SeatsRoute,
