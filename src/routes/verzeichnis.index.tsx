@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { VerzeichnisHubPage } from "@/components/marketing/verzeichnis-hub-page";
 
-export const Route = createFileRoute("/verzeichnis")({
+export const Route = createFileRoute("/verzeichnis/")({
   head: () => ({
     meta: [
       { title: "Verzeichnis – Software für DACH-Agenturen, Freelancer und Solopreneure | Toolfolio" },
