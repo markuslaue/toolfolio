@@ -707,6 +707,109 @@ export function SoftwareDetailPage({ data }: { data: SoftwareDetailData }) {
         </div>
       </section>
 
+      {/* Screenshots */}
+      {data.screenshots && data.screenshots.length > 0 && (
+        <section id="screenshots" className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+          <Reveal>
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+              Produkt-Einblicke
+            </h2>
+            <p className="mt-2 max-w-2xl text-foreground/70">
+              Live-Vorschauen aus dem Produkt. Klick dich durch die wichtigsten Ansichten.
+            </p>
+          </Reveal>
+
+          <div className="mt-6 flex flex-wrap gap-2">
+            {data.screenshots.map((s, i) => (
+              <button
+                key={s.title}
+                onClick={() => setActiveShot(i)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                  activeShot === i
+                    ? "bg-primary text-primary-foreground"
+                    : "border border-border bg-card text-foreground/70 hover:bg-muted"
+                }`}
+                aria-pressed={activeShot === i}
+              >
+                {s.title}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
+            <Reveal key={activeShot}>
+              <ScreenshotFrame
+                label={data.screenshots[activeShot].title}
+                caption={data.screenshots[activeShot].caption}
+              >
+                {data.screenshots[activeShot].render()}
+              </ScreenshotFrame>
+            </Reveal>
+            <Reveal delay={80}>
+              <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+                <div className="text-xs font-semibold uppercase tracking-wide text-foreground/50">
+                  {activeShot + 1} / {data.screenshots.length}
+                </div>
+                <h3 className="mt-2 font-display text-xl font-semibold">
+                  {data.screenshots[activeShot].title}
+                </h3>
+                <p className="mt-3 text-sm text-foreground/75 leading-relaxed">
+                  {data.screenshots[activeShot].description}
+                </p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <button
+                    onClick={() =>
+                      setActiveShot(
+                        (activeShot - 1 + data.screenshots!.length) % data.screenshots!.length,
+                      )
+                    }
+                    className="rounded-2xl border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted"
+                  >
+                    Zurück
+                  </button>
+                  <button
+                    onClick={() => setActiveShot((activeShot + 1) % data.screenshots!.length)}
+                    className="inline-flex items-center gap-1.5 rounded-2xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                  >
+                    Weiter <ArrowRight className="size-4" />
+                  </button>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {/* Audience */}
+      {data.audience && data.audience.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+          <Reveal>
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+              Für wen geeignet
+            </h2>
+          </Reveal>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+            {data.audience.map((a, i) => {
+              const Icon = a.icon;
+              return (
+                <Reveal key={a.title} delay={i * 60}>
+                  <div className="h-full rounded-3xl border border-border bg-card p-6 shadow-soft">
+                    <div
+                      className="flex size-11 items-center justify-center rounded-2xl"
+                      style={{ background: `${labelColor}1A`, color: labelColor }}
+                    >
+                      <Icon className="size-5" />
+                    </div>
+                    <h3 className="mt-4 font-display text-lg font-semibold">{a.title}</h3>
+                    <p className="mt-2 text-sm text-foreground/70 leading-relaxed">{a.text}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Pricing */}
       <section id="preise" className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
         <Reveal>
