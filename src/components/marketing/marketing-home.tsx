@@ -1293,12 +1293,49 @@ function FinalCTA() {
 }
 
 export function Footer() {
-  const cols = [
-    { title: "Produkt", links: ["Features", "Schwungrad", "Sicherheit", "Roadmap"] },
-    { title: "Verzeichnis", links: ["Kategorien", "Top-Tools", "Alternativen", "Deals"] },
-    { title: "Preise", links: ["Pläne", "Für Agenturen", "Für Freelancer", "FAQ"] },
-    { title: "Über uns", links: ["Mission", "Team", "Blog", "Kontakt"] },
-    { title: "Recht", links: ["Impressum", "Datenschutz", "AGB", "AVV"] },
+  const cols: { title: string; links: { label: string; href: string }[] }[] = [
+    {
+      title: "Produkt",
+      links: [
+        { label: "Funktionen", href: "/features" },
+        { label: "Preise", href: "/preise" },
+        { label: "Dashboard", href: "/dashboard" },
+      ],
+    },
+    {
+      title: "Für wen",
+      links: [
+        { label: "Agenturen", href: "/fuer/agenturen" },
+        { label: "Freelancer", href: "/fuer/freelancer" },
+        { label: "Solopreneure", href: "/fuer/solopreneure" },
+      ],
+    },
+    {
+      title: "Vergleiche",
+      links: [
+        { label: "vs. Excel", href: "/vergleich/excel" },
+        { label: "vs. Sastrify / Deel IT", href: "/vergleich/sastrify" },
+        { label: "vs. Cledara", href: "/vergleich/cledara" },
+        { label: "vs. Spendesk", href: "/vergleich/spendesk" },
+        { label: "vs. Pleo", href: "/vergleich/pleo" },
+      ],
+    },
+    {
+      title: "Über uns",
+      links: [
+        { label: "Mission", href: "#" },
+        { label: "Blog", href: "#" },
+        { label: "Kontakt", href: "#" },
+      ],
+    },
+    {
+      title: "Recht",
+      links: [
+        { label: "Impressum", href: "#" },
+        { label: "Datenschutz", href: "#" },
+        { label: "AGB", href: "#" },
+      ],
+    },
   ];
   return (
     <footer id="footer" className="border-t border-border bg-card">
