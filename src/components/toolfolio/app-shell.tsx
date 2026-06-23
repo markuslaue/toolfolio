@@ -82,18 +82,15 @@ function SidebarContent() {
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
-            <a
+            <Link
               key={item.label}
-              href="#"
-              className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                item.active
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
-              }`}
+              to={item.to}
+              activeOptions={{ exact: item.to === "/" }}
+              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground data-[status=active]:bg-accent data-[status=active]:text-accent-foreground"
             >
               <Icon className="size-4 shrink-0" />
               <span className="truncate">{item.label}</span>
-            </a>
+            </Link>
           );
         })}
       </nav>
