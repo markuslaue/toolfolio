@@ -42,20 +42,20 @@ type MonatDaten = {
 
 const monate: MonatDaten[] = [
   // vergangene Monate (Ist)
-  m("Jul 25", true, 2380, 380, [], { Design: 720, AI: 520, Web: 540, Sonst: 600 }, { Nordwerk: 800, Holzbau Kessler: 760, "ohne Kunde": 820 }),
-  m("Aug 25", true, 2415, 420, [{ label: "Framer-Trial wird kostenpflichtig", betrag: 29 }], { Design: 730, AI: 560, Web: 560, Sonst: 605 }, { Nordwerk: 810, Holzbau Kessler: 770, "ohne Kunde": 835 }),
-  m("Sep 25", true, 2480, 440, [{ label: "Notion Preiserhöhung +18%", betrag: 18 }, { label: "Screaming Frog Jahresvertrag", betrag: 239 }], { Design: 740, AI: 580, Web: 590, Sonst: 610 }, { Nordwerk: 815, Holzbau Kessler: 800, "ohne Kunde": 865 }),
+  m("Jul 25", true, 2380, 380, [], { Design: 720, AI: 520, Web: 540, Sonst: 600 }, { Nordwerk: 800, Kessler: 760, "ohne Kunde": 820 }),
+  m("Aug 25", true, 2415, 420, [{ label: "Framer-Trial wird kostenpflichtig", betrag: 29 }], { Design: 730, AI: 560, Web: 560, Sonst: 605 }, { Nordwerk: 810, Kessler: 770, "ohne Kunde": 835 }),
+  m("Sep 25", true, 2480, 440, [{ label: "Notion Preiserhöhung +18%", betrag: 18 }, { label: "Screaming Frog Jahresvertrag", betrag: 239 }], { Design: 740, AI: 580, Web: 590, Sonst: 610 }, { Nordwerk: 815, Kessler: 800, "ohne Kunde": 865 }),
   // aktueller Monat
-  m("Okt 25", true, 2480, 460, [], { Design: 745, AI: 600, Web: 580, Sonst: 615 }, { Nordwerk: 820, Holzbau Kessler: 795, "ohne Kunde": 865 }),
+  m("Okt 25", true, 2480, 460, [], { Design: 745, AI: 600, Web: 580, Sonst: 615 }, { Nordwerk: 820, Kessler: 795, "ohne Kunde": 865 }),
   // Forecast
-  m("Nov 25", false, 2520, 480, [{ label: "Adobe Creative Cloud Jahresverlängerung", betrag: 720 }], { Design: 1490, AI: 620, Web: 580, Sonst: 630 }, { Nordwerk: 850, Holzbau Kessler: 1480, "ohne Kunde": 890 }),
-  m("Dez 25", false, 2520, 490, [{ label: "Canva Pro Jahresverlängerung", betrag: 119 }], { Design: 870, AI: 630, Web: 590, Sonst: 640 }, { Nordwerk: 870, Holzbau Kessler: 810, "ohne Kunde": 910 }),
-  m("Jan 26", false, 2540, 500, [], { Design: 760, AI: 640, Web: 600, Sonst: 640 }, { Nordwerk: 880, Holzbau Kessler: 820, "ohne Kunde": 920 }),
-  m("Feb 26", false, 2540, 510, [], { Design: 760, AI: 650, Web: 600, Sonst: 650 }, { Nordwerk: 880, Holzbau Kessler: 825, "ohne Kunde": 925 }),
-  m("Mär 26", false, 2560, 520, [], { Design: 770, AI: 660, Web: 605, Sonst: 655 }, { Nordwerk: 890, Holzbau Kessler: 830, "ohne Kunde": 940 }),
-  m("Apr 26", false, 2560, 540, [], { Design: 770, AI: 680, Web: 610, Sonst: 660 }, { Nordwerk: 890, Holzbau Kessler: 840, "ohne Kunde": 950 }),
-  m("Mai 26", false, 2580, 555, [], { Design: 780, AI: 695, Web: 615, Sonst: 665 }, { Nordwerk: 900, Holzbau Kessler: 845, "ohne Kunde": 960 }),
-  m("Jun 26", false, 2580, 570, [], { Design: 780, AI: 710, Web: 625, Sonst: 670 }, { Nordwerk: 905, Holzbau Kessler: 850, "ohne Kunde": 970 }),
+  m("Nov 25", false, 2520, 480, [{ label: "Adobe Creative Cloud Jahresverlängerung", betrag: 720 }], { Design: 1490, AI: 620, Web: 580, Sonst: 630 }, { Nordwerk: 850, Kessler: 1480, "ohne Kunde": 890 }),
+  m("Dez 25", false, 2520, 490, [{ label: "Canva Pro Jahresverlängerung", betrag: 119 }], { Design: 870, AI: 630, Web: 590, Sonst: 640 }, { Nordwerk: 870, Kessler: 810, "ohne Kunde": 910 }),
+  m("Jan 26", false, 2540, 500, [], { Design: 760, AI: 640, Web: 600, Sonst: 640 }, { Nordwerk: 880, Kessler: 820, "ohne Kunde": 920 }),
+  m("Feb 26", false, 2540, 510, [], { Design: 760, AI: 650, Web: 600, Sonst: 650 }, { Nordwerk: 880, Kessler: 825, "ohne Kunde": 925 }),
+  m("Mär 26", false, 2560, 520, [], { Design: 770, AI: 660, Web: 605, Sonst: 655 }, { Nordwerk: 890, Kessler: 830, "ohne Kunde": 940 }),
+  m("Apr 26", false, 2560, 540, [], { Design: 770, AI: 680, Web: 610, Sonst: 660 }, { Nordwerk: 890, Kessler: 840, "ohne Kunde": 950 }),
+  m("Mai 26", false, 2580, 555, [], { Design: 780, AI: 695, Web: 615, Sonst: 665 }, { Nordwerk: 900, Kessler: 845, "ohne Kunde": 960 }),
+  m("Jun 26", false, 2580, 570, [], { Design: 780, AI: 710, Web: 625, Sonst: 670 }, { Nordwerk: 905, Kessler: 850, "ohne Kunde": 970 }),
 ];
 
 function m(
@@ -84,7 +84,7 @@ const kategorieFarben: Record<string, string> = {
 };
 const kundenFarben: Record<string, string> = {
   Nordwerk: "#6C5CE7",
-  Holzbau Kessler: "#FF7A66",
+  Kessler: "#FF7A66",
   "ohne Kunde": "#9CA3AF",
 };
 

@@ -61,7 +61,7 @@ const kunden: Kunde[] = [
   },
   {
     id: "fulex",
-    name: "Holzbau Kessler",
+    name: "Kessler",
     aufschlagProzent: 20,
     tools: [
       { name: "Webflow", kategorie: "Web", kosten: 290, weiterverrechnet: true },
@@ -112,7 +112,7 @@ const initialVerlauf: Verlauf[] = [
     id: "h1",
     typ: "weiterverrechnung",
     titel: "Weiterverrechnung Software-Tools",
-    kunde: "Holzbau Kessler",
+    kunde: "Kessler",
     zeitraum: "Mai 2026",
     datum: "02.06.2026",
     betrag: 980.4,
@@ -744,7 +744,7 @@ function VerteilungsVorschau({ zeitraum }: { zeitraum: string }) {
   const daten: Record<typeof dim, { name: string; betrag: number; farbe: string }[]> = {
     kunde: [
       { name: "Nordwerk", betrag: 800, farbe: "#6C5CE7" },
-      { name: "Holzbau Kessler", betrag: 818, farbe: "#FF7A66" },
+      { name: "Kessler", betrag: 818, farbe: "#FF7A66" },
       { name: "Nordpunkt", betrag: 56, farbe: "#12B76A" },
       { name: "Küstkraft", betrag: 45, farbe: "#F59E0B" },
     ],

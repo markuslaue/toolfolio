@@ -92,7 +92,7 @@ const initialPosten: Posten[] = [
     netto: 240,
     ustSatz: 19,
     kanal: "SEPA-Lastschrift",
-    kunde: "Holzbau Kessler",
+    kunde: "Kessler",
   },
   {
     id: "p4",
@@ -152,7 +152,7 @@ const initialPosten: Posten[] = [
     ustSatz: 19,
     waehrung: { code: "USD", betrag: 96 },
     kanal: "Firmenkreditkarte",
-    kunde: "Holzbau Kessler",
+    kunde: "Kessler",
   },
 ];
 
