@@ -591,6 +591,14 @@ const REGISTRY: Record<string, FeatureDetail> = {
   [sparDetail.slug]: sparDetail,
   [erfassenDetail.slug]: erfassenDetail,
   [weiterverrechnungDetail.slug]: weiterverrechnungDetail,
+  // Aliase, damit Links aus Zielgruppen- und Marketing-Seiten nicht ins Leere zeigen.
+  "kuendigungsfristen-waechter": fristenDetail,
+  "trial-erkennung": fristenDetail,
+  "ueberblick": dashboardDetail,
+  "archiv": dashboardDetail,
+  "agentur-layer": kundenDetail,
+  "berichte": weiterverrechnungDetail,
+  "steuer-export": weiterverrechnungDetail,
 };
 
 export function getFeatureDetail(slug: string): FeatureDetail | undefined {
@@ -598,3 +606,4 @@ export function getFeatureDetail(slug: string): FeatureDetail | undefined {
 }
 
 export const featureSlugs = Object.keys(REGISTRY);
+

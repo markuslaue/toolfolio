@@ -39,6 +39,16 @@ export const Route = createFileRoute("/features/$slug")({
     };
   },
   component: FeatureDetailRoute,
+  notFoundComponent: () => (
+    <div className="grid min-h-screen place-items-center bg-[#FBF7F1] text-[#1F1D2B]">
+      <div className="text-center">
+        <div className="font-display text-3xl font-bold">Funktion nicht gefunden</div>
+        <a href="/features" className="mt-4 inline-block text-[#6C5CE7] underline">
+          Zurück zur Funktionsübersicht
+        </a>
+      </div>
+    </div>
+  ),
 });
 
 function FeatureDetailRoute() {
