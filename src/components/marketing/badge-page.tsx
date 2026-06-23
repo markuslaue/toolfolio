@@ -317,10 +317,6 @@ export function BadgePage() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-5 rounded-2xl border border-warning/30 bg-warning/10 p-4 text-xs text-foreground/80">
-                Diese Ehrlichkeit ist Absicht und stärkt das Vertrauen. Die
-                genaue Badge-Aussage ist anwaltlich zu prüfen.
-              </div>
             </div>
           </Reveal>
         </div>
