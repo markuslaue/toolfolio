@@ -899,6 +899,125 @@ export function SoftwareDetailPage({ data }: { data: SoftwareDetailData }) {
         </div>
       </section>
 
+      {/* Pros & Cons */}
+      {(data.pros?.length || data.cons?.length) && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+          <Reveal>
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+              Stärken und Schwächen
+            </h2>
+            <p className="mt-2 max-w-2xl text-foreground/70">
+              Ehrliche Einschätzung, gerade weil dies eine Selbstlistung ist. Was {data.name} gut
+              macht und wo andere Tools die Nase vorn haben.
+            </p>
+          </Reveal>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+            {data.pros && data.pros.length > 0 && (
+              <Reveal>
+                <div className="h-full rounded-3xl border border-[#12B76A]/30 bg-[#12B76A]/5 p-6 sm:p-7">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-[#12B76A]/15 px-3 py-1 text-xs font-semibold text-[#0e8a51]">
+                    <ThumbsUp className="size-3.5" />
+                    Stärken
+                  </div>
+                  <ul className="mt-4 space-y-3">
+                    {data.pros.map((p) => (
+                      <li key={p} className="flex items-start gap-3 text-sm">
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-[#12B76A]" />
+                        <span className="text-foreground/85 leading-relaxed">{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            )}
+            {data.cons && data.cons.length > 0 && (
+              <Reveal delay={80}>
+                <div className="h-full rounded-3xl border border-[#F5A623]/40 bg-[#F5A623]/5 p-6 sm:p-7">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-[#F5A623]/20 px-3 py-1 text-xs font-semibold text-[#8a5b0e]">
+                    <ThumbsDown className="size-3.5" />
+                    Grenzen
+                  </div>
+                  <ul className="mt-4 space-y-3">
+                    {data.cons.map((c) => (
+                      <li key={c} className="flex items-start gap-3 text-sm">
+                        <Info className="mt-0.5 size-4 shrink-0 text-[#F5A623]" />
+                        <span className="text-foreground/85 leading-relaxed">{c}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Integrations */}
+      {data.integrations && data.integrations.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+          <Reveal>
+            <div className="rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-soft">
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex size-11 items-center justify-center rounded-2xl"
+                  style={{ background: `${labelColor}1A`, color: labelColor }}
+                >
+                  <Plug className="size-5" />
+                </div>
+                <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+                  Integrationen
+                </h2>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {data.integrations.map((i) => (
+                  <span
+                    key={i}
+                    className="rounded-full border border-border bg-background px-3 py-1.5 text-sm font-medium text-foreground/80"
+                  >
+                    {i}
+                  </span>
+                ))}
+              </div>
+              {data.integrationsNote && (
+                <p className="mt-4 text-sm text-foreground/70 leading-relaxed">
+                  {data.integrationsNote}
+                </p>
+              )}
+            </div>
+          </Reveal>
+        </section>
+      )}
+
+      {/* Security & Compliance */}
+      {data.security && data.security.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+          <Reveal>
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+              Sicherheit und Compliance
+            </h2>
+          </Reveal>
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {data.security.map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <Reveal key={s.title} delay={i * 50}>
+                  <div className="h-full rounded-3xl border border-border bg-card p-5 shadow-soft">
+                    <div
+                      className="flex size-10 items-center justify-center rounded-xl"
+                      style={{ background: "#12B76A1A", color: "#0e8a51" }}
+                    >
+                      <Icon className="size-5" />
+                    </div>
+                    <div className="mt-3 font-display text-base font-semibold">{s.title}</div>
+                    <p className="mt-1.5 text-sm text-foreground/70 leading-relaxed">{s.text}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Reviews */}
       <section id="bewertungen" className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
         <Reveal>
