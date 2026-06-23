@@ -156,7 +156,9 @@ function TopBar({ onMenu, onAdd }: { onMenu: () => void; onAdd: () => void }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem>Kontoauszug importieren</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/import">Kontoauszug importieren</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>Zahlungskanal verbinden</DropdownMenuItem>
               <DropdownMenuItem>E-Mail-Postfach verbinden</DropdownMenuItem>
             </DropdownMenuContent>
