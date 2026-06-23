@@ -80,6 +80,7 @@ import {
   type Hinweis,
   type ErweiterterStatus,
 } from "@/lib/abos-data";
+import { AboFormPanel, type AboFormInitial } from "./abo-form-panel";
 
 type SortKey =
   | "tool"
@@ -111,6 +112,31 @@ export function AbosListe() {
   const [view, setView] = useState<"tabelle" | "karten">("tabelle");
   const [density, setDensity] = useState<"komfort" | "kompakt">("komfort");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [formMode, setFormMode] = useState<"anlegen" | "bearbeiten" | null>(null);
+  const [formInitial, setFormInitial] = useState<AboFormInitial | undefined>(undefined);
+  const openAdd = () => { setFormInitial(undefined); setFormMode("anlegen"); };
+  const openEdit = (a: AboListItem) => {
+    setFormInitial({
+      tool: a.tool,
+      initial: a.initial,
+      farbe: a.farbe,
+      kategorie: a.kategorie,
+      kosten: a.kosten,
+      waehrung: a.waehrung ?? "EUR",
+      intervall: a.intervall,
+      naechsteAbbuchung: a.naechsteAbbuchung,
+      zahlungskanal: a.zahlungskanal,
+      kunde: a.kunde,
+      status: a.status === "aktiv" || a.status === "Trial" || a.status === "pausiert" ? a.status : "aktiv",
+      mitVerzeichnis: true,
+      autoVerlaengerung: true,
+      fristEinheit: "Tage",
+      fristWert: 14,
+      erinnerung: true,
+      tags: [],
+    });
+    setFormMode("bearbeiten");
+  };
 
   // Filter state
   const [fKategorie, setFKategorie] = useState<Set<string>>(new Set());
@@ -268,7 +294,7 @@ export function AbosListe() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button className="gap-1.5 rounded-xl">
+            <Button onClick={openAdd} className="gap-1.5 rounded-xl">
               <Plus className="size-4" /> Abo hinzufügen
             </Button>
             <DropdownMenu>
@@ -841,7 +867,7 @@ function AboTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem>Details öffnen</DropdownMenuItem>
-                      <DropdownMenuItem>Bearbeiten</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => openEdit(a)}>Bearbeiten</DropdownMenuItem>
                       <DropdownMenuItem>Kunde zuordnen</DropdownMenuItem>
                       <DropdownMenuItem>Pausieren</DropdownMenuItem>
                       <DropdownMenuItem>Duplizieren</DropdownMenuItem>
