@@ -14,6 +14,7 @@ import {
   Menu,
   PiggyBank,
   Bell,
+  AlarmClock,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const navItems = [
   { label: "Abos", icon: Layers, to: "/abos" },
   { label: "Kunden", icon: Users, to: "/kunden" },
   { label: "Zahlungskanäle", icon: CreditCard, to: "/zahlungskanaele" },
+  { label: "Fristen", icon: AlarmClock, to: "/fristen" },
   { label: "Sparvorschläge", icon: PiggyBank, to: "/sparvorschlaege" },
   { label: "Benachrichtigungen", icon: Bell, to: "/benachrichtigungen" },
   { label: "Verzeichnis", icon: BookOpen, to: "/verzeichnis" },
