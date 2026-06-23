@@ -13,6 +13,7 @@ import { Route as ZahlungskanaeleRouteImport } from './routes/zahlungskanaele'
 import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
+import { Route as FristenRouteImport } from './routes/fristen'
 import { Route as BenachrichtigungenRouteImport } from './routes/benachrichtigungen'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as KundenIndexRouteImport } from './routes/kunden.index'
@@ -38,6 +39,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const ImportRoute = ImportRouteImport.update({
   id: '/import',
   path: '/import',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FristenRoute = FristenRouteImport.update({
+  id: '/fristen',
+  path: '/fristen',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BenachrichtigungenRoute = BenachrichtigungenRouteImport.update({
@@ -74,6 +80,7 @@ const AbosAboIdRoute = AbosAboIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
+  '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
+  '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
+  '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/benachrichtigungen'
+    | '/fristen'
     | '/import'
     | '/onboarding'
     | '/sparvorschlaege'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/benachrichtigungen'
+    | '/fristen'
     | '/import'
     | '/onboarding'
     | '/sparvorschlaege'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/benachrichtigungen'
+    | '/fristen'
     | '/import'
     | '/onboarding'
     | '/sparvorschlaege'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BenachrichtigungenRoute: typeof BenachrichtigungenRoute
+  FristenRoute: typeof FristenRoute
   ImportRoute: typeof ImportRoute
   OnboardingRoute: typeof OnboardingRoute
   SparvorschlaegeRoute: typeof SparvorschlaegeRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/import'
       fullPath: '/import'
       preLoaderRoute: typeof ImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fristen': {
+      id: '/fristen'
+      path: '/fristen'
+      fullPath: '/fristen'
+      preLoaderRoute: typeof FristenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/benachrichtigungen': {
@@ -238,6 +258,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BenachrichtigungenRoute: BenachrichtigungenRoute,
+  FristenRoute: FristenRoute,
   ImportRoute: ImportRoute,
   OnboardingRoute: OnboardingRoute,
   SparvorschlaegeRoute: SparvorschlaegeRoute,
