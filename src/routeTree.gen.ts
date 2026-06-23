@@ -13,7 +13,6 @@ import { Route as ZahlungskanaeleRouteImport } from './routes/zahlungskanaele'
 import { Route as VerzeichnisRouteImport } from './routes/verzeichnis'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as SteuerExportRouteImport } from './routes/steuer-export'
-import { Route as StartRouteImport } from './routes/start'
 import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
 import { Route as SeatsRouteImport } from './routes/seats'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -22,6 +21,7 @@ import { Route as GesellschaftenRouteImport } from './routes/gesellschaften'
 import { Route as FristenRouteImport } from './routes/fristen'
 import { Route as FreigabenRouteImport } from './routes/freigaben'
 import { Route as EinstellungenRouteImport } from './routes/einstellungen'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BudgetRouteImport } from './routes/budget'
 import { Route as BerichteRouteImport } from './routes/berichte'
 import { Route as BenchmarkRouteImport } from './routes/benchmark'
@@ -59,11 +59,6 @@ const TeamRoute = TeamRouteImport.update({
 const SteuerExportRoute = SteuerExportRouteImport.update({
   id: '/steuer-export',
   path: '/steuer-export',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StartRoute = StartRouteImport.update({
-  id: '/start',
-  path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SparvorschlaegeRoute = SparvorschlaegeRouteImport.update({
@@ -104,6 +99,11 @@ const FreigabenRoute = FreigabenRouteImport.update({
 const EinstellungenRoute = EinstellungenRouteImport.update({
   id: '/einstellungen',
   path: '/einstellungen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BudgetRoute = BudgetRouteImport.update({
@@ -208,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/benchmark': typeof BenchmarkRoute
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
+  '/dashboard': typeof DashboardRoute
   '/einstellungen': typeof EinstellungenRouteWithChildren
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
@@ -216,7 +217,6 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
-  '/start': typeof StartRoute
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
   '/verzeichnis': typeof VerzeichnisRoute
@@ -241,6 +241,7 @@ export interface FileRoutesByTo {
   '/benchmark': typeof BenchmarkRoute
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
+  '/dashboard': typeof DashboardRoute
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
   '/gesellschaften': typeof GesellschaftenRoute
@@ -248,7 +249,6 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
-  '/start': typeof StartRoute
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
   '/verzeichnis': typeof VerzeichnisRoute
@@ -274,6 +274,7 @@ export interface FileRoutesById {
   '/benchmark': typeof BenchmarkRoute
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
+  '/dashboard': typeof DashboardRoute
   '/einstellungen': typeof EinstellungenRouteWithChildren
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
@@ -282,7 +283,6 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
-  '/start': typeof StartRoute
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
   '/verzeichnis': typeof VerzeichnisRoute
@@ -309,6 +309,7 @@ export interface FileRouteTypes {
     | '/benchmark'
     | '/berichte'
     | '/budget'
+    | '/dashboard'
     | '/einstellungen'
     | '/freigaben'
     | '/fristen'
@@ -317,7 +318,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/seats'
     | '/sparvorschlaege'
-    | '/start'
     | '/steuer-export'
     | '/team'
     | '/verzeichnis'
@@ -342,6 +342,7 @@ export interface FileRouteTypes {
     | '/benchmark'
     | '/berichte'
     | '/budget'
+    | '/dashboard'
     | '/freigaben'
     | '/fristen'
     | '/gesellschaften'
@@ -349,7 +350,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/seats'
     | '/sparvorschlaege'
-    | '/start'
     | '/steuer-export'
     | '/team'
     | '/verzeichnis'
@@ -374,6 +374,7 @@ export interface FileRouteTypes {
     | '/benchmark'
     | '/berichte'
     | '/budget'
+    | '/dashboard'
     | '/einstellungen'
     | '/freigaben'
     | '/fristen'
@@ -382,7 +383,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/seats'
     | '/sparvorschlaege'
-    | '/start'
     | '/steuer-export'
     | '/team'
     | '/verzeichnis'
@@ -408,6 +408,7 @@ export interface RootRouteChildren {
   BenchmarkRoute: typeof BenchmarkRoute
   BerichteRoute: typeof BerichteRoute
   BudgetRoute: typeof BudgetRoute
+  DashboardRoute: typeof DashboardRoute
   EinstellungenRoute: typeof EinstellungenRouteWithChildren
   FreigabenRoute: typeof FreigabenRoute
   FristenRoute: typeof FristenRoute
@@ -416,7 +417,6 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   SeatsRoute: typeof SeatsRoute
   SparvorschlaegeRoute: typeof SparvorschlaegeRoute
-  StartRoute: typeof StartRoute
   SteuerExportRoute: typeof SteuerExportRoute
   TeamRoute: typeof TeamRoute
   VerzeichnisRoute: typeof VerzeichnisRoute
@@ -455,13 +455,6 @@ declare module '@tanstack/react-router' {
       path: '/steuer-export'
       fullPath: '/steuer-export'
       preLoaderRoute: typeof SteuerExportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/start': {
-      id: '/start'
-      path: '/start'
-      fullPath: '/start'
-      preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sparvorschlaege': {
@@ -518,6 +511,13 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen'
       fullPath: '/einstellungen'
       preLoaderRoute: typeof EinstellungenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/budget': {
@@ -680,6 +680,7 @@ const rootRouteChildren: RootRouteChildren = {
   BenchmarkRoute: BenchmarkRoute,
   BerichteRoute: BerichteRoute,
   BudgetRoute: BudgetRoute,
+  DashboardRoute: DashboardRoute,
   EinstellungenRoute: EinstellungenRouteWithChildren,
   FreigabenRoute: FreigabenRoute,
   FristenRoute: FristenRoute,
@@ -688,7 +689,6 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   SeatsRoute: SeatsRoute,
   SparvorschlaegeRoute: SparvorschlaegeRoute,
-  StartRoute: StartRoute,
   SteuerExportRoute: SteuerExportRoute,
   TeamRoute: TeamRoute,
   VerzeichnisRoute: VerzeichnisRoute,

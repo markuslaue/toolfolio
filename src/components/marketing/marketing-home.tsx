@@ -127,7 +127,7 @@ function Nav() {
 
           <div className="hidden md:flex items-center gap-2">
             <a
-              href="/"
+              href="/dashboard"
               className="rounded-full px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
             >
               Anmelden
@@ -163,7 +163,7 @@ function Nav() {
             ))}
             <div className="flex gap-2 pt-2">
               <a
-                href="/"
+                href="/dashboard"
                 className="flex-1 rounded-full border border-border px-4 py-2.5 text-center text-sm font-medium"
               >
                 Anmelden

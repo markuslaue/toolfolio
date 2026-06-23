@@ -37,7 +37,7 @@ import {
 import { AboFormPanel } from "./abo-form-panel";
 
 const navItems = [
-  { label: "Übersicht", icon: LayoutDashboard, to: "/" },
+  { label: "Übersicht", icon: LayoutDashboard, to: "/dashboard" },
   { label: "Abos", icon: Layers, to: "/abos" },
   { label: "Kunden", icon: Users, to: "/kunden" },
   { label: "Zahlungskanäle", icon: CreditCard, to: "/zahlungskanaele" },
@@ -100,7 +100,7 @@ function SidebarContent() {
   return (
     <>
       <div className="px-5 py-5 border-b border-sidebar-border">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/dashboard" className="flex items-center gap-2">
           <div className="size-8 rounded-lg bg-primary text-primary-foreground grid place-items-center font-display font-bold">
             T
           </div>
@@ -113,8 +113,8 @@ function SidebarContent() {
           return (
             <Link
               key={item.label}
-              to={item.to as "/"}
-              activeOptions={{ exact: item.to === "/" }}
+              to={item.to as "/dashboard"}
+              activeOptions={{ exact: item.to === "/dashboard" }}
               className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground data-[status=active]:bg-accent data-[status=active]:text-accent-foreground"
             >
               <Icon className="size-4 shrink-0" />

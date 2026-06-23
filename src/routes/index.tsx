@@ -1,31 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AppShell } from "@/components/toolfolio/app-shell";
-import { Dashboard } from "@/components/toolfolio/dashboard";
+import { MarketingHome } from "@/components/marketing/marketing-home";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Toolfolio – Dein Software-Cockpit" },
+      { title: "Toolfolio – Alle deine Software-Abos im Griff" },
       {
         name: "description",
         content:
-          "Behalte alle Software-Abos und wiederkehrenden Kosten deiner Agentur an einem Ort im Blick.",
+          "Toolfolio ist Tracker und Verzeichnis in einem. Behalte alle Software-Abos im Blick, vermeide stille Verlängerungen und finde günstigere Alternativen.",
       },
-      { property: "og:title", content: "Toolfolio – Dein Software-Cockpit" },
+      { property: "og:title", content: "Toolfolio – Alle deine Software-Abos im Griff" },
       {
         property: "og:description",
         content:
-          "Behalte alle Software-Abos und wiederkehrenden Kosten deiner Agentur an einem Ort im Blick.",
+          "Tracker und Verzeichnis in einem. Für Agenturen, Freelancer und Solopreneure im DACH-Raum.",
       },
     ],
   }),
-  component: Index,
+  component: MarketingHome,
 });
-
-function Index() {
-  return (
-    <AppShell>
-      <Dashboard />
-    </AppShell>
-  );
-}
