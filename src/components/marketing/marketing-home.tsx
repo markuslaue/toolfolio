@@ -90,9 +90,10 @@ export function Nav() {
 
   const links = [
     { label: "Produkt", href: "/features" },
-    { label: "Verzeichnis", href: "#verzeichnis" },
+    { label: "Für Agenturen", href: "/fuer/agenturen" },
+    { label: "Für Freelancer", href: "/fuer/freelancer" },
+    { label: "Für Solopreneure", href: "/fuer/solopreneure" },
     { label: "Preise", href: "/preise" },
-    { label: "Über uns", href: "#footer" },
   ];
 
   return (
