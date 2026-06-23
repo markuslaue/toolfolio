@@ -63,6 +63,7 @@ import {
 import { cn } from "@/lib/utils";
 import { fmtEUR, fmtDate } from "@/lib/toolfolio-data";
 import { alleAbos, kategorieFarben, statusFarben } from "@/lib/abos-data";
+import { AboFormPanel } from "./abo-form-panel";
 
 type Variant = "fix" | "verbrauch";
 
@@ -612,29 +613,37 @@ export function AboDetail({ aboId }: { aboId?: string }) {
           </div>
         </div>
 
-        {/* Bearbeiten-Modal */}
-        <Dialog open={editOpen} onOpenChange={setEditOpen}>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="font-display">Abo bearbeiten</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3">
-              <Field label="Toolname"><Input defaultValue={abo.tool} /></Field>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Kosten"><Input defaultValue={String(abo.kosten)} /></Field>
-                <Field label="Intervall"><Input defaultValue={abo.intervall} /></Field>
-              </div>
-              <Field label="Zahlungskanal"><Input defaultValue={abo.zahlungskanal} /></Field>
-              <Field label="Kunde"><Input defaultValue={abo.kunde} /></Field>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setEditOpen(false)}>Abbrechen</Button>
-              <Button onClick={() => setEditOpen(false)} className="gap-1.5">
-                <Check className="size-4" /> Speichern
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {/* Bearbeiten-Panel */}
+        <AboFormPanel
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          mode="bearbeiten"
+          initial={{
+            tool: abo.tool,
+            anbieter: abo.anbieter,
+            initial: abo.initial,
+            farbe: abo.farbe,
+            kategorie: abo.kategorie,
+            kosten: abo.kosten,
+            waehrung: abo.waehrung,
+            intervall: abo.intervall,
+            naechsteAbbuchung: abo.naechsteAbbuchung,
+            zahlungskanal: abo.zahlungskanal,
+            kunde: abo.kunde,
+            status: abo.status,
+            weiterverrechnen: abo.weiterverrechnet,
+            aufschlagProzent: abo.aufschlagProzent,
+            tags: abo.tags,
+            autoVerlaengerung: abo.autoVerlaengerung,
+            fristEinheit: "Tage",
+            fristWert: abo.kuendigungsfristTage,
+            letzterKuendigungstermin: abo.kuendbarBis,
+            erinnerung: true,
+            kontoEmail: abo.kontoEmail,
+            loginVerweis: `liegt in ${abo.loginIn}`,
+            mitVerzeichnis: true,
+          }}
+        />
 
         {/* Löschen-Confirm */}
         <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
