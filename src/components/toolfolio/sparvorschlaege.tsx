@@ -84,7 +84,7 @@ const TYP_META: Record<Typ, { label: string; icon: typeof Calendar; tone: string
   alternative: { label: "Sparvorschlag, Alternative", icon: ArrowLeftRight, tone: "text-violet-700", bg: "bg-violet-100" },
   guthaben: { label: "Sparvorschlag, Guthaben", icon: Wallet, tone: "text-amber-700", bg: "bg-amber-100" },
   gutschein: { label: "Sparvorschlag, Gutschein", icon: Ticket, tone: "text-emerald-700", bg: "bg-emerald-100" },
-  retention: { label: "Sparvorschlag, Kündigungs-Rabatt", icon: ShieldPercent, tone: "text-violet-700", bg: "bg-gradient-to-r from-amber-100 to-violet-100" },
+  retention: { label: "Sparvorschlag, Kündigungs-Rabatt", icon: ShieldCheck, tone: "text-violet-700", bg: "bg-gradient-to-r from-amber-100 to-violet-100" },
 };
 
 const INITIAL: Vorschlag[] = [
@@ -912,7 +912,7 @@ function RetentionDialog({ v, onUmsetzen }: { v: Vorschlag; onUmsetzen: () => vo
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" className="rounded-full bg-violet-600 hover:bg-violet-700">
-          <ShieldPercent className="size-4 mr-1" /> Rabatt-Strategie ansehen
+          <ShieldCheck className="size-4 mr-1" /> Rabatt-Strategie ansehen
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
