@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Layers,
@@ -23,13 +23,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const navItems = [
-  { label: "Übersicht", icon: LayoutDashboard, active: true },
-  { label: "Abos", icon: Layers },
-  { label: "Kunden", icon: Users },
-  { label: "Zahlungskanäle", icon: CreditCard },
-  { label: "Verzeichnis", icon: BookOpen },
-  { label: "Berichte", icon: BarChart3 },
-  { label: "Einstellungen", icon: Settings },
+  { label: "Übersicht", icon: LayoutDashboard, to: "/" },
+  { label: "Abos", icon: Layers, to: "/abos" },
+  { label: "Kunden", icon: Users, to: "/kunden" },
+  { label: "Zahlungskanäle", icon: CreditCard, to: "/zahlungskanaele" },
+  { label: "Verzeichnis", icon: BookOpen, to: "/verzeichnis" },
+  { label: "Berichte", icon: BarChart3, to: "/berichte" },
+  { label: "Einstellungen", icon: Settings, to: "/einstellungen" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
