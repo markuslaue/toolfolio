@@ -20,6 +20,7 @@ import { Route as BerichteRouteImport } from './routes/berichte'
 import { Route as BenchmarkRouteImport } from './routes/benchmark'
 import { Route as BenachrichtigungenRouteImport } from './routes/benachrichtigungen'
 import { Route as BelegPostfachRouteImport } from './routes/beleg-postfach'
+import { Route as ArchivRouteImport } from './routes/archiv'
 import { Route as AiCreditsRouteImport } from './routes/ai-credits'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as KundenIndexRouteImport } from './routes/kunden.index'
@@ -82,6 +83,11 @@ const BelegPostfachRoute = BelegPostfachRouteImport.update({
   path: '/beleg-postfach',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArchivRoute = ArchivRouteImport.update({
+  id: '/archiv',
+  path: '/archiv',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiCreditsRoute = AiCreditsRouteImport.update({
   id: '/ai-credits',
   path: '/ai-credits',
@@ -116,6 +122,7 @@ const AbosAboIdRoute = AbosAboIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-credits': typeof AiCreditsRoute
+  '/archiv': typeof ArchivRoute
   '/beleg-postfach': typeof BelegPostfachRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/benchmark': typeof BenchmarkRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-credits': typeof AiCreditsRoute
+  '/archiv': typeof ArchivRoute
   '/beleg-postfach': typeof BelegPostfachRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/benchmark': typeof BenchmarkRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai-credits': typeof AiCreditsRoute
+  '/archiv': typeof ArchivRoute
   '/beleg-postfach': typeof BelegPostfachRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/benchmark': typeof BenchmarkRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ai-credits'
+    | '/archiv'
     | '/beleg-postfach'
     | '/benachrichtigungen'
     | '/benchmark'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ai-credits'
+    | '/archiv'
     | '/beleg-postfach'
     | '/benachrichtigungen'
     | '/benchmark'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/ai-credits'
+    | '/archiv'
     | '/beleg-postfach'
     | '/benachrichtigungen'
     | '/benchmark'
@@ -234,6 +246,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiCreditsRoute: typeof AiCreditsRoute
+  ArchivRoute: typeof ArchivRoute
   BelegPostfachRoute: typeof BelegPostfachRoute
   BenachrichtigungenRoute: typeof BenachrichtigungenRoute
   BenchmarkRoute: typeof BenchmarkRoute
@@ -330,6 +343,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BelegPostfachRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/archiv': {
+      id: '/archiv'
+      path: '/archiv'
+      fullPath: '/archiv'
+      preLoaderRoute: typeof ArchivRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ai-credits': {
       id: '/ai-credits'
       path: '/ai-credits'
@@ -378,6 +398,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiCreditsRoute: AiCreditsRoute,
+  ArchivRoute: ArchivRoute,
   BelegPostfachRoute: BelegPostfachRoute,
   BenachrichtigungenRoute: BenachrichtigungenRoute,
   BenchmarkRoute: BenchmarkRoute,
