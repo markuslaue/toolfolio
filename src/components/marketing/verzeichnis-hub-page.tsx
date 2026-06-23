@@ -93,7 +93,7 @@ export function VerzeichnisHubPage() {
   const allResults = useMemo(
     () => [
       ...popularTools.map((t) => ({ type: "Tool" as const, name: t.name, meta: t.category, color: t.catColor, href: "/verzeichnis#tools" })),
-      ...clusters.map((c) => ({ type: "Kategorie" as const, name: c.name, meta: `${c.count} Kategorien`, color: c.color, href: `/verzeichnis#cluster-${c.slug}` })),
+      ...clusters.map((c) => ({ type: "Kategorie" as const, name: c.name, meta: `${c.count} Kategorien`, color: c.color, href: `/verzeichnis/${c.slug}` })),
     ],
     [],
   );
