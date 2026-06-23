@@ -229,7 +229,7 @@ export function VerzeichnisHubPage() {
             return (
               <Reveal key={c.slug} delay={i * 40}>
                 <a
-                  href={`/verzeichnis#cluster-${c.slug}`}
+                  href={`/verzeichnis/${c.slug}`}
                   className="group block rounded-3xl border border-border bg-card p-6 shadow-soft hover:shadow-lift hover:-translate-y-0.5 transition-all"
                   style={{ borderTop: `4px solid ${c.color}` }}
                 >
