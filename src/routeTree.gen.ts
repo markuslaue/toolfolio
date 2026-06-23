@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as ImportRouteImport } from './routes/import'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
@@ -17,6 +18,11 @@ import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportRoute = ImportRouteImport.update({
+  id: '/import',
+  path: '/import',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,12 +43,14 @@ const AbosAboIdRoute = AbosAboIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/abos/$aboId': typeof AbosAboIdRoute
   '/abos/': typeof AbosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/abos/$aboId': typeof AbosAboIdRoute
   '/abos': typeof AbosIndexRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/abos/$aboId': typeof AbosAboIdRoute
   '/abos/': typeof AbosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/onboarding' | '/abos/$aboId' | '/abos/'
+  fullPaths: '/' | '/import' | '/onboarding' | '/abos/$aboId' | '/abos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/onboarding' | '/abos/$aboId' | '/abos'
-  id: '__root__' | '/' | '/onboarding' | '/abos/$aboId' | '/abos/'
+  to: '/' | '/import' | '/onboarding' | '/abos/$aboId' | '/abos'
+  id: '__root__' | '/' | '/import' | '/onboarding' | '/abos/$aboId' | '/abos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ImportRoute: typeof ImportRoute
   OnboardingRoute: typeof OnboardingRoute
   AbosAboIdRoute: typeof AbosAboIdRoute
   AbosIndexRoute: typeof AbosIndexRoute
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/import': {
+      id: '/import'
+      path: '/import'
+      fullPath: '/import'
+      preLoaderRoute: typeof ImportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ImportRoute: ImportRoute,
   OnboardingRoute: OnboardingRoute,
   AbosAboIdRoute: AbosAboIdRoute,
   AbosIndexRoute: AbosIndexRoute,
