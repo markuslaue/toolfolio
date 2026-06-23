@@ -119,7 +119,7 @@ function ChaosTablePreview() {
           ["???", "29", "?", "wer hat das?"],
           ["Calendly", "10$", "?", "USD?"],
           ["", "", "", ""],
-        ].map((row, i) => (
+        ].flatMap((row, i) => (
           row.map((cell, j) => (
             <div key={`${i}-${j}`} className={cn(
               "bg-white px-2 py-1",
@@ -294,26 +294,24 @@ export function ComparisonPage({ data }: { data: ComparisonData }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.groups.map((g) => (
-                    <>
-                      <tr key={`g-${g.label}`}>
-                        <td colSpan={3} className="bg-[#FBF7F1] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#1F1D2B]/60">
-                          {g.label}
+                  {data.groups.flatMap((g) => [
+                    <tr key={`group-${g.label}`}>
+                      <td colSpan={3} className="bg-[#FBF7F1] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#1F1D2B]/60">
+                        {g.label}
+                      </td>
+                    </tr>,
+                    ...g.rows.map((r) => (
+                      <tr key={`row-${g.label}-${r.feature}`}>
+                        <td className="border-b border-[#1F1D2B]/8 px-4 py-3 font-medium">{r.feature}</td>
+                        <td className="border-b border-[#1F1D2B]/8 bg-[#12B76A]/5 px-4 py-3">
+                          <Cell v={r.toolfolio} />
+                        </td>
+                        <td className="border-b border-[#1F1D2B]/8 px-4 py-3 text-[#1F1D2B]/70">
+                          <Cell v={r.alt} />
                         </td>
                       </tr>
-                      {g.rows.map((r) => (
-                        <tr key={`${g.label}-${r.feature}`}>
-                          <td className="border-b border-[#1F1D2B]/8 px-4 py-3 font-medium">{r.feature}</td>
-                          <td className="border-b border-[#1F1D2B]/8 bg-[#12B76A]/5 px-4 py-3">
-                            <Cell v={r.toolfolio} />
-                          </td>
-                          <td className="border-b border-[#1F1D2B]/8 px-4 py-3 text-[#1F1D2B]/70">
-                            <Cell v={r.alt} />
-                          </td>
-                        </tr>
-                      ))}
-                    </>
-                  ))}
+                    )),
+                  ])}
                 </tbody>
               </table>
             </div>

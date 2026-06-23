@@ -6,7 +6,7 @@ const SLUGS: AudienceSlug[] = ["agenturen", "freelancer", "solopreneure"];
 export const Route = createFileRoute("/fuer/$slug")({
   loader: ({ params }) => {
     if (!SLUGS.includes(params.slug as AudienceSlug)) throw notFound();
-    return { data: audienceData[params.slug as AudienceSlug] };
+    return null;
   },
   head: ({ params }) => {
     const data = audienceData[params.slug as AudienceSlug];
@@ -52,6 +52,7 @@ export const Route = createFileRoute("/fuer/$slug")({
 });
 
 function AudienceRoute() {
-  const { data } = Route.useLoaderData();
+  const { slug } = Route.useParams() as { slug: AudienceSlug };
+  const data = audienceData[slug];
   return <AudiencePage data={data} />;
 }

@@ -18,7 +18,7 @@ const SLUGS: ComparisonSlug[] = [
 export const Route = createFileRoute("/vergleich/$slug")({
   loader: ({ params }) => {
     if (!SLUGS.includes(params.slug as ComparisonSlug)) throw notFound();
-    return { data: comparisonData[params.slug as ComparisonSlug] };
+    return null;
   },
   head: ({ params }) => {
     const data = comparisonData[params.slug as ComparisonSlug];
@@ -66,6 +66,7 @@ export const Route = createFileRoute("/vergleich/$slug")({
 });
 
 function ComparisonRoute() {
-  const { data } = Route.useLoaderData();
+  const { slug } = Route.useParams() as { slug: ComparisonSlug };
+  const data = comparisonData[slug];
   return <ComparisonPage data={data} />;
 }

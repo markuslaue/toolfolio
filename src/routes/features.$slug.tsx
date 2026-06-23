@@ -6,10 +6,10 @@ export const Route = createFileRoute("/features/$slug")({
   loader: ({ params }) => {
     const data = getFeatureDetail(params.slug);
     if (!data) throw notFound();
-    return { data };
+    return null;
   },
-  head: ({ loaderData }) => {
-    const data = loaderData?.data;
+  head: ({ params }) => {
+    const data = getFeatureDetail(params.slug);
     if (!data) return { meta: [{ title: "Funktion – Toolfolio" }] };
     const url = `https://toolfolio.lovable.app/features/${data.slug}`;
     return {
@@ -52,6 +52,21 @@ export const Route = createFileRoute("/features/$slug")({
 });
 
 function FeatureDetailRoute() {
-  const { data } = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const data = getFeatureDetail(slug);
+
+  if (!data) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-[#FBF7F1] text-[#1F1D2B]">
+        <div className="text-center">
+          <div className="font-display text-3xl font-bold">Funktion nicht gefunden</div>
+          <a href="/features" className="mt-4 inline-block text-[#6C5CE7] underline">
+            Zurück zur Funktionsübersicht
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return <FeatureDetailPage data={data} />;
 }
