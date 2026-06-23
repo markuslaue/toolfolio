@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AboFormPanel } from "./abo-form-panel";
 
 const navItems = [
   { label: "Übersicht", icon: LayoutDashboard, to: "/" },
@@ -34,6 +35,7 @@ const navItems = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -140,10 +142,10 @@ function TopBar({ onMenu }: { onMenu: () => void }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button size="sm" className="gap-1.5 hidden sm:inline-flex">
+          <Button size="sm" className="gap-1.5 hidden sm:inline-flex" onClick={() => setAddOpen(true)}>
             <Plus className="size-4" /> Abo hinzufügen
           </Button>
-          <Button size="sm" className="sm:hidden gap-1" aria-label="Abo hinzufügen">
+          <Button size="sm" className="sm:hidden gap-1" aria-label="Abo hinzufügen" onClick={() => setAddOpen(true)}>
             <Plus className="size-4" />
           </Button>
           <DropdownMenu>
