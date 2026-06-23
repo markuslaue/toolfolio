@@ -31,6 +31,7 @@ const navItems = [
   { label: "Kunden", icon: Users, to: "/kunden" },
   { label: "Zahlungskanäle", icon: CreditCard, to: "/zahlungskanaele" },
   { label: "Sparvorschläge", icon: PiggyBank, to: "/sparvorschlaege" },
+  { label: "Benachrichtigungen", icon: Bell, to: "/benachrichtigungen" },
   { label: "Verzeichnis", icon: BookOpen, to: "/verzeichnis" },
   { label: "Berichte", icon: BarChart3, to: "/berichte" },
   { label: "Einstellungen", icon: Settings, to: "/einstellungen" },
