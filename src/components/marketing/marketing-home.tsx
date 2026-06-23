@@ -118,6 +118,7 @@ export function Nav() {
     },
     { label: "Preise", href: "/preise" },
     { label: "Über uns", href: "/ueber-uns" },
+    { label: "Kontakt", href: "/kontakt" },
   ];
 
   return (
@@ -1396,9 +1397,9 @@ export function Footer() {
     {
       title: "Über uns",
       links: [
-        { label: "Mission", href: "#" },
+        { label: "Mission", href: "/ueber-uns" },
         { label: "Blog", href: "#" },
-        { label: "Kontakt", href: "#" },
+        { label: "Kontakt", href: "/kontakt" },
       ],
     },
     {
