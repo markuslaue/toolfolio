@@ -10,8 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as AbosRouteImport } from './routes/abos'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AbosIndexRouteImport } from './routes/abos.index'
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -19,53 +19,54 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AbosRoute = AbosRouteImport.update({
-  id: '/abos',
-  path: '/abos',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AbosIndexRoute = AbosIndexRouteImport.update({
+  id: '/abos/',
+  path: '/abos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AbosAboIdRoute = AbosAboIdRouteImport.update({
-  id: '/$aboId',
-  path: '/$aboId',
-  getParentRoute: () => AbosRoute,
+  id: '/abos/$aboId',
+  path: '/abos/$aboId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/abos': typeof AbosRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/abos/': typeof AbosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/abos': typeof AbosRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/abos': typeof AbosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/abos': typeof AbosRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/abos/': typeof AbosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/abos' | '/onboarding' | '/abos/$aboId'
+  fullPaths: '/' | '/onboarding' | '/abos/$aboId' | '/abos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/abos' | '/onboarding' | '/abos/$aboId'
-  id: '__root__' | '/' | '/abos' | '/onboarding' | '/abos/$aboId'
+  to: '/' | '/onboarding' | '/abos/$aboId' | '/abos'
+  id: '__root__' | '/' | '/onboarding' | '/abos/$aboId' | '/abos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AbosRoute: typeof AbosRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
+  AbosAboIdRoute: typeof AbosAboIdRoute
+  AbosIndexRoute: typeof AbosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -77,13 +78,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/abos': {
-      id: '/abos'
-      path: '/abos'
-      fullPath: '/abos'
-      preLoaderRoute: typeof AbosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -91,30 +85,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/abos/': {
+      id: '/abos/'
+      path: '/abos'
+      fullPath: '/abos/'
+      preLoaderRoute: typeof AbosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/abos/$aboId': {
       id: '/abos/$aboId'
-      path: '/$aboId'
+      path: '/abos/$aboId'
       fullPath: '/abos/$aboId'
       preLoaderRoute: typeof AbosAboIdRouteImport
-      parentRoute: typeof AbosRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AbosRouteChildren {
-  AbosAboIdRoute: typeof AbosAboIdRoute
-}
-
-const AbosRouteChildren: AbosRouteChildren = {
-  AbosAboIdRoute: AbosAboIdRoute,
-}
-
-const AbosRouteWithChildren = AbosRoute._addFileChildren(AbosRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AbosRoute: AbosRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
+  AbosAboIdRoute: AbosAboIdRoute,
+  AbosIndexRoute: AbosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
