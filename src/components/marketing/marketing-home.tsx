@@ -1368,12 +1368,12 @@ export function Footer() {
               <div className="font-semibold text-sm">{c.title}</div>
               <ul className="mt-4 space-y-2">
                 {c.links.map((l) => (
-                  <li key={l}>
+                  <li key={l.label}>
                     <a
-                      href="#"
+                      href={l.href}
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {l}
+                      {l.label}
                     </a>
                   </li>
                 ))}
