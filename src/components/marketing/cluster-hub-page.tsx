@@ -90,7 +90,7 @@ export const vertragsmanagementCluster: ClusterData = {
   ],
   subcategories: [
     {
-      slug: "clm",
+      slug: "vertragsmanagement",
       name: "Vertragsmanagement / CLM",
       desc: "Plattformen für den gesamten Contract Lifecycle: Vorlagen, Workflows, Fristen, Archiv.",
       icon: Layers,

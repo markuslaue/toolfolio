@@ -9,7 +9,7 @@ const clusters: Record<string, ClusterData> = {
   [vertragsmanagementCluster.slug]: vertragsmanagementCluster,
 };
 
-export const Route = createFileRoute("/verzeichnis/$cluster")({
+export const Route = createFileRoute("/verzeichnis/$cluster/")({
   loader: ({ params }) => {
     const data = clusters[params.cluster];
     if (!data) throw notFound();
