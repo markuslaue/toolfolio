@@ -750,7 +750,11 @@ function AboTable({
                   <Checkbox checked={isSelected} onCheckedChange={() => onToggleRow(a.id)} />
                 </td>
                 <td className={cn("px-2", rowPad)}>
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  <Link
+                    to="/abos/$aboId"
+                    params={{ aboId: a.id }}
+                    className="flex items-center gap-2.5 min-w-0 group"
+                  >
                     <div
                       className="size-8 shrink-0 rounded-lg grid place-items-center text-xs font-display font-bold text-white"
                       style={{ background: a.farbe }}
@@ -758,11 +762,12 @@ function AboTable({
                       {a.initial}
                     </div>
                     <div className="min-w-0">
-                      <div className="font-medium truncate">{a.tool}</div>
+                      <div className="font-medium truncate group-hover:text-primary transition-colors">{a.tool}</div>
                       <div className="text-xs text-muted-foreground md:hidden">{a.kategorie}</div>
                     </div>
-                  </div>
+                  </Link>
                 </td>
+
                 <td className={cn("px-2 hidden md:table-cell", rowPad)}>
                   <KategoriePill k={a.kategorie} />
                 </td>
@@ -875,7 +880,7 @@ function AboCard({
       <div className="absolute top-3 right-3" onClick={(e) => e.stopPropagation()}>
         <Checkbox checked={selected} onCheckedChange={onToggle} />
       </div>
-      <div className="flex items-center gap-3">
+      <Link to="/abos/$aboId" params={{ aboId: a.id }} className="flex items-center gap-3 group">
         <div
           className="size-11 shrink-0 rounded-xl grid place-items-center text-base font-display font-bold text-white"
           style={{ background: a.farbe }}
@@ -883,10 +888,11 @@ function AboCard({
           {a.initial}
         </div>
         <div className="min-w-0">
-          <div className="font-display font-semibold truncate">{a.tool}</div>
+          <div className="font-display font-semibold truncate group-hover:text-primary transition-colors">{a.tool}</div>
           <KategoriePill k={a.kategorie} />
         </div>
-      </div>
+      </Link>
+
       <div className="mt-4 flex items-end justify-between">
         <div>
           <div className="text-xs text-muted-foreground">Kosten</div>

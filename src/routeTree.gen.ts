@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AbosRouteImport } from './routes/abos'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
@@ -28,34 +29,42 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AbosAboIdRoute = AbosAboIdRouteImport.update({
+  id: '/$aboId',
+  path: '/$aboId',
+  getParentRoute: () => AbosRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/abos': typeof AbosRoute
+  '/abos': typeof AbosRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/abos/$aboId': typeof AbosAboIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/abos': typeof AbosRoute
+  '/abos': typeof AbosRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/abos/$aboId': typeof AbosAboIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/abos': typeof AbosRoute
+  '/abos': typeof AbosRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/abos/$aboId': typeof AbosAboIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/abos' | '/onboarding'
+  fullPaths: '/' | '/abos' | '/onboarding' | '/abos/$aboId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/abos' | '/onboarding'
-  id: '__root__' | '/' | '/abos' | '/onboarding'
+  to: '/' | '/abos' | '/onboarding' | '/abos/$aboId'
+  id: '__root__' | '/' | '/abos' | '/onboarding' | '/abos/$aboId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AbosRoute: typeof AbosRoute
+  AbosRoute: typeof AbosRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
 }
 
@@ -82,24 +91,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/abos/$aboId': {
+      id: '/abos/$aboId'
+      path: '/$aboId'
+      fullPath: '/abos/$aboId'
+      preLoaderRoute: typeof AbosAboIdRouteImport
+      parentRoute: typeof AbosRoute
+    }
   }
 }
 
+interface AbosRouteChildren {
+  AbosAboIdRoute: typeof AbosAboIdRoute
+}
+
+const AbosRouteChildren: AbosRouteChildren = {
+  AbosAboIdRoute: AbosAboIdRoute,
+}
+
+const AbosRouteWithChildren = AbosRoute._addFileChildren(AbosRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AbosRoute: AbosRoute,
+  AbosRoute: AbosRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
