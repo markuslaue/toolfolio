@@ -24,6 +24,7 @@ import {
   Armchair,
   UsersRound,
   ShieldCheck,
+  Building2,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,7 @@ const navItems = [
   { label: "Seats & Lizenzen", icon: Armchair, to: "/seats" },
   { label: "Team", icon: UsersRound, to: "/team" },
   { label: "Freigaben", icon: ShieldCheck, to: "/freigaben" },
+  { label: "Gesellschaften", icon: Building2, to: "/gesellschaften" },
   { label: "Einstellungen", icon: Settings, to: "/einstellungen" },
 ];
 
