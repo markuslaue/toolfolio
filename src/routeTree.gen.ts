@@ -55,7 +55,6 @@ import { Route as EinstellungenBenachrichtigungenRouteImport } from './routes/ei
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 import { Route as VerzeichnisClusterIndexRouteImport } from './routes/verzeichnis.$cluster.index'
 import { Route as VerzeichnisClusterCategoryRouteImport } from './routes/verzeichnis.$cluster.$category'
-import { Route as VerzeichnisClusterCategoryToolRouteImport } from './routes/verzeichnis.$cluster.$category.$tool'
 
 const ZahlungskanaeleRoute = ZahlungskanaeleRouteImport.update({
   id: '/zahlungskanaele',
@@ -290,12 +289,6 @@ const VerzeichnisClusterCategoryRoute =
     path: '/verzeichnis/$cluster/$category',
     getParentRoute: () => rootRouteImport,
   } as any)
-const VerzeichnisClusterCategoryToolRoute =
-  VerzeichnisClusterCategoryToolRouteImport.update({
-    id: '/$tool',
-    path: '/$tool',
-    getParentRoute: () => VerzeichnisClusterCategoryRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -342,9 +335,8 @@ export interface FileRoutesByFullPath {
   '/features/': typeof FeaturesIndexRoute
   '/kunden/': typeof KundenIndexRoute
   '/verzeichnis/': typeof VerzeichnisIndexRoute
-  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRouteWithChildren
+  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRoute
   '/verzeichnis/$cluster/': typeof VerzeichnisClusterIndexRoute
-  '/verzeichnis/$cluster/$category/$tool': typeof VerzeichnisClusterCategoryToolRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -389,9 +381,8 @@ export interface FileRoutesByTo {
   '/features': typeof FeaturesIndexRoute
   '/kunden': typeof KundenIndexRoute
   '/verzeichnis': typeof VerzeichnisIndexRoute
-  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRouteWithChildren
+  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRoute
   '/verzeichnis/$cluster': typeof VerzeichnisClusterIndexRoute
-  '/verzeichnis/$cluster/$category/$tool': typeof VerzeichnisClusterCategoryToolRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -439,9 +430,8 @@ export interface FileRoutesById {
   '/features/': typeof FeaturesIndexRoute
   '/kunden/': typeof KundenIndexRoute
   '/verzeichnis/': typeof VerzeichnisIndexRoute
-  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRouteWithChildren
+  '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRoute
   '/verzeichnis/$cluster/': typeof VerzeichnisClusterIndexRoute
-  '/verzeichnis/$cluster/$category/$tool': typeof VerzeichnisClusterCategoryToolRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -492,7 +482,6 @@ export interface FileRouteTypes {
     | '/verzeichnis/'
     | '/verzeichnis/$cluster/$category'
     | '/verzeichnis/$cluster/'
-    | '/verzeichnis/$cluster/$category/$tool'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -539,7 +528,6 @@ export interface FileRouteTypes {
     | '/verzeichnis'
     | '/verzeichnis/$cluster/$category'
     | '/verzeichnis/$cluster'
-    | '/verzeichnis/$cluster/$category/$tool'
   id:
     | '__root__'
     | '/'
@@ -588,7 +576,6 @@ export interface FileRouteTypes {
     | '/verzeichnis/'
     | '/verzeichnis/$cluster/$category'
     | '/verzeichnis/$cluster/'
-    | '/verzeichnis/$cluster/$category/$tool'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -628,7 +615,7 @@ export interface RootRouteChildren {
   AbosIndexRoute: typeof AbosIndexRoute
   KundenIndexRoute: typeof KundenIndexRoute
   VerzeichnisIndexRoute: typeof VerzeichnisIndexRoute
-  VerzeichnisClusterCategoryRoute: typeof VerzeichnisClusterCategoryRouteWithChildren
+  VerzeichnisClusterCategoryRoute: typeof VerzeichnisClusterCategoryRoute
   VerzeichnisClusterIndexRoute: typeof VerzeichnisClusterIndexRoute
 }
 
@@ -956,13 +943,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerzeichnisClusterCategoryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/verzeichnis/$cluster/$category/$tool': {
-      id: '/verzeichnis/$cluster/$category/$tool'
-      path: '/$tool'
-      fullPath: '/verzeichnis/$cluster/$category/$tool'
-      preLoaderRoute: typeof VerzeichnisClusterCategoryToolRouteImport
-      parentRoute: typeof VerzeichnisClusterCategoryRoute
-    }
   }
 }
 
@@ -1002,20 +982,6 @@ const FeaturesRouteWithChildren = FeaturesRoute._addFileChildren(
   FeaturesRouteChildren,
 )
 
-interface VerzeichnisClusterCategoryRouteChildren {
-  VerzeichnisClusterCategoryToolRoute: typeof VerzeichnisClusterCategoryToolRoute
-}
-
-const VerzeichnisClusterCategoryRouteChildren: VerzeichnisClusterCategoryRouteChildren =
-  {
-    VerzeichnisClusterCategoryToolRoute: VerzeichnisClusterCategoryToolRoute,
-  }
-
-const VerzeichnisClusterCategoryRouteWithChildren =
-  VerzeichnisClusterCategoryRoute._addFileChildren(
-    VerzeichnisClusterCategoryRouteChildren,
-  )
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiCreditsRoute: AiCreditsRoute,
@@ -1053,7 +1019,7 @@ const rootRouteChildren: RootRouteChildren = {
   AbosIndexRoute: AbosIndexRoute,
   KundenIndexRoute: KundenIndexRoute,
   VerzeichnisIndexRoute: VerzeichnisIndexRoute,
-  VerzeichnisClusterCategoryRoute: VerzeichnisClusterCategoryRouteWithChildren,
+  VerzeichnisClusterCategoryRoute: VerzeichnisClusterCategoryRoute,
   VerzeichnisClusterIndexRoute: VerzeichnisClusterIndexRoute,
 }
 export const routeTree = rootRouteImport
