@@ -15,6 +15,7 @@ import { Route as KundenRouteImport } from './routes/kunden'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
+import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 
 const ZahlungskanaeleRoute = ZahlungskanaeleRouteImport.update({
@@ -47,6 +48,11 @@ const AbosIndexRoute = AbosIndexRouteImport.update({
   path: '/abos/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KundenKundeIdRoute = KundenKundeIdRouteImport.update({
+  id: '/$kundeId',
+  path: '/$kundeId',
+  getParentRoute: () => KundenRoute,
+} as any)
 const AbosAboIdRoute = AbosAboIdRouteImport.update({
   id: '/abos/$aboId',
   path: '/abos/$aboId',
@@ -56,29 +62,32 @@ const AbosAboIdRoute = AbosAboIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
-  '/kunden': typeof KundenRoute
+  '/kunden': typeof KundenRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos/': typeof AbosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
-  '/kunden': typeof KundenRoute
+  '/kunden': typeof KundenRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos': typeof AbosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
-  '/kunden': typeof KundenRoute
+  '/kunden': typeof KundenRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos/': typeof AbosIndexRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/kunden/$kundeId'
     | '/abos/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/kunden/$kundeId'
     | '/abos'
   id:
     | '__root__'
@@ -108,13 +119,14 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/kunden/$kundeId'
     | '/abos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ImportRoute: typeof ImportRoute
-  KundenRoute: typeof KundenRoute
+  KundenRoute: typeof KundenRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
   ZahlungskanaeleRoute: typeof ZahlungskanaeleRoute
   AbosAboIdRoute: typeof AbosAboIdRoute
@@ -165,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kunden/$kundeId': {
+      id: '/kunden/$kundeId'
+      path: '/$kundeId'
+      fullPath: '/kunden/$kundeId'
+      preLoaderRoute: typeof KundenKundeIdRouteImport
+      parentRoute: typeof KundenRoute
+    }
     '/abos/$aboId': {
       id: '/abos/$aboId'
       path: '/abos/$aboId'
@@ -175,10 +194,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface KundenRouteChildren {
+  KundenKundeIdRoute: typeof KundenKundeIdRoute
+}
+
+const KundenRouteChildren: KundenRouteChildren = {
+  KundenKundeIdRoute: KundenKundeIdRoute,
+}
+
+const KundenRouteWithChildren =
+  KundenRoute._addFileChildren(KundenRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ImportRoute: ImportRoute,
-  KundenRoute: KundenRoute,
+  KundenRoute: KundenRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
   ZahlungskanaeleRoute: ZahlungskanaeleRoute,
   AbosAboIdRoute: AbosAboIdRoute,
