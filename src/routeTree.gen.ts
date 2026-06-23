@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZahlungskanaeleRouteImport } from './routes/zahlungskanaele'
+import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as IndexRouteImport } from './routes/index'
@@ -21,6 +22,11 @@ import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 const ZahlungskanaeleRoute = ZahlungskanaeleRouteImport.update({
   id: '/zahlungskanaele',
   path: '/zahlungskanaele',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SparvorschlaegeRoute = SparvorschlaegeRouteImport.update({
+  id: '/sparvorschlaege',
+  path: '/sparvorschlaege',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
+  '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
+  '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
+  '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/import'
     | '/onboarding'
+    | '/sparvorschlaege'
     | '/zahlungskanaele'
     | '/abos/$aboId'
     | '/kunden/$kundeId'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/import'
     | '/onboarding'
+    | '/sparvorschlaege'
     | '/zahlungskanaele'
     | '/abos/$aboId'
     | '/kunden/$kundeId'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/import'
     | '/onboarding'
+    | '/sparvorschlaege'
     | '/zahlungskanaele'
     | '/abos/$aboId'
     | '/kunden/$kundeId'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ImportRoute: typeof ImportRoute
   OnboardingRoute: typeof OnboardingRoute
+  SparvorschlaegeRoute: typeof SparvorschlaegeRoute
   ZahlungskanaeleRoute: typeof ZahlungskanaeleRoute
   AbosAboIdRoute: typeof AbosAboIdRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/zahlungskanaele'
       fullPath: '/zahlungskanaele'
       preLoaderRoute: typeof ZahlungskanaeleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sparvorschlaege': {
+      id: '/sparvorschlaege'
+      path: '/sparvorschlaege'
+      fullPath: '/sparvorschlaege'
+      preLoaderRoute: typeof SparvorschlaegeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -199,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ImportRoute: ImportRoute,
   OnboardingRoute: OnboardingRoute,
+  SparvorschlaegeRoute: SparvorschlaegeRoute,
   ZahlungskanaeleRoute: ZahlungskanaeleRoute,
   AbosAboIdRoute: AbosAboIdRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
