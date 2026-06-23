@@ -15,6 +15,7 @@ import { Route as TeamRouteImport } from './routes/team'
 import { Route as SteuerExportRouteImport } from './routes/steuer-export'
 import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
 import { Route as SeatsRouteImport } from './routes/seats'
+import { Route as PreiseRouteImport } from './routes/preise'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as GesellschaftenRouteImport } from './routes/gesellschaften'
@@ -69,6 +70,11 @@ const SparvorschlaegeRoute = SparvorschlaegeRouteImport.update({
 const SeatsRoute = SeatsRouteImport.update({
   id: '/seats',
   path: '/seats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreiseRoute = PreiseRouteImport.update({
+  id: '/preise',
+  path: '/preise',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -215,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/gesellschaften': typeof GesellschaftenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
+  '/preise': typeof PreiseRoute
   '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/steuer-export': typeof SteuerExportRoute
@@ -247,6 +254,7 @@ export interface FileRoutesByTo {
   '/gesellschaften': typeof GesellschaftenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
+  '/preise': typeof PreiseRoute
   '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/steuer-export': typeof SteuerExportRoute
@@ -281,6 +289,7 @@ export interface FileRoutesById {
   '/gesellschaften': typeof GesellschaftenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
+  '/preise': typeof PreiseRoute
   '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/steuer-export': typeof SteuerExportRoute
@@ -316,6 +325,7 @@ export interface FileRouteTypes {
     | '/gesellschaften'
     | '/import'
     | '/onboarding'
+    | '/preise'
     | '/seats'
     | '/sparvorschlaege'
     | '/steuer-export'
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/gesellschaften'
     | '/import'
     | '/onboarding'
+    | '/preise'
     | '/seats'
     | '/sparvorschlaege'
     | '/steuer-export'
@@ -381,6 +392,7 @@ export interface FileRouteTypes {
     | '/gesellschaften'
     | '/import'
     | '/onboarding'
+    | '/preise'
     | '/seats'
     | '/sparvorschlaege'
     | '/steuer-export'
@@ -415,6 +427,7 @@ export interface RootRouteChildren {
   GesellschaftenRoute: typeof GesellschaftenRoute
   ImportRoute: typeof ImportRoute
   OnboardingRoute: typeof OnboardingRoute
+  PreiseRoute: typeof PreiseRoute
   SeatsRoute: typeof SeatsRoute
   SparvorschlaegeRoute: typeof SparvorschlaegeRoute
   SteuerExportRoute: typeof SteuerExportRoute
@@ -469,6 +482,13 @@ declare module '@tanstack/react-router' {
       path: '/seats'
       fullPath: '/seats'
       preLoaderRoute: typeof SeatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preise': {
+      id: '/preise'
+      path: '/preise'
+      fullPath: '/preise'
+      preLoaderRoute: typeof PreiseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -687,6 +707,7 @@ const rootRouteChildren: RootRouteChildren = {
   GesellschaftenRoute: GesellschaftenRoute,
   ImportRoute: ImportRoute,
   OnboardingRoute: OnboardingRoute,
+  PreiseRoute: PreiseRoute,
   SeatsRoute: SeatsRoute,
   SparvorschlaegeRoute: SparvorschlaegeRoute,
   SteuerExportRoute: SteuerExportRoute,
