@@ -33,6 +33,7 @@ const navItems = [
   { label: "Abos", icon: Layers, to: "/abos" },
   { label: "Kunden", icon: Users, to: "/kunden" },
   { label: "Zahlungskanäle", icon: CreditCard, to: "/zahlungskanaele" },
+  { label: "Beleg-Postfach", icon: Mail, to: "/beleg-postfach" },
   { label: "Fristen", icon: AlarmClock, to: "/fristen" },
   { label: "AI & variable Kosten", icon: Zap, to: "/ai-credits" },
   { label: "Sparvorschläge", icon: PiggyBank, to: "/sparvorschlaege" },
