@@ -832,6 +832,11 @@ function KundenTabelle({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem asChild>
+                          <Link to="/kunden/$kundeId" params={{ kundeId: k.id }}>
+                            Details ansehen
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onEdit(k)}>
                           <Pencil className="mr-2 size-4" /> Bearbeiten
                         </DropdownMenuItem>
