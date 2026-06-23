@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   ArrowRight,
   Check,
@@ -401,8 +401,8 @@ function Vergleich() {
                 </thead>
                 <tbody>
                   {VERGLEICH.map((grp) => (
-                    <>
-                      <tr key={grp.gruppe} className="bg-secondary/40">
+                    <Fragment key={grp.gruppe}>
+                      <tr className="bg-secondary/40">
                         <td
                           colSpan={4}
                           className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
@@ -426,7 +426,7 @@ function Vergleich() {
                           ))}
                         </tr>
                       ))}
-                    </>
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
