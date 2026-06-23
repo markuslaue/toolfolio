@@ -23,13 +23,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const navItems = [
-  { label: "Übersicht", icon: LayoutDashboard, active: true },
-  { label: "Abos", icon: Layers },
-  { label: "Kunden", icon: Users },
-  { label: "Zahlungskanäle", icon: CreditCard },
-  { label: "Verzeichnis", icon: BookOpen },
-  { label: "Berichte", icon: BarChart3 },
-  { label: "Einstellungen", icon: Settings },
+  { label: "Übersicht", icon: LayoutDashboard, to: "/" },
+  { label: "Abos", icon: Layers, to: "/abos" },
+  { label: "Kunden", icon: Users, to: "/kunden" },
+  { label: "Zahlungskanäle", icon: CreditCard, to: "/zahlungskanaele" },
+  { label: "Verzeichnis", icon: BookOpen, to: "/verzeichnis" },
+  { label: "Berichte", icon: BarChart3, to: "/berichte" },
+  { label: "Einstellungen", icon: Settings, to: "/einstellungen" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -82,18 +82,15 @@ function SidebarContent() {
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
-            <a
+            <Link
               key={item.label}
-              href="#"
-              className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                item.active
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
-              }`}
+              to={item.to as "/"}
+              activeOptions={{ exact: item.to === "/" }}
+              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground data-[status=active]:bg-accent data-[status=active]:text-accent-foreground"
             >
               <Icon className="size-4 shrink-0" />
               <span className="truncate">{item.label}</span>
-            </a>
+            </Link>
           );
         })}
       </nav>
