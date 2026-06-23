@@ -36,6 +36,7 @@ import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as EinstellungenIndexRouteImport } from './routes/einstellungen.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
 import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
+import { Route as FeaturesSlugRouteImport } from './routes/features.$slug'
 import { Route as EinstellungenUnternehmenRouteImport } from './routes/einstellungen.unternehmen'
 import { Route as EinstellungenTeamRouteImport } from './routes/einstellungen.team'
 import { Route as EinstellungenPlanRouteImport } from './routes/einstellungen.plan'
@@ -178,6 +179,11 @@ const KundenKundeIdRoute = KundenKundeIdRouteImport.update({
   path: '/kunden/$kundeId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeaturesSlugRoute = FeaturesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => FeaturesRoute,
+} as any)
 const EinstellungenUnternehmenRoute =
   EinstellungenUnternehmenRouteImport.update({
     id: '/unternehmen',
@@ -222,7 +228,7 @@ export interface FileRoutesByFullPath {
   '/budget': typeof BudgetRoute
   '/dashboard': typeof DashboardRoute
   '/einstellungen': typeof EinstellungenRouteWithChildren
-  '/features': typeof FeaturesRoute
+  '/features': typeof FeaturesRouteWithChildren
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
   '/gesellschaften': typeof GesellschaftenRoute
@@ -241,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/plan': typeof EinstellungenPlanRoute
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
+  '/features/$slug': typeof FeaturesSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
@@ -256,7 +263,7 @@ export interface FileRoutesByTo {
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
   '/dashboard': typeof DashboardRoute
-  '/features': typeof FeaturesRoute
+  '/features': typeof FeaturesRouteWithChildren
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
   '/gesellschaften': typeof GesellschaftenRoute
@@ -275,6 +282,7 @@ export interface FileRoutesByTo {
   '/einstellungen/plan': typeof EinstellungenPlanRoute
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
+  '/features/$slug': typeof FeaturesSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos': typeof AbosIndexRoute
   '/einstellungen': typeof EinstellungenIndexRoute
@@ -292,7 +300,7 @@ export interface FileRoutesById {
   '/budget': typeof BudgetRoute
   '/dashboard': typeof DashboardRoute
   '/einstellungen': typeof EinstellungenRouteWithChildren
-  '/features': typeof FeaturesRoute
+  '/features': typeof FeaturesRouteWithChildren
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
   '/gesellschaften': typeof GesellschaftenRoute
@@ -311,6 +319,7 @@ export interface FileRoutesById {
   '/einstellungen/plan': typeof EinstellungenPlanRoute
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
+  '/features/$slug': typeof FeaturesSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
@@ -348,6 +357,7 @@ export interface FileRouteTypes {
     | '/einstellungen/plan'
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
+    | '/features/$slug'
     | '/kunden/$kundeId'
     | '/abos/'
     | '/einstellungen/'
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | '/einstellungen/plan'
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
+    | '/features/$slug'
     | '/kunden/$kundeId'
     | '/abos'
     | '/einstellungen'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/einstellungen/plan'
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
+    | '/features/$slug'
     | '/kunden/$kundeId'
     | '/abos/'
     | '/einstellungen/'
@@ -434,7 +446,7 @@ export interface RootRouteChildren {
   BudgetRoute: typeof BudgetRoute
   DashboardRoute: typeof DashboardRoute
   EinstellungenRoute: typeof EinstellungenRouteWithChildren
-  FeaturesRoute: typeof FeaturesRoute
+  FeaturesRoute: typeof FeaturesRouteWithChildren
   FreigabenRoute: typeof FreigabenRoute
   FristenRoute: typeof FristenRoute
   GesellschaftenRoute: typeof GesellschaftenRoute
@@ -644,6 +656,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KundenKundeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/features/$slug': {
+      id: '/features/$slug'
+      path: '/$slug'
+      fullPath: '/features/$slug'
+      preLoaderRoute: typeof FeaturesSlugRouteImport
+      parentRoute: typeof FeaturesRoute
+    }
     '/einstellungen/unternehmen': {
       id: '/einstellungen/unternehmen'
       path: '/unternehmen'
@@ -711,6 +730,18 @@ const EinstellungenRouteWithChildren = EinstellungenRoute._addFileChildren(
   EinstellungenRouteChildren,
 )
 
+interface FeaturesRouteChildren {
+  FeaturesSlugRoute: typeof FeaturesSlugRoute
+}
+
+const FeaturesRouteChildren: FeaturesRouteChildren = {
+  FeaturesSlugRoute: FeaturesSlugRoute,
+}
+
+const FeaturesRouteWithChildren = FeaturesRoute._addFileChildren(
+  FeaturesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiCreditsRoute: AiCreditsRoute,
@@ -722,7 +753,7 @@ const rootRouteChildren: RootRouteChildren = {
   BudgetRoute: BudgetRoute,
   DashboardRoute: DashboardRoute,
   EinstellungenRoute: EinstellungenRouteWithChildren,
-  FeaturesRoute: FeaturesRoute,
+  FeaturesRoute: FeaturesRouteWithChildren,
   FreigabenRoute: FreigabenRoute,
   FristenRoute: FristenRoute,
   GesellschaftenRoute: GesellschaftenRoute,
