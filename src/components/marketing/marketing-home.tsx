@@ -216,14 +216,29 @@ export function Nav() {
         {open && (
           <div className="md:hidden pb-4 space-y-1">
             {links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                onClick={() => setOpen(false)}
-                className="block rounded-xl px-4 py-3 text-sm font-medium hover:bg-accent"
-              >
-                {l.label}
-              </a>
+              <div key={l.href}>
+                <a
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-xl px-4 py-3 text-sm font-semibold hover:bg-accent"
+                >
+                  {l.label}
+                </a>
+                {l.children && (
+                  <div className="ml-3 border-l border-border pl-3 space-y-0.5">
+                    {l.children.map((c) => (
+                      <a
+                        key={c.href}
+                        href={c.href}
+                        onClick={() => setOpen(false)}
+                        className="block rounded-lg px-3 py-2 text-sm text-foreground/70 hover:bg-accent hover:text-foreground"
+                      >
+                        {c.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
             <div className="flex gap-2 pt-2">
               <a
