@@ -698,13 +698,10 @@ function KundenCard({
       )}
 
       <div className="mt-4 flex items-center gap-2 border-t border-border pt-4">
-        <Button
-          size="sm"
-          variant="outline"
-          className="flex-1"
-          onClick={() => toast.info("Kunden-Detailseite folgt")}
-        >
-          Details
+        <Button size="sm" variant="outline" className="flex-1" asChild>
+          <Link to="/kunden/$kundeId" params={{ kundeId: kunde.id }}>
+            Details
+          </Link>
         </Button>
         <Button size="sm" className="flex-1" asChild>
           <Link to="/abos">Tools ansehen</Link>
