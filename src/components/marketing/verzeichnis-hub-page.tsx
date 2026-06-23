@@ -20,6 +20,7 @@ import {
   MapPin,
   Star,
   Plus,
+  FileSignature,
 } from "lucide-react";
 import { Nav, Footer, Reveal } from "./marketing-home";
 import { cn } from "@/lib/utils";
