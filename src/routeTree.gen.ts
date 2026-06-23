@@ -43,6 +43,7 @@ import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as FeaturesIndexRouteImport } from './routes/features.index'
 import { Route as EinstellungenIndexRouteImport } from './routes/einstellungen.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
+import { Route as VerzeichnisClusterRouteImport } from './routes/verzeichnis.$cluster'
 import { Route as VergleichSlugRouteImport } from './routes/vergleich.$slug'
 import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
 import { Route as FuerSlugRouteImport } from './routes/fuer.$slug'
@@ -224,6 +225,11 @@ const AbosIndexRoute = AbosIndexRouteImport.update({
   path: '/abos/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerzeichnisClusterRoute = VerzeichnisClusterRouteImport.update({
+  id: '/$cluster',
+  path: '/$cluster',
+  getParentRoute: () => VerzeichnisRoute,
+} as any)
 const VergleichSlugRoute = VergleichSlugRouteImport.update({
   id: '/vergleich/$slug',
   path: '/vergleich/$slug',
@@ -306,7 +312,7 @@ export interface FileRoutesByFullPath {
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
   '/ueber-uns': typeof UeberUnsRoute
-  '/verzeichnis': typeof VerzeichnisRoute
+  '/verzeichnis': typeof VerzeichnisRouteWithChildren
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
@@ -318,6 +324,7 @@ export interface FileRoutesByFullPath {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/$cluster': typeof VerzeichnisClusterRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
@@ -350,7 +357,7 @@ export interface FileRoutesByTo {
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
   '/ueber-uns': typeof UeberUnsRoute
-  '/verzeichnis': typeof VerzeichnisRoute
+  '/verzeichnis': typeof VerzeichnisRouteWithChildren
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
@@ -362,6 +369,7 @@ export interface FileRoutesByTo {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/$cluster': typeof VerzeichnisClusterRoute
   '/abos': typeof AbosIndexRoute
   '/einstellungen': typeof EinstellungenIndexRoute
   '/features': typeof FeaturesIndexRoute
@@ -397,7 +405,7 @@ export interface FileRoutesById {
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
   '/ueber-uns': typeof UeberUnsRoute
-  '/verzeichnis': typeof VerzeichnisRoute
+  '/verzeichnis': typeof VerzeichnisRouteWithChildren
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
@@ -409,6 +417,7 @@ export interface FileRoutesById {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/$cluster': typeof VerzeichnisClusterRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
@@ -457,6 +466,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/$cluster'
     | '/abos/'
     | '/einstellungen/'
     | '/features/'
@@ -501,6 +511,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/$cluster'
     | '/abos'
     | '/einstellungen'
     | '/features'
@@ -547,6 +558,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/$cluster'
     | '/abos/'
     | '/einstellungen/'
     | '/features/'
@@ -582,7 +594,7 @@ export interface RootRouteChildren {
   SteuerExportRoute: typeof SteuerExportRoute
   TeamRoute: typeof TeamRoute
   UeberUnsRoute: typeof UeberUnsRoute
-  VerzeichnisRoute: typeof VerzeichnisRoute
+  VerzeichnisRoute: typeof VerzeichnisRouteWithChildren
   ZahlungskanaeleRoute: typeof ZahlungskanaeleRoute
   AbosAboIdRoute: typeof AbosAboIdRoute
   FuerSlugRoute: typeof FuerSlugRoute
@@ -832,6 +844,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verzeichnis/$cluster': {
+      id: '/verzeichnis/$cluster'
+      path: '/$cluster'
+      fullPath: '/verzeichnis/$cluster'
+      preLoaderRoute: typeof VerzeichnisClusterRouteImport
+      parentRoute: typeof VerzeichnisRoute
+    }
     '/vergleich/$slug': {
       id: '/vergleich/$slug'
       path: '/vergleich/$slug'
@@ -941,6 +960,18 @@ const FeaturesRouteWithChildren = FeaturesRoute._addFileChildren(
   FeaturesRouteChildren,
 )
 
+interface VerzeichnisRouteChildren {
+  VerzeichnisClusterRoute: typeof VerzeichnisClusterRoute
+}
+
+const VerzeichnisRouteChildren: VerzeichnisRouteChildren = {
+  VerzeichnisClusterRoute: VerzeichnisClusterRoute,
+}
+
+const VerzeichnisRouteWithChildren = VerzeichnisRoute._addFileChildren(
+  VerzeichnisRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiCreditsRoute: AiCreditsRoute,
@@ -970,7 +1001,7 @@ const rootRouteChildren: RootRouteChildren = {
   SteuerExportRoute: SteuerExportRoute,
   TeamRoute: TeamRoute,
   UeberUnsRoute: UeberUnsRoute,
-  VerzeichnisRoute: VerzeichnisRoute,
+  VerzeichnisRoute: VerzeichnisRouteWithChildren,
   ZahlungskanaeleRoute: ZahlungskanaeleRoute,
   AbosAboIdRoute: AbosAboIdRoute,
   FuerSlugRoute: FuerSlugRoute,
