@@ -96,7 +96,7 @@ const initialKunden: Kunde[] = [
   },
   {
     id: "k2",
-    name: "Kunde Holzbau Kessler",
+    name: "Kunde Kessler",
     ansprechpartner: "Jonas Maier",
     email: "j.maier@fulex.com",
     farbe: "#12B76A",

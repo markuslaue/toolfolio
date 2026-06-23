@@ -221,7 +221,7 @@ const INITIAL_AKTIONEN: Aktion[] = [
 
 const AKTIVITAET: AktivitaetsEintrag[] = [
   { id: "h1", typ: "abo-add", text: "Abo Notion hinzugefügt.", zeit: "vor 1 Stunde", gruppe: "Heute" },
-  { id: "h2", typ: "kunde-zuordnen", text: "Kunde Holzbau Kessler zu Calendly zugeordnet.", zeit: "vor 3 Stunden", gruppe: "Heute" },
+  { id: "h2", typ: "kunde-zuordnen", text: "Kunde Kessler zu Calendly zugeordnet.", zeit: "vor 3 Stunden", gruppe: "Heute" },
   { id: "h3", typ: "vorschlag-umgesetzt", text: "Sparvorschlag Adobe CC umgesetzt, 240,00 € pro Jahr geholt.", zeit: "vor 5 Stunden", gruppe: "Heute" },
   { id: "h4", typ: "preis-erhoehung", text: "Preiserhöhung bei Notion erkannt (+18 %).", zeit: "gestern", gruppe: "Gestern" },
   { id: "h5", typ: "report", text: "Weiterverrechnungs-Report für Nordwerk erstellt.", zeit: "gestern", gruppe: "Gestern" },

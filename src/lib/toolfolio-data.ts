@@ -18,7 +18,7 @@ export type Zahlungskanal =
 
 export type Kunde =
   | "Kunde Nordwerk"
-  | "Kunde Holzbau Kessler"
+  | "Kunde Kessler"
   | "Kunde Solea"
   | "Intern / nicht zugeordnet";
 
@@ -49,8 +49,8 @@ export const abos: Abo[] = [
   { id: "2", tool: "Slack", initial: "S", farbe: "#611f69", kategorie: "Kommunikation", kosten: 78.5, intervall: "monatlich", naechsteAbbuchung: "2026-07-02", zahlungskanal: "Mastercard •••• 7093", kunde: "Intern / nicht zugeordnet", status: "aktiv" },
   { id: "3", tool: "Figma", initial: "F", farbe: "#a259ff", kategorie: "Design", kosten: 45, intervall: "monatlich", naechsteAbbuchung: "2026-07-08", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Nordwerk", status: "aktiv" },
   { id: "4", tool: "Adobe Creative Cloud", initial: "A", farbe: "#d83b01", kategorie: "Design", kosten: 719.88, intervall: "jährlich", naechsteAbbuchung: "2026-11-12", zahlungskanal: "SEPA-Lastschrift", kunde: "Intern / nicht zugeordnet", status: "aktiv" },
-  { id: "5", tool: "Ahrefs", initial: "A", farbe: "#0e7ec6", kategorie: "SEO", kosten: 199, intervall: "monatlich", naechsteAbbuchung: "2026-08-14", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Holzbau Kessler", status: "aktiv" },
-  { id: "6", tool: "Screaming Frog", initial: "S", farbe: "#0EA371", kategorie: "SEO", kosten: 239, intervall: "jährlich", naechsteAbbuchung: "2026-09-01", zahlungskanal: "PayPal", kunde: "Kunde Holzbau Kessler", status: "aktiv" },
+  { id: "5", tool: "Ahrefs", initial: "A", farbe: "#0e7ec6", kategorie: "SEO", kosten: 199, intervall: "monatlich", naechsteAbbuchung: "2026-08-14", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Kessler", status: "aktiv" },
+  { id: "6", tool: "Screaming Frog", initial: "S", farbe: "#0EA371", kategorie: "SEO", kosten: 239, intervall: "jährlich", naechsteAbbuchung: "2026-09-01", zahlungskanal: "PayPal", kunde: "Kunde Kessler", status: "aktiv" },
   { id: "7", tool: "Lovable", initial: "L", farbe: "#3A57E8", kategorie: "Entwicklung", kosten: 89, intervall: "monatlich", naechsteAbbuchung: "2026-06-30", zahlungskanal: "Mastercard •••• 7093", kunde: "Intern / nicht zugeordnet", status: "aktiv" },
   { id: "8", tool: "Anthropic API", initial: "C", farbe: "#cc785c", kategorie: "KI / API", kosten: 312.4, intervall: "monatlich", naechsteAbbuchung: "2026-07-01", zahlungskanal: "Mastercard •••• 7093", kunde: "Kunde Solea", status: "aktiv" },
   { id: "9", tool: "OpenAI", initial: "O", farbe: "#10a37f", kategorie: "KI / API", kosten: 184.2, intervall: "monatlich", naechsteAbbuchung: "2026-07-01", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Nordwerk", status: "aktiv" },
@@ -100,7 +100,7 @@ export const verlauf12M = [
 
 export const kostenNachKunde = [
   { name: "Kunde Nordwerk", wert: 458, farbe: "var(--color-primary)" },
-  { name: "Kunde Holzbau Kessler", wert: 419, farbe: "var(--color-success)" },
+  { name: "Kunde Kessler", wert: 419, farbe: "var(--color-success)" },
   { name: "Kunde Solea", wert: 590, farbe: "var(--color-warning)" },
   { name: "Intern / nicht zugeordnet", wert: 1013, farbe: "var(--color-muted-foreground)" },
 ];

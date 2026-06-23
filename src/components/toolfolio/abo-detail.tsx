@@ -105,7 +105,7 @@ const calendly: DetailAbo = {
   kuendigungsfristTage: 52,
   kuendbarBis: "2026-08-14",
   vertragsende: "2026-09-14",
-  kunde: "Kunde Holzbau Kessler",
+  kunde: "Kunde Kessler",
   weiterverrechnet: true,
   aufschlagProzent: 15,
   tags: ["Kundentermine", "extern sichtbar"],
@@ -558,7 +558,7 @@ export function AboDetail({ aboId }: { aboId?: string }) {
               <CardHead title="Notizen & Zugang" />
               <Textarea
                 placeholder="Notizen zu diesem Abo"
-                defaultValue="Wird für Kundentermine bei Holzbau Kessler genutzt, Buchungsseite eingebettet."
+                defaultValue="Wird für Kundentermine bei Kessler genutzt, Buchungsseite eingebettet."
                 className="min-h-24 rounded-xl"
               />
               <div className="mt-4 space-y-3 text-sm">
@@ -590,7 +590,7 @@ export function AboDetail({ aboId }: { aboId?: string }) {
                 {[
                   { d: "2026-06-18", t: "Rechnung eingegangen", k: "16,00 €" },
                   { d: "2026-05-04", t: "Erinnerung an Frist gesetzt" },
-                  { d: "2026-03-12", t: "Kunde Holzbau Kessler zugeordnet" },
+                  { d: "2026-03-12", t: "Kunde Kessler zugeordnet" },
                   { d: "2025-10-22", t: "Abo angelegt" },
                 ].map((e, i) => (
                   <li key={i} className="flex gap-3">

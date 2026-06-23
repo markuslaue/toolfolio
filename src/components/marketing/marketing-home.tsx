@@ -89,7 +89,7 @@ export function Nav() {
   }, []);
 
   const links = [
-    { label: "Produkt", href: "#features" },
+    { label: "Produkt", href: "/features" },
     { label: "Verzeichnis", href: "#verzeichnis" },
     { label: "Preise", href: "/preise" },
     { label: "Über uns", href: "#footer" },
@@ -194,7 +194,7 @@ export function Nav() {
  * Hier können später echte Backend-Screenshots eingesetzt werden,
  * indem der `children`-Inhalt durch ein <img /> ersetzt wird.
  */
-function ScreenshotFrame({
+export function ScreenshotFrame({
   label,
   caption,
   children,
@@ -241,7 +241,7 @@ function ScreenshotFrame({
 
 /* ---------- Eingebettete Backend-Vorschauen (austauschbar gegen echte Screenshots) ---------- */
 
-function PreviewDashboard() {
+export function PreviewDashboard() {
   return (
     <div className="absolute inset-0 p-5 grid grid-cols-3 gap-3">
       <div className="col-span-2 rounded-2xl bg-card border border-border p-4 flex flex-col">
@@ -312,7 +312,7 @@ function PreviewDashboard() {
   );
 }
 
-function PreviewImport() {
+export function PreviewImport() {
   const rows = [
     { d: "01.06.", t: "STRIPE *FIGMA", b: 45, ok: true, neu: false },
     { d: "03.06.", t: "ANTHROPIC API", b: 312, ok: true, neu: true },
@@ -356,7 +356,7 @@ function PreviewImport() {
   );
 }
 
-function PreviewFristen() {
+export function PreviewFristen() {
   const items = [
     { t: "Adobe Creative Cloud", days: 4, severity: "danger", note: "Verlängert sich um 12 Monate" },
     { t: "Framer Trial", days: 9, severity: "warn", note: "Wird kostenpflichtig" },
@@ -392,7 +392,7 @@ function PreviewFristen() {
   );
 }
 
-function PreviewAiCredits() {
+export function PreviewAiCredits() {
   return (
     <div className="absolute inset-0 p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between text-xs">
@@ -420,7 +420,7 @@ function PreviewAiCredits() {
   );
 }
 
-function PreviewBenchmark() {
+export function PreviewBenchmark() {
   const rows = [
     { t: "Linear", you: 49, market: 39, diff: 10 },
     { t: "Notion", you: 96, market: 84, diff: 12 },
@@ -468,7 +468,7 @@ function PreviewBenchmark() {
   );
 }
 
-function PreviewSparvorschlaege() {
+export function PreviewSparvorschlaege() {
   const items = [
     { t: "Figma jährlich statt monatlich", save: 144, btn: "Umstellen" },
     { t: "Loom seit 5 Monaten ungenutzt", save: 180, btn: "Prüfen" },
@@ -501,7 +501,7 @@ function PreviewSparvorschlaege() {
   );
 }
 
-function PreviewKunde() {
+export function PreviewKunde() {
   const tools = [
     { t: "Figma", k: 45, c: "var(--color-cat-design)" },
     { t: "OpenAI", k: 184, c: "var(--color-cat-ai)" },
@@ -543,7 +543,7 @@ function PreviewKunde() {
   );
 }
 
-function PreviewVerzeichnis() {
+export function PreviewVerzeichnis() {
   const rows = [
     { t: "Linear", cat: "Entwicklung", ab: 8, verified: true },
     { t: "Height", cat: "Entwicklung", ab: 6, verified: true },
