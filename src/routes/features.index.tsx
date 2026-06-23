@@ -1,9 +1,7 @@
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { FeaturesPage } from "@/components/marketing/features-page";
 
-export const Route = createFileRoute("/features")({
-  component: () => <Outlet />,
-});
-
+export const Route = createFileRoute("/features/")({
   head: () => ({
     meta: [
       { title: "Funktionen – Toolfolio" },
