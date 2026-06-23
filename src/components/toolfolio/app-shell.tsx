@@ -12,6 +12,7 @@ import {
   Plus,
   ChevronDown,
   Menu,
+  PiggyBank,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ const navItems = [
   { label: "Abos", icon: Layers, to: "/abos" },
   { label: "Kunden", icon: Users, to: "/kunden" },
   { label: "Zahlungskanäle", icon: CreditCard, to: "/zahlungskanaele" },
+  { label: "Sparvorschläge", icon: PiggyBank, to: "/sparvorschlaege" },
   { label: "Verzeichnis", icon: BookOpen, to: "/verzeichnis" },
   { label: "Berichte", icon: BarChart3, to: "/berichte" },
   { label: "Einstellungen", icon: Settings, to: "/einstellungen" },
