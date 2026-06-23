@@ -145,15 +145,48 @@ export function Nav() {
           </a>
 
           <nav className="hidden md:flex items-center gap-1">
-            {links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="rounded-full px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent transition-colors"
-              >
-                {l.label}
-              </a>
-            ))}
+            {links.map((l) =>
+              l.children ? (
+                <div key={l.href} className="relative group">
+                  <a
+                    href={l.href}
+                    className="inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent transition-colors"
+                  >
+                    {l.label}
+                    <svg
+                      className="size-3 opacity-60"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M3 4.5 6 7.5 9 4.5" />
+                    </svg>
+                  </a>
+                  <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 absolute left-0 top-full pt-2 transition-opacity z-50">
+                    <div className="min-w-[220px] rounded-2xl border border-border bg-card p-2 shadow-lift">
+                      {l.children.map((c) => (
+                        <a
+                          key={c.href}
+                          href={c.href}
+                          className="block rounded-xl px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent"
+                        >
+                          {c.label}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  className="rounded-full px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent transition-colors"
+                >
+                  {l.label}
+                </a>
+              ),
+            )}
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
