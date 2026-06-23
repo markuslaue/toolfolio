@@ -20,6 +20,7 @@ import {
   Mail,
   Calculator,
   Archive,
+  TrendingUp,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ const navItems = [
   { label: "Berichte", icon: BarChart3, to: "/berichte" },
   { label: "Steuer-Export", icon: Calculator, to: "/steuer-export" },
   { label: "Archiv", icon: Archive, to: "/archiv" },
+  { label: "Budget & Forecast", icon: TrendingUp, to: "/budget" },
   { label: "Einstellungen", icon: Settings, to: "/einstellungen" },
 ];
 
