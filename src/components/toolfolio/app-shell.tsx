@@ -21,6 +21,7 @@ import {
   Calculator,
   Archive,
   TrendingUp,
+  Armchair,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ const navItems = [
   { label: "Steuer-Export", icon: Calculator, to: "/steuer-export" },
   { label: "Archiv", icon: Archive, to: "/archiv" },
   { label: "Budget & Forecast", icon: TrendingUp, to: "/budget" },
+  { label: "Seats & Lizenzen", icon: Armchair, to: "/seats" },
   { label: "Einstellungen", icon: Settings, to: "/einstellungen" },
 ];
 

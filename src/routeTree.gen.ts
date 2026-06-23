@@ -13,6 +13,7 @@ import { Route as ZahlungskanaeleRouteImport } from './routes/zahlungskanaele'
 import { Route as VerzeichnisRouteImport } from './routes/verzeichnis'
 import { Route as SteuerExportRouteImport } from './routes/steuer-export'
 import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
+import { Route as SeatsRouteImport } from './routes/seats'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as FristenRouteImport } from './routes/fristen'
@@ -47,6 +48,11 @@ const SteuerExportRoute = SteuerExportRouteImport.update({
 const SparvorschlaegeRoute = SparvorschlaegeRouteImport.update({
   id: '/sparvorschlaege',
   path: '/sparvorschlaege',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SeatsRoute = SeatsRouteImport.update({
+  id: '/seats',
+  path: '/seats',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
+  '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/steuer-export': typeof SteuerExportRoute
   '/verzeichnis': typeof VerzeichnisRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
+  '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/steuer-export': typeof SteuerExportRoute
   '/verzeichnis': typeof VerzeichnisRoute
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
+  '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/steuer-export': typeof SteuerExportRoute
   '/verzeichnis': typeof VerzeichnisRoute
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
     | '/fristen'
     | '/import'
     | '/onboarding'
+    | '/seats'
     | '/sparvorschlaege'
     | '/steuer-export'
     | '/verzeichnis'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/fristen'
     | '/import'
     | '/onboarding'
+    | '/seats'
     | '/sparvorschlaege'
     | '/steuer-export'
     | '/verzeichnis'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/fristen'
     | '/import'
     | '/onboarding'
+    | '/seats'
     | '/sparvorschlaege'
     | '/steuer-export'
     | '/verzeichnis'
@@ -267,6 +279,7 @@ export interface RootRouteChildren {
   FristenRoute: typeof FristenRoute
   ImportRoute: typeof ImportRoute
   OnboardingRoute: typeof OnboardingRoute
+  SeatsRoute: typeof SeatsRoute
   SparvorschlaegeRoute: typeof SparvorschlaegeRoute
   SteuerExportRoute: typeof SteuerExportRoute
   VerzeichnisRoute: typeof VerzeichnisRoute
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       path: '/sparvorschlaege'
       fullPath: '/sparvorschlaege'
       preLoaderRoute: typeof SparvorschlaegeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seats': {
+      id: '/seats'
+      path: '/seats'
+      fullPath: '/seats'
+      preLoaderRoute: typeof SeatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -427,6 +447,7 @@ const rootRouteChildren: RootRouteChildren = {
   FristenRoute: FristenRoute,
   ImportRoute: ImportRoute,
   OnboardingRoute: OnboardingRoute,
+  SeatsRoute: SeatsRoute,
   SparvorschlaegeRoute: SparvorschlaegeRoute,
   SteuerExportRoute: SteuerExportRoute,
   VerzeichnisRoute: VerzeichnisRoute,
