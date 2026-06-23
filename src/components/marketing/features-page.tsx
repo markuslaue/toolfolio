@@ -326,7 +326,7 @@ function Blocks() {
                   </h3>
                   <p className="mt-4 text-base sm:text-lg text-muted-foreground">{b.desc}</p>
                   <a
-                    href={`/features/${b.id}`}
+                    href={detailHrefFor(b.id)}
                     className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
                   >
                     Mehr erfahren <ArrowRight className="size-4" />
