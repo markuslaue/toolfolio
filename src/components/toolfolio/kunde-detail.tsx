@@ -184,7 +184,7 @@ const VITALPLANT_TOOLS: KundeTool[] = [
 const KUNDEN_DETAILS: Record<string, KundeDetailData> = {
   k1: {
     id: "k1",
-    name: "Vitalplant",
+    name: "Nordwerk",
     ansprechpartner: "Lara Hoffmann",
     email: "lara@vitalplant.de",
     farbe: "#6C5CE7",

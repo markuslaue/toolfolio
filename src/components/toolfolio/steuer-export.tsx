@@ -80,7 +80,7 @@ const initialPosten: Posten[] = [
     ustSatz: 19,
     waehrung: { code: "USD", betrag: 195 },
     kanal: "Firmenkreditkarte",
-    kunde: "Vitalplant",
+    kunde: "Nordwerk",
   },
   {
     id: "p3",
@@ -92,7 +92,7 @@ const initialPosten: Posten[] = [
     netto: 240,
     ustSatz: 19,
     kanal: "SEPA-Lastschrift",
-    kunde: "FULEX",
+    kunde: "Holzbau Kessler",
   },
   {
     id: "p4",
@@ -139,7 +139,7 @@ const initialPosten: Posten[] = [
     ustSatz: 19,
     waehrung: { code: "USD", betrag: 239 },
     kanal: "Firmenkreditkarte",
-    kunde: "Vitalplant",
+    kunde: "Nordwerk",
   },
   {
     id: "p8",
@@ -152,7 +152,7 @@ const initialPosten: Posten[] = [
     ustSatz: 19,
     waehrung: { code: "USD", betrag: 96 },
     kanal: "Firmenkreditkarte",
-    kunde: "FULEX",
+    kunde: "Holzbau Kessler",
   },
 ];
 

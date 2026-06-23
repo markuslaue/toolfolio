@@ -221,13 +221,13 @@ const INITIAL_AKTIONEN: Aktion[] = [
 
 const AKTIVITAET: AktivitaetsEintrag[] = [
   { id: "h1", typ: "abo-add", text: "Abo Notion hinzugefügt.", zeit: "vor 1 Stunde", gruppe: "Heute" },
-  { id: "h2", typ: "kunde-zuordnen", text: "Kunde FULEX zu Calendly zugeordnet.", zeit: "vor 3 Stunden", gruppe: "Heute" },
+  { id: "h2", typ: "kunde-zuordnen", text: "Kunde Holzbau Kessler zu Calendly zugeordnet.", zeit: "vor 3 Stunden", gruppe: "Heute" },
   { id: "h3", typ: "vorschlag-umgesetzt", text: "Sparvorschlag Adobe CC umgesetzt, 240,00 € pro Jahr geholt.", zeit: "vor 5 Stunden", gruppe: "Heute" },
   { id: "h4", typ: "preis-erhoehung", text: "Preiserhöhung bei Notion erkannt (+18 %).", zeit: "gestern", gruppe: "Gestern" },
-  { id: "h5", typ: "report", text: "Weiterverrechnungs-Report für Vitalplant erstellt.", zeit: "gestern", gruppe: "Gestern" },
+  { id: "h5", typ: "report", text: "Weiterverrechnungs-Report für Nordwerk erstellt.", zeit: "gestern", gruppe: "Gestern" },
   { id: "h6", typ: "import", text: "Kontoauszug importiert, 14 Abos hinzugefügt.", zeit: "vor 2 Tagen", gruppe: "Diese Woche" },
   { id: "h7", typ: "vorschlag-umgesetzt", text: "Sparvorschlag Figma umgesetzt, 144,00 € pro Jahr geholt.", zeit: "vor 3 Tagen", gruppe: "Diese Woche" },
-  { id: "h8", typ: "kunde-zuordnen", text: "Kunde ZAQQ zu Loom zugeordnet.", zeit: "vor 3 Tagen", gruppe: "Diese Woche" },
+  { id: "h8", typ: "kunde-zuordnen", text: "Kunde Solea zu Loom zugeordnet.", zeit: "vor 3 Tagen", gruppe: "Diese Woche" },
   { id: "h9", typ: "zahlungskanal", text: "Zahlungskanal Mastercard •••• 7093 bearbeitet.", zeit: "vor 4 Tagen", gruppe: "Diese Woche" },
   { id: "h10", typ: "abo-add", text: "Abo Linear hinzugefügt.", zeit: "vor 5 Tagen", gruppe: "Diese Woche" },
   { id: "h11", typ: "report", text: "Monatsbericht Juni erstellt.", zeit: "vor 8 Tagen", gruppe: "Älter" },

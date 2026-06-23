@@ -12,17 +12,17 @@ export interface AboListItem extends Omit<Abo, "status"> {
 
 const extra: AboListItem[] = [
   { id: "20", tool: "Sentry", initial: "S", farbe: "#362D59", kategorie: "Entwicklung", kosten: 26, intervall: "monatlich", naechsteAbbuchung: "2026-07-12", zahlungskanal: "Visa •••• 4821", kunde: "Intern / nicht zugeordnet", status: "aktiv", hinweise: [] },
-  { id: "21", tool: "Cloudflare", initial: "C", farbe: "#F38020", kategorie: "Entwicklung", kosten: 20, intervall: "monatlich", naechsteAbbuchung: "2026-07-06", zahlungskanal: "Mastercard •••• 7093", kunde: "Kunde ZAQQ", status: "aktiv", hinweise: [] },
+  { id: "21", tool: "Cloudflare", initial: "C", farbe: "#F38020", kategorie: "Entwicklung", kosten: 20, intervall: "monatlich", naechsteAbbuchung: "2026-07-06", zahlungskanal: "Mastercard •••• 7093", kunde: "Kunde Solea", status: "aktiv", hinweise: [] },
   { id: "22", tool: "Calendly", initial: "C", farbe: "#006BFF", kategorie: "Produktivität", kosten: 16, intervall: "monatlich", naechsteAbbuchung: "2026-07-18", zahlungskanal: "PayPal", kunde: "Intern / nicht zugeordnet", status: "aktiv", hinweise: ["zombie"] },
-  { id: "23", tool: "Typeform", initial: "T", farbe: "#262627", kategorie: "Produktivität", kosten: 35, intervall: "monatlich", naechsteAbbuchung: "2026-07-22", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Vitalplant", status: "aktiv", hinweise: [] },
+  { id: "23", tool: "Typeform", initial: "T", farbe: "#262627", kategorie: "Produktivität", kosten: 35, intervall: "monatlich", naechsteAbbuchung: "2026-07-22", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Nordwerk", status: "aktiv", hinweise: [] },
   { id: "24", tool: "Zapier", initial: "Z", farbe: "#FF4F00", kategorie: "Produktivität", kosten: 49, intervall: "monatlich", naechsteAbbuchung: "2026-07-19", zahlungskanal: "Mastercard •••• 7093", kunde: "Intern / nicht zugeordnet", status: "aktiv", hinweise: ["sparvorschlag"] },
-  { id: "25", tool: "HubSpot", initial: "H", farbe: "#FF7A59", kategorie: "Kommunikation", kosten: 450, intervall: "monatlich", naechsteAbbuchung: "2026-07-20", zahlungskanal: "SEPA-Lastschrift", kunde: "Kunde FULEX", status: "aktiv", hinweise: ["preiserhoehung"] },
-  { id: "26", tool: "Mailchimp", initial: "M", farbe: "#FFE01B", kategorie: "Kommunikation", kosten: 69, intervall: "monatlich", naechsteAbbuchung: "2026-07-24", zahlungskanal: "PayPal", kunde: "Kunde Vitalplant", status: "Trial", hinweise: ["frist"] },
-  { id: "27", tool: "Hotjar", initial: "H", farbe: "#FD3A5C", kategorie: "SEO", kosten: 39, intervall: "monatlich", naechsteAbbuchung: "2026-07-28", zahlungskanal: "Visa •••• 4821", kunde: "Kunde FULEX", status: "aktiv", hinweise: [] },
+  { id: "25", tool: "HubSpot", initial: "H", farbe: "#FF7A59", kategorie: "Kommunikation", kosten: 450, intervall: "monatlich", naechsteAbbuchung: "2026-07-20", zahlungskanal: "SEPA-Lastschrift", kunde: "Kunde Holzbau Kessler", status: "aktiv", hinweise: ["preiserhoehung"] },
+  { id: "26", tool: "Mailchimp", initial: "M", farbe: "#FFE01B", kategorie: "Kommunikation", kosten: 69, intervall: "monatlich", naechsteAbbuchung: "2026-07-24", zahlungskanal: "PayPal", kunde: "Kunde Nordwerk", status: "Trial", hinweise: ["frist"] },
+  { id: "27", tool: "Hotjar", initial: "H", farbe: "#FD3A5C", kategorie: "SEO", kosten: 39, intervall: "monatlich", naechsteAbbuchung: "2026-07-28", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Holzbau Kessler", status: "aktiv", hinweise: [] },
   { id: "28", tool: "1Password", initial: "1", farbe: "#0572EC", kategorie: "Produktivität", kosten: 95.88, intervall: "jährlich", naechsteAbbuchung: "2027-02-14", zahlungskanal: "Mastercard •••• 7093", kunde: "Intern / nicht zugeordnet", status: "aktiv", hinweise: [] },
-  { id: "29", tool: "Webflow", initial: "W", farbe: "#146EF5", kategorie: "Design", kosten: 23, intervall: "monatlich", naechsteAbbuchung: "2026-07-16", zahlungskanal: "Visa •••• 4821", kunde: "Kunde ZAQQ", status: "gekündigt", hinweise: [] },
+  { id: "29", tool: "Webflow", initial: "W", farbe: "#146EF5", kategorie: "Design", kosten: 23, intervall: "monatlich", naechsteAbbuchung: "2026-07-16", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Solea", status: "gekündigt", hinweise: [] },
   { id: "30", tool: "Miro", initial: "M", farbe: "#FFD02F", kategorie: "Design", kosten: 12, intervall: "monatlich", naechsteAbbuchung: "2026-07-09", zahlungskanal: "PayPal", kunde: "Intern / nicht zugeordnet", status: "archiviert", hinweise: [] },
-  { id: "31", tool: "Perplexity API", initial: "P", farbe: "#1FB8CD", kategorie: "KI / API", kosten: 58, intervall: "monatlich", naechsteAbbuchung: "2026-07-02", zahlungskanal: "Mastercard •••• 7093", kunde: "Kunde Vitalplant", status: "aktiv", hinweise: ["spike"], waehrung: "USD" },
+  { id: "31", tool: "Perplexity API", initial: "P", farbe: "#1FB8CD", kategorie: "KI / API", kosten: 58, intervall: "monatlich", naechsteAbbuchung: "2026-07-02", zahlungskanal: "Mastercard •••• 7093", kunde: "Kunde Nordwerk", status: "aktiv", hinweise: ["spike"], waehrung: "USD" },
 ];
 
 // Add hinweise to base abos
@@ -41,7 +41,7 @@ const enriched: AboListItem[] = baseAbos.map((a): AboListItem => {
 export const alleAbos: AboListItem[] = [...enriched, ...extra];
 
 export const kategorien: Kategorie[] = ["Design", "SEO", "Kommunikation", "KI / API", "Entwicklung", "Produktivität", "eCommerce"];
-export const kunden: Kunde[] = ["Kunde Vitalplant", "Kunde FULEX", "Kunde ZAQQ", "Intern / nicht zugeordnet"];
+export const kunden: Kunde[] = ["Kunde Nordwerk", "Kunde Holzbau Kessler", "Kunde Solea", "Intern / nicht zugeordnet"];
 export const kanaele: Zahlungskanal[] = ["Visa •••• 4821", "Mastercard •••• 7093", "SEPA-Lastschrift", "PayPal", "Stripe-Guthaben"];
 export const intervalle: Interval[] = ["monatlich", "quartalsweise", "jährlich"];
 export const statusOptionen: ErweiterterStatus[] = ["aktiv", "Trial", "pausiert", "gekündigt", "archiviert"];

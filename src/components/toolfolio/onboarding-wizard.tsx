@@ -118,7 +118,7 @@ export function OnboardingWizard() {
   const [abos, setAbos] = useState<ErkanntesAbo[]>(erkannteAbosMock);
 
   // Schritt 5
-  const [kunden, setKunden] = useState<string[]>(["Vitalplant", "FULEX", "ZAQQ"]);
+  const [kunden, setKunden] = useState<string[]>(["Nordwerk", "Holzbau Kessler", "Solea"]);
   const [kundeInput, setKundeInput] = useState("");
 
   const zeigtKunden = profil === "Agentur" || profil === "Unternehmen";

@@ -85,7 +85,7 @@ const initial: Antrag[] = [
     zweck: "Async-Video-Updates für Kundenfreigaben statt 30-Minuten-Meetings.",
     kosten: 15,
     intervall: "monatlich",
-    fuer: "Kunde Vitalplant",
+    fuer: "Kunde Nordwerk",
     kontext: [
       {
         typ: "alternative",
@@ -792,7 +792,7 @@ function NeuerAntrag({ onSubmit }: { onSubmit: (a: Antrag) => void }) {
             className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm"
           >
             <option value="intern">intern</option>
-            <option value="Kunde Vitalplant">Kunde Vitalplant</option>
+            <option value="Kunde Nordwerk">Kunde Nordwerk</option>
             <option value="Kunde Mertens">Kunde Mertens</option>
             <option value="Kunde Brauwerk">Kunde Brauwerk</option>
           </select>

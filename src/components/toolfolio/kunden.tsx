@@ -83,7 +83,7 @@ const FARBEN = [
 const initialKunden: Kunde[] = [
   {
     id: "k1",
-    name: "Kunde Vitalplant",
+    name: "Kunde Nordwerk",
     ansprechpartner: "Lara Hoffmann",
     email: "lara@vitalplant.de",
     farbe: "#6C5CE7",
@@ -96,7 +96,7 @@ const initialKunden: Kunde[] = [
   },
   {
     id: "k2",
-    name: "Kunde FULEX",
+    name: "Kunde Holzbau Kessler",
     ansprechpartner: "Jonas Maier",
     email: "j.maier@fulex.com",
     farbe: "#12B76A",
@@ -108,7 +108,7 @@ const initialKunden: Kunde[] = [
   },
   {
     id: "k3",
-    name: "Kunde ZAQQ",
+    name: "Kunde Solea",
     ansprechpartner: "Mara Becker",
     email: "ops@zaqq.io",
     farbe: "#FF7A66",
@@ -985,7 +985,7 @@ function KundenPanel({
                 id="k-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="z. B. Kunde Vitalplant"
+                placeholder="z. B. Kunde Nordwerk"
               />
             </div>
 

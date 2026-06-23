@@ -513,7 +513,7 @@ function PreviewKunde() {
       <div className="flex items-center justify-between">
         <div>
           <div className="text-[10px] text-muted-foreground">Kunde</div>
-          <div className="font-display text-base font-semibold">Vitalplant GmbH</div>
+          <div className="font-display text-base font-semibold">Nordwerk Studio</div>
         </div>
         <div className="text-right">
           <div className="text-[10px] text-muted-foreground">Tool-Kosten / Monat</div>
