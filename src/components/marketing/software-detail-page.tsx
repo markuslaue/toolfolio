@@ -492,6 +492,7 @@ export const toolfolioDetail: SoftwareDetailData = {
 // ---------- Component ----------
 export function SoftwareDetailPage({ data }: { data: SoftwareDetailData }) {
   const labelColor = "#6C5CE7";
+  const [activeShot, setActiveShot] = useState(0);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
