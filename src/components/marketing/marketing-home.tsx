@@ -5,7 +5,7 @@ import {
   X,
   ShieldCheck,
   Sparkles,
-  Wallet,
+  
   CalendarClock,
   Cpu,
   Users,
@@ -1105,5 +1105,3 @@ export function MarketingHome() {
 }
 
 export default MarketingHome;
-
-export { Wallet };
