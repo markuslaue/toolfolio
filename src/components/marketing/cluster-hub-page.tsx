@@ -690,11 +690,11 @@ export function ClusterHubPage({ cluster }: { cluster: ClusterData }) {
         <Reveal>
           <div className="rounded-3xl border border-border bg-card/50 p-6 sm:p-10 shadow-soft">
             <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
-              {cluster.title}: Überblick, Auswahlkriterien und Einordnung für den DACH-Markt
+              {cluster.name}: Überblick, Auswahlkriterien und Einordnung für den DACH-Markt
             </h2>
             <div className="mt-6 space-y-5 text-foreground/80 leading-relaxed text-[15px]">
               <p>
-                {cluster.title} ist heute weit mehr als reine Dokumentenablage. Du arbeitest mit Verträgen,
+                {cluster.name} ist heute weit mehr als reine Dokumentenablage. Du arbeitest mit Verträgen,
                 die geschäftskritisch sind: Sie binden Budget, regeln Verantwortlichkeiten und tragen
                 Fristen, die im Alltag schnell aus dem Blick geraten. Wer im DACH-Raum Software für diese
                 Aufgaben sucht, braucht eine Übersicht, die nicht nur Funktionen aufzählt, sondern erklärt,
