@@ -13,9 +13,23 @@ import {
   Bell,
   X,
   PartyPopper,
+  Ticket,
+  ShieldCheck,
+  Copy,
+  ExternalLink,
+  Handshake,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +43,15 @@ import { cn } from "@/lib/utils";
 import { fmtEUR } from "@/lib/toolfolio-data";
 import { useCountUp } from "@/hooks/use-count-up";
 
-type Typ = "intervall" | "marktpreis" | "redundanz" | "zombie" | "alternative" | "guthaben";
+type Typ =
+  | "intervall"
+  | "marktpreis"
+  | "redundanz"
+  | "zombie"
+  | "alternative"
+  | "guthaben"
+  | "gutschein"
+  | "retention";
 type Status = "offen" | "umgesetzt" | "ignoriert";
 
 interface Vorschlag {
@@ -37,12 +59,21 @@ interface Vorschlag {
   typ: Typ;
   titel: string;
   ersparnisJahr: number;
+  ersparnisMax?: number; // für Spannen (Retention)
   geschaetzt?: boolean;
+  weicherWert?: boolean; // zählt nicht voll ins offene Potenzial
   begruendung: string;
   tools: { name: string; farbe: string }[];
   aktion: string;
   hausmarke?: boolean;
   status: Status;
+  // Gutschein
+  code?: string;
+  gueltig?: string;
+  partner?: boolean;
+  einloesenUrl?: string;
+  // Retention
+  konfidenz?: string;
 }
 
 const TYP_META: Record<Typ, { label: string; icon: typeof Calendar; tone: string; bg: string }> = {
@@ -52,10 +83,12 @@ const TYP_META: Record<Typ, { label: string; icon: typeof Calendar; tone: string
   zombie: { label: "Sparvorschlag, Zombie-Abo", icon: Ghost, tone: "text-rose-700", bg: "bg-rose-100" },
   alternative: { label: "Sparvorschlag, Alternative", icon: ArrowLeftRight, tone: "text-violet-700", bg: "bg-violet-100" },
   guthaben: { label: "Sparvorschlag, Guthaben", icon: Wallet, tone: "text-amber-700", bg: "bg-amber-100" },
+  gutschein: { label: "Sparvorschlag, Gutschein", icon: Ticket, tone: "text-emerald-700", bg: "bg-emerald-100" },
+  retention: { label: "Sparvorschlag, Kündigungs-Rabatt", icon: ShieldCheck, tone: "text-violet-700", bg: "bg-gradient-to-r from-amber-100 to-violet-100" },
 };
 
 const INITIAL: Vorschlag[] = [
-  // Offen (Summe etwa 444 €)
+  // Offen
   {
     id: "v1",
     typ: "marktpreis",
@@ -111,7 +144,67 @@ const INITIAL: Vorschlag[] = [
     aktion: "Ansehen",
     status: "offen",
   },
-  // Umgesetzt (Summe 840 €)
+  // Neu: Gutscheine
+  {
+    id: "g1",
+    typ: "gutschein",
+    titel: "Gutschein für Calendly",
+    ersparnisJahr: 32,
+    begruendung: "2 Monate gratis bei Umstellung auf Jahreszahlung.",
+    tools: [{ name: "Calendly", farbe: "#006bff" }],
+    aktion: "Gutschein einlösen",
+    status: "offen",
+    code: "JAHR2FREI",
+    gueltig: "gültig bis 31.07.2026",
+    partner: true,
+    einloesenUrl: "https://calendly.com/pricing",
+  },
+  {
+    id: "g2",
+    typ: "gutschein",
+    titel: "Gutschein für Ahrefs",
+    ersparnisJahr: 192,
+    begruendung: "20 % Rabatt auf das erste Jahr.",
+    tools: [{ name: "Ahrefs", farbe: "#0070f3" }],
+    aktion: "Code kopieren",
+    status: "offen",
+    code: "AHREFS20",
+    gueltig: "unbefristete Aktion",
+    partner: false,
+    einloesenUrl: "https://ahrefs.com/pricing",
+  },
+  // Neu: Retention
+  {
+    id: "r1",
+    typ: "retention",
+    titel: "Kündigungs-Rabatt möglich bei Adobe Creative Cloud",
+    ersparnisJahr: 144,
+    ersparnisMax: 216,
+    geschaetzt: true,
+    weicherWert: true,
+    begruendung:
+      "Viele Anbieter bieten im Kündigungsprozess einen Rabatt an, um dich zu halten, dauerhaft oder für einige Monate.",
+    konfidenz: "erfahrungsgemäß, von der Community gemeldet, nicht garantiert",
+    tools: [{ name: "Adobe CC", farbe: "#d83b01" }],
+    aktion: "Rabatt-Strategie ansehen",
+    status: "offen",
+  },
+  {
+    id: "r2",
+    typ: "retention",
+    titel: "Kündigungs-Rabatt möglich bei Calendly",
+    ersparnisJahr: 24,
+    ersparnisMax: 48,
+    geschaetzt: true,
+    weicherWert: true,
+    begruendung:
+      "Im Kündigungsprozess wird häufig ein vorübergehender Rabatt für mehrere Monate angeboten.",
+    konfidenz: "erfahrungsgemäß, von der Community gemeldet, nicht garantiert",
+    tools: [{ name: "Calendly", farbe: "#006bff" }],
+    aktion: "Rabatt-Strategie ansehen",
+    status: "offen",
+  },
+  // Umgesetzt
   {
     id: "v6",
     typ: "alternative",
@@ -170,14 +263,14 @@ const INITIAL: Vorschlag[] = [
     titel: "Vercel-Tarif zu hoch",
     ersparnisJahr: 96,
     geschaetzt: true,
-    begruendung: "Cheaper Anbieter verfügbar, Performance ist uns aber wichtig.",
+    begruendung: "Günstigere Anbieter verfügbar, Performance ist uns aber wichtig.",
     tools: [{ name: "Vercel", farbe: "#0F1419" }],
     aktion: "Tarife vergleichen",
     status: "ignoriert",
   },
 ];
 
-const REALISIERT_BASIS = 840; // bereits realisiert vor den umgesetzten Karten
+const REALISIERT_BASIS = 840;
 const GESAMT_POTENZIAL = 1284;
 
 export function Sparvorschlaege() {
@@ -186,9 +279,8 @@ export function Sparvorschlaege() {
   const [typFilter, setTypFilter] = useState<Set<Typ>>(new Set());
   const [sort, setSort] = useState<"hoch" | "niedrig">("hoch");
   const [confetti, setConfetti] = useState<{ key: number; amount: number } | null>(null);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
 
-  // Anfangs sind 4 umgesetzte Karten Teil der 840 € Basis. Spätere Umsetzungen
-  // erhöhen den realisierten Wert direkt.
   const umgesetztInitialIds = useMemo(
     () => new Set(INITIAL.filter((i) => i.status === "umgesetzt").map((i) => i.id)),
     [],
@@ -204,8 +296,20 @@ export function Sparvorschlaege() {
     return REALISIERT_BASIS + zusatz - entfernt;
   }, [items, umgesetztInitialIds]);
 
+  // Hartes offenes Potenzial: ohne weiche Werte (Retention)
   const offenSumme = useMemo(
-    () => items.filter((i) => i.status === "offen").reduce((s, i) => s + i.ersparnisJahr, 0),
+    () =>
+      items
+        .filter((i) => i.status === "offen" && !i.weicherWert)
+        .reduce((s, i) => s + i.ersparnisJahr, 0),
+    [items],
+  );
+  // Zusätzlich möglich: weiche Werte (Spannen-Untergrenze)
+  const zusaetzlichMoeglich = useMemo(
+    () =>
+      items
+        .filter((i) => i.status === "offen" && i.weicherWert)
+        .reduce((s, i) => s + i.ersparnisJahr, 0),
     [items],
   );
   const offenAnzahl = items.filter((i) => i.status === "offen").length;
@@ -218,6 +322,15 @@ export function Sparvorschlaege() {
     );
     return list;
   }, [items, tab, typFilter, sort]);
+
+  // Map: Tool -> verfügbarer Gutschein (für Chip an anderen Karten)
+  const gutscheinByTool = useMemo(() => {
+    const map = new Map<string, Vorschlag>();
+    items
+      .filter((i) => i.typ === "gutschein" && i.status === "offen")
+      .forEach((g) => g.tools.forEach((t) => map.set(t.name, g)));
+    return map;
+  }, [items]);
 
   const setStatus = (id: string, neu: Status, undoMsg: string) => {
     const prev = items;
@@ -234,10 +347,22 @@ export function Sparvorschlaege() {
 
   const umsetzen = (v: Vorschlag) =>
     setStatus(v.id, "umgesetzt", `Stark, ${fmtEUR(v.ersparnisJahr)} pro Jahr geholt`);
-  const ignorieren = (v: Vorschlag) =>
-    setStatus(v.id, "ignoriert", `${v.titel} ignoriert`);
+  const ignorieren = (v: Vorschlag) => setStatus(v.id, "ignoriert", `${v.titel} ignoriert`);
   const wiederherstellen = (v: Vorschlag) =>
     setStatus(v.id, "offen", `${v.titel} zurück in Offen`);
+
+  const jumpTo = (id: string) => {
+    setTab("offen");
+    setTypFilter(new Set());
+    setTimeout(() => {
+      const el = document.getElementById(`vorschlag-${id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setHighlightId(id);
+        setTimeout(() => setHighlightId(null), 1600);
+      }
+    }, 60);
+  };
 
   const counts = {
     offen: items.filter((i) => i.status === "offen").length,
@@ -254,7 +379,12 @@ export function Sparvorschlaege() {
         <p className="text-muted-foreground">Hol dir zurück, was du zu viel zahlst.</p>
       </header>
 
-      <SparHero realisiert={realisiert} offen={offenSumme} anzahl={offenAnzahl} />
+      <SparHero
+        realisiert={realisiert}
+        offen={offenSumme}
+        zusaetzlich={zusaetzlichMoeglich}
+        anzahl={offenAnzahl}
+      />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Tabs current={tab} onChange={setTab} counts={counts} />
@@ -268,19 +398,28 @@ export function Sparvorschlaege() {
         <EmptyState tab={tab} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {sichtbar.map((v) => (
-            <VorschlagCard
-              key={v.id}
-              v={v}
-              tab={tab}
-              onUmsetzen={() => umsetzen(v)}
-              onIgnorieren={() => ignorieren(v)}
-              onWiederherstellen={() => wiederherstellen(v)}
-              onErinnern={() =>
-                toast("Wir erinnern dich in 7 Tagen.", { description: v.titel })
-              }
-            />
-          ))}
+          {sichtbar.map((v) => {
+            const gutschein =
+              v.typ !== "gutschein"
+                ? v.tools.map((t) => gutscheinByTool.get(t.name)).find(Boolean)
+                : undefined;
+            return (
+              <VorschlagCard
+                key={v.id}
+                v={v}
+                tab={tab}
+                highlight={highlightId === v.id}
+                gutscheinChip={gutschein ? { id: gutschein.id, tool: gutschein.tools[0].name } : null}
+                onJumpToGutschein={(id) => jumpTo(id)}
+                onUmsetzen={() => umsetzen(v)}
+                onIgnorieren={() => ignorieren(v)}
+                onWiederherstellen={() => wiederherstellen(v)}
+                onErinnern={() =>
+                  toast("Wir erinnern dich in 7 Tagen.", { description: v.titel })
+                }
+              />
+            );
+          })}
         </div>
       )}
 
@@ -292,17 +431,18 @@ export function Sparvorschlaege() {
 function SparHero({
   realisiert,
   offen,
+  zusaetzlich,
   anzahl,
 }: {
   realisiert: number;
   offen: number;
+  zusaetzlich: number;
   anzahl: number;
 }) {
   const ziel = GESAMT_POTENZIAL;
   const animated = useCountUp(realisiert, 800);
   const pct = Math.min(1, animated / ziel);
 
-  // Ring
   const size = 200;
   const stroke = 18;
   const r = (size - stroke) / 2;
@@ -314,14 +454,7 @@ function SparHero({
       <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
         <div className="relative shrink-0" style={{ width: size, height: size }}>
           <svg width={size} height={size} className="-rotate-90">
-            <circle
-              cx={size / 2}
-              cy={size / 2}
-              r={r}
-              stroke="hsl(20 90% 95%)"
-              strokeWidth={stroke}
-              fill="none"
-            />
+            <circle cx={size / 2} cy={size / 2} r={r} stroke="hsl(20 90% 95%)" strokeWidth={stroke} fill="none" />
             <circle
               cx={size / 2}
               cy={size / 2}
@@ -362,10 +495,16 @@ function SparHero({
             Bleib dran, jeder umgesetzte Vorschlag füllt den Ring weiter.
           </p>
 
-          <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Kpi label="offenes Potenzial" wert={fmtEUR(offen)} suffix="/ Jahr" tone="coral" />
             <Kpi label="realisiert" wert={fmtEUR(realisiert)} suffix="/ Jahr" tone="emerald" />
             <Kpi label="offene Vorschläge" wert={String(anzahl)} tone="violet" />
+            <Kpi
+              label="zusätzlich möglich"
+              wert={`ab ${fmtEUR(zusaetzlich)}`}
+              suffix="Kündigungs-Rabatte"
+              tone="amber"
+            />
           </div>
         </div>
       </div>
@@ -382,14 +521,16 @@ function Kpi({
   label: string;
   wert: string;
   suffix?: string;
-  tone: "coral" | "emerald" | "violet";
+  tone: "coral" | "emerald" | "violet" | "amber";
 }) {
   const toneCls =
     tone === "coral"
       ? "text-orange-600"
       : tone === "emerald"
         ? "text-emerald-700"
-        : "text-violet-700";
+        : tone === "amber"
+          ? "text-amber-700"
+          : "text-violet-700";
   return (
     <div className="rounded-2xl bg-white/70 backdrop-blur p-3 border border-white">
       <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
@@ -425,9 +566,7 @@ function Tabs({
             onClick={() => onChange(t.key)}
             className={cn(
               "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-colors whitespace-nowrap",
-              active
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
+              active ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
             )}
           >
             {t.label}
@@ -446,14 +585,17 @@ function Tabs({
   );
 }
 
-function TypFilter({
-  value,
-  onChange,
-}: {
-  value: Set<Typ>;
-  onChange: (s: Set<Typ>) => void;
-}) {
-  const all: Typ[] = ["intervall", "marktpreis", "redundanz", "zombie", "alternative", "guthaben"];
+function TypFilter({ value, onChange }: { value: Set<Typ>; onChange: (s: Set<Typ>) => void }) {
+  const all: Typ[] = [
+    "intervall",
+    "marktpreis",
+    "redundanz",
+    "zombie",
+    "alternative",
+    "guthaben",
+    "gutschein",
+    "retention",
+  ];
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -466,7 +608,7 @@ function TypFilter({
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52">
+      <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>Nach Typ filtern</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {all.map((t) => (
@@ -505,7 +647,8 @@ function SortDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="gap-1.5 rounded-full">
-          <ArrowUpDown className="size-4" /> {value === "hoch" ? "Höchste Ersparnis" : "Geringste Ersparnis"}
+          <ArrowUpDown className="size-4" />{" "}
+          {value === "hoch" ? "Höchste Ersparnis" : "Geringste Ersparnis"}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -519,6 +662,9 @@ function SortDropdown({
 function VorschlagCard({
   v,
   tab,
+  highlight,
+  gutscheinChip,
+  onJumpToGutschein,
   onUmsetzen,
   onIgnorieren,
   onWiederherstellen,
@@ -526,6 +672,9 @@ function VorschlagCard({
 }: {
   v: Vorschlag;
   tab: Status;
+  highlight: boolean;
+  gutscheinChip: { id: string; tool: string } | null;
+  onJumpToGutschein: (id: string) => void;
   onUmsetzen: () => void;
   onIgnorieren: () => void;
   onWiederherstellen: () => void;
@@ -534,9 +683,25 @@ function VorschlagCard({
   const meta = TYP_META[v.typ];
   const Icon = meta.icon;
 
+  const copyCode = async () => {
+    if (!v.code) return;
+    try {
+      await navigator.clipboard.writeText(v.code);
+      toast("Code kopiert", { description: v.code });
+    } catch {
+      toast("Konnte Code nicht kopieren");
+    }
+  };
+
   return (
-    <Card className="group rounded-3xl p-5 transition-all hover:-translate-y-0.5 hover:shadow-md animate-fade-in">
-      <div className="flex items-center justify-between">
+    <Card
+      id={`vorschlag-${v.id}`}
+      className={cn(
+        "group rounded-3xl p-5 transition-all hover:-translate-y-0.5 hover:shadow-md animate-fade-in",
+        highlight && "ring-2 ring-emerald-400 ring-offset-2",
+      )}
+    >
+      <div className="flex items-center justify-between gap-2">
         <span
           className={cn(
             "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
@@ -546,24 +711,69 @@ function VorschlagCard({
         >
           <Icon className="size-3.5" /> {meta.label}
         </span>
-        {v.hausmarke && (
-          <span className="text-[10px] uppercase tracking-wide text-violet-700 bg-violet-50 rounded-full px-2 py-0.5">
-            Hausmarke
-          </span>
-        )}
+        <div className="flex items-center gap-1.5">
+          {v.partner && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-medium text-violet-700 ring-1 ring-violet-200">
+              <Handshake className="size-3" /> Partner-Deal
+            </span>
+          )}
+          {v.hausmarke && (
+            <span className="text-[10px] uppercase tracking-wide text-violet-700 bg-violet-50 rounded-full px-2 py-0.5">
+              Hausmarke
+            </span>
+          )}
+        </div>
       </div>
 
       <h3 className="mt-3 font-display text-lg font-semibold tracking-tight">{v.titel}</h3>
 
-      <div className="mt-2 inline-flex items-baseline gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
-        <span className="font-display text-lg font-semibold tabular-nums">
-          spare {fmtEUR(v.ersparnisJahr)}
-        </span>
-        <span className="text-xs">pro Jahr</span>
-        {v.geschaetzt && <span className="text-[10px] text-emerald-700/70 ml-1">geschätzt</span>}
-      </div>
+      {/* Spar-Badge */}
+      {v.typ === "retention" ? (
+        <div className="mt-2 inline-flex items-baseline gap-1.5 rounded-full bg-gradient-to-r from-amber-50 to-violet-50 px-3 py-1.5 text-violet-700 ring-1 ring-violet-100">
+          <span className="font-display text-base font-semibold tabular-nums">
+            erfahrungsgemäß {fmtEUR(v.ersparnisJahr)}
+            {v.ersparnisMax ? ` bis ${fmtEUR(v.ersparnisMax)}` : ""}
+          </span>
+          <span className="text-xs">pro Jahr möglich</span>
+        </div>
+      ) : (
+        <div className="mt-2 inline-flex items-baseline gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
+          <span className="font-display text-lg font-semibold tabular-nums">
+            spare {fmtEUR(v.ersparnisJahr)}
+          </span>
+          <span className="text-xs">
+            {v.typ === "gutschein" ? "im ersten Jahr" : "pro Jahr"}
+          </span>
+          {v.geschaetzt && <span className="text-[10px] text-emerald-700/70 ml-1">geschätzt</span>}
+        </div>
+      )}
 
       <p className="mt-3 text-sm text-muted-foreground">{v.begruendung}</p>
+
+      {/* Gutschein-Code-Feld */}
+      {v.typ === "gutschein" && v.code && (
+        <div className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/60 px-3 py-2">
+          <div className="min-w-0">
+            <div className="text-[10px] uppercase tracking-wide text-emerald-700/70">Code</div>
+            <div className="font-mono text-sm font-semibold text-emerald-900 truncate">{v.code}</div>
+          </div>
+          <Button size="sm" variant="outline" className="rounded-full shrink-0" onClick={copyCode}>
+            <Copy className="size-3.5 mr-1" /> Kopieren
+          </Button>
+        </div>
+      )}
+
+      {v.typ === "gutschein" && v.gueltig && (
+        <div className="mt-2 text-[11px] text-muted-foreground">{v.gueltig}</div>
+      )}
+
+      {/* Retention Konfidenz */}
+      {v.typ === "retention" && v.konfidenz && (
+        <div className="mt-3 flex items-start gap-1.5 rounded-xl bg-amber-50 px-3 py-2 text-[11px] text-amber-800 ring-1 ring-amber-100">
+          <Info className="size-3.5 mt-0.5 shrink-0" />
+          <span>{v.konfidenz}</span>
+        </div>
+      )}
 
       <div className="mt-3 flex flex-wrap gap-1.5">
         {v.tools.map((t) => (
@@ -580,6 +790,16 @@ function VorschlagCard({
             {t.name}
           </span>
         ))}
+
+        {gutscheinChip && tab === "offen" && (
+          <button
+            type="button"
+            onClick={() => onJumpToGutschein(gutscheinChip.id)}
+            className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-100 transition-colors"
+          >
+            <Ticket className="size-3.5" /> Gutschein verfügbar
+          </button>
+        )}
       </div>
 
       {v.typ === "marktpreis" && tab === "offen" && (
@@ -591,13 +811,55 @@ function VorschlagCard({
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {tab === "offen" && (
           <>
-            <Button size="sm" className="rounded-full bg-emerald-600 hover:bg-emerald-700" onClick={onUmsetzen}>
-              <Check className="size-4 mr-1" /> {v.aktion}
-            </Button>
-            <Button size="sm" variant="ghost" className="rounded-full" onClick={onErinnern}>
-              <Bell className="size-4 mr-1" /> Später erinnern
-            </Button>
-            <Button size="sm" variant="ghost" className="rounded-full text-muted-foreground" onClick={onIgnorieren}>
+            {v.typ === "gutschein" ? (
+              <>
+                {v.einloesenUrl && (
+                  <Button
+                    size="sm"
+                    className="rounded-full bg-emerald-600 hover:bg-emerald-700"
+                    asChild
+                  >
+                    <a href={v.einloesenUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="size-4 mr-1" /> Gutschein einlösen
+                    </a>
+                  </Button>
+                )}
+                {v.code && (
+                  <Button size="sm" variant="outline" className="rounded-full" onClick={copyCode}>
+                    <Copy className="size-4 mr-1" /> Code kopieren
+                  </Button>
+                )}
+                <Button size="sm" variant="ghost" className="rounded-full" onClick={onUmsetzen}>
+                  <Check className="size-4 mr-1" /> Eingelöst
+                </Button>
+              </>
+            ) : v.typ === "retention" ? (
+              <>
+                <RetentionDialog v={v} onUmsetzen={onUmsetzen} />
+                <Button size="sm" variant="ghost" className="rounded-full" onClick={onErinnern}>
+                  <Bell className="size-4 mr-1" /> Später erinnern
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  className="rounded-full bg-emerald-600 hover:bg-emerald-700"
+                  onClick={onUmsetzen}
+                >
+                  <Check className="size-4 mr-1" /> {v.aktion}
+                </Button>
+                <Button size="sm" variant="ghost" className="rounded-full" onClick={onErinnern}>
+                  <Bell className="size-4 mr-1" /> Später erinnern
+                </Button>
+              </>
+            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              className="rounded-full text-muted-foreground"
+              onClick={onIgnorieren}
+            >
               <X className="size-4 mr-1" /> Ignorieren
             </Button>
           </>
@@ -622,6 +884,80 @@ function VorschlagCard({
         )}
       </div>
     </Card>
+  );
+}
+
+function RetentionDialog({ v, onUmsetzen }: { v: Vorschlag; onUmsetzen: () => void }) {
+  const [open, setOpen] = useState(false);
+  const tool = v.tools[0]?.name ?? "den Anbieter";
+  const schritte = [
+    {
+      titel: "Kündigung im Konto starten",
+      text: `Geh in deinem ${tool}-Konto in die Abo-Einstellungen und starte die Kündigung. Halteangebote erscheinen meist erst, wenn der Anbieter merkt, dass du es ernst meinst.`,
+    },
+    {
+      titel: "Auf das Halteangebot warten",
+      text: "Im letzten Schritt kommt häufig ein Pop-up oder eine Mail mit Rabatt, Gratismonaten oder einem günstigeren Tarif. Lies das Angebot in Ruhe.",
+    },
+    {
+      titel: "Angebot annehmen oder wirklich kündigen",
+      text: "Passt das Angebot, nimm es an. Passt es nicht, zieh die Kündigung durch. Beides ist okay.",
+    },
+    {
+      titel: "Ergebnis in Toolfolio festhalten",
+      text: "Markiere danach hier 'Rabatt erhalten' oder 'gekündigt', damit dein Tracker stimmt. Den Ablauf kannst du auch über den Kündigungs-Assistenten starten.",
+    },
+  ];
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" className="rounded-full bg-violet-600 hover:bg-violet-700">
+          <ShieldCheck className="size-4 mr-1" /> Rabatt-Strategie ansehen
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="font-display">Kündigungs-Rabatt holen, Schritt für Schritt</DialogTitle>
+          <DialogDescription>
+            So gehst du bei {tool} vor. Erfahrungswert, kein garantierter Ablauf.
+          </DialogDescription>
+        </DialogHeader>
+        <ol className="mt-2 space-y-3">
+          {schritte.map((s, i) => (
+            <li key={i} className="flex gap-3">
+              <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-violet-100 text-violet-700 text-xs font-semibold">
+                {i + 1}
+              </span>
+              <div>
+                <div className="text-sm font-semibold">{s.titel}</div>
+                <div className="text-sm text-muted-foreground">{s.text}</div>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => {
+              setOpen(false);
+              toast("Als gekündigt vermerkt", { description: v.titel });
+            }}
+          >
+            Wirklich gekündigt
+          </Button>
+          <Button
+            className="rounded-full bg-emerald-600 hover:bg-emerald-700"
+            onClick={() => {
+              setOpen(false);
+              onUmsetzen();
+            }}
+          >
+            <Check className="size-4 mr-1" /> Rabatt erhalten
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
