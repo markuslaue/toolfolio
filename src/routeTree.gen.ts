@@ -13,7 +13,6 @@ import { Route as ZahlungskanaeleRouteImport } from './routes/zahlungskanaele'
 import { Route as VerzeichnisRouteImport } from './routes/verzeichnis'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as SteuerExportRouteImport } from './routes/steuer-export'
-import { Route as StartRouteImport } from './routes/start'
 import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
 import { Route as SeatsRouteImport } from './routes/seats'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -59,11 +58,6 @@ const TeamRoute = TeamRouteImport.update({
 const SteuerExportRoute = SteuerExportRouteImport.update({
   id: '/steuer-export',
   path: '/steuer-export',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StartRoute = StartRouteImport.update({
-  id: '/start',
-  path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SparvorschlaegeRoute = SparvorschlaegeRouteImport.update({
@@ -216,7 +210,6 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
-  '/start': typeof StartRoute
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
   '/verzeichnis': typeof VerzeichnisRoute
@@ -248,7 +241,6 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
-  '/start': typeof StartRoute
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
   '/verzeichnis': typeof VerzeichnisRoute
@@ -282,7 +274,6 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/seats': typeof SeatsRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
-  '/start': typeof StartRoute
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
   '/verzeichnis': typeof VerzeichnisRoute
@@ -317,7 +308,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/seats'
     | '/sparvorschlaege'
-    | '/start'
     | '/steuer-export'
     | '/team'
     | '/verzeichnis'
@@ -349,7 +339,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/seats'
     | '/sparvorschlaege'
-    | '/start'
     | '/steuer-export'
     | '/team'
     | '/verzeichnis'
@@ -382,7 +371,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/seats'
     | '/sparvorschlaege'
-    | '/start'
     | '/steuer-export'
     | '/team'
     | '/verzeichnis'
@@ -416,7 +404,6 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   SeatsRoute: typeof SeatsRoute
   SparvorschlaegeRoute: typeof SparvorschlaegeRoute
-  StartRoute: typeof StartRoute
   SteuerExportRoute: typeof SteuerExportRoute
   TeamRoute: typeof TeamRoute
   VerzeichnisRoute: typeof VerzeichnisRoute
@@ -455,13 +442,6 @@ declare module '@tanstack/react-router' {
       path: '/steuer-export'
       fullPath: '/steuer-export'
       preLoaderRoute: typeof SteuerExportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/start': {
-      id: '/start'
-      path: '/start'
-      fullPath: '/start'
-      preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sparvorschlaege': {
@@ -688,7 +668,6 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   SeatsRoute: SeatsRoute,
   SparvorschlaegeRoute: SparvorschlaegeRoute,
-  StartRoute: StartRoute,
   SteuerExportRoute: SteuerExportRoute,
   TeamRoute: TeamRoute,
   VerzeichnisRoute: VerzeichnisRoute,
