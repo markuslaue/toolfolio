@@ -13,6 +13,7 @@ import { Route as ZahlungskanaeleRouteImport } from './routes/zahlungskanaele'
 import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
+import { Route as BenachrichtigungenRouteImport } from './routes/benachrichtigungen'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
@@ -37,6 +38,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const ImportRoute = ImportRouteImport.update({
   id: '/import',
   path: '/import',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BenachrichtigungenRoute = BenachrichtigungenRouteImport.update({
+  id: '/benachrichtigungen',
+  path: '/benachrichtigungen',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -67,6 +73,7 @@ const AbosAboIdRoute = AbosAboIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/benachrichtigungen'
     | '/import'
     | '/onboarding'
     | '/sparvorschlaege'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/benachrichtigungen'
     | '/import'
     | '/onboarding'
     | '/sparvorschlaege'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/benachrichtigungen'
     | '/import'
     | '/onboarding'
     | '/sparvorschlaege'
@@ -137,6 +149,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BenachrichtigungenRoute: typeof BenachrichtigungenRoute
   ImportRoute: typeof ImportRoute
   OnboardingRoute: typeof OnboardingRoute
   SparvorschlaegeRoute: typeof SparvorschlaegeRoute
@@ -175,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/import'
       fullPath: '/import'
       preLoaderRoute: typeof ImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/benachrichtigungen': {
+      id: '/benachrichtigungen'
+      path: '/benachrichtigungen'
+      fullPath: '/benachrichtigungen'
+      preLoaderRoute: typeof BenachrichtigungenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -217,6 +237,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BenachrichtigungenRoute: BenachrichtigungenRoute,
   ImportRoute: ImportRoute,
   OnboardingRoute: OnboardingRoute,
   SparvorschlaegeRoute: SparvorschlaegeRoute,
@@ -229,3 +250,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
