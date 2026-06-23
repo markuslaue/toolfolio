@@ -69,6 +69,25 @@ export type DetailFaq = { q: string; a: string };
 
 export type DetailReview = { author: string; role: string; rating: number; text: string };
 
+export type DetailScreenshot = {
+  title: string;
+  caption: string;
+  description: string;
+  render: () => ReactNode;
+};
+
+export type DetailAudience = {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  text: string;
+};
+
+export type DetailSecurityItem = {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  text: string;
+};
+
 export type SoftwareDetailData = {
   // Breadcrumb
   clusterSlug: string;
@@ -77,25 +96,40 @@ export type SoftwareDetailData = {
   categoryName: string;
   // Header
   name: string;
-  logoChar: string; // initial for placeholder logo
+  logoChar: string;
   h1: string;
   tagline: string;
   rating: number;
   reviewCount: number;
-  selfListed?: boolean; // toggles "Eigenes Produkt" label
+  selfListed?: boolean;
   vendor: string;
   vendorNote?: string;
   hq: string;
   startingPrice: string;
+  websiteLabel?: string;
+  websiteHref?: string;
+  founded?: string;
   // Self-listing transparency
   selfListingNote?: string;
   // Description
   description: string[];
+  // Screenshots
+  screenshots?: DetailScreenshot[];
+  // Audience
+  audience?: DetailAudience[];
   // Pricing
   prices: DetailPrice[];
   pricingNote?: string;
   // Features
   features: DetailFeature[];
+  // Pros & Cons
+  pros?: string[];
+  cons?: string[];
+  // Integrations
+  integrations?: string[];
+  integrationsNote?: string;
+  // Security & Compliance
+  security?: DetailSecurityItem[];
   // Reviews
   reviews: DetailReview[];
   reviewsNote: string;
