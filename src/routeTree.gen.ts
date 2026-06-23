@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZahlungskanaeleRouteImport } from './routes/zahlungskanaele'
 import { Route as VerzeichnisRouteImport } from './routes/verzeichnis'
+import { Route as SteuerExportRouteImport } from './routes/steuer-export'
 import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
@@ -34,6 +35,11 @@ const ZahlungskanaeleRoute = ZahlungskanaeleRouteImport.update({
 const VerzeichnisRoute = VerzeichnisRouteImport.update({
   id: '/verzeichnis',
   path: '/verzeichnis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SteuerExportRoute = SteuerExportRouteImport.update({
+  id: '/steuer-export',
+  path: '/steuer-export',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SparvorschlaegeRoute = SparvorschlaegeRouteImport.update({
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
+  '/steuer-export': typeof SteuerExportRoute
   '/verzeichnis': typeof VerzeichnisRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
+  '/steuer-export': typeof SteuerExportRoute
   '/verzeichnis': typeof VerzeichnisRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
+  '/steuer-export': typeof SteuerExportRoute
   '/verzeichnis': typeof VerzeichnisRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
     | '/import'
     | '/onboarding'
     | '/sparvorschlaege'
+    | '/steuer-export'
     | '/verzeichnis'
     | '/zahlungskanaele'
     | '/abos/$aboId'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/import'
     | '/onboarding'
     | '/sparvorschlaege'
+    | '/steuer-export'
     | '/verzeichnis'
     | '/zahlungskanaele'
     | '/abos/$aboId'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/import'
     | '/onboarding'
     | '/sparvorschlaege'
+    | '/steuer-export'
     | '/verzeichnis'
     | '/zahlungskanaele'
     | '/abos/$aboId'
@@ -230,6 +242,7 @@ export interface RootRouteChildren {
   ImportRoute: typeof ImportRoute
   OnboardingRoute: typeof OnboardingRoute
   SparvorschlaegeRoute: typeof SparvorschlaegeRoute
+  SteuerExportRoute: typeof SteuerExportRoute
   VerzeichnisRoute: typeof VerzeichnisRoute
   ZahlungskanaeleRoute: typeof ZahlungskanaeleRoute
   AbosAboIdRoute: typeof AbosAboIdRoute
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/verzeichnis'
       fullPath: '/verzeichnis'
       preLoaderRoute: typeof VerzeichnisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/steuer-export': {
+      id: '/steuer-export'
+      path: '/steuer-export'
+      fullPath: '/steuer-export'
+      preLoaderRoute: typeof SteuerExportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sparvorschlaege': {
@@ -366,6 +386,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImportRoute: ImportRoute,
   OnboardingRoute: OnboardingRoute,
   SparvorschlaegeRoute: SparvorschlaegeRoute,
+  SteuerExportRoute: SteuerExportRoute,
   VerzeichnisRoute: VerzeichnisRoute,
   ZahlungskanaeleRoute: ZahlungskanaeleRoute,
   AbosAboIdRoute: AbosAboIdRoute,
