@@ -351,6 +351,53 @@ export const toolfolioDetail: SoftwareDetailData = {
       ],
     },
   ],
+  pros: [
+    "Klarer DACH-Fokus, mit Hosting in der EU und deutscher Buchhaltungslogik (z. B. UStG-konforme Belegablage).",
+    "Agentur-Layer mit Kosten pro Kunde und Weiterverrechnung ist Teil des Produkts, nicht teures Add-on.",
+    "Integriertes, neutrales Verzeichnis: Vergleich und Wechsel passieren ohne Tool-Bruch.",
+    "Free-Plan dauerhaft kostenlos, monatlich kündbar, keine Kreditkarte zum Start nötig.",
+  ],
+  cons: [
+    "Discovery aus Bank- und Karten-Konten ist schlanker als bei großen Enterprise-Plattformen wie Zluri.",
+    "Kein eigenes Karten- oder Zahlungssystem wie bei Pleo oder Spendesk.",
+    "Junges Produkt: Funktionsumfang wächst, einzelne Integrationen kommen Stück für Stück nach.",
+  ],
+  integrations: [
+    "DATEV-Export",
+    "lexoffice",
+    "sevDesk",
+    "Stripe",
+    "PayPal",
+    "Google Workspace",
+    "Microsoft 365",
+    "Slack",
+    "Zapier",
+    "API & Webhooks",
+  ],
+  integrationsNote:
+    "Weitere Integrationen folgen laufend. Was du nicht direkt verbinden kannst, lässt sich per Zapier, API oder CSV-Import abdecken.",
+  security: [
+    {
+      icon: ShieldCheck,
+      title: "DSGVO-konform",
+      text: "Mit Auftragsverarbeitungsvertrag, klarer Datenminimierung und dokumentierter Rechtsgrundlage.",
+    },
+    {
+      icon: Server,
+      title: "Hosting in der EU",
+      text: "Alle Daten werden ausschließlich in der Europäischen Union verarbeitet und gespeichert.",
+    },
+    {
+      icon: Lock,
+      title: "Verschlüsselung",
+      text: "TLS in der Übertragung, AES-256 für gespeicherte Daten. Belege und Verträge bleiben geschützt.",
+    },
+    {
+      icon: KeyRound,
+      title: "Rollen & Freigaben",
+      text: "Feingranulare Rollen für Team und Kunden, mit Freigabeprozessen und Audit-Log.",
+    },
+  ],
   reviews: [
     {
       author: "Platzhalter",
