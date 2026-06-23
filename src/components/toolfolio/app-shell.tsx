@@ -125,11 +125,11 @@ function TopBar({ onMenu }: { onMenu: () => void }) {
           <Menu className="size-4" />
         </button>
         <div className="min-w-0 flex-1">
-          <div className="font-display text-base sm:text-lg font-semibold truncate">
-            Moin, Markus
+          <div className="font-display text-lg sm:text-xl font-semibold truncate tracking-tight">
+            Moin, Markus 👋
           </div>
           <div className="hidden sm:block text-xs text-muted-foreground">
-            Wir behalten deine Software für dich im Blick.
+            Dein Tool-Stack ist gut im Griff.
           </div>
         </div>
 
