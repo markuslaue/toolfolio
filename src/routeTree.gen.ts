@@ -20,6 +20,7 @@ import { Route as ImportRouteImport } from './routes/import'
 import { Route as GesellschaftenRouteImport } from './routes/gesellschaften'
 import { Route as FristenRouteImport } from './routes/fristen'
 import { Route as FreigabenRouteImport } from './routes/freigaben'
+import { Route as EinstellungenRouteImport } from './routes/einstellungen'
 import { Route as BudgetRouteImport } from './routes/budget'
 import { Route as BerichteRouteImport } from './routes/berichte'
 import { Route as BenchmarkRouteImport } from './routes/benchmark'
@@ -29,8 +30,14 @@ import { Route as ArchivRouteImport } from './routes/archiv'
 import { Route as AiCreditsRouteImport } from './routes/ai-credits'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as KundenIndexRouteImport } from './routes/kunden.index'
+import { Route as EinstellungenIndexRouteImport } from './routes/einstellungen.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
 import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
+import { Route as EinstellungenUnternehmenRouteImport } from './routes/einstellungen.unternehmen'
+import { Route as EinstellungenTeamRouteImport } from './routes/einstellungen.team'
+import { Route as EinstellungenPlanRouteImport } from './routes/einstellungen.plan'
+import { Route as EinstellungenDatenRouteImport } from './routes/einstellungen.daten'
+import { Route as EinstellungenBenachrichtigungenRouteImport } from './routes/einstellungen.benachrichtigungen'
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 
 const ZahlungskanaeleRoute = ZahlungskanaeleRouteImport.update({
@@ -88,6 +95,11 @@ const FreigabenRoute = FreigabenRouteImport.update({
   path: '/freigaben',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EinstellungenRoute = EinstellungenRouteImport.update({
+  id: '/einstellungen',
+  path: '/einstellungen',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BudgetRoute = BudgetRouteImport.update({
   id: '/budget',
   path: '/budget',
@@ -133,6 +145,11 @@ const KundenIndexRoute = KundenIndexRouteImport.update({
   path: '/kunden/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EinstellungenIndexRoute = EinstellungenIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EinstellungenRoute,
+} as any)
 const AbosIndexRoute = AbosIndexRouteImport.update({
   id: '/abos/',
   path: '/abos/',
@@ -143,6 +160,33 @@ const KundenKundeIdRoute = KundenKundeIdRouteImport.update({
   path: '/kunden/$kundeId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EinstellungenUnternehmenRoute =
+  EinstellungenUnternehmenRouteImport.update({
+    id: '/unternehmen',
+    path: '/unternehmen',
+    getParentRoute: () => EinstellungenRoute,
+  } as any)
+const EinstellungenTeamRoute = EinstellungenTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => EinstellungenRoute,
+} as any)
+const EinstellungenPlanRoute = EinstellungenPlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
+  getParentRoute: () => EinstellungenRoute,
+} as any)
+const EinstellungenDatenRoute = EinstellungenDatenRouteImport.update({
+  id: '/daten',
+  path: '/daten',
+  getParentRoute: () => EinstellungenRoute,
+} as any)
+const EinstellungenBenachrichtigungenRoute =
+  EinstellungenBenachrichtigungenRouteImport.update({
+    id: '/benachrichtigungen',
+    path: '/benachrichtigungen',
+    getParentRoute: () => EinstellungenRoute,
+  } as any)
 const AbosAboIdRoute = AbosAboIdRouteImport.update({
   id: '/abos/$aboId',
   path: '/abos/$aboId',
@@ -158,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/benchmark': typeof BenchmarkRoute
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
+  '/einstellungen': typeof EinstellungenRouteWithChildren
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
   '/gesellschaften': typeof GesellschaftenRoute
@@ -170,8 +215,14 @@ export interface FileRoutesByFullPath {
   '/verzeichnis': typeof VerzeichnisRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
+  '/einstellungen/daten': typeof EinstellungenDatenRoute
+  '/einstellungen/plan': typeof EinstellungenPlanRoute
+  '/einstellungen/team': typeof EinstellungenTeamRoute
+  '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos/': typeof AbosIndexRoute
+  '/einstellungen/': typeof EinstellungenIndexRoute
   '/kunden/': typeof KundenIndexRoute
 }
 export interface FileRoutesByTo {
@@ -195,8 +246,14 @@ export interface FileRoutesByTo {
   '/verzeichnis': typeof VerzeichnisRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
+  '/einstellungen/daten': typeof EinstellungenDatenRoute
+  '/einstellungen/plan': typeof EinstellungenPlanRoute
+  '/einstellungen/team': typeof EinstellungenTeamRoute
+  '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos': typeof AbosIndexRoute
+  '/einstellungen': typeof EinstellungenIndexRoute
   '/kunden': typeof KundenIndexRoute
 }
 export interface FileRoutesById {
@@ -209,6 +266,7 @@ export interface FileRoutesById {
   '/benchmark': typeof BenchmarkRoute
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
+  '/einstellungen': typeof EinstellungenRouteWithChildren
   '/freigaben': typeof FreigabenRoute
   '/fristen': typeof FristenRoute
   '/gesellschaften': typeof GesellschaftenRoute
@@ -221,8 +279,14 @@ export interface FileRoutesById {
   '/verzeichnis': typeof VerzeichnisRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
+  '/einstellungen/daten': typeof EinstellungenDatenRoute
+  '/einstellungen/plan': typeof EinstellungenPlanRoute
+  '/einstellungen/team': typeof EinstellungenTeamRoute
+  '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos/': typeof AbosIndexRoute
+  '/einstellungen/': typeof EinstellungenIndexRoute
   '/kunden/': typeof KundenIndexRoute
 }
 export interface FileRouteTypes {
@@ -236,6 +300,7 @@ export interface FileRouteTypes {
     | '/benchmark'
     | '/berichte'
     | '/budget'
+    | '/einstellungen'
     | '/freigaben'
     | '/fristen'
     | '/gesellschaften'
@@ -248,8 +313,14 @@ export interface FileRouteTypes {
     | '/verzeichnis'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/einstellungen/benachrichtigungen'
+    | '/einstellungen/daten'
+    | '/einstellungen/plan'
+    | '/einstellungen/team'
+    | '/einstellungen/unternehmen'
     | '/kunden/$kundeId'
     | '/abos/'
+    | '/einstellungen/'
     | '/kunden/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -273,8 +344,14 @@ export interface FileRouteTypes {
     | '/verzeichnis'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/einstellungen/benachrichtigungen'
+    | '/einstellungen/daten'
+    | '/einstellungen/plan'
+    | '/einstellungen/team'
+    | '/einstellungen/unternehmen'
     | '/kunden/$kundeId'
     | '/abos'
+    | '/einstellungen'
     | '/kunden'
   id:
     | '__root__'
@@ -286,6 +363,7 @@ export interface FileRouteTypes {
     | '/benchmark'
     | '/berichte'
     | '/budget'
+    | '/einstellungen'
     | '/freigaben'
     | '/fristen'
     | '/gesellschaften'
@@ -298,8 +376,14 @@ export interface FileRouteTypes {
     | '/verzeichnis'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/einstellungen/benachrichtigungen'
+    | '/einstellungen/daten'
+    | '/einstellungen/plan'
+    | '/einstellungen/team'
+    | '/einstellungen/unternehmen'
     | '/kunden/$kundeId'
     | '/abos/'
+    | '/einstellungen/'
     | '/kunden/'
   fileRoutesById: FileRoutesById
 }
@@ -312,6 +396,7 @@ export interface RootRouteChildren {
   BenchmarkRoute: typeof BenchmarkRoute
   BerichteRoute: typeof BerichteRoute
   BudgetRoute: typeof BudgetRoute
+  EinstellungenRoute: typeof EinstellungenRouteWithChildren
   FreigabenRoute: typeof FreigabenRoute
   FristenRoute: typeof FristenRoute
   GesellschaftenRoute: typeof GesellschaftenRoute
@@ -408,6 +493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FreigabenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/einstellungen': {
+      id: '/einstellungen'
+      path: '/einstellungen'
+      fullPath: '/einstellungen'
+      preLoaderRoute: typeof EinstellungenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/budget': {
       id: '/budget'
       path: '/budget'
@@ -471,6 +563,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KundenIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/einstellungen/': {
+      id: '/einstellungen/'
+      path: '/'
+      fullPath: '/einstellungen/'
+      preLoaderRoute: typeof EinstellungenIndexRouteImport
+      parentRoute: typeof EinstellungenRoute
+    }
     '/abos/': {
       id: '/abos/'
       path: '/abos'
@@ -485,6 +584,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KundenKundeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/einstellungen/unternehmen': {
+      id: '/einstellungen/unternehmen'
+      path: '/unternehmen'
+      fullPath: '/einstellungen/unternehmen'
+      preLoaderRoute: typeof EinstellungenUnternehmenRouteImport
+      parentRoute: typeof EinstellungenRoute
+    }
+    '/einstellungen/team': {
+      id: '/einstellungen/team'
+      path: '/team'
+      fullPath: '/einstellungen/team'
+      preLoaderRoute: typeof EinstellungenTeamRouteImport
+      parentRoute: typeof EinstellungenRoute
+    }
+    '/einstellungen/plan': {
+      id: '/einstellungen/plan'
+      path: '/plan'
+      fullPath: '/einstellungen/plan'
+      preLoaderRoute: typeof EinstellungenPlanRouteImport
+      parentRoute: typeof EinstellungenRoute
+    }
+    '/einstellungen/daten': {
+      id: '/einstellungen/daten'
+      path: '/daten'
+      fullPath: '/einstellungen/daten'
+      preLoaderRoute: typeof EinstellungenDatenRouteImport
+      parentRoute: typeof EinstellungenRoute
+    }
+    '/einstellungen/benachrichtigungen': {
+      id: '/einstellungen/benachrichtigungen'
+      path: '/benachrichtigungen'
+      fullPath: '/einstellungen/benachrichtigungen'
+      preLoaderRoute: typeof EinstellungenBenachrichtigungenRouteImport
+      parentRoute: typeof EinstellungenRoute
+    }
     '/abos/$aboId': {
       id: '/abos/$aboId'
       path: '/abos/$aboId'
@@ -495,6 +629,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface EinstellungenRouteChildren {
+  EinstellungenBenachrichtigungenRoute: typeof EinstellungenBenachrichtigungenRoute
+  EinstellungenDatenRoute: typeof EinstellungenDatenRoute
+  EinstellungenPlanRoute: typeof EinstellungenPlanRoute
+  EinstellungenTeamRoute: typeof EinstellungenTeamRoute
+  EinstellungenUnternehmenRoute: typeof EinstellungenUnternehmenRoute
+  EinstellungenIndexRoute: typeof EinstellungenIndexRoute
+}
+
+const EinstellungenRouteChildren: EinstellungenRouteChildren = {
+  EinstellungenBenachrichtigungenRoute: EinstellungenBenachrichtigungenRoute,
+  EinstellungenDatenRoute: EinstellungenDatenRoute,
+  EinstellungenPlanRoute: EinstellungenPlanRoute,
+  EinstellungenTeamRoute: EinstellungenTeamRoute,
+  EinstellungenUnternehmenRoute: EinstellungenUnternehmenRoute,
+  EinstellungenIndexRoute: EinstellungenIndexRoute,
+}
+
+const EinstellungenRouteWithChildren = EinstellungenRoute._addFileChildren(
+  EinstellungenRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiCreditsRoute: AiCreditsRoute,
@@ -504,6 +660,7 @@ const rootRouteChildren: RootRouteChildren = {
   BenchmarkRoute: BenchmarkRoute,
   BerichteRoute: BerichteRoute,
   BudgetRoute: BudgetRoute,
+  EinstellungenRoute: EinstellungenRouteWithChildren,
   FreigabenRoute: FreigabenRoute,
   FristenRoute: FristenRoute,
   GesellschaftenRoute: GesellschaftenRoute,
