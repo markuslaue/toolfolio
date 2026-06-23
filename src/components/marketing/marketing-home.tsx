@@ -88,10 +88,34 @@ export function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const links = [
+  const links: Array<{
+    label: string;
+    href: string;
+    children?: Array<{ label: string; href: string }>;
+  }> = [
     { label: "Produkt", href: "/features" },
-    { label: "Für wen", href: "/fuer/agenturen" },
-    { label: "Vergleich", href: "/vergleich/excel" },
+    {
+      label: "Für wen",
+      href: "/fuer/agenturen",
+      children: [
+        { label: "Agenturen", href: "/fuer/agenturen" },
+        { label: "Freelancer", href: "/fuer/freelancer" },
+        { label: "Solopreneure", href: "/fuer/solopreneure" },
+      ],
+    },
+    {
+      label: "Vergleich",
+      href: "/vergleich/excel",
+      children: [
+        { label: "vs. Excel", href: "/vergleich/excel" },
+        { label: "vs. Sastrify / Deel IT", href: "/vergleich/sastrify" },
+        { label: "vs. Cledara", href: "/vergleich/cledara" },
+        { label: "vs. Spendesk", href: "/vergleich/spendesk" },
+        { label: "vs. Pleo", href: "/vergleich/pleo" },
+        { label: "vs. Zluri", href: "/vergleich/zluri" },
+        { label: "vs. Torii", href: "/vergleich/torii" },
+      ],
+    },
     { label: "Preise", href: "/preise" },
   ];
 
