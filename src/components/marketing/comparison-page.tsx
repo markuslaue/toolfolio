@@ -1,4 +1,4 @@
-import { useState, type ComponentType } from "react";
+import { Fragment, useState, type ComponentType } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -119,7 +119,7 @@ function ChaosTablePreview() {
           ["???", "29", "?", "wer hat das?"],
           ["Calendly", "10$", "?", "USD?"],
           ["", "", "", ""],
-        ].map((row, i) => (
+        ].flatMap((row, i) => (
           row.map((cell, j) => (
             <div key={`${i}-${j}`} className={cn(
               "bg-white px-2 py-1",
@@ -295,8 +295,8 @@ export function ComparisonPage({ data }: { data: ComparisonData }) {
                 </thead>
                 <tbody>
                   {data.groups.map((g) => (
-                    <>
-                      <tr key={`g-${g.label}`}>
+                    <Fragment key={g.label}>
+                      <tr>
                         <td colSpan={3} className="bg-[#FBF7F1] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#1F1D2B]/60">
                           {g.label}
                         </td>
@@ -312,7 +312,7 @@ export function ComparisonPage({ data }: { data: ComparisonData }) {
                           </td>
                         </tr>
                       ))}
-                    </>
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
