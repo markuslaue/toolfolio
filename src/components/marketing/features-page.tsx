@@ -182,6 +182,24 @@ const blocks: Block[] = [
   },
 ];
 
+const idToSlug: Record<string, string> = {
+  ueberblick: "dashboard",
+  erfassen: "drei-wege-erfassung",
+  trials: "fristen-waechter",
+  fristen: "fristen-waechter",
+  ai: "ai-credits",
+  benchmark: "benchmark",
+  sparen: "sparvorschlaege",
+  kunden: "kosten-pro-kunde",
+  weiterverrechnung: "weiterverrechnung",
+};
+
+function detailHrefFor(id: string): string {
+  if (id === "verzeichnis") return "/verzeichnis";
+  if (id === "archiv") return "/features";
+  return `/features/${idToSlug[id] ?? id}`;
+}
+
 const rasterIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   abbuchungen: Bell,
   onboarding: Inbox,
