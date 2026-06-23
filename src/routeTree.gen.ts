@@ -15,6 +15,7 @@ import { Route as UeberUnsRouteImport } from './routes/ueber-uns'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as SteuerExportRouteImport } from './routes/steuer-export'
 import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
+import { Route as SicherheitRouteImport } from './routes/sicherheit'
 import { Route as SeatsRouteImport } from './routes/seats'
 import { Route as PreiseRouteImport } from './routes/preise'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -76,6 +77,11 @@ const SteuerExportRoute = SteuerExportRouteImport.update({
 const SparvorschlaegeRoute = SparvorschlaegeRouteImport.update({
   id: '/sparvorschlaege',
   path: '/sparvorschlaege',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SicherheitRoute = SicherheitRouteImport.update({
+  id: '/sicherheit',
+  path: '/sicherheit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SeatsRoute = SeatsRouteImport.update({
@@ -260,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/preise': typeof PreiseRoute
   '/seats': typeof SeatsRoute
+  '/sicherheit': typeof SicherheitRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
@@ -298,6 +305,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/preise': typeof PreiseRoute
   '/seats': typeof SeatsRoute
+  '/sicherheit': typeof SicherheitRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
@@ -339,6 +347,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/preise': typeof PreiseRoute
   '/seats': typeof SeatsRoute
+  '/sicherheit': typeof SicherheitRoute
   '/sparvorschlaege': typeof SparvorschlaegeRoute
   '/steuer-export': typeof SteuerExportRoute
   '/team': typeof TeamRoute
@@ -381,6 +390,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/preise'
     | '/seats'
+    | '/sicherheit'
     | '/sparvorschlaege'
     | '/steuer-export'
     | '/team'
@@ -419,6 +429,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/preise'
     | '/seats'
+    | '/sicherheit'
     | '/sparvorschlaege'
     | '/steuer-export'
     | '/team'
@@ -459,6 +470,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/preise'
     | '/seats'
+    | '/sicherheit'
     | '/sparvorschlaege'
     | '/steuer-export'
     | '/team'
@@ -500,6 +512,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PreiseRoute: typeof PreiseRoute
   SeatsRoute: typeof SeatsRoute
+  SicherheitRoute: typeof SicherheitRoute
   SparvorschlaegeRoute: typeof SparvorschlaegeRoute
   SteuerExportRoute: typeof SteuerExportRoute
   TeamRoute: typeof TeamRoute
@@ -556,6 +569,13 @@ declare module '@tanstack/react-router' {
       path: '/sparvorschlaege'
       fullPath: '/sparvorschlaege'
       preLoaderRoute: typeof SparvorschlaegeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sicherheit': {
+      id: '/sicherheit'
+      path: '/sicherheit'
+      fullPath: '/sicherheit'
+      preLoaderRoute: typeof SicherheitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/seats': {
@@ -840,6 +860,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PreiseRoute: PreiseRoute,
   SeatsRoute: SeatsRoute,
+  SicherheitRoute: SicherheitRoute,
   SparvorschlaegeRoute: SparvorschlaegeRoute,
   SteuerExportRoute: SteuerExportRoute,
   TeamRoute: TeamRoute,
