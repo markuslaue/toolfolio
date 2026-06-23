@@ -44,6 +44,7 @@ import { Route as FeaturesIndexRouteImport } from './routes/features.index'
 import { Route as EinstellungenIndexRouteImport } from './routes/einstellungen.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
 import { Route as VerzeichnisSucheRouteImport } from './routes/verzeichnis.suche'
+import { Route as VerzeichnisBewertenRouteImport } from './routes/verzeichnis.bewerten'
 import { Route as VergleichSlugRouteImport } from './routes/vergleich.$slug'
 import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
 import { Route as FuerSlugRouteImport } from './routes/fuer.$slug'
@@ -232,6 +233,11 @@ const VerzeichnisSucheRoute = VerzeichnisSucheRouteImport.update({
   path: '/verzeichnis/suche',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerzeichnisBewertenRoute = VerzeichnisBewertenRouteImport.update({
+  id: '/verzeichnis/bewerten',
+  path: '/verzeichnis/bewerten',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VergleichSlugRoute = VergleichSlugRouteImport.update({
   id: '/vergleich/$slug',
   path: '/vergleich/$slug',
@@ -336,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/bewerten': typeof VerzeichnisBewertenRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
@@ -383,6 +390,7 @@ export interface FileRoutesByTo {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/bewerten': typeof VerzeichnisBewertenRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
   '/abos': typeof AbosIndexRoute
   '/einstellungen': typeof EinstellungenIndexRoute
@@ -433,6 +441,7 @@ export interface FileRoutesById {
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/vergleich/$slug': typeof VergleichSlugRoute
+  '/verzeichnis/bewerten': typeof VerzeichnisBewertenRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
   '/abos/': typeof AbosIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
@@ -484,6 +493,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/bewerten'
     | '/verzeichnis/suche'
     | '/abos/'
     | '/einstellungen/'
@@ -531,6 +541,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/bewerten'
     | '/verzeichnis/suche'
     | '/abos'
     | '/einstellungen'
@@ -580,6 +591,7 @@ export interface FileRouteTypes {
     | '/fuer/$slug'
     | '/kunden/$kundeId'
     | '/vergleich/$slug'
+    | '/verzeichnis/bewerten'
     | '/verzeichnis/suche'
     | '/abos/'
     | '/einstellungen/'
@@ -624,6 +636,7 @@ export interface RootRouteChildren {
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
   VergleichSlugRoute: typeof VergleichSlugRoute
+  VerzeichnisBewertenRoute: typeof VerzeichnisBewertenRoute
   VerzeichnisSucheRoute: typeof VerzeichnisSucheRoute
   AbosIndexRoute: typeof AbosIndexRoute
   KundenIndexRoute: typeof KundenIndexRoute
@@ -879,6 +892,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerzeichnisSucheRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verzeichnis/bewerten': {
+      id: '/verzeichnis/bewerten'
+      path: '/verzeichnis/bewerten'
+      fullPath: '/verzeichnis/bewerten'
+      preLoaderRoute: typeof VerzeichnisBewertenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vergleich/$slug': {
       id: '/vergleich/$slug'
       path: '/vergleich/$slug'
@@ -1036,6 +1056,7 @@ const rootRouteChildren: RootRouteChildren = {
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
   VergleichSlugRoute: VergleichSlugRoute,
+  VerzeichnisBewertenRoute: VerzeichnisBewertenRoute,
   VerzeichnisSucheRoute: VerzeichnisSucheRoute,
   AbosIndexRoute: AbosIndexRoute,
   KundenIndexRoute: KundenIndexRoute,
