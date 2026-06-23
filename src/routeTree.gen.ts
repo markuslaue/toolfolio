@@ -15,6 +15,7 @@ import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as FristenRouteImport } from './routes/fristen'
+import { Route as BerichteRouteImport } from './routes/berichte'
 import { Route as BenchmarkRouteImport } from './routes/benchmark'
 import { Route as BenachrichtigungenRouteImport } from './routes/benachrichtigungen'
 import { Route as BelegPostfachRouteImport } from './routes/beleg-postfach'
@@ -53,6 +54,11 @@ const ImportRoute = ImportRouteImport.update({
 const FristenRoute = FristenRouteImport.update({
   id: '/fristen',
   path: '/fristen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BerichteRoute = BerichteRouteImport.update({
+  id: '/berichte',
+  path: '/berichte',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BenchmarkRoute = BenchmarkRouteImport.update({
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/beleg-postfach': typeof BelegPostfachRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/benchmark': typeof BenchmarkRoute
+  '/berichte': typeof BerichteRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/beleg-postfach': typeof BelegPostfachRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/benchmark': typeof BenchmarkRoute
+  '/berichte': typeof BerichteRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/beleg-postfach': typeof BelegPostfachRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
   '/benchmark': typeof BenchmarkRoute
+  '/berichte': typeof BerichteRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/beleg-postfach'
     | '/benachrichtigungen'
     | '/benchmark'
+    | '/berichte'
     | '/fristen'
     | '/import'
     | '/onboarding'
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/beleg-postfach'
     | '/benachrichtigungen'
     | '/benchmark'
+    | '/berichte'
     | '/fristen'
     | '/import'
     | '/onboarding'
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/beleg-postfach'
     | '/benachrichtigungen'
     | '/benchmark'
+    | '/berichte'
     | '/fristen'
     | '/import'
     | '/onboarding'
@@ -213,6 +225,7 @@ export interface RootRouteChildren {
   BelegPostfachRoute: typeof BelegPostfachRoute
   BenachrichtigungenRoute: typeof BenachrichtigungenRoute
   BenchmarkRoute: typeof BenchmarkRoute
+  BerichteRoute: typeof BerichteRoute
   FristenRoute: typeof FristenRoute
   ImportRoute: typeof ImportRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -267,6 +280,13 @@ declare module '@tanstack/react-router' {
       path: '/fristen'
       fullPath: '/fristen'
       preLoaderRoute: typeof FristenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/berichte': {
+      id: '/berichte'
+      path: '/berichte'
+      fullPath: '/berichte'
+      preLoaderRoute: typeof BerichteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/benchmark': {
@@ -341,6 +361,7 @@ const rootRouteChildren: RootRouteChildren = {
   BelegPostfachRoute: BelegPostfachRoute,
   BenachrichtigungenRoute: BenachrichtigungenRoute,
   BenchmarkRoute: BenchmarkRoute,
+  BerichteRoute: BerichteRoute,
   FristenRoute: FristenRoute,
   ImportRoute: ImportRoute,
   OnboardingRoute: OnboardingRoute,
