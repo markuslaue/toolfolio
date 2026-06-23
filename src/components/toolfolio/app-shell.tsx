@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Menu,
   PiggyBank,
+  Bell,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
