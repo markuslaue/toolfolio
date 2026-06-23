@@ -18,6 +18,7 @@ import {
   AlarmClock,
   Zap,
   Mail,
+  Calculator,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ const navItems = [
   { label: "Benachrichtigungen", icon: Bell, to: "/benachrichtigungen" },
   { label: "Verzeichnis", icon: BookOpen, to: "/verzeichnis" },
   { label: "Berichte", icon: BarChart3, to: "/berichte" },
+  { label: "Steuer-Export", icon: Calculator, to: "/steuer-export" },
   { label: "Einstellungen", icon: Settings, to: "/einstellungen" },
 ];
 
