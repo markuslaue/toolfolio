@@ -163,12 +163,90 @@ export const toolfolioDetail: SoftwareDetailData = {
   vendorNote: "[bestätigen]",
   hq: "Leipzig, Deutschland (DACH)",
   startingPrice: "0,00 €",
+  websiteLabel: "toolfolio.de",
+  websiteHref: "https://toolfolio.lovable.app",
+  founded: "2024",
   selfListingNote:
     "Toolfolio betreibt dieses Verzeichnis und listet sich hier selbst. Das passiert sichtbar gekennzeichnet, ohne besseren Platz im organischen Ranking und ohne verifiziert-Badge. Die gezeigten Preise sind offizielle Anbieterangaben.",
   description: [
     "Toolfolio bündelt alle Software-Abos deines Unternehmens an einem Ort: vom kleinen Kreativ-Tool bis zur großen Plattform-Lizenz. Du siehst auf einen Blick, was wirklich läuft, was Geld kostet und welche Verträge demnächst auslaufen oder sich automatisch verlängern.",
     "Der Fokus liegt auf Agenturen, Freelancern und Solopreneuren im DACH-Raum. Du verteilst Kosten sauber pro Kunde, behältst Kündigungsfristen im Griff und vergleichst Tools über das integrierte Verzeichnis. Was du im Vergleich findest, kannst du direkt in deinen Bestand übernehmen.",
     "Toolfolio ist ehrlich aufgestellt: Bewertungen sind nicht käuflich, Preise werden so transparent wie möglich gepflegt, und unsere eigene Listung läuft nicht mit Sonderrang, sondern neben allen anderen Anbietern.",
+  ],
+  screenshots: [
+    {
+      title: "Dashboard",
+      caption: "dashboard",
+      description:
+        "Alle Abos auf einen Blick: aktive Verträge, anstehende Fristen, monatliche Kosten und Sparpotenzial in einer Ansicht.",
+      render: () => <PreviewDashboard />,
+    },
+    {
+      title: "Import",
+      caption: "import",
+      description:
+        "Drei-Wege-Erfassung: E-Mail-Postfach für Rechnungen, manuelle Eingabe oder Import aus bestehenden Quellen.",
+      render: () => <PreviewImport />,
+    },
+    {
+      title: "Fristen-Wächter",
+      caption: "fristen",
+      description:
+        "Erinnerungen rechtzeitig vor jeder Verlängerung oder Kündigungsfrist, sortiert nach Dringlichkeit.",
+      render: () => <PreviewFristen />,
+    },
+    {
+      title: "AI-Credits",
+      caption: "ai-credits",
+      description:
+        "Verbrauch und Kosten von KI-Credits über alle Anbieter hinweg, mit Trend und Budget-Warnungen.",
+      render: () => <PreviewAiCredits />,
+    },
+    {
+      title: "Benchmark",
+      caption: "benchmark",
+      description:
+        "Anonymisierte Vergleichswerte: Was vergleichbare Teams für ähnliche Tools tatsächlich zahlen.",
+      render: () => <PreviewBenchmark />,
+    },
+    {
+      title: "Sparvorschläge",
+      caption: "sparvorschlaege",
+      description:
+        "Konkrete Vorschläge für günstigere Tarife, Doppellizenzen und Wechselkandidaten mit Ersparnis in Euro.",
+      render: () => <PreviewSparvorschlaege />,
+    },
+    {
+      title: "Kosten pro Kunde",
+      caption: "kunden/agentur",
+      description:
+        "Software-Kosten sauber auf Kunden und Projekte verteilt, inklusive Weiterverrechnung und Marge.",
+      render: () => <PreviewKunde />,
+    },
+    {
+      title: "Verzeichnis",
+      caption: "verzeichnis",
+      description:
+        "Integriertes Tool-Verzeichnis: vergleichen, wechseln und direkt in den eigenen Bestand übernehmen.",
+      render: () => <PreviewVerzeichnis />,
+    },
+  ],
+  audience: [
+    {
+      icon: UserRound,
+      title: "Solopreneure & Freelancer",
+      text: "Bis zu 15 Abos im Free-Plan, sauberer Überblick statt Excel-Liste, klare Steuer- und Belegablage.",
+    },
+    {
+      icon: Briefcase,
+      title: "Agenturen",
+      text: "Kosten pro Kunde verteilen, Weiterverrechnung dokumentieren, Team-Seats mit Rollen und Freigaben.",
+    },
+    {
+      icon: Building2,
+      title: "Kleine & mittlere Unternehmen",
+      text: "Zentrale Sicht auf alle SaaS-Verträge, Fristen-Wächter und Benchmark, ohne schwere Enterprise-Suite.",
+    },
   ],
   prices: [
     {
