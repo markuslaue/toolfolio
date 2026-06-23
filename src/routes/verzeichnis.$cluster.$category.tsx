@@ -11,14 +11,12 @@ const categories: Record<string, CategoryData> = {
 };
 
 export const Route = createFileRoute("/verzeichnis/$cluster/$category")({
-  loader: ({ params }) => {
+  beforeLoad: ({ params }) => {
     const key = `${params.cluster}/${params.category}`;
-    const data = categories[key];
-    if (!data) throw notFound();
-    return { data };
+    if (!categories[key]) throw notFound();
   },
-  head: ({ loaderData }) => {
-    const d = loaderData?.data;
+  head: ({ params }) => {
+    const d = categories[`${params.cluster}/${params.category}`];
     if (!d) return { meta: [{ title: "Kategorie nicht gefunden – Toolfolio" }] };
     const url = `https://toolfolio.lovable.app/verzeichnis/${d.clusterSlug}/${d.slug}`;
     return {
@@ -66,6 +64,8 @@ export const Route = createFileRoute("/verzeichnis/$cluster/$category")({
 });
 
 function Page() {
-  const { data } = Route.useLoaderData();
+  const { cluster, category } = Route.useParams();
+  const data = categories[`${cluster}/${category}`];
+  if (!data) return null;
   return <KategoriePage data={data} />;
 }

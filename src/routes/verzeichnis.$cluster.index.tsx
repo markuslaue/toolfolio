@@ -10,13 +10,11 @@ const clusters: Record<string, ClusterData> = {
 };
 
 export const Route = createFileRoute("/verzeichnis/$cluster/")({
-  loader: ({ params }) => {
-    const data = clusters[params.cluster];
-    if (!data) throw notFound();
-    return { cluster: data };
+  beforeLoad: ({ params }) => {
+    if (!clusters[params.cluster]) throw notFound();
   },
-  head: ({ loaderData }) => {
-    const c = loaderData?.cluster;
+  head: ({ params }) => {
+    const c = clusters[params.cluster];
     if (!c) return { meta: [{ title: "Cluster nicht gefunden – Toolfolio" }] };
     const url = `https://toolfolio.lovable.app/verzeichnis/${c.slug}`;
     return {
@@ -67,6 +65,8 @@ export const Route = createFileRoute("/verzeichnis/$cluster/")({
 });
 
 function Page() {
-  const { cluster } = Route.useLoaderData();
+  const { cluster: slug } = Route.useParams();
+  const cluster = clusters[slug];
+  if (!cluster) return null;
   return <ClusterHubPage cluster={cluster} />;
 }
