@@ -15,6 +15,7 @@ import { Route as SparvorschlaegeRouteImport } from './routes/sparvorschlaege'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as FristenRouteImport } from './routes/fristen'
+import { Route as BenchmarkRouteImport } from './routes/benchmark'
 import { Route as BenachrichtigungenRouteImport } from './routes/benachrichtigungen'
 import { Route as BelegPostfachRouteImport } from './routes/beleg-postfach'
 import { Route as AiCreditsRouteImport } from './routes/ai-credits'
@@ -52,6 +53,11 @@ const ImportRoute = ImportRouteImport.update({
 const FristenRoute = FristenRouteImport.update({
   id: '/fristen',
   path: '/fristen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BenchmarkRoute = BenchmarkRouteImport.update({
+  id: '/benchmark',
+  path: '/benchmark',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BenachrichtigungenRoute = BenachrichtigungenRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/ai-credits': typeof AiCreditsRoute
   '/beleg-postfach': typeof BelegPostfachRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
+  '/benchmark': typeof BenchmarkRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/ai-credits': typeof AiCreditsRoute
   '/beleg-postfach': typeof BelegPostfachRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
+  '/benchmark': typeof BenchmarkRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/ai-credits': typeof AiCreditsRoute
   '/beleg-postfach': typeof BelegPostfachRoute
   '/benachrichtigungen': typeof BenachrichtigungenRoute
+  '/benchmark': typeof BenchmarkRoute
   '/fristen': typeof FristenRoute
   '/import': typeof ImportRoute
   '/onboarding': typeof OnboardingRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/ai-credits'
     | '/beleg-postfach'
     | '/benachrichtigungen'
+    | '/benchmark'
     | '/fristen'
     | '/import'
     | '/onboarding'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/ai-credits'
     | '/beleg-postfach'
     | '/benachrichtigungen'
+    | '/benchmark'
     | '/fristen'
     | '/import'
     | '/onboarding'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/ai-credits'
     | '/beleg-postfach'
     | '/benachrichtigungen'
+    | '/benchmark'
     | '/fristen'
     | '/import'
     | '/onboarding'
@@ -200,6 +212,7 @@ export interface RootRouteChildren {
   AiCreditsRoute: typeof AiCreditsRoute
   BelegPostfachRoute: typeof BelegPostfachRoute
   BenachrichtigungenRoute: typeof BenachrichtigungenRoute
+  BenchmarkRoute: typeof BenchmarkRoute
   FristenRoute: typeof FristenRoute
   ImportRoute: typeof ImportRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -254,6 +267,13 @@ declare module '@tanstack/react-router' {
       path: '/fristen'
       fullPath: '/fristen'
       preLoaderRoute: typeof FristenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/benchmark': {
+      id: '/benchmark'
+      path: '/benchmark'
+      fullPath: '/benchmark'
+      preLoaderRoute: typeof BenchmarkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/benachrichtigungen': {
@@ -320,6 +340,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiCreditsRoute: AiCreditsRoute,
   BelegPostfachRoute: BelegPostfachRoute,
   BenachrichtigungenRoute: BenachrichtigungenRoute,
+  BenchmarkRoute: BenchmarkRoute,
   FristenRoute: FristenRoute,
   ImportRoute: ImportRoute,
   OnboardingRoute: OnboardingRoute,
