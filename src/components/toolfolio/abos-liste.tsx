@@ -550,6 +550,7 @@ export function AbosListe() {
                   sortKey={sortKey}
                   sortDir={sortDir}
                   onSort={toggleSort}
+                  onEdit={openEdit}
                 />
               </div>
             ))}
@@ -698,6 +699,7 @@ function AboTable({
   sortKey,
   sortDir,
   onSort,
+  onEdit,
 }: {
   items: AboListItem[];
   density: "komfort" | "kompakt";
@@ -709,6 +711,7 @@ function AboTable({
   sortKey: SortKey;
   sortDir: "asc" | "desc";
   onSort: (k: SortKey) => void;
+  onEdit?: (a: AboListItem) => void;
 }) {
   const rowPad = density === "komfort" ? "py-3.5" : "py-2";
 
@@ -867,7 +870,7 @@ function AboTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem>Details öffnen</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => openEdit(a)}>Bearbeiten</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onEdit?.(a)}>Bearbeiten</DropdownMenuItem>
                       <DropdownMenuItem>Kunde zuordnen</DropdownMenuItem>
                       <DropdownMenuItem>Pausieren</DropdownMenuItem>
                       <DropdownMenuItem>Duplizieren</DropdownMenuItem>
