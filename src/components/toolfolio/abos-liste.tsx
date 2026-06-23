@@ -615,6 +615,13 @@ export function AbosListe() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <AboFormPanel
+          open={formMode !== null}
+          onOpenChange={(o) => { if (!o) setFormMode(null); }}
+          mode={formMode ?? "anlegen"}
+          initial={formInitial}
+        />
       </div>
     </TooltipProvider>
   );
