@@ -11,10 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZahlungskanaeleRouteImport } from './routes/zahlungskanaele'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as KundenRouteImport } from './routes/kunden'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
+import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 
 const ZahlungskanaeleRoute = ZahlungskanaeleRouteImport.update({
@@ -27,11 +28,6 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
-const KundenRoute = KundenRouteImport.update({
-  id: '/kunden',
-  path: '/kunden',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ImportRoute = ImportRouteImport.update({
   id: '/import',
   path: '/import',
@@ -42,9 +38,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KundenIndexRoute = KundenIndexRouteImport.update({
+  id: '/kunden/',
+  path: '/kunden/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AbosIndexRoute = AbosIndexRouteImport.update({
   id: '/abos/',
   path: '/abos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KundenKundeIdRoute = KundenKundeIdRouteImport.update({
+  id: '/kunden/$kundeId',
+  path: '/kunden/$kundeId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AbosAboIdRoute = AbosAboIdRouteImport.update({
@@ -56,69 +62,76 @@ const AbosAboIdRoute = AbosAboIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
-  '/kunden': typeof KundenRoute
   '/onboarding': typeof OnboardingRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos/': typeof AbosIndexRoute
+  '/kunden/': typeof KundenIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
-  '/kunden': typeof KundenRoute
   '/onboarding': typeof OnboardingRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos': typeof AbosIndexRoute
+  '/kunden': typeof KundenIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/import': typeof ImportRoute
-  '/kunden': typeof KundenRoute
   '/onboarding': typeof OnboardingRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/kunden/$kundeId': typeof KundenKundeIdRoute
   '/abos/': typeof AbosIndexRoute
+  '/kunden/': typeof KundenIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/import'
-    | '/kunden'
     | '/onboarding'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/kunden/$kundeId'
     | '/abos/'
+    | '/kunden/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/import'
-    | '/kunden'
     | '/onboarding'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/kunden/$kundeId'
     | '/abos'
+    | '/kunden'
   id:
     | '__root__'
     | '/'
     | '/import'
-    | '/kunden'
     | '/onboarding'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/kunden/$kundeId'
     | '/abos/'
+    | '/kunden/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ImportRoute: typeof ImportRoute
-  KundenRoute: typeof KundenRoute
   OnboardingRoute: typeof OnboardingRoute
   ZahlungskanaeleRoute: typeof ZahlungskanaeleRoute
   AbosAboIdRoute: typeof AbosAboIdRoute
+  KundenKundeIdRoute: typeof KundenKundeIdRoute
   AbosIndexRoute: typeof AbosIndexRoute
+  KundenIndexRoute: typeof KundenIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -137,13 +150,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/kunden': {
-      id: '/kunden'
-      path: '/kunden'
-      fullPath: '/kunden'
-      preLoaderRoute: typeof KundenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/import': {
       id: '/import'
       path: '/import'
@@ -158,11 +164,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kunden/': {
+      id: '/kunden/'
+      path: '/kunden'
+      fullPath: '/kunden/'
+      preLoaderRoute: typeof KundenIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/abos/': {
       id: '/abos/'
       path: '/abos'
       fullPath: '/abos/'
       preLoaderRoute: typeof AbosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kunden/$kundeId': {
+      id: '/kunden/$kundeId'
+      path: '/kunden/$kundeId'
+      fullPath: '/kunden/$kundeId'
+      preLoaderRoute: typeof KundenKundeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/abos/$aboId': {
@@ -178,12 +198,23 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ImportRoute: ImportRoute,
-  KundenRoute: KundenRoute,
   OnboardingRoute: OnboardingRoute,
   ZahlungskanaeleRoute: ZahlungskanaeleRoute,
   AbosAboIdRoute: AbosAboIdRoute,
+  KundenKundeIdRoute: KundenKundeIdRoute,
   AbosIndexRoute: AbosIndexRoute,
+  KundenIndexRoute: KundenIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
