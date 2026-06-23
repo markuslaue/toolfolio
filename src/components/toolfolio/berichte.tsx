@@ -46,7 +46,7 @@ type Kunde = {
 const kunden: Kunde[] = [
   {
     id: "vitalplant",
-    name: "Vitalplant",
+    name: "Nordwerk",
     aufschlagProzent: 15,
     tools: [
       { name: "Figma", kategorie: "Design", kosten: 180, weiterverrechnet: true },
@@ -61,7 +61,7 @@ const kunden: Kunde[] = [
   },
   {
     id: "fulex",
-    name: "FULEX",
+    name: "Holzbau Kessler",
     aufschlagProzent: 20,
     tools: [
       { name: "Webflow", kategorie: "Web", kosten: 290, weiterverrechnet: true },
@@ -112,7 +112,7 @@ const initialVerlauf: Verlauf[] = [
     id: "h1",
     typ: "weiterverrechnung",
     titel: "Weiterverrechnung Software-Tools",
-    kunde: "FULEX",
+    kunde: "Holzbau Kessler",
     zeitraum: "Mai 2026",
     datum: "02.06.2026",
     betrag: 980.4,
@@ -129,7 +129,7 @@ const initialVerlauf: Verlauf[] = [
     id: "h3",
     typ: "weiterverrechnung",
     titel: "Weiterverrechnung Software-Tools",
-    kunde: "Vitalplant",
+    kunde: "Nordwerk",
     zeitraum: "Mai 2026",
     datum: "01.06.2026",
     betrag: 920.0,
@@ -743,8 +743,8 @@ function VerteilungsVorschau({ zeitraum }: { zeitraum: string }) {
   const [dim, setDim] = useState<"kunde" | "kategorie" | "kanal">("kunde");
   const daten: Record<typeof dim, { name: string; betrag: number; farbe: string }[]> = {
     kunde: [
-      { name: "Vitalplant", betrag: 800, farbe: "#6C5CE7" },
-      { name: "FULEX", betrag: 818, farbe: "#FF7A66" },
+      { name: "Nordwerk", betrag: 800, farbe: "#6C5CE7" },
+      { name: "Holzbau Kessler", betrag: 818, farbe: "#FF7A66" },
       { name: "Nordpunkt", betrag: 56, farbe: "#12B76A" },
       { name: "Küstkraft", betrag: 45, farbe: "#F59E0B" },
     ],

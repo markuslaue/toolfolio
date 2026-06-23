@@ -107,8 +107,8 @@ const initialTools: Tool[] = [
     agbStand: "20.01.2025",
     agbGeaendert: false,
     dokumente: [
-      { id: "a1", typ: "rechnung", titel: "Jahresrechnung 2025/26", datum: "20.01.2025", jahr: 2025, betrag: 720, quelle: "postfach", kunde: "FULEX" },
-      { id: "a2", typ: "vertrag", titel: "Rahmenvertrag Teams", datum: "20.01.2025", jahr: 2025, quelle: "manuell", kunde: "FULEX" },
+      { id: "a1", typ: "rechnung", titel: "Jahresrechnung 2025/26", datum: "20.01.2025", jahr: 2025, betrag: 720, quelle: "postfach", kunde: "Holzbau Kessler" },
+      { id: "a2", typ: "vertrag", titel: "Rahmenvertrag Teams", datum: "20.01.2025", jahr: 2025, quelle: "manuell", kunde: "Holzbau Kessler" },
       { id: "a3", typ: "agb", titel: "AGB-Snapshot 20.01.2025", datum: "20.01.2025", jahr: 2025, quelle: "manuell" },
     ],
   },
@@ -142,8 +142,8 @@ const initialTools: Tool[] = [
     agbStand: "12.06.2024",
     agbGeaendert: false,
     dokumente: [
-      { id: "f1", typ: "rechnung", titel: "Rechnung Juni 2026", datum: "12.06.2026", jahr: 2026, betrag: 180, quelle: "postfach", kunde: "Vitalplant" },
-      { id: "f2", typ: "rechnung", titel: "Rechnung Mai 2026", datum: "12.05.2026", jahr: 2026, betrag: 180, quelle: "postfach", kunde: "Vitalplant" },
+      { id: "f1", typ: "rechnung", titel: "Rechnung Juni 2026", datum: "12.06.2026", jahr: 2026, betrag: 180, quelle: "postfach", kunde: "Nordwerk" },
+      { id: "f2", typ: "rechnung", titel: "Rechnung Mai 2026", datum: "12.05.2026", jahr: 2026, betrag: 180, quelle: "postfach", kunde: "Nordwerk" },
       { id: "f3", typ: "agb", titel: "AGB-Snapshot 12.06.2024", datum: "12.06.2024", jahr: 2024, quelle: "manuell" },
     ],
   },

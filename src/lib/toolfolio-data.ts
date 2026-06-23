@@ -17,9 +17,9 @@ export type Zahlungskanal =
   | "Stripe-Guthaben";
 
 export type Kunde =
-  | "Kunde Vitalplant"
-  | "Kunde FULEX"
-  | "Kunde ZAQQ"
+  | "Kunde Nordwerk"
+  | "Kunde Holzbau Kessler"
+  | "Kunde Solea"
   | "Intern / nicht zugeordnet";
 
 export interface Abo {
@@ -47,21 +47,21 @@ export const fmtDate = (iso: string) =>
 export const abos: Abo[] = [
   { id: "1", tool: "Notion", initial: "N", farbe: "#0F1419", kategorie: "Produktivität", kosten: 96, intervall: "monatlich", naechsteAbbuchung: "2026-07-04", zahlungskanal: "Visa •••• 4821", kunde: "Intern / nicht zugeordnet", status: "aktiv" },
   { id: "2", tool: "Slack", initial: "S", farbe: "#611f69", kategorie: "Kommunikation", kosten: 78.5, intervall: "monatlich", naechsteAbbuchung: "2026-07-02", zahlungskanal: "Mastercard •••• 7093", kunde: "Intern / nicht zugeordnet", status: "aktiv" },
-  { id: "3", tool: "Figma", initial: "F", farbe: "#a259ff", kategorie: "Design", kosten: 45, intervall: "monatlich", naechsteAbbuchung: "2026-07-08", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Vitalplant", status: "aktiv" },
+  { id: "3", tool: "Figma", initial: "F", farbe: "#a259ff", kategorie: "Design", kosten: 45, intervall: "monatlich", naechsteAbbuchung: "2026-07-08", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Nordwerk", status: "aktiv" },
   { id: "4", tool: "Adobe Creative Cloud", initial: "A", farbe: "#d83b01", kategorie: "Design", kosten: 719.88, intervall: "jährlich", naechsteAbbuchung: "2026-11-12", zahlungskanal: "SEPA-Lastschrift", kunde: "Intern / nicht zugeordnet", status: "aktiv" },
-  { id: "5", tool: "Ahrefs", initial: "A", farbe: "#0e7ec6", kategorie: "SEO", kosten: 199, intervall: "monatlich", naechsteAbbuchung: "2026-08-14", zahlungskanal: "Visa •••• 4821", kunde: "Kunde FULEX", status: "aktiv" },
-  { id: "6", tool: "Screaming Frog", initial: "S", farbe: "#0EA371", kategorie: "SEO", kosten: 239, intervall: "jährlich", naechsteAbbuchung: "2026-09-01", zahlungskanal: "PayPal", kunde: "Kunde FULEX", status: "aktiv" },
+  { id: "5", tool: "Ahrefs", initial: "A", farbe: "#0e7ec6", kategorie: "SEO", kosten: 199, intervall: "monatlich", naechsteAbbuchung: "2026-08-14", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Holzbau Kessler", status: "aktiv" },
+  { id: "6", tool: "Screaming Frog", initial: "S", farbe: "#0EA371", kategorie: "SEO", kosten: 239, intervall: "jährlich", naechsteAbbuchung: "2026-09-01", zahlungskanal: "PayPal", kunde: "Kunde Holzbau Kessler", status: "aktiv" },
   { id: "7", tool: "Lovable", initial: "L", farbe: "#3A57E8", kategorie: "Entwicklung", kosten: 89, intervall: "monatlich", naechsteAbbuchung: "2026-06-30", zahlungskanal: "Mastercard •••• 7093", kunde: "Intern / nicht zugeordnet", status: "aktiv" },
-  { id: "8", tool: "Anthropic API", initial: "C", farbe: "#cc785c", kategorie: "KI / API", kosten: 312.4, intervall: "monatlich", naechsteAbbuchung: "2026-07-01", zahlungskanal: "Mastercard •••• 7093", kunde: "Kunde ZAQQ", status: "aktiv" },
-  { id: "9", tool: "OpenAI", initial: "O", farbe: "#10a37f", kategorie: "KI / API", kosten: 184.2, intervall: "monatlich", naechsteAbbuchung: "2026-07-01", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Vitalplant", status: "aktiv" },
-  { id: "10", tool: "Shopify", initial: "S", farbe: "#95bf47", kategorie: "eCommerce", kosten: 105, intervall: "monatlich", naechsteAbbuchung: "2026-07-10", zahlungskanal: "SEPA-Lastschrift", kunde: "Kunde ZAQQ", status: "aktiv" },
+  { id: "8", tool: "Anthropic API", initial: "C", farbe: "#cc785c", kategorie: "KI / API", kosten: 312.4, intervall: "monatlich", naechsteAbbuchung: "2026-07-01", zahlungskanal: "Mastercard •••• 7093", kunde: "Kunde Solea", status: "aktiv" },
+  { id: "9", tool: "OpenAI", initial: "O", farbe: "#10a37f", kategorie: "KI / API", kosten: 184.2, intervall: "monatlich", naechsteAbbuchung: "2026-07-01", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Nordwerk", status: "aktiv" },
+  { id: "10", tool: "Shopify", initial: "S", farbe: "#95bf47", kategorie: "eCommerce", kosten: 105, intervall: "monatlich", naechsteAbbuchung: "2026-07-10", zahlungskanal: "SEPA-Lastschrift", kunde: "Kunde Solea", status: "aktiv" },
   { id: "11", tool: "Make", initial: "M", farbe: "#6d00cc", kategorie: "Produktivität", kosten: 29, intervall: "monatlich", naechsteAbbuchung: "2026-07-05", zahlungskanal: "PayPal", kunde: "Intern / nicht zugeordnet", status: "aktiv" },
-  { id: "12", tool: "ElevenLabs", initial: "E", farbe: "#0F1419", kategorie: "KI / API", kosten: 22, intervall: "monatlich", naechsteAbbuchung: "2026-07-03", zahlungskanal: "Mastercard •••• 7093", kunde: "Kunde Vitalplant", status: "aktiv" },
+  { id: "12", tool: "ElevenLabs", initial: "E", farbe: "#0F1419", kategorie: "KI / API", kosten: 22, intervall: "monatlich", naechsteAbbuchung: "2026-07-03", zahlungskanal: "Mastercard •••• 7093", kunde: "Kunde Nordwerk", status: "aktiv" },
   { id: "13", tool: "Framer", initial: "F", farbe: "#0099ff", kategorie: "Design", kosten: 29, intervall: "monatlich", naechsteAbbuchung: "2026-06-25", zahlungskanal: "Visa •••• 4821", kunde: "Intern / nicht zugeordnet", status: "Trial" },
   { id: "14", tool: "Loom", initial: "L", farbe: "#625df5", kategorie: "Kommunikation", kosten: 15, intervall: "monatlich", naechsteAbbuchung: "2026-07-07", zahlungskanal: "PayPal", kunde: "Intern / nicht zugeordnet", status: "aktiv" },
   { id: "15", tool: "Google Workspace", initial: "G", farbe: "#4285f4", kategorie: "Produktivität", kosten: 138, intervall: "monatlich", naechsteAbbuchung: "2026-07-15", zahlungskanal: "SEPA-Lastschrift", kunde: "Intern / nicht zugeordnet", status: "aktiv" },
   { id: "16", tool: "Linear", initial: "L", farbe: "#5e6ad2", kategorie: "Entwicklung", kosten: 56, intervall: "monatlich", naechsteAbbuchung: "2026-07-09", zahlungskanal: "Mastercard •••• 7093", kunde: "Intern / nicht zugeordnet", status: "aktiv" },
-  { id: "17", tool: "Vercel", initial: "V", farbe: "#0F1419", kategorie: "Entwicklung", kosten: 68, intervall: "monatlich", naechsteAbbuchung: "2026-07-11", zahlungskanal: "Visa •••• 4821", kunde: "Kunde ZAQQ", status: "aktiv" },
+  { id: "17", tool: "Vercel", initial: "V", farbe: "#0F1419", kategorie: "Entwicklung", kosten: 68, intervall: "monatlich", naechsteAbbuchung: "2026-07-11", zahlungskanal: "Visa •••• 4821", kunde: "Kunde Solea", status: "aktiv" },
   { id: "18", tool: "Canva Teams", initial: "C", farbe: "#00c4cc", kategorie: "Design", kosten: 109, intervall: "jährlich", naechsteAbbuchung: "2026-12-02", zahlungskanal: "PayPal", kunde: "Intern / nicht zugeordnet", status: "pausiert" },
 ];
 
@@ -99,9 +99,9 @@ export const verlauf12M = [
 ];
 
 export const kostenNachKunde = [
-  { name: "Kunde Vitalplant", wert: 458, farbe: "var(--color-primary)" },
-  { name: "Kunde FULEX", wert: 419, farbe: "var(--color-success)" },
-  { name: "Kunde ZAQQ", wert: 590, farbe: "var(--color-warning)" },
+  { name: "Kunde Nordwerk", wert: 458, farbe: "var(--color-primary)" },
+  { name: "Kunde Holzbau Kessler", wert: 419, farbe: "var(--color-success)" },
+  { name: "Kunde Solea", wert: 590, farbe: "var(--color-warning)" },
   { name: "Intern / nicht zugeordnet", wert: 1013, farbe: "var(--color-muted-foreground)" },
 ];
 
