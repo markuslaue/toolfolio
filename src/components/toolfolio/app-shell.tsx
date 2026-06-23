@@ -6,6 +6,7 @@ import {
   CreditCard,
   BookOpen,
   BarChart3,
+  Gauge,
   Settings,
   Sparkles,
   Search,
