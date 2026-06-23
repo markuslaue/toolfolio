@@ -1,3 +1,4 @@
+import { useState, type ReactNode } from "react";
 import {
   ArrowRight,
   ChevronRight,
@@ -7,15 +8,33 @@ import {
   CheckCircle2,
   BellRing,
   PiggyBank,
-  Receipt,
-  Archive,
   Users,
-  Brain,
-  Wallet,
-  BarChart3,
   Globe2,
+  Plug,
+  ShieldCheck,
+  Lock,
+  Building2,
+  Briefcase,
+  UserRound,
+  ThumbsUp,
+  ThumbsDown,
+  Server,
+  KeyRound,
 } from "lucide-react";
-import { Nav, Footer, Reveal } from "./marketing-home";
+import {
+  Nav,
+  Footer,
+  Reveal,
+  ScreenshotFrame,
+  PreviewDashboard,
+  PreviewImport,
+  PreviewFristen,
+  PreviewAiCredits,
+  PreviewBenchmark,
+  PreviewSparvorschlaege,
+  PreviewKunde,
+  PreviewVerzeichnis,
+} from "./marketing-home";
 import {
   Accordion,
   AccordionContent,
@@ -50,6 +69,25 @@ export type DetailFaq = { q: string; a: string };
 
 export type DetailReview = { author: string; role: string; rating: number; text: string };
 
+export type DetailScreenshot = {
+  title: string;
+  caption: string;
+  description: string;
+  render: () => ReactNode;
+};
+
+export type DetailAudience = {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  text: string;
+};
+
+export type DetailSecurityItem = {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  text: string;
+};
+
 export type SoftwareDetailData = {
   // Breadcrumb
   clusterSlug: string;
@@ -58,25 +96,40 @@ export type SoftwareDetailData = {
   categoryName: string;
   // Header
   name: string;
-  logoChar: string; // initial for placeholder logo
+  logoChar: string;
   h1: string;
   tagline: string;
   rating: number;
   reviewCount: number;
-  selfListed?: boolean; // toggles "Eigenes Produkt" label
+  selfListed?: boolean;
   vendor: string;
   vendorNote?: string;
   hq: string;
   startingPrice: string;
+  websiteLabel?: string;
+  websiteHref?: string;
+  founded?: string;
   // Self-listing transparency
   selfListingNote?: string;
   // Description
   description: string[];
+  // Screenshots
+  screenshots?: DetailScreenshot[];
+  // Audience
+  audience?: DetailAudience[];
   // Pricing
   prices: DetailPrice[];
   pricingNote?: string;
   // Features
   features: DetailFeature[];
+  // Pros & Cons
+  pros?: string[];
+  cons?: string[];
+  // Integrations
+  integrations?: string[];
+  integrationsNote?: string;
+  // Security & Compliance
+  security?: DetailSecurityItem[];
   // Reviews
   reviews: DetailReview[];
   reviewsNote: string;
@@ -110,12 +163,90 @@ export const toolfolioDetail: SoftwareDetailData = {
   vendorNote: "[bestätigen]",
   hq: "Leipzig, Deutschland (DACH)",
   startingPrice: "0,00 €",
+  websiteLabel: "toolfolio.de",
+  websiteHref: "https://toolfolio.lovable.app",
+  founded: "2024",
   selfListingNote:
     "Toolfolio betreibt dieses Verzeichnis und listet sich hier selbst. Das passiert sichtbar gekennzeichnet, ohne besseren Platz im organischen Ranking und ohne verifiziert-Badge. Die gezeigten Preise sind offizielle Anbieterangaben.",
   description: [
     "Toolfolio bündelt alle Software-Abos deines Unternehmens an einem Ort: vom kleinen Kreativ-Tool bis zur großen Plattform-Lizenz. Du siehst auf einen Blick, was wirklich läuft, was Geld kostet und welche Verträge demnächst auslaufen oder sich automatisch verlängern.",
     "Der Fokus liegt auf Agenturen, Freelancern und Solopreneuren im DACH-Raum. Du verteilst Kosten sauber pro Kunde, behältst Kündigungsfristen im Griff und vergleichst Tools über das integrierte Verzeichnis. Was du im Vergleich findest, kannst du direkt in deinen Bestand übernehmen.",
     "Toolfolio ist ehrlich aufgestellt: Bewertungen sind nicht käuflich, Preise werden so transparent wie möglich gepflegt, und unsere eigene Listung läuft nicht mit Sonderrang, sondern neben allen anderen Anbietern.",
+  ],
+  screenshots: [
+    {
+      title: "Dashboard",
+      caption: "dashboard",
+      description:
+        "Alle Abos auf einen Blick: aktive Verträge, anstehende Fristen, monatliche Kosten und Sparpotenzial in einer Ansicht.",
+      render: () => <PreviewDashboard />,
+    },
+    {
+      title: "Import",
+      caption: "import",
+      description:
+        "Drei-Wege-Erfassung: E-Mail-Postfach für Rechnungen, manuelle Eingabe oder Import aus bestehenden Quellen.",
+      render: () => <PreviewImport />,
+    },
+    {
+      title: "Fristen-Wächter",
+      caption: "fristen",
+      description:
+        "Erinnerungen rechtzeitig vor jeder Verlängerung oder Kündigungsfrist, sortiert nach Dringlichkeit.",
+      render: () => <PreviewFristen />,
+    },
+    {
+      title: "AI-Credits",
+      caption: "ai-credits",
+      description:
+        "Verbrauch und Kosten von KI-Credits über alle Anbieter hinweg, mit Trend und Budget-Warnungen.",
+      render: () => <PreviewAiCredits />,
+    },
+    {
+      title: "Benchmark",
+      caption: "benchmark",
+      description:
+        "Anonymisierte Vergleichswerte: Was vergleichbare Teams für ähnliche Tools tatsächlich zahlen.",
+      render: () => <PreviewBenchmark />,
+    },
+    {
+      title: "Sparvorschläge",
+      caption: "sparvorschlaege",
+      description:
+        "Konkrete Vorschläge für günstigere Tarife, Doppellizenzen und Wechselkandidaten mit Ersparnis in Euro.",
+      render: () => <PreviewSparvorschlaege />,
+    },
+    {
+      title: "Kosten pro Kunde",
+      caption: "kunden/agentur",
+      description:
+        "Software-Kosten sauber auf Kunden und Projekte verteilt, inklusive Weiterverrechnung und Marge.",
+      render: () => <PreviewKunde />,
+    },
+    {
+      title: "Verzeichnis",
+      caption: "verzeichnis",
+      description:
+        "Integriertes Tool-Verzeichnis: vergleichen, wechseln und direkt in den eigenen Bestand übernehmen.",
+      render: () => <PreviewVerzeichnis />,
+    },
+  ],
+  audience: [
+    {
+      icon: UserRound,
+      title: "Solopreneure & Freelancer",
+      text: "Bis zu 15 Abos im Free-Plan, sauberer Überblick statt Excel-Liste, klare Steuer- und Belegablage.",
+    },
+    {
+      icon: Briefcase,
+      title: "Agenturen",
+      text: "Kosten pro Kunde verteilen, Weiterverrechnung dokumentieren, Team-Seats mit Rollen und Freigaben.",
+    },
+    {
+      icon: Building2,
+      title: "Kleine & mittlere Unternehmen",
+      text: "Zentrale Sicht auf alle SaaS-Verträge, Fristen-Wächter und Benchmark, ohne schwere Enterprise-Suite.",
+    },
   ],
   prices: [
     {
@@ -220,6 +351,53 @@ export const toolfolioDetail: SoftwareDetailData = {
       ],
     },
   ],
+  pros: [
+    "Klarer DACH-Fokus, mit Hosting in der EU und deutscher Buchhaltungslogik (z. B. UStG-konforme Belegablage).",
+    "Agentur-Layer mit Kosten pro Kunde und Weiterverrechnung ist Teil des Produkts, nicht teures Add-on.",
+    "Integriertes, neutrales Verzeichnis: Vergleich und Wechsel passieren ohne Tool-Bruch.",
+    "Free-Plan dauerhaft kostenlos, monatlich kündbar, keine Kreditkarte zum Start nötig.",
+  ],
+  cons: [
+    "Discovery aus Bank- und Karten-Konten ist schlanker als bei großen Enterprise-Plattformen wie Zluri.",
+    "Kein eigenes Karten- oder Zahlungssystem wie bei Pleo oder Spendesk.",
+    "Junges Produkt: Funktionsumfang wächst, einzelne Integrationen kommen Stück für Stück nach.",
+  ],
+  integrations: [
+    "DATEV-Export",
+    "lexoffice",
+    "sevDesk",
+    "Stripe",
+    "PayPal",
+    "Google Workspace",
+    "Microsoft 365",
+    "Slack",
+    "Zapier",
+    "API & Webhooks",
+  ],
+  integrationsNote:
+    "Weitere Integrationen folgen laufend. Was du nicht direkt verbinden kannst, lässt sich per Zapier, API oder CSV-Import abdecken.",
+  security: [
+    {
+      icon: ShieldCheck,
+      title: "DSGVO-konform",
+      text: "Mit Auftragsverarbeitungsvertrag, klarer Datenminimierung und dokumentierter Rechtsgrundlage.",
+    },
+    {
+      icon: Server,
+      title: "Hosting in der EU",
+      text: "Alle Daten werden ausschließlich in der Europäischen Union verarbeitet und gespeichert.",
+    },
+    {
+      icon: Lock,
+      title: "Verschlüsselung",
+      text: "TLS in der Übertragung, AES-256 für gespeicherte Daten. Belege und Verträge bleiben geschützt.",
+    },
+    {
+      icon: KeyRound,
+      title: "Rollen & Freigaben",
+      text: "Feingranulare Rollen für Team und Kunden, mit Freigabeprozessen und Audit-Log.",
+    },
+  ],
   reviews: [
     {
       author: "Platzhalter",
@@ -314,6 +492,7 @@ export const toolfolioDetail: SoftwareDetailData = {
 // ---------- Component ----------
 export function SoftwareDetailPage({ data }: { data: SoftwareDetailData }) {
   const labelColor = "#6C5CE7";
+  const [activeShot, setActiveShot] = useState(0);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -528,6 +707,109 @@ export function SoftwareDetailPage({ data }: { data: SoftwareDetailData }) {
         </div>
       </section>
 
+      {/* Screenshots */}
+      {data.screenshots && data.screenshots.length > 0 && (
+        <section id="screenshots" className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+          <Reveal>
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+              Produkt-Einblicke
+            </h2>
+            <p className="mt-2 max-w-2xl text-foreground/70">
+              Live-Vorschauen aus dem Produkt. Klick dich durch die wichtigsten Ansichten.
+            </p>
+          </Reveal>
+
+          <div className="mt-6 flex flex-wrap gap-2">
+            {data.screenshots.map((s, i) => (
+              <button
+                key={s.title}
+                onClick={() => setActiveShot(i)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                  activeShot === i
+                    ? "bg-primary text-primary-foreground"
+                    : "border border-border bg-card text-foreground/70 hover:bg-muted"
+                }`}
+                aria-pressed={activeShot === i}
+              >
+                {s.title}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
+            <Reveal key={activeShot}>
+              <ScreenshotFrame
+                label={data.screenshots[activeShot].title}
+                caption={data.screenshots[activeShot].caption}
+              >
+                {data.screenshots[activeShot].render()}
+              </ScreenshotFrame>
+            </Reveal>
+            <Reveal delay={80}>
+              <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+                <div className="text-xs font-semibold uppercase tracking-wide text-foreground/50">
+                  {activeShot + 1} / {data.screenshots.length}
+                </div>
+                <h3 className="mt-2 font-display text-xl font-semibold">
+                  {data.screenshots[activeShot].title}
+                </h3>
+                <p className="mt-3 text-sm text-foreground/75 leading-relaxed">
+                  {data.screenshots[activeShot].description}
+                </p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <button
+                    onClick={() =>
+                      setActiveShot(
+                        (activeShot - 1 + data.screenshots!.length) % data.screenshots!.length,
+                      )
+                    }
+                    className="rounded-2xl border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted"
+                  >
+                    Zurück
+                  </button>
+                  <button
+                    onClick={() => setActiveShot((activeShot + 1) % data.screenshots!.length)}
+                    className="inline-flex items-center gap-1.5 rounded-2xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                  >
+                    Weiter <ArrowRight className="size-4" />
+                  </button>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {/* Audience */}
+      {data.audience && data.audience.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+          <Reveal>
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+              Für wen geeignet
+            </h2>
+          </Reveal>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+            {data.audience.map((a, i) => {
+              const Icon = a.icon;
+              return (
+                <Reveal key={a.title} delay={i * 60}>
+                  <div className="h-full rounded-3xl border border-border bg-card p-6 shadow-soft">
+                    <div
+                      className="flex size-11 items-center justify-center rounded-2xl"
+                      style={{ background: `${labelColor}1A`, color: labelColor }}
+                    >
+                      <Icon className="size-5" />
+                    </div>
+                    <h3 className="mt-4 font-display text-lg font-semibold">{a.title}</h3>
+                    <p className="mt-2 text-sm text-foreground/70 leading-relaxed">{a.text}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Pricing */}
       <section id="preise" className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
         <Reveal>
@@ -616,6 +898,125 @@ export function SoftwareDetailPage({ data }: { data: SoftwareDetailData }) {
           })}
         </div>
       </section>
+
+      {/* Pros & Cons */}
+      {(data.pros?.length || data.cons?.length) && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+          <Reveal>
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+              Stärken und Schwächen
+            </h2>
+            <p className="mt-2 max-w-2xl text-foreground/70">
+              Ehrliche Einschätzung, gerade weil dies eine Selbstlistung ist. Was {data.name} gut
+              macht und wo andere Tools die Nase vorn haben.
+            </p>
+          </Reveal>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+            {data.pros && data.pros.length > 0 && (
+              <Reveal>
+                <div className="h-full rounded-3xl border border-[#12B76A]/30 bg-[#12B76A]/5 p-6 sm:p-7">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-[#12B76A]/15 px-3 py-1 text-xs font-semibold text-[#0e8a51]">
+                    <ThumbsUp className="size-3.5" />
+                    Stärken
+                  </div>
+                  <ul className="mt-4 space-y-3">
+                    {data.pros.map((p) => (
+                      <li key={p} className="flex items-start gap-3 text-sm">
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-[#12B76A]" />
+                        <span className="text-foreground/85 leading-relaxed">{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            )}
+            {data.cons && data.cons.length > 0 && (
+              <Reveal delay={80}>
+                <div className="h-full rounded-3xl border border-[#F5A623]/40 bg-[#F5A623]/5 p-6 sm:p-7">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-[#F5A623]/20 px-3 py-1 text-xs font-semibold text-[#8a5b0e]">
+                    <ThumbsDown className="size-3.5" />
+                    Grenzen
+                  </div>
+                  <ul className="mt-4 space-y-3">
+                    {data.cons.map((c) => (
+                      <li key={c} className="flex items-start gap-3 text-sm">
+                        <Info className="mt-0.5 size-4 shrink-0 text-[#F5A623]" />
+                        <span className="text-foreground/85 leading-relaxed">{c}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Integrations */}
+      {data.integrations && data.integrations.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+          <Reveal>
+            <div className="rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-soft">
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex size-11 items-center justify-center rounded-2xl"
+                  style={{ background: `${labelColor}1A`, color: labelColor }}
+                >
+                  <Plug className="size-5" />
+                </div>
+                <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+                  Integrationen
+                </h2>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {data.integrations.map((i) => (
+                  <span
+                    key={i}
+                    className="rounded-full border border-border bg-background px-3 py-1.5 text-sm font-medium text-foreground/80"
+                  >
+                    {i}
+                  </span>
+                ))}
+              </div>
+              {data.integrationsNote && (
+                <p className="mt-4 text-sm text-foreground/70 leading-relaxed">
+                  {data.integrationsNote}
+                </p>
+              )}
+            </div>
+          </Reveal>
+        </section>
+      )}
+
+      {/* Security & Compliance */}
+      {data.security && data.security.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+          <Reveal>
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+              Sicherheit und Compliance
+            </h2>
+          </Reveal>
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {data.security.map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <Reveal key={s.title} delay={i * 50}>
+                  <div className="h-full rounded-3xl border border-border bg-card p-5 shadow-soft">
+                    <div
+                      className="flex size-10 items-center justify-center rounded-xl"
+                      style={{ background: "#12B76A1A", color: "#0e8a51" }}
+                    >
+                      <Icon className="size-5" />
+                    </div>
+                    <div className="mt-3 font-display text-base font-semibold">{s.title}</div>
+                    <p className="mt-1.5 text-sm text-foreground/70 leading-relaxed">{s.text}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Reviews */}
       <section id="bewertungen" className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
