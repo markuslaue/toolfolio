@@ -60,7 +60,7 @@ export type AudienceData = {
   otherAudiences: { slug: AudienceSlug; label: string; teaser: string }[];
 };
 
-function PlaceholderHint({ children }: { children: string }) {
+function PlaceholderHint({ children }: { children: React.ReactNode }) {
   return (
     <div className="absolute left-3 top-3 z-10 rounded-full bg-[#1F1D2B]/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/90">
       {children}
