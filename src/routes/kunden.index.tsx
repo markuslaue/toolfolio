@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/toolfolio/app-shell";
 import { Kunden } from "@/components/toolfolio/kunden";
 
-export const Route = createFileRoute("/kunden")({
+export const Route = createFileRoute("/kunden/")({
   head: () => ({
     meta: [
       { title: "Kunden – Toolfolio" },
