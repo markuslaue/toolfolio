@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AboFormPanel } from "./abo-form-panel";
 
 const navItems = [
   { label: "Übersicht", icon: LayoutDashboard, to: "/" },
@@ -34,6 +35,7 @@ const navItems = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -57,12 +59,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
 
         <div className="flex-1 min-w-0 flex flex-col">
-          <TopBar onMenu={() => setMobileOpen(true)} />
+          <TopBar onMenu={() => setMobileOpen(true)} onAdd={() => setAddOpen(true)} />
           <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-[1400px] w-full mx-auto">
             {children}
           </main>
         </div>
       </div>
+      <AboFormPanel open={addOpen} onOpenChange={setAddOpen} mode="anlegen" />
     </div>
   );
 }
@@ -110,7 +113,7 @@ function SidebarContent() {
   );
 }
 
-function TopBar({ onMenu }: { onMenu: () => void }) {
+function TopBar({ onMenu, onAdd }: { onMenu: () => void; onAdd: () => void }) {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
       <div className="flex items-center gap-3 px-4 sm:px-6 lg:px-8 h-16 max-w-[1400px] w-full mx-auto">
@@ -140,10 +143,10 @@ function TopBar({ onMenu }: { onMenu: () => void }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button size="sm" className="gap-1.5 hidden sm:inline-flex">
+          <Button size="sm" className="gap-1.5 hidden sm:inline-flex" onClick={onAdd}>
             <Plus className="size-4" /> Abo hinzufügen
           </Button>
-          <Button size="sm" className="sm:hidden gap-1" aria-label="Abo hinzufügen">
+          <Button size="sm" className="sm:hidden gap-1" aria-label="Abo hinzufügen" onClick={onAdd}>
             <Plus className="size-4" />
           </Button>
           <DropdownMenu>
