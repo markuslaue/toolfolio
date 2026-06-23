@@ -89,7 +89,7 @@ export function Nav() {
   }, []);
 
   const links = [
-    { label: "Produkt", href: "#features" },
+    { label: "Produkt", href: "/features" },
     { label: "Verzeichnis", href: "#verzeichnis" },
     { label: "Preise", href: "/preise" },
     { label: "Über uns", href: "#footer" },
