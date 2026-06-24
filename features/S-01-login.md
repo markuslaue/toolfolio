@@ -58,12 +58,65 @@
 | `redirect` nur fuer interne Pfade | Open-Redirect-Schutz | 2026-06-25 |
 
 ### Technical Decisions
-_To be added by /architecture_
+| Decision | Rationale | Date |
+|----------|-----------|------|
+| Supabase Auth als Identitaetsanbieter | Konten/Passwoerter/SSO/MFA sicher gebuendelt, kein eigenes Passwort-Handling | 2026-06-25 |
+| Login per Server-Aktion (nicht Client-Aufruf) | Passwort serverseitig, Session-Cookie sicher gesetzt, App-Router-konform | 2026-06-25 |
+| Google-SSO ueber Supabase-OAuth + Callback-Route | Standardweg, kein eigenes OAuth | 2026-06-25 |
+| Profil-Tabelle mit Row Level Security (Eigentuemer-only) | Leitplanke: Zugriff strikt auf den Eigentuemer | 2026-06-25 |
+| Nur Google-SSO im MVP, Microsoft spaeter | Bestaetigter Default, geringere Anfangskomplexitaet | 2026-06-25 |
+| 2FA-Schritt vorbereiten, nicht erzwingen | Bestaetigter Default; Einrichtung folgt in B-26 | 2026-06-25 |
+| Auth-Mails vorerst ueber Supabase-Mailer | Bestaetigter Default; Resend folgt in PRJ-23 | 2026-06-25 |
+| Zugang gesperrt bis E-Mail verifiziert (Google gilt als verifiziert) | Bestaetigter Default | 2026-06-25 |
 
 ---
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+
+### A) Komponenten-Struktur (in der vorhandenen Auth-Huelle)
+```
+/login (Auth-Huelle: Markenpanel links + Karte rechts, beides aus INFRA-1)
++-- Login-Karte
+|   +-- Ueberschrift "Willkommen zurueck"
+|   +-- Button "Mit Google anmelden" (SSO)
+|   +-- Trenner "oder mit E-Mail"
+|   +-- Login-Formular
+|   |   +-- E-Mail-Feld
+|   |   +-- Passwort-Feld (mit Anzeigen-Umschalter)
+|   |   +-- "Angemeldet bleiben" (Checkbox)
+|   |   +-- "Passwort vergessen?" (Link -> /passwort-vergessen, S-03)
+|   |   +-- Button "Anmelden" (mit Ladezustand)
+|   +-- Fehlerbereich (neutrale Meldung)
+|   +-- 2FA-Schritt (alternativer Karteninhalt, nur wenn das Konto MFA aktiv hat)
+|   |   +-- Code-Eingabe + Bestaetigen
+|   +-- Fusszeile "Noch kein Konto? Jetzt registrieren" (Link -> /registrieren, S-02)
++-- OAuth-Callback-Route (nimmt die Google-Rueckleitung an, setzt die Session, leitet weiter)
+```
+Serverseitig: eine **Server-Aktion** verarbeitet den E-Mail/Passwort-Login (ueber Supabase), setzt die Session als Cookie und leitet auf den geprueften, internen Zielpfad bzw. `/app`. Der vorhandene **Proxy** schuetzt `/app` und `/anbieter` und haengt den `redirect`-Parameter an. Google laeuft ueber den Supabase-OAuth-Flow plus die Callback-Route.
+
+### B) Datenmodell (Klartext)
+- **Konten und Passwoerter** liegen ausschliesslich in **Supabase Auth** (kein Klartext-Passwort bei uns, kein eigenes Passwort-Handling).
+- **Profil je Konto** (gemeinsame Auth-Grundlage, hier etabliert, von S-02 befuellt): Verweis auf das Auth-Konto, Vorname, Nachname, Rolle (z. B. Inhaber/Admin), Anlage-Zeitpunkt. Beim Login dient es dazu, nach dem Einloggen Name und Rolle zu kennen. Zugriff strikt nur auf den Eigentuemer (Row Level Security).
+- **Session:** sichere Cookies, von Supabase/SSR verwaltet (kein zusaetzlicher Speicher). "Angemeldet bleiben" steuert die Session-Dauer (kurz vs. lang).
+- **Zwei-Faktor (2FA):** ueber Supabase MFA (TOTP). Die Faktoren liegen bei Supabase. Einrichtung kommt spaeter (B-26); hier wird nur der Abfrage-Schritt vorbereitet, nicht erzwungen.
+
+### C) Technische Entscheidungen (das Warum)
+- **Supabase Auth als Identitaetsanbieter:** Konten, Passwoerter, Google-SSO und 2FA an einer sicheren, bereits verdrahteten Stelle. Wir speichern selbst keine Passwoerter.
+- **Login ueber Server-Aktion statt Client-Aufruf:** das Passwort wird serverseitig verarbeitet, die Session sicher als Cookie gesetzt, sauber im Next.js App Router.
+- **Google-SSO ueber Supabase-OAuth + Callback-Route:** Standardweg, kein eigenes OAuth-Handling.
+- **Neutrale Fehlermeldungen + nur interne `redirect`-Pfade:** verhindert Konto-Enumeration und Open-Redirect (in der Spec entschieden).
+- **Profil mit Row Level Security:** jeder sieht ausschliesslich sein eigenes Profil (Leitplanke: Zugriff strikt auf den Eigentuemer).
+- **2FA vorbereitet, nicht erzwungen** (bestaetigter Default).
+- **Nur Google-SSO im MVP** (Microsoft spaeter; bestaetigter Default).
+
+### D) Abhaengigkeiten (Pakete)
+- `@supabase/supabase-js`, `@supabase/ssr` - bereits installiert (INFRA-1).
+- `zod` - Eingabe-Validierung, bereits installiert.
+- shadcn/ui-Komponenten (`button`, `input`, `label`, `checkbox`, `card`, `alert`) - werden im `/frontend`-Schritt per `shadcn add` hinzugefuegt (noch nicht vorhanden).
+- Keine neuen npm-Pakete zwingend noetig.
+
+### Voraussetzung (einmalig, Dashboard)
+Google als Auth-Provider in Supabase aktivieren (aktuell aus) - Client-ID/Secret in Supabase hinterlegen, Redirect-URL auf die Callback-Route setzen. Erledigen wir im `/backend`-Schritt.
 
 ## QA Test Results
 _To be added by /qa_
