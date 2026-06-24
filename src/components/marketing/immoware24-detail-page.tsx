@@ -191,6 +191,43 @@ export function Immoware24DetailPage() {
   const [anliegen, setAnliegen] = useState("");
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (lightbox === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox]);
+
+  const videos = [
+    {
+      id: "fV3sUEWtJ4M",
+      title: "Immoware24 im Überblick",
+      desc: "Aufmacher-Video: zentrale Funktionen, Aufbau und Nutzen der Plattform für Verwalter.",
+    },
+    {
+      id: "rOTStTlPaj0",
+      title: "Praxis-Einblick aus der Verwaltung",
+      desc: "Wie Verwalter Miet- und WEG-Objekte digital im Alltag managen.",
+    },
+    {
+      id: "nKJk0G8Jalc",
+      title: "Funktionen im Detail",
+      desc: "Tiefer Blick auf Buchhaltung, Abrechnungen und Portal24.",
+    },
+  ];
+
+  const screenshots = [
+    { src: immoware24Buchungen.url, label: "Rechnungswesen: Liste offener Posten", caption: "Buchhaltung mit offenen Posten, Mahnwesen und Banktransaktionen." },
+    { src: immoware24Zaehler.url, label: "Zählermanagement: VE-Zähler", caption: "Zähler der Verwaltungseinheiten mit Ablesungen und PDF-Erfassung." },
+    { src: immoware24Kontakt.url, label: "Kontakt hinzufügen", caption: "Strukturierte Stammdaten für Mieter, Eigentümer, Dienstleister und Beirat." },
+    { src: immoware24Buchungen.url, label: "Betriebskostenabrechnung (Beispiel)", caption: "Abrechnungslauf mit Verteilerschlüsseln und Einzelnachweisen." },
+    { src: immoware24Zaehler.url, label: "Portal24 (Beispiel)", caption: "Eigentümer- und Mieter-Portal mit Belegen, Nachrichten und Abrechnungen." },
+    { src: immoware24Kontakt.url, label: "Dokumentenmanagement (Beispiel)", caption: "KI-gestützte Zuordnung von Dokumenten zu Objekten und Vorgängen." },
+  ];
 
   function submit(e: FormEvent) {
     e.preventDefault();
