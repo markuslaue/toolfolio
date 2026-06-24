@@ -42,6 +42,7 @@ import { Route as VerzeichnisIndexRouteImport } from './routes/verzeichnis.index
 import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as FeaturesIndexRouteImport } from './routes/features.index'
 import { Route as EinstellungenIndexRouteImport } from './routes/einstellungen.index'
+import { Route as AnbieterPortalIndexRouteImport } from './routes/anbieter-portal.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
 import { Route as VerzeichnisSucheRouteImport } from './routes/verzeichnis.suche'
 import { Route as VerzeichnisBewertenRouteImport } from './routes/verzeichnis.bewerten'
@@ -223,6 +224,11 @@ const EinstellungenIndexRoute = EinstellungenIndexRouteImport.update({
   path: '/',
   getParentRoute: () => EinstellungenRoute,
 } as any)
+const AnbieterPortalIndexRoute = AnbieterPortalIndexRouteImport.update({
+  id: '/anbieter-portal/',
+  path: '/anbieter-portal/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AbosIndexRoute = AbosIndexRouteImport.update({
   id: '/abos/',
   path: '/abos/',
@@ -345,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/verzeichnis/bewerten': typeof VerzeichnisBewertenRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
   '/abos/': typeof AbosIndexRoute
+  '/anbieter-portal/': typeof AnbieterPortalIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
   '/kunden/': typeof KundenIndexRoute
@@ -393,6 +400,7 @@ export interface FileRoutesByTo {
   '/verzeichnis/bewerten': typeof VerzeichnisBewertenRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
   '/abos': typeof AbosIndexRoute
+  '/anbieter-portal': typeof AnbieterPortalIndexRoute
   '/einstellungen': typeof EinstellungenIndexRoute
   '/features': typeof FeaturesIndexRoute
   '/kunden': typeof KundenIndexRoute
@@ -444,6 +452,7 @@ export interface FileRoutesById {
   '/verzeichnis/bewerten': typeof VerzeichnisBewertenRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
   '/abos/': typeof AbosIndexRoute
+  '/anbieter-portal/': typeof AnbieterPortalIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
   '/kunden/': typeof KundenIndexRoute
@@ -496,6 +505,7 @@ export interface FileRouteTypes {
     | '/verzeichnis/bewerten'
     | '/verzeichnis/suche'
     | '/abos/'
+    | '/anbieter-portal/'
     | '/einstellungen/'
     | '/features/'
     | '/kunden/'
@@ -544,6 +554,7 @@ export interface FileRouteTypes {
     | '/verzeichnis/bewerten'
     | '/verzeichnis/suche'
     | '/abos'
+    | '/anbieter-portal'
     | '/einstellungen'
     | '/features'
     | '/kunden'
@@ -594,6 +605,7 @@ export interface FileRouteTypes {
     | '/verzeichnis/bewerten'
     | '/verzeichnis/suche'
     | '/abos/'
+    | '/anbieter-portal/'
     | '/einstellungen/'
     | '/features/'
     | '/kunden/'
@@ -639,6 +651,7 @@ export interface RootRouteChildren {
   VerzeichnisBewertenRoute: typeof VerzeichnisBewertenRoute
   VerzeichnisSucheRoute: typeof VerzeichnisSucheRoute
   AbosIndexRoute: typeof AbosIndexRoute
+  AnbieterPortalIndexRoute: typeof AnbieterPortalIndexRoute
   KundenIndexRoute: typeof KundenIndexRoute
   VerzeichnisIndexRoute: typeof VerzeichnisIndexRoute
   VerzeichnisClusterCategoryRoute: typeof VerzeichnisClusterCategoryRoute
@@ -878,6 +891,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EinstellungenIndexRouteImport
       parentRoute: typeof EinstellungenRoute
     }
+    '/anbieter-portal/': {
+      id: '/anbieter-portal/'
+      path: '/anbieter-portal'
+      fullPath: '/anbieter-portal/'
+      preLoaderRoute: typeof AnbieterPortalIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/abos/': {
       id: '/abos/'
       path: '/abos'
@@ -1059,6 +1079,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerzeichnisBewertenRoute: VerzeichnisBewertenRoute,
   VerzeichnisSucheRoute: VerzeichnisSucheRoute,
   AbosIndexRoute: AbosIndexRoute,
+  AnbieterPortalIndexRoute: AnbieterPortalIndexRoute,
   KundenIndexRoute: KundenIndexRoute,
   VerzeichnisIndexRoute: VerzeichnisIndexRoute,
   VerzeichnisClusterCategoryRoute: VerzeichnisClusterCategoryRoute,
