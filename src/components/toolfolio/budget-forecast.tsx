@@ -143,8 +143,9 @@ export function BudgetForecast() {
         <Info className="size-4 text-primary mt-0.5 shrink-0" />
         <p className="text-muted-foreground">
           Forecast ist eine Projektion auf Basis deiner aktuellen Abos und
-          bekannter Ereignisse. Variable Kosten sind Schätzungen, erkennbar am
-          gestrichelten Anteil.
+          bekannter Ereignisse. Variable AI-Kosten sind als solche markiert.
+          Per API verbundene Tools liefern Live-Daten und praezisieren die
+          12-Monats-Hochrechnung; nicht verbundene bleiben geschaetzt.
         </p>
       </div>
 
