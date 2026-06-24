@@ -65,7 +65,7 @@ const ARTEN: {
     title: "Verwandte Tools / Alternativen",
     icon: Sparkles,
     desc: "Gesponserte Einblendung auf den Detailseiten ähnlicher Tools.",
-    beispiel: "Block „Alternativen" auf Wettbewerber-Seiten",
+    beispiel: "Block „Alternativen“ auf Wettbewerber-Seiten",
   },
 ];
 
