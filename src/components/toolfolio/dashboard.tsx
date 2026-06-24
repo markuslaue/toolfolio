@@ -286,7 +286,31 @@ function AktionsCenter() {
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="pt-0 space-y-2.5">
+      <CardContent class
+="pt-0 space-y-2.5">
+        <div className="flex items-start gap-3 p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10">
+          <div className="size-10 rounded-full grid place-items-center shrink-0 bg-emerald-500/20 text-emerald-700">
+            <Zap className="size-4.5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 bg-emerald-500/20 text-emerald-700">
+                Live-API
+              </span>
+              <span className="text-sm font-semibold">OpenAI-Verbrauch diesen Monat +180&nbsp;%</span>
+            </div>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Live aus der Anbieter-API gelesen. Wahrscheinlich ein neuer Prompt-Workflow.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 hidden sm:inline-flex rounded-full border-emerald-500/40 text-emerald-700 hover:bg-emerald-500/10"
+          >
+            Verlauf ansehen
+          </Button>
+        </div>
         {aktionen.map((a) => {
           const s = aktionStyle[a.typ];
           const Icon = s.icon;
