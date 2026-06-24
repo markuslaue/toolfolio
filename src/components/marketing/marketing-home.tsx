@@ -1457,10 +1457,14 @@ export function Footer() {
         </div>
         <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground">
           <div>© {new Date().getFullYear()} Toolfolio. Alle Rechte vorbehalten.</div>
-          <div className="flex items-center gap-2">
-            <Globe2 className="size-4" /> Deutsch (DACH)
+          <div className="flex items-center gap-4">
+            <CookieSettingsLink className="text-xs" />
+            <span className="flex items-center gap-2">
+              <Globe2 className="size-4" /> Deutsch (DACH)
+            </span>
           </div>
         </div>
+
       </div>
     </footer>
   );
