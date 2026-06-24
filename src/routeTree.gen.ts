@@ -56,6 +56,7 @@ import { Route as EinstellungenPlanRouteImport } from './routes/einstellungen.pl
 import { Route as EinstellungenDatenRouteImport } from './routes/einstellungen.daten'
 import { Route as EinstellungenBenachrichtigungenRouteImport } from './routes/einstellungen.benachrichtigungen'
 import { Route as AuthRegistrierenRouteImport } from './routes/auth.registrieren'
+import { Route as AuthPasswortVergessenRouteImport } from './routes/auth.passwort-vergessen'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AnbieterPortalPlatzierungRouteImport } from './routes/anbieter-portal.platzierung'
 import { Route as AnbieterPortalListingRouteImport } from './routes/anbieter-portal.listing'
@@ -304,6 +305,11 @@ const AuthRegistrierenRoute = AuthRegistrierenRouteImport.update({
   path: '/auth/registrieren',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthPasswortVergessenRoute = AuthPasswortVergessenRouteImport.update({
+  id: '/auth/passwort-vergessen',
+  path: '/auth/passwort-vergessen',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/auth/login',
   path: '/auth/login',
@@ -397,6 +403,7 @@ export interface FileRoutesByFullPath {
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/passwort-vergessen': typeof AuthPasswortVergessenRoute
   '/auth/registrieren': typeof AuthRegistrierenRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
@@ -454,6 +461,7 @@ export interface FileRoutesByTo {
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/passwort-vergessen': typeof AuthPasswortVergessenRoute
   '/auth/registrieren': typeof AuthRegistrierenRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
@@ -514,6 +522,7 @@ export interface FileRoutesById {
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/passwort-vergessen': typeof AuthPasswortVergessenRoute
   '/auth/registrieren': typeof AuthRegistrierenRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
@@ -575,6 +584,7 @@ export interface FileRouteTypes {
     | '/anbieter-portal/listing'
     | '/anbieter-portal/platzierung'
     | '/auth/login'
+    | '/auth/passwort-vergessen'
     | '/auth/registrieren'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
@@ -632,6 +642,7 @@ export interface FileRouteTypes {
     | '/anbieter-portal/listing'
     | '/anbieter-portal/platzierung'
     | '/auth/login'
+    | '/auth/passwort-vergessen'
     | '/auth/registrieren'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
@@ -691,6 +702,7 @@ export interface FileRouteTypes {
     | '/anbieter-portal/listing'
     | '/anbieter-portal/platzierung'
     | '/auth/login'
+    | '/auth/passwort-vergessen'
     | '/auth/registrieren'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
@@ -751,6 +763,7 @@ export interface RootRouteChildren {
   AnbieterPortalListingRoute: typeof AnbieterPortalListingRoute
   AnbieterPortalPlatzierungRoute: typeof AnbieterPortalPlatzierungRoute
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthPasswortVergessenRoute: typeof AuthPasswortVergessenRoute
   AuthRegistrierenRoute: typeof AuthRegistrierenRoute
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
@@ -1096,6 +1109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRegistrierenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/passwort-vergessen': {
+      id: '/auth/passwort-vergessen'
+      path: '/auth/passwort-vergessen'
+      fullPath: '/auth/passwort-vergessen'
+      preLoaderRoute: typeof AuthPasswortVergessenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/login': {
       id: '/auth/login'
       path: '/auth/login'
@@ -1243,6 +1263,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnbieterPortalListingRoute: AnbieterPortalListingRoute,
   AnbieterPortalPlatzierungRoute: AnbieterPortalPlatzierungRoute,
   AuthLoginRoute: AuthLoginRoute,
+  AuthPasswortVergessenRoute: AuthPasswortVergessenRoute,
   AuthRegistrierenRoute: AuthRegistrierenRoute,
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
