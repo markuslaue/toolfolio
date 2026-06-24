@@ -1,0 +1,38 @@
+# Toolfolio - Deployment auf VPS B hinter dem vorhandenen Traefik.
+# Traefik laeuft im host-Netz mit Docker-Provider (exposedbydefault=false),
+# Certresolver "letsencrypt". Deploy: docker compose -p toolfolio up -d --build
+#
+# Laufzeit-Secrets kommen aus .env.production (NICHT committen) auf dem Server.
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+    image: toolfolio-web:latest
+    container_name: toolfolio-web
+    restart: unless-stopped
+    # .env liefert sowohl die Build-Args (NEXT_PUBLIC_*) per Compose-Interpolation
+    # als auch die Laufzeit-Variablen (inkl. SUPABASE_SERVICE_ROLE_KEY) in den Container.
+    env_file: .env
+    expose:
+      - "3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.toolfolio.rule=Host(`toolfolio.de`) || Host(`www.toolfolio.de`)"
+      - "traefik.http.routers.toolfolio.entrypoints=websecure"
+      - "traefik.http.routers.toolfolio.tls.certresolver=letsencrypt"
+      - "traefik.http.services.toolfolio.loadbalancer.server.port=3000"
+      - "traefik.docker.network=toolfolio_default"
+      # www -> apex Redirect
+      - "traefik.http.routers.toolfolio.middlewares=toolfolio-www@docker"
+      - "traefik.http.middlewares.toolfolio-www.redirectregex.regex=^https://www\\.toolfolio\\.de/(.*)"
+      - "traefik.http.middlewares.toolfolio-www.redirectregex.replacement=https://toolfolio.de/$${1}"
+      - "traefik.http.middlewares.toolfolio-www.redirectregex.permanent=true"
+
+networks:
+  default:
+    name: toolfolio_default

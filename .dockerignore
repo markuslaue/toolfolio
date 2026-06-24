@@ -1,0 +1,17 @@
+node_modules
+.next
+.git
+.github
+npm-debug.log
+README.md
+docs
+features
+.claude
+.env
+.env.*
+!.env.production.example
+supabase
+*.md
+.DS_Store
+coverage
+.vitest
