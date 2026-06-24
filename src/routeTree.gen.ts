@@ -42,6 +42,7 @@ import { Route as VerzeichnisIndexRouteImport } from './routes/verzeichnis.index
 import { Route as KundenIndexRouteImport } from './routes/kunden.index'
 import { Route as FeaturesIndexRouteImport } from './routes/features.index'
 import { Route as EinstellungenIndexRouteImport } from './routes/einstellungen.index'
+import { Route as AnbieterPortalIndexRouteImport } from './routes/anbieter-portal.index'
 import { Route as AbosIndexRouteImport } from './routes/abos.index'
 import { Route as VerzeichnisSucheRouteImport } from './routes/verzeichnis.suche'
 import { Route as VerzeichnisBewertenRouteImport } from './routes/verzeichnis.bewerten'
@@ -54,6 +55,10 @@ import { Route as EinstellungenTeamRouteImport } from './routes/einstellungen.te
 import { Route as EinstellungenPlanRouteImport } from './routes/einstellungen.plan'
 import { Route as EinstellungenDatenRouteImport } from './routes/einstellungen.daten'
 import { Route as EinstellungenBenachrichtigungenRouteImport } from './routes/einstellungen.benachrichtigungen'
+import { Route as AnbieterPortalPlatzierungRouteImport } from './routes/anbieter-portal.platzierung'
+import { Route as AnbieterPortalListingRouteImport } from './routes/anbieter-portal.listing'
+import { Route as AnbieterPortalLeadsRouteImport } from './routes/anbieter-portal.leads'
+import { Route as AnbieterPortalAbrechnungRouteImport } from './routes/anbieter-portal.abrechnung'
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 import { Route as VerzeichnisClusterIndexRouteImport } from './routes/verzeichnis.$cluster.index'
 import { Route as VerzeichnisClusterCategoryRouteImport } from './routes/verzeichnis.$cluster.$category'
@@ -223,6 +228,11 @@ const EinstellungenIndexRoute = EinstellungenIndexRouteImport.update({
   path: '/',
   getParentRoute: () => EinstellungenRoute,
 } as any)
+const AnbieterPortalIndexRoute = AnbieterPortalIndexRouteImport.update({
+  id: '/anbieter-portal/',
+  path: '/anbieter-portal/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AbosIndexRoute = AbosIndexRouteImport.update({
   id: '/abos/',
   path: '/abos/',
@@ -285,6 +295,28 @@ const EinstellungenBenachrichtigungenRoute =
     path: '/benachrichtigungen',
     getParentRoute: () => EinstellungenRoute,
   } as any)
+const AnbieterPortalPlatzierungRoute =
+  AnbieterPortalPlatzierungRouteImport.update({
+    id: '/anbieter-portal/platzierung',
+    path: '/anbieter-portal/platzierung',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AnbieterPortalListingRoute = AnbieterPortalListingRouteImport.update({
+  id: '/anbieter-portal/listing',
+  path: '/anbieter-portal/listing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnbieterPortalLeadsRoute = AnbieterPortalLeadsRouteImport.update({
+  id: '/anbieter-portal/leads',
+  path: '/anbieter-portal/leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnbieterPortalAbrechnungRoute =
+  AnbieterPortalAbrechnungRouteImport.update({
+    id: '/anbieter-portal/abrechnung',
+    path: '/anbieter-portal/abrechnung',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AbosAboIdRoute = AbosAboIdRouteImport.update({
   id: '/abos/$aboId',
   path: '/abos/$aboId',
@@ -333,6 +365,10 @@ export interface FileRoutesByFullPath {
   '/ueber-uns': typeof UeberUnsRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/anbieter-portal/abrechnung': typeof AnbieterPortalAbrechnungRoute
+  '/anbieter-portal/leads': typeof AnbieterPortalLeadsRoute
+  '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
+  '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -345,6 +381,7 @@ export interface FileRoutesByFullPath {
   '/verzeichnis/bewerten': typeof VerzeichnisBewertenRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
   '/abos/': typeof AbosIndexRoute
+  '/anbieter-portal/': typeof AnbieterPortalIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
   '/kunden/': typeof KundenIndexRoute
@@ -381,6 +418,10 @@ export interface FileRoutesByTo {
   '/ueber-uns': typeof UeberUnsRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/anbieter-portal/abrechnung': typeof AnbieterPortalAbrechnungRoute
+  '/anbieter-portal/leads': typeof AnbieterPortalLeadsRoute
+  '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
+  '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -393,6 +434,7 @@ export interface FileRoutesByTo {
   '/verzeichnis/bewerten': typeof VerzeichnisBewertenRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
   '/abos': typeof AbosIndexRoute
+  '/anbieter-portal': typeof AnbieterPortalIndexRoute
   '/einstellungen': typeof EinstellungenIndexRoute
   '/features': typeof FeaturesIndexRoute
   '/kunden': typeof KundenIndexRoute
@@ -432,6 +474,10 @@ export interface FileRoutesById {
   '/ueber-uns': typeof UeberUnsRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/anbieter-portal/abrechnung': typeof AnbieterPortalAbrechnungRoute
+  '/anbieter-portal/leads': typeof AnbieterPortalLeadsRoute
+  '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
+  '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -444,6 +490,7 @@ export interface FileRoutesById {
   '/verzeichnis/bewerten': typeof VerzeichnisBewertenRoute
   '/verzeichnis/suche': typeof VerzeichnisSucheRoute
   '/abos/': typeof AbosIndexRoute
+  '/anbieter-portal/': typeof AnbieterPortalIndexRoute
   '/einstellungen/': typeof EinstellungenIndexRoute
   '/features/': typeof FeaturesIndexRoute
   '/kunden/': typeof KundenIndexRoute
@@ -484,6 +531,10 @@ export interface FileRouteTypes {
     | '/ueber-uns'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/anbieter-portal/abrechnung'
+    | '/anbieter-portal/leads'
+    | '/anbieter-portal/listing'
+    | '/anbieter-portal/platzierung'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -496,6 +547,7 @@ export interface FileRouteTypes {
     | '/verzeichnis/bewerten'
     | '/verzeichnis/suche'
     | '/abos/'
+    | '/anbieter-portal/'
     | '/einstellungen/'
     | '/features/'
     | '/kunden/'
@@ -532,6 +584,10 @@ export interface FileRouteTypes {
     | '/ueber-uns'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/anbieter-portal/abrechnung'
+    | '/anbieter-portal/leads'
+    | '/anbieter-portal/listing'
+    | '/anbieter-portal/platzierung'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -544,6 +600,7 @@ export interface FileRouteTypes {
     | '/verzeichnis/bewerten'
     | '/verzeichnis/suche'
     | '/abos'
+    | '/anbieter-portal'
     | '/einstellungen'
     | '/features'
     | '/kunden'
@@ -582,6 +639,10 @@ export interface FileRouteTypes {
     | '/ueber-uns'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/anbieter-portal/abrechnung'
+    | '/anbieter-portal/leads'
+    | '/anbieter-portal/listing'
+    | '/anbieter-portal/platzierung'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -594,6 +655,7 @@ export interface FileRouteTypes {
     | '/verzeichnis/bewerten'
     | '/verzeichnis/suche'
     | '/abos/'
+    | '/anbieter-portal/'
     | '/einstellungen/'
     | '/features/'
     | '/kunden/'
@@ -633,12 +695,17 @@ export interface RootRouteChildren {
   UeberUnsRoute: typeof UeberUnsRoute
   ZahlungskanaeleRoute: typeof ZahlungskanaeleRoute
   AbosAboIdRoute: typeof AbosAboIdRoute
+  AnbieterPortalAbrechnungRoute: typeof AnbieterPortalAbrechnungRoute
+  AnbieterPortalLeadsRoute: typeof AnbieterPortalLeadsRoute
+  AnbieterPortalListingRoute: typeof AnbieterPortalListingRoute
+  AnbieterPortalPlatzierungRoute: typeof AnbieterPortalPlatzierungRoute
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
   VergleichSlugRoute: typeof VergleichSlugRoute
   VerzeichnisBewertenRoute: typeof VerzeichnisBewertenRoute
   VerzeichnisSucheRoute: typeof VerzeichnisSucheRoute
   AbosIndexRoute: typeof AbosIndexRoute
+  AnbieterPortalIndexRoute: typeof AnbieterPortalIndexRoute
   KundenIndexRoute: typeof KundenIndexRoute
   VerzeichnisIndexRoute: typeof VerzeichnisIndexRoute
   VerzeichnisClusterCategoryRoute: typeof VerzeichnisClusterCategoryRoute
@@ -878,6 +945,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EinstellungenIndexRouteImport
       parentRoute: typeof EinstellungenRoute
     }
+    '/anbieter-portal/': {
+      id: '/anbieter-portal/'
+      path: '/anbieter-portal'
+      fullPath: '/anbieter-portal/'
+      preLoaderRoute: typeof AnbieterPortalIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/abos/': {
       id: '/abos/'
       path: '/abos'
@@ -961,6 +1035,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/einstellungen/benachrichtigungen'
       preLoaderRoute: typeof EinstellungenBenachrichtigungenRouteImport
       parentRoute: typeof EinstellungenRoute
+    }
+    '/anbieter-portal/platzierung': {
+      id: '/anbieter-portal/platzierung'
+      path: '/anbieter-portal/platzierung'
+      fullPath: '/anbieter-portal/platzierung'
+      preLoaderRoute: typeof AnbieterPortalPlatzierungRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anbieter-portal/listing': {
+      id: '/anbieter-portal/listing'
+      path: '/anbieter-portal/listing'
+      fullPath: '/anbieter-portal/listing'
+      preLoaderRoute: typeof AnbieterPortalListingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anbieter-portal/leads': {
+      id: '/anbieter-portal/leads'
+      path: '/anbieter-portal/leads'
+      fullPath: '/anbieter-portal/leads'
+      preLoaderRoute: typeof AnbieterPortalLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anbieter-portal/abrechnung': {
+      id: '/anbieter-portal/abrechnung'
+      path: '/anbieter-portal/abrechnung'
+      fullPath: '/anbieter-portal/abrechnung'
+      preLoaderRoute: typeof AnbieterPortalAbrechnungRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/abos/$aboId': {
       id: '/abos/$aboId'
@@ -1053,12 +1155,17 @@ const rootRouteChildren: RootRouteChildren = {
   UeberUnsRoute: UeberUnsRoute,
   ZahlungskanaeleRoute: ZahlungskanaeleRoute,
   AbosAboIdRoute: AbosAboIdRoute,
+  AnbieterPortalAbrechnungRoute: AnbieterPortalAbrechnungRoute,
+  AnbieterPortalLeadsRoute: AnbieterPortalLeadsRoute,
+  AnbieterPortalListingRoute: AnbieterPortalListingRoute,
+  AnbieterPortalPlatzierungRoute: AnbieterPortalPlatzierungRoute,
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
   VergleichSlugRoute: VergleichSlugRoute,
   VerzeichnisBewertenRoute: VerzeichnisBewertenRoute,
   VerzeichnisSucheRoute: VerzeichnisSucheRoute,
   AbosIndexRoute: AbosIndexRoute,
+  AnbieterPortalIndexRoute: AnbieterPortalIndexRoute,
   KundenIndexRoute: KundenIndexRoute,
   VerzeichnisIndexRoute: VerzeichnisIndexRoute,
   VerzeichnisClusterCategoryRoute: VerzeichnisClusterCategoryRoute,
