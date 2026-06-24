@@ -50,6 +50,7 @@ import { Route as VergleichSlugRouteImport } from './routes/vergleich.$slug'
 import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
 import { Route as FuerSlugRouteImport } from './routes/fuer.$slug'
 import { Route as FeaturesSlugRouteImport } from './routes/features.$slug'
+import { Route as EmailVorschauWelcomeRouteImport } from './routes/email-vorschau.welcome'
 import { Route as EinstellungenUnternehmenRouteImport } from './routes/einstellungen.unternehmen'
 import { Route as EinstellungenTeamRouteImport } from './routes/einstellungen.team'
 import { Route as EinstellungenPlanRouteImport } from './routes/einstellungen.plan'
@@ -274,6 +275,11 @@ const FeaturesSlugRoute = FeaturesSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => FeaturesRoute,
 } as any)
+const EmailVorschauWelcomeRoute = EmailVorschauWelcomeRouteImport.update({
+  id: '/email-vorschau/welcome',
+  path: '/email-vorschau/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EinstellungenUnternehmenRoute =
   EinstellungenUnternehmenRouteImport.update({
     id: '/unternehmen',
@@ -417,6 +423,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/plan': typeof EinstellungenPlanRoute
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
+  '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
   '/features/$slug': typeof FeaturesSlugRoute
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
@@ -476,6 +483,7 @@ export interface FileRoutesByTo {
   '/einstellungen/plan': typeof EinstellungenPlanRoute
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
+  '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
   '/features/$slug': typeof FeaturesSlugRoute
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
@@ -538,6 +546,7 @@ export interface FileRoutesById {
   '/einstellungen/plan': typeof EinstellungenPlanRoute
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
+  '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
   '/features/$slug': typeof FeaturesSlugRoute
   '/fuer/$slug': typeof FuerSlugRoute
   '/kunden/$kundeId': typeof KundenKundeIdRoute
@@ -601,6 +610,7 @@ export interface FileRouteTypes {
     | '/einstellungen/plan'
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
+    | '/email-vorschau/welcome'
     | '/features/$slug'
     | '/fuer/$slug'
     | '/kunden/$kundeId'
@@ -660,6 +670,7 @@ export interface FileRouteTypes {
     | '/einstellungen/plan'
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
+    | '/email-vorschau/welcome'
     | '/features/$slug'
     | '/fuer/$slug'
     | '/kunden/$kundeId'
@@ -721,6 +732,7 @@ export interface FileRouteTypes {
     | '/einstellungen/plan'
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
+    | '/email-vorschau/welcome'
     | '/features/$slug'
     | '/fuer/$slug'
     | '/kunden/$kundeId'
@@ -778,6 +790,7 @@ export interface RootRouteChildren {
   AuthPasswortVergessenRoute: typeof AuthPasswortVergessenRoute
   AuthRegistrierenRoute: typeof AuthRegistrierenRoute
   AuthVerifizierenRoute: typeof AuthVerifizierenRoute
+  EmailVorschauWelcomeRoute: typeof EmailVorschauWelcomeRoute
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
   VergleichSlugRoute: typeof VergleichSlugRoute
@@ -1080,6 +1093,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeaturesSlugRouteImport
       parentRoute: typeof FeaturesRoute
     }
+    '/email-vorschau/welcome': {
+      id: '/email-vorschau/welcome'
+      path: '/email-vorschau/welcome'
+      fullPath: '/email-vorschau/welcome'
+      preLoaderRoute: typeof EmailVorschauWelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/einstellungen/unternehmen': {
       id: '/einstellungen/unternehmen'
       path: '/unternehmen'
@@ -1286,6 +1306,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthPasswortVergessenRoute: AuthPasswortVergessenRoute,
   AuthRegistrierenRoute: AuthRegistrierenRoute,
   AuthVerifizierenRoute: AuthVerifizierenRoute,
+  EmailVorschauWelcomeRoute: EmailVorschauWelcomeRoute,
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
   VergleichSlugRoute: VergleichSlugRoute,
