@@ -51,6 +51,7 @@ import { Route as KundenKundeIdRouteImport } from './routes/kunden.$kundeId'
 import { Route as FuerSlugRouteImport } from './routes/fuer.$slug'
 import { Route as FeaturesSlugRouteImport } from './routes/features.$slug'
 import { Route as EmailVorschauWelcomeRouteImport } from './routes/email-vorschau.welcome'
+import { Route as EmailVorschauTrialWarnungRouteImport } from './routes/email-vorschau.trial-warnung'
 import { Route as EmailVorschauFristenWarnungRouteImport } from './routes/email-vorschau.fristen-warnung'
 import { Route as EinstellungenUnternehmenRouteImport } from './routes/einstellungen.unternehmen'
 import { Route as EinstellungenTeamRouteImport } from './routes/einstellungen.team'
@@ -281,6 +282,12 @@ const EmailVorschauWelcomeRoute = EmailVorschauWelcomeRouteImport.update({
   path: '/email-vorschau/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailVorschauTrialWarnungRoute =
+  EmailVorschauTrialWarnungRouteImport.update({
+    id: '/email-vorschau/trial-warnung',
+    path: '/email-vorschau/trial-warnung',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const EmailVorschauFristenWarnungRoute =
   EmailVorschauFristenWarnungRouteImport.update({
     id: '/email-vorschau/fristen-warnung',
@@ -431,6 +438,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/email-vorschau/fristen-warnung': typeof EmailVorschauFristenWarnungRoute
+  '/email-vorschau/trial-warnung': typeof EmailVorschauTrialWarnungRoute
   '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
   '/features/$slug': typeof FeaturesSlugRoute
   '/fuer/$slug': typeof FuerSlugRoute
@@ -492,6 +500,7 @@ export interface FileRoutesByTo {
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/email-vorschau/fristen-warnung': typeof EmailVorschauFristenWarnungRoute
+  '/email-vorschau/trial-warnung': typeof EmailVorschauTrialWarnungRoute
   '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
   '/features/$slug': typeof FeaturesSlugRoute
   '/fuer/$slug': typeof FuerSlugRoute
@@ -556,6 +565,7 @@ export interface FileRoutesById {
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/email-vorschau/fristen-warnung': typeof EmailVorschauFristenWarnungRoute
+  '/email-vorschau/trial-warnung': typeof EmailVorschauTrialWarnungRoute
   '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
   '/features/$slug': typeof FeaturesSlugRoute
   '/fuer/$slug': typeof FuerSlugRoute
@@ -621,6 +631,7 @@ export interface FileRouteTypes {
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
     | '/email-vorschau/fristen-warnung'
+    | '/email-vorschau/trial-warnung'
     | '/email-vorschau/welcome'
     | '/features/$slug'
     | '/fuer/$slug'
@@ -682,6 +693,7 @@ export interface FileRouteTypes {
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
     | '/email-vorschau/fristen-warnung'
+    | '/email-vorschau/trial-warnung'
     | '/email-vorschau/welcome'
     | '/features/$slug'
     | '/fuer/$slug'
@@ -745,6 +757,7 @@ export interface FileRouteTypes {
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
     | '/email-vorschau/fristen-warnung'
+    | '/email-vorschau/trial-warnung'
     | '/email-vorschau/welcome'
     | '/features/$slug'
     | '/fuer/$slug'
@@ -804,6 +817,7 @@ export interface RootRouteChildren {
   AuthRegistrierenRoute: typeof AuthRegistrierenRoute
   AuthVerifizierenRoute: typeof AuthVerifizierenRoute
   EmailVorschauFristenWarnungRoute: typeof EmailVorschauFristenWarnungRoute
+  EmailVorschauTrialWarnungRoute: typeof EmailVorschauTrialWarnungRoute
   EmailVorschauWelcomeRoute: typeof EmailVorschauWelcomeRoute
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
@@ -1114,6 +1128,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailVorschauWelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email-vorschau/trial-warnung': {
+      id: '/email-vorschau/trial-warnung'
+      path: '/email-vorschau/trial-warnung'
+      fullPath: '/email-vorschau/trial-warnung'
+      preLoaderRoute: typeof EmailVorschauTrialWarnungRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/email-vorschau/fristen-warnung': {
       id: '/email-vorschau/fristen-warnung'
       path: '/email-vorschau/fristen-warnung'
@@ -1328,6 +1349,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRegistrierenRoute: AuthRegistrierenRoute,
   AuthVerifizierenRoute: AuthVerifizierenRoute,
   EmailVorschauFristenWarnungRoute: EmailVorschauFristenWarnungRoute,
+  EmailVorschauTrialWarnungRoute: EmailVorschauTrialWarnungRoute,
   EmailVorschauWelcomeRoute: EmailVorschauWelcomeRoute,
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
