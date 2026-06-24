@@ -286,8 +286,7 @@ function AktionsCenter() {
           </Badge>
         </div>
       </CardHeader>
-      <CardContent class
-="pt-0 space-y-2.5">
+      <CardContent className="pt-0 space-y-2.5">
         <div className="flex items-start gap-3 p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10">
           <div className="size-10 rounded-full grid place-items-center shrink-0 bg-emerald-500/20 text-emerald-700">
             <Zap className="size-4.5" />
