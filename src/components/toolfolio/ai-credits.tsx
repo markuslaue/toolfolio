@@ -24,6 +24,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { aiProviders, findProvider } from "@/lib/ai-providers";
+import { ConnectAiServiceModal } from "./connect-ai-service-modal";
 
 // ---------- helpers ----------
 const eur = (n: number) =>
