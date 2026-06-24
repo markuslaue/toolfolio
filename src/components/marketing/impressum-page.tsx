@@ -13,12 +13,8 @@ const sections = [
     content: (
       <>
         <p className="font-semibold">OMMM GmbH</p>
-        <p className="mt-2 text-foreground/80">
-          <Placeholder>[Ladungsfähige Geschäftsanschrift, Straße und Hausnummer, PLZ und Ort, bitte ergänzen]</Placeholder>
-        </p>
-        <p className="mt-2 text-sm text-foreground/70">
-          Sitz laut bisherigem Stand Leipzig, bitte bestätigen.
-        </p>
+        <p className="mt-2 text-foreground/80">Kranichweg 5</p>
+        <p className="text-foreground/80">04420 Markranstädt</p>
       </>
     ),
   },
@@ -27,7 +23,7 @@ const sections = [
     title: "Vertreten durch",
     content: (
       <>
-        <p className="text-foreground/80">Geschäftsführer: Markus Laue, Dominik Reeg</p>
+        <p className="text-foreground/80">Geschäftsführer: Markus Laue</p>
       </>
     ),
   },
@@ -37,10 +33,13 @@ const sections = [
     content: (
       <>
         <p className="text-foreground/80">
-          Telefon: <Placeholder>[bitte ergänzen]</Placeholder>
+          Telefon: 034205-509752
         </p>
         <p className="mt-2 text-foreground/80">
-          E-Mail: <Placeholder>[bitte ergänzen]</Placeholder>
+          E-Mail: info@ommm.de
+        </p>
+        <p className="mt-2 text-foreground/80">
+          Kontakt für Toolfolio: info@toolfolio.de
         </p>
       </>
     ),
@@ -66,8 +65,7 @@ const sections = [
     content: (
       <>
         <p className="text-foreground/80">
-          Umsatzsteuer-Identifikationsnummer gemäß § 27 a UStG:{" "}
-          <Placeholder>[DE..., bitte ergänzen]</Placeholder>
+          Umsatzsteuer-Identifikationsnummer gemäß § 27 a UStG: DE318929831
         </p>
       </>
     ),
