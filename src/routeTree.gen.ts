@@ -53,6 +53,7 @@ import { Route as FeaturesSlugRouteImport } from './routes/features.$slug'
 import { Route as EmailVorschauWelcomeRouteImport } from './routes/email-vorschau.welcome'
 import { Route as EmailVorschauTrialWarnungRouteImport } from './routes/email-vorschau.trial-warnung'
 import { Route as EmailVorschauSpikeAlarmRouteImport } from './routes/email-vorschau.spike-alarm'
+import { Route as EmailVorschauReportRouteImport } from './routes/email-vorschau.report'
 import { Route as EmailVorschauPreiserhoehungRouteImport } from './routes/email-vorschau.preiserhoehung'
 import { Route as EmailVorschauFristenWarnungRouteImport } from './routes/email-vorschau.fristen-warnung'
 import { Route as EinstellungenUnternehmenRouteImport } from './routes/einstellungen.unternehmen'
@@ -295,6 +296,11 @@ const EmailVorschauSpikeAlarmRoute = EmailVorschauSpikeAlarmRouteImport.update({
   path: '/email-vorschau/spike-alarm',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailVorschauReportRoute = EmailVorschauReportRouteImport.update({
+  id: '/email-vorschau/report',
+  path: '/email-vorschau/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmailVorschauPreiserhoehungRoute =
   EmailVorschauPreiserhoehungRouteImport.update({
     id: '/email-vorschau/preiserhoehung',
@@ -452,6 +458,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/email-vorschau/fristen-warnung': typeof EmailVorschauFristenWarnungRoute
   '/email-vorschau/preiserhoehung': typeof EmailVorschauPreiserhoehungRoute
+  '/email-vorschau/report': typeof EmailVorschauReportRoute
   '/email-vorschau/spike-alarm': typeof EmailVorschauSpikeAlarmRoute
   '/email-vorschau/trial-warnung': typeof EmailVorschauTrialWarnungRoute
   '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
@@ -516,6 +523,7 @@ export interface FileRoutesByTo {
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/email-vorschau/fristen-warnung': typeof EmailVorschauFristenWarnungRoute
   '/email-vorschau/preiserhoehung': typeof EmailVorschauPreiserhoehungRoute
+  '/email-vorschau/report': typeof EmailVorschauReportRoute
   '/email-vorschau/spike-alarm': typeof EmailVorschauSpikeAlarmRoute
   '/email-vorschau/trial-warnung': typeof EmailVorschauTrialWarnungRoute
   '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
@@ -583,6 +591,7 @@ export interface FileRoutesById {
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/email-vorschau/fristen-warnung': typeof EmailVorschauFristenWarnungRoute
   '/email-vorschau/preiserhoehung': typeof EmailVorschauPreiserhoehungRoute
+  '/email-vorschau/report': typeof EmailVorschauReportRoute
   '/email-vorschau/spike-alarm': typeof EmailVorschauSpikeAlarmRoute
   '/email-vorschau/trial-warnung': typeof EmailVorschauTrialWarnungRoute
   '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
@@ -651,6 +660,7 @@ export interface FileRouteTypes {
     | '/einstellungen/unternehmen'
     | '/email-vorschau/fristen-warnung'
     | '/email-vorschau/preiserhoehung'
+    | '/email-vorschau/report'
     | '/email-vorschau/spike-alarm'
     | '/email-vorschau/trial-warnung'
     | '/email-vorschau/welcome'
@@ -715,6 +725,7 @@ export interface FileRouteTypes {
     | '/einstellungen/unternehmen'
     | '/email-vorschau/fristen-warnung'
     | '/email-vorschau/preiserhoehung'
+    | '/email-vorschau/report'
     | '/email-vorschau/spike-alarm'
     | '/email-vorschau/trial-warnung'
     | '/email-vorschau/welcome'
@@ -781,6 +792,7 @@ export interface FileRouteTypes {
     | '/einstellungen/unternehmen'
     | '/email-vorschau/fristen-warnung'
     | '/email-vorschau/preiserhoehung'
+    | '/email-vorschau/report'
     | '/email-vorschau/spike-alarm'
     | '/email-vorschau/trial-warnung'
     | '/email-vorschau/welcome'
@@ -843,6 +855,7 @@ export interface RootRouteChildren {
   AuthVerifizierenRoute: typeof AuthVerifizierenRoute
   EmailVorschauFristenWarnungRoute: typeof EmailVorschauFristenWarnungRoute
   EmailVorschauPreiserhoehungRoute: typeof EmailVorschauPreiserhoehungRoute
+  EmailVorschauReportRoute: typeof EmailVorschauReportRoute
   EmailVorschauSpikeAlarmRoute: typeof EmailVorschauSpikeAlarmRoute
   EmailVorschauTrialWarnungRoute: typeof EmailVorschauTrialWarnungRoute
   EmailVorschauWelcomeRoute: typeof EmailVorschauWelcomeRoute
@@ -1169,6 +1182,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailVorschauSpikeAlarmRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email-vorschau/report': {
+      id: '/email-vorschau/report'
+      path: '/email-vorschau/report'
+      fullPath: '/email-vorschau/report'
+      preLoaderRoute: typeof EmailVorschauReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/email-vorschau/preiserhoehung': {
       id: '/email-vorschau/preiserhoehung'
       path: '/email-vorschau/preiserhoehung'
@@ -1391,6 +1411,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthVerifizierenRoute: AuthVerifizierenRoute,
   EmailVorschauFristenWarnungRoute: EmailVorschauFristenWarnungRoute,
   EmailVorschauPreiserhoehungRoute: EmailVorschauPreiserhoehungRoute,
+  EmailVorschauReportRoute: EmailVorschauReportRoute,
   EmailVorschauSpikeAlarmRoute: EmailVorschauSpikeAlarmRoute,
   EmailVorschauTrialWarnungRoute: EmailVorschauTrialWarnungRoute,
   EmailVorschauWelcomeRoute: EmailVorschauWelcomeRoute,
