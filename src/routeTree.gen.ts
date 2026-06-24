@@ -58,6 +58,7 @@ import { Route as EinstellungenBenachrichtigungenRouteImport } from './routes/ei
 import { Route as AnbieterPortalPlatzierungRouteImport } from './routes/anbieter-portal.platzierung'
 import { Route as AnbieterPortalListingRouteImport } from './routes/anbieter-portal.listing'
 import { Route as AnbieterPortalLeadsRouteImport } from './routes/anbieter-portal.leads'
+import { Route as AnbieterPortalAbrechnungRouteImport } from './routes/anbieter-portal.abrechnung'
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 import { Route as VerzeichnisClusterIndexRouteImport } from './routes/verzeichnis.$cluster.index'
 import { Route as VerzeichnisClusterCategoryRouteImport } from './routes/verzeichnis.$cluster.$category'
@@ -310,6 +311,12 @@ const AnbieterPortalLeadsRoute = AnbieterPortalLeadsRouteImport.update({
   path: '/anbieter-portal/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnbieterPortalAbrechnungRoute =
+  AnbieterPortalAbrechnungRouteImport.update({
+    id: '/anbieter-portal/abrechnung',
+    path: '/anbieter-portal/abrechnung',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AbosAboIdRoute = AbosAboIdRouteImport.update({
   id: '/abos/$aboId',
   path: '/abos/$aboId',
@@ -358,6 +365,7 @@ export interface FileRoutesByFullPath {
   '/ueber-uns': typeof UeberUnsRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/anbieter-portal/abrechnung': typeof AnbieterPortalAbrechnungRoute
   '/anbieter-portal/leads': typeof AnbieterPortalLeadsRoute
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
@@ -410,6 +418,7 @@ export interface FileRoutesByTo {
   '/ueber-uns': typeof UeberUnsRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/anbieter-portal/abrechnung': typeof AnbieterPortalAbrechnungRoute
   '/anbieter-portal/leads': typeof AnbieterPortalLeadsRoute
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
@@ -465,6 +474,7 @@ export interface FileRoutesById {
   '/ueber-uns': typeof UeberUnsRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/anbieter-portal/abrechnung': typeof AnbieterPortalAbrechnungRoute
   '/anbieter-portal/leads': typeof AnbieterPortalLeadsRoute
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
@@ -521,6 +531,7 @@ export interface FileRouteTypes {
     | '/ueber-uns'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/anbieter-portal/abrechnung'
     | '/anbieter-portal/leads'
     | '/anbieter-portal/listing'
     | '/anbieter-portal/platzierung'
@@ -573,6 +584,7 @@ export interface FileRouteTypes {
     | '/ueber-uns'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/anbieter-portal/abrechnung'
     | '/anbieter-portal/leads'
     | '/anbieter-portal/listing'
     | '/anbieter-portal/platzierung'
@@ -627,6 +639,7 @@ export interface FileRouteTypes {
     | '/ueber-uns'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/anbieter-portal/abrechnung'
     | '/anbieter-portal/leads'
     | '/anbieter-portal/listing'
     | '/anbieter-portal/platzierung'
@@ -682,6 +695,7 @@ export interface RootRouteChildren {
   UeberUnsRoute: typeof UeberUnsRoute
   ZahlungskanaeleRoute: typeof ZahlungskanaeleRoute
   AbosAboIdRoute: typeof AbosAboIdRoute
+  AnbieterPortalAbrechnungRoute: typeof AnbieterPortalAbrechnungRoute
   AnbieterPortalLeadsRoute: typeof AnbieterPortalLeadsRoute
   AnbieterPortalListingRoute: typeof AnbieterPortalListingRoute
   AnbieterPortalPlatzierungRoute: typeof AnbieterPortalPlatzierungRoute
@@ -1043,6 +1057,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnbieterPortalLeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/anbieter-portal/abrechnung': {
+      id: '/anbieter-portal/abrechnung'
+      path: '/anbieter-portal/abrechnung'
+      fullPath: '/anbieter-portal/abrechnung'
+      preLoaderRoute: typeof AnbieterPortalAbrechnungRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/abos/$aboId': {
       id: '/abos/$aboId'
       path: '/abos/$aboId'
@@ -1134,6 +1155,7 @@ const rootRouteChildren: RootRouteChildren = {
   UeberUnsRoute: UeberUnsRoute,
   ZahlungskanaeleRoute: ZahlungskanaeleRoute,
   AbosAboIdRoute: AbosAboIdRoute,
+  AnbieterPortalAbrechnungRoute: AnbieterPortalAbrechnungRoute,
   AnbieterPortalLeadsRoute: AnbieterPortalLeadsRoute,
   AnbieterPortalListingRoute: AnbieterPortalListingRoute,
   AnbieterPortalPlatzierungRoute: AnbieterPortalPlatzierungRoute,
