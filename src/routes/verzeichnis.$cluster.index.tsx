@@ -193,6 +193,8 @@ function Page() {
   const { cluster: slug } = Route.useParams();
   const toolSlug = resolveToolSlug(slug);
   if (toolSlug) {
+    const custom = customToolPages[toolSlug];
+    if (custom) return custom();
     const data = tools[toolSlug];
     if (!data) return null;
     return <SoftwareDetailPage data={data} />;
