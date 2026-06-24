@@ -24,6 +24,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fmtEUR } from "@/lib/toolfolio-data";
 import { cn } from "@/lib/utils";
+import { aiProviders, capabilityBadge, type AiProvider } from "@/lib/ai-providers";
+import { ConnectAiServiceModal, type ConnectionResult } from "./connect-ai-service-modal";
 
 type Profil = "Agentur" | "Freelancer" | "Solopreneur" | "Unternehmen";
 type ToolMenge = "unter 10" | "10 bis 30" | "30 bis 60" | "mehr als 60";
@@ -117,25 +119,36 @@ export function OnboardingWizard() {
   // Schritt 4
   const [abos, setAbos] = useState<ErkanntesAbo[]>(erkannteAbosMock);
 
-  // Schritt 5
+  // Schritt 5 (Kunden)
   const [kunden, setKunden] = useState<string[]>(["Nordwerk", "Kessler", "Solea"]);
   const [kundeInput, setKundeInput] = useState("");
 
+  // Schritt AI (verbundene Provider)
+  const [aiVerbunden, setAiVerbunden] = useState<Record<string, boolean>>({});
+
   const zeigtKunden = profil === "Agentur" || profil === "Unternehmen";
-  const stepLabels = ["Profil", "Zahlung", "Bestand", "Prüfen", ...(zeigtKunden ? ["Kunden"] : []), "Fertig"];
+  const stepLabels = [
+    "Profil",
+    "Zahlung",
+    "Bestand",
+    "Prüfen",
+    "AI-Services",
+    ...(zeigtKunden ? ["Kunden"] : []),
+    "Fertig",
+  ];
   const totalSteps = stepLabels.length;
-  // map internal step (1..6) to visible index when step 5 is hidden
+  // internal step indices: 1 Profil, 2 Zahlung, 3 Bestand, 4 Prüfen, 5 AI, 6 Kunden (opt), 7 Fertig
   const visibleStep = useMemo(() => {
-    if (!zeigtKunden && step >= 5) return step - 1;
+    if (!zeigtKunden && step >= 6) return step - 1;
     return step;
   }, [step, zeigtKunden]);
 
   const next = () => {
-    if (step === 4 && !zeigtKunden) setStep(6);
-    else setStep((s) => Math.min(6, s + 1));
+    if (step === 5 && !zeigtKunden) setStep(7);
+    else setStep((s) => Math.min(7, s + 1));
   };
   const back = () => {
-    if (step === 6 && !zeigtKunden) setStep(4);
+    if (step === 7 && !zeigtKunden) setStep(5);
     else setStep((s) => Math.max(1, s - 1));
   };
 
