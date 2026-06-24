@@ -46,7 +46,7 @@ export const Route = createFileRoute("/verzeichnis/$cluster/")({
   beforeLoad: ({ params }) => {
     const toolSlug = resolveToolSlug(params.cluster);
     if (toolSlug) {
-      if (!tools[toolSlug]) throw notFound();
+      if (!tools[toolSlug] && !customToolPages[toolSlug]) throw notFound();
       return;
     }
     if (!clusters[params.cluster]) throw notFound();
@@ -54,6 +54,22 @@ export const Route = createFileRoute("/verzeichnis/$cluster/")({
   head: ({ params }) => {
     const toolSlug = resolveToolSlug(params.cluster);
     if (toolSlug) {
+      const meta = customToolMeta[toolSlug];
+      if (meta) {
+        const url = `https://toolfolio.lovable.app/verzeichnis/${toolSlug}${ERFAHRUNG_SUFFIX}`;
+        const description = `${meta.name}: ${meta.tagline} Funktionen, Preise auf Anfrage, Alternativen in der Kategorie ${meta.categoryName}.`;
+        return {
+          meta: [
+            { title: `${meta.name} Erfahrungen – ${meta.categoryName} | Toolfolio` },
+            { name: "description", content: description },
+            { property: "og:title", content: `${meta.name} Erfahrungen – ${meta.categoryName}` },
+            { property: "og:description", content: description },
+            { property: "og:url", content: url },
+            { property: "og:type", content: "product" },
+          ],
+          links: [{ rel: "canonical", href: url }],
+        };
+      }
       const d = tools[toolSlug];
       if (!d) return { meta: [{ title: "Tool nicht gefunden – Toolfolio" }] };
       const url = `https://toolfolio.lovable.app/verzeichnis/${toolSlug}${ERFAHRUNG_SUFFIX}`;
