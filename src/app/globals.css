@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  Toolfolio Design-Tokens. Quelle: docs/design-system.md.
+  shadcn-kompatible Variablen (--primary, --background ...) plus Toolfolio-Status-
+  und Kategorie-Farben. Cards nutzen bewusst grosse Rundungen (rounded-[20px]).
+*/
+:root {
+  --radius: 0.875rem; /* ~14px fuer Buttons; Cards explizit rounded-[20px] */
+
+  --background: #fbf7f1; /* Creme */
+  --foreground: #1f1d2b; /* Ink */
+  --card: #ffffff;
+  --card-foreground: #1f1d2b;
+  --popover: #ffffff;
+  --popover-foreground: #1f1d2b;
+  --primary: #6c5ce7; /* Violett */
+  --primary-foreground: #ffffff;
+  --secondary: #f1ecfb; /* helles Violett */
+  --secondary-foreground: #1f1d2b;
+  --muted: #f3efe8;
+  --muted-foreground: #6b7280;
+  --accent: #ff7a66; /* Koralle */
+  --accent-foreground: #1f1d2b;
+  --destructive: #f0533d; /* warmes Rot */
+  --destructive-foreground: #ffffff;
+  --border: #ece7de;
+  --input: #ece7de;
+  --ring: #6c5ce7;
+
+  /* Toolfolio-Status */
+  --positive: #12b76a; /* Emerald: Ersparnis, verifiziert */
+  --warning: #f5a623; /* Amber: Fristen, Trials */
+  --risk: #f0533d; /* warmes Rot: Preiserhoehung, Spike */
+
+  /* Kategorie-Farben */
+  --cat-design: #e84393;
+  --cat-seo: #12b76a;
+  --cat-ai: #6c5ce7;
+  --cat-comm: #3b82f6;
+  --cat-dev: #0fb5ba;
+  --cat-productivity: #f5a623;
+  --cat-ecommerce: #fb923c;
+
+  --chart-1: #6c5ce7;
+  --chart-2: #ff7a66;
+  --chart-3: #12b76a;
+  --chart-4: #f5a623;
+  --chart-5: #3b82f6;
+}
+
+.dark {
+  --background: #1a1822;
+  --foreground: #f4f1ea;
+  --card: #232030;
+  --card-foreground: #f4f1ea;
+  --popover: #232030;
+  --popover-foreground: #f4f1ea;
+  --primary: #8b7cf0;
+  --primary-foreground: #15131d;
+  --secondary: #2b2740;
+  --secondary-foreground: #f4f1ea;
+  --muted: #2a2738;
+  --muted-foreground: #a8a3b5;
+  --accent: #ff8f7d;
+  --accent-foreground: #15131d;
+  --destructive: #f0533d;
+  --destructive-foreground: #ffffff;
+  --border: #322e44;
+  --input: #322e44;
+  --ring: #8b7cf0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-positive: var(--positive);
+  --color-warning: var(--warning);
+  --color-risk: var(--risk);
+
+  --color-cat-design: var(--cat-design);
+  --color-cat-seo: var(--cat-seo);
+  --color-cat-ai: var(--cat-ai);
+  --color-cat-comm: var(--cat-comm);
+  --color-cat-dev: var(--cat-dev);
+  --color-cat-productivity: var(--cat-productivity);
+  --color-cat-ecommerce: var(--cat-ecommerce);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --font-sans: var(--font-jakarta);
+  --font-display: var(--font-bricolage);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans), system-ui, Arial, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+}

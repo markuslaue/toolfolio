@@ -14,7 +14,7 @@ Zuerst **INFRA-1** speccen und bauen (Fundament), danach in Build-Reihenfolge au
 
 | ID | Feature | Prio | Abhaengig von | Status |
 |----|---------|------|---------------|--------|
-| INFRA-1 | Projekt-Fundament: Next.js + Supabase (EU) + Tailwind/shadcn, Env-Setup, Auth-Konfiguration, DB-Grundschema, Navigation/Shells der drei Welten, Design-System-Tokens, Geschaeftskonstanten (Preise) | P0 | - | Roadmap |
+| INFRA-1 | Projekt-Fundament: Next.js + Supabase (EU) + Tailwind/shadcn, Env-Setup, Auth-Konfiguration, DB-Grundschema, Navigation/Shells der drei Welten, Design-System-Tokens, Geschaeftskonstanten (Preise) | P0 | - | In Bau (Code-Fundament steht; offen: Supabase-Projekt + Keys + Grundschema) |
 
 Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von INFRA-1 ab.
 
