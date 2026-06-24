@@ -345,10 +345,12 @@ function ToolCard({
   t,
   onOpen,
   onSetBudget,
+  onConnect,
 }: {
   t: ToolDaten;
   onOpen: () => void;
   onSetBudget: () => void;
+  onConnect: (providerId: string) => void;
 }) {
   const trendPos = t.trendPct >= 0;
   const budgetPct = t.budget ? Math.min(100, (t.monat / t.budget) * 100) : 0;
@@ -360,6 +362,13 @@ function ToolCard({
       : budgetPct >= (t.budgetAlarmPct ?? 80)
       ? "bg-amber-500"
       : "bg-emerald-500";
+
+  // Datenquelle: live, wenn das Tool per API verbunden ist; sonst Rechnung.
+  const providerId =
+    t.id === "openai" ? "openai" : t.id === "anthropic" ? "anthropic" : undefined;
+  const live = !!providerId;
+  const connectable =
+    !live && (t.id === "elevenlabs" || t.id === "replicate" || t.id === "lovable");
 
   return (
     <div className="rounded-3xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -373,12 +382,25 @@ function ToolCard({
           </div>
           <div className="min-w-0">
             <div className="font-display text-base font-semibold truncate">{t.name}</div>
-            <span
-              className="mt-0.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
-              style={{ background: "rgba(108,92,231,0.12)", color: "#6C5CE7" }}
-            >
-              <Sparkles className="size-2.5" /> KI / API
-            </span>
+            <div className="mt-0.5 flex flex-wrap items-center gap-1">
+              <span
+                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                style={{ background: "rgba(108,92,231,0.12)", color: "#6C5CE7" }}
+              >
+                <Sparkles className="size-2.5" /> KI / API
+              </span>
+              <span
+                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                style={
+                  live
+                    ? { background: "#E7F8EF", color: "#0B6B40" }
+                    : { background: "#ECE6DA", color: "#3D3A4D" }
+                }
+                title={live ? "Verbrauch wird live per API gelesen" : "Verbrauch wird aus Rechnung uebernommen"}
+              >
+                {live ? "Live-API" : "aus Rechnung"}
+              </span>
+            </div>
           </div>
         </div>
         {t.spikeFaktor && (
@@ -387,6 +409,17 @@ function ToolCard({
           </span>
         )}
       </div>
+      {connectable && (
+        <div className="mt-3 rounded-lg bg-emerald-500/10 px-3 py-2 text-[11px] text-emerald-800 flex items-center justify-between gap-2">
+          <span>Per API verbinden fuer Live-Daten statt Rechnungs-Schaetzung.</span>
+          <button
+            className="font-semibold underline shrink-0"
+            onClick={() => onConnect(t.id)}
+          >
+            Verbinden
+          </button>
+        </div>
+      )}
 
       <div className="mt-4 flex items-end justify-between gap-3">
         <div>
