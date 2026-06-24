@@ -19,7 +19,7 @@ const tools: Record<string, SoftwareDetailData> = {
   toolfolio: toolfolioDetail,
 };
 
-const customToolPages: Record<string, () => JSX.Element> = {
+const customToolPages: Record<string, () => React.ReactElement> = {
   immoware24: () => <Immoware24DetailPage />,
 };
 
