@@ -40,6 +40,7 @@ import { Route as BadgeRouteImport } from './routes/badge'
 import { Route as ArchivRouteImport } from './routes/archiv'
 import { Route as AnbieterRouteImport } from './routes/anbieter'
 import { Route as AiCreditsRouteImport } from './routes/ai-credits'
+import { Route as AgbRouteImport } from './routes/agb'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerzeichnisIndexRouteImport } from './routes/verzeichnis.index'
 import { Route as KundenIndexRouteImport } from './routes/kunden.index'
@@ -233,6 +234,11 @@ const AnbieterRoute = AnbieterRouteImport.update({
 const AiCreditsRoute = AiCreditsRouteImport.update({
   id: '/ai-credits',
   path: '/ai-credits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgbRoute = AgbRouteImport.update({
+  id: '/agb',
+  path: '/agb',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -443,6 +449,7 @@ const VerzeichnisClusterCategoryRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agb': typeof AgbRoute
   '/ai-credits': typeof AiCreditsRoute
   '/anbieter': typeof AnbieterRoute
   '/archiv': typeof ArchivRoute
@@ -515,6 +522,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agb': typeof AgbRoute
   '/ai-credits': typeof AiCreditsRoute
   '/anbieter': typeof AnbieterRoute
   '/archiv': typeof ArchivRoute
@@ -586,6 +594,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agb': typeof AgbRoute
   '/ai-credits': typeof AiCreditsRoute
   '/anbieter': typeof AnbieterRoute
   '/archiv': typeof ArchivRoute
@@ -660,6 +669,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agb'
     | '/ai-credits'
     | '/anbieter'
     | '/archiv'
@@ -732,6 +742,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/agb'
     | '/ai-credits'
     | '/anbieter'
     | '/archiv'
@@ -802,6 +813,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/agb'
     | '/ai-credits'
     | '/anbieter'
     | '/archiv'
@@ -875,6 +887,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgbRoute: typeof AgbRoute
   AiCreditsRoute: typeof AiCreditsRoute
   AnbieterRoute: typeof AnbieterRoute
   ArchivRoute: typeof ArchivRoute
@@ -1155,6 +1168,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-credits'
       fullPath: '/ai-credits'
       preLoaderRoute: typeof AiCreditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agb': {
+      id: '/agb'
+      path: '/agb'
+      fullPath: '/agb'
+      preLoaderRoute: typeof AgbRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1471,6 +1491,7 @@ const FeaturesRouteWithChildren = FeaturesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgbRoute: AgbRoute,
   AiCreditsRoute: AiCreditsRoute,
   AnbieterRoute: AnbieterRoute,
   ArchivRoute: ArchivRoute,
