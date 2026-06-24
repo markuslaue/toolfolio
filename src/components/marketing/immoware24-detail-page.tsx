@@ -1,4 +1,7 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
+import immoware24Kontakt from "@/assets/immoware24-kontakt.webp.asset.json";
+import immoware24Buchungen from "@/assets/immoware24-buchungen.png.asset.json";
+import immoware24Zaehler from "@/assets/immoware24-ve-zaehler.png.asset.json";
 import {
   ArrowRight,
   ChevronRight,
