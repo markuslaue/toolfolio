@@ -25,6 +25,11 @@ import {
   Tag,
   AlertTriangle,
   CalendarClock,
+  X,
+  Play,
+  ImageIcon,
+  Users,
+  Wrench,
 } from "lucide-react";
 import { Nav, Footer, Reveal } from "./marketing-home";
 import {
