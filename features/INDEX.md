@@ -5,8 +5,11 @@
 > **Prioritaet:** P0 = MVP (Phase 1), P1 = Phase 2, P2 = Phase 3, P3 = Phase 4/5.
 > **Status:** Roadmap -> Planned (nach /write-spec) -> in Bau -> QA -> Deployed.
 
+## Projekt-Schnitt
+Alle Features sind in einzeln deploybare Projekte (Epics) gebuendelt: siehe **`features/PROJECTS.md`**.
+
 ## Naechster Schritt
-Zuerst **INFRA-1** speccen und bauen (Fundament), danach in Build-Reihenfolge aus PROJECT.md §12.
+PRJ-01 (Fundament/INFRA-1) ist deployt. Aktuell in Spezifikation: **PRJ-02 (Auth)** - Specs S-01..S-04 liegen vor. Danach `/architecture S-01`.
 
 ---
 
@@ -14,7 +17,7 @@ Zuerst **INFRA-1** speccen und bauen (Fundament), danach in Build-Reihenfolge au
 
 | ID | Feature | Prio | Abhaengig von | Status |
 |----|---------|------|---------------|--------|
-| INFRA-1 | Projekt-Fundament: Next.js + Supabase (EU) + Tailwind/shadcn, Env-Setup, Auth-Konfiguration, DB-Grundschema, Navigation/Shells der drei Welten, Design-System-Tokens, Geschaeftskonstanten (Preise) | P0 | - | In Bau (Code-Fundament steht; offen: Supabase-Projekt + Keys + Grundschema) |
+| INFRA-1 | Projekt-Fundament: Next.js + Supabase (EU) + Tailwind/shadcn, Env-Setup, Auth-Konfiguration, DB-Grundschema, Navigation/Shells der drei Welten, Design-System-Tokens, Geschaeftskonstanten (Preise) | P0 | - | Deployed (PRJ-01, toolfolio.de live) |
 
 Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von INFRA-1 ab.
 
@@ -24,10 +27,10 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 
 | ID | Feature | Prio | Abhaengig von | Status |
 |----|---------|------|---------------|--------|
-| S-01 | Login (E-Mail/Passwort + Google-SSO, optional 2FA), etabliert die Auth-Huelle | P0 | INFRA-1 | Roadmap |
-| S-02 | Registrierung (14-Tage-Vollzugang ohne Kreditkarte, DSGVO-Einwilligung, Uebergang in Wizard) | P0 | S-01 | Roadmap |
-| S-03 | Passwort vergessen/zuruecksetzen (neutrale Bestaetigung) | P0 | S-01 | Roadmap |
-| S-04 | E-Mail-Verifizierung (vier Zustaende) | P0 | S-01 | Roadmap |
+| S-01 | Login (E-Mail/Passwort + Google-SSO, optional 2FA), etabliert die Auth-Huelle | P0 | INFRA-1 | Planned (PRJ-02) |
+| S-02 | Registrierung (14-Tage-Vollzugang ohne Kreditkarte, DSGVO-Einwilligung, Uebergang in Wizard) | P0 | S-01 | Planned (PRJ-02) |
+| S-03 | Passwort vergessen/zuruecksetzen (neutrale Bestaetigung) | P0 | S-01 | Planned (PRJ-02) |
+| S-04 | E-Mail-Verifizierung (vier Zustaende) | P0 | S-01 | Planned (PRJ-02) |
 
 ## Tracker (B)
 
