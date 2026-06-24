@@ -1,5 +1,6 @@
 import type { Abo, Kategorie, Zahlungskanal, Kunde, Interval, Status } from "./toolfolio-data";
 import { abos as baseAbos } from "./toolfolio-data";
+import type { UsageCapability } from "./ai-providers";
 
 export type Hinweis = "frist" | "spike" | "sparvorschlag" | "preiserhoehung" | "zombie";
 export type ErweiterterStatus = Status | "gekündigt" | "archiviert";
@@ -8,6 +9,12 @@ export interface AboListItem extends Omit<Abo, "status"> {
   status: ErweiterterStatus;
   hinweise: Hinweis[];
   waehrung?: "USD";
+  costType?: "flat" | "usage_based";
+  integrationProviderId?: string;
+  usageCapability?: UsageCapability;
+  lastSyncedAt?: string;
+  currentPeriodSpend?: number;
+  creditsRemaining?: number;
 }
 
 const extra: AboListItem[] = [

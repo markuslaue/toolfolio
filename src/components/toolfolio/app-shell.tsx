@@ -25,6 +25,7 @@ import {
   UsersRound,
   ShieldCheck,
   Building2,
+  Plug,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,7 @@ const navItems = [
   { label: "Team", icon: UsersRound, to: "/team" },
   { label: "Freigaben", icon: ShieldCheck, to: "/freigaben" },
   { label: "Gesellschaften", icon: Building2, to: "/gesellschaften" },
+  { label: "Integrationen", icon: Plug, to: "/integrationen" },
   { label: "Einstellungen", icon: Settings, to: "/einstellungen" },
 ];
 
