@@ -1492,4 +1492,5 @@ export function MarketingHome() {
   );
 }
 
+
 export default MarketingHome;
