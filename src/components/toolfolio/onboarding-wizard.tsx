@@ -261,7 +261,13 @@ export function OnboardingWizard() {
                 ]}
               />
             )}
-            {step === 5 && zeigtKunden && (
+            {step === 5 && (
+              <SchrittAi
+                verbunden={aiVerbunden}
+                onConnected={(id) => setAiVerbunden((v) => ({ ...v, [id]: true }))}
+              />
+            )}
+            {step === 6 && zeigtKunden && (
               <Schritt5
                 kunden={kunden}
                 setKunden={setKunden}
@@ -269,11 +275,11 @@ export function OnboardingWizard() {
                 setKundeInput={setKundeInput}
               />
             )}
-            {step === 6 && <Schritt6 abos={abos} onDone={() => navigate({ to: "/" })} />}
+            {step === 7 && <Schritt6 abos={abos} onDone={() => navigate({ to: "/" })} />}
           </div>
 
           {/* Footer Nav */}
-          {step !== 6 && (
+          {step !== 7 && (
             <div className="flex items-center justify-between mt-6">
               <Button
                 variant="ghost"
@@ -284,17 +290,16 @@ export function OnboardingWizard() {
                 <ChevronLeft className="h-4 w-4" /> Zurück
               </Button>
               <div className="flex items-center gap-2">
-                {(step === 3 || step === 5) && (
+                {(step === 3 || step === 5 || step === 6) && (
                   <button
                     onClick={() => {
-                      if (step === 3) {
-                        if (zeigtKunden) setStep(5);
-                        else setStep(6);
-                      } else next();
+                      if (step === 3) setStep(5);
+                      else if (step === 5) setStep(zeigtKunden ? 6 : 7);
+                      else setStep(7);
                     }}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3"
                   >
-                    Überspringen, mache ich später
+                    {step === 5 ? "Spaeter in den Integrationen erledigen" : "Überspringen, mache ich später"}
                   </button>
                 )}
                 <Button
