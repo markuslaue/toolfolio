@@ -1,3 +1,4 @@
+import type * as React from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import {
   ClusterHubPage,
@@ -9,6 +10,7 @@ import {
   toolfolioDetail,
   type SoftwareDetailData,
 } from "@/components/marketing/software-detail-page";
+import { Immoware24DetailPage } from "@/components/marketing/immoware24-detail-page";
 
 const clusters: Record<string, ClusterData> = {
   [vertragsmanagementCluster.slug]: vertragsmanagementCluster,
@@ -16,6 +18,21 @@ const clusters: Record<string, ClusterData> = {
 
 const tools: Record<string, SoftwareDetailData> = {
   toolfolio: toolfolioDetail,
+};
+
+const customToolPages: Record<string, () => React.ReactElement> = {
+  immoware24: () => <Immoware24DetailPage />,
+};
+
+const customToolMeta: Record<string, { name: string; categoryName: string; clusterName: string; clusterSlug: string; categorySlug: string; tagline: string }> = {
+  immoware24: {
+    name: "Immoware24",
+    tagline: "Cloudbasierte All-in-One-Lösung für Miet-, WEG- und Sondereigentumsverwaltung mit Banking, GoBD-Buchhaltung und KI-Funktionen.",
+    clusterName: "Branchen- & Fachsoftware",
+    clusterSlug: "branchen-fachsoftware",
+    categoryName: "Immobilienverwaltung",
+    categorySlug: "immobilienverwaltung",
+  },
 };
 
 const ERFAHRUNG_SUFFIX = "-erfahrung";
@@ -29,7 +46,7 @@ export const Route = createFileRoute("/verzeichnis/$cluster/")({
   beforeLoad: ({ params }) => {
     const toolSlug = resolveToolSlug(params.cluster);
     if (toolSlug) {
-      if (!tools[toolSlug]) throw notFound();
+      if (!tools[toolSlug] && !customToolPages[toolSlug]) throw notFound();
       return;
     }
     if (!clusters[params.cluster]) throw notFound();
@@ -37,6 +54,22 @@ export const Route = createFileRoute("/verzeichnis/$cluster/")({
   head: ({ params }) => {
     const toolSlug = resolveToolSlug(params.cluster);
     if (toolSlug) {
+      const meta = customToolMeta[toolSlug];
+      if (meta) {
+        const url = `https://toolfolio.lovable.app/verzeichnis/${toolSlug}${ERFAHRUNG_SUFFIX}`;
+        const description = `${meta.name}: ${meta.tagline} Funktionen, Preise auf Anfrage, Alternativen in der Kategorie ${meta.categoryName}.`;
+        return {
+          meta: [
+            { title: `${meta.name} Erfahrungen – ${meta.categoryName} | Toolfolio` },
+            { name: "description", content: description },
+            { property: "og:title", content: `${meta.name} Erfahrungen – ${meta.categoryName}` },
+            { property: "og:description", content: description },
+            { property: "og:url", content: url },
+            { property: "og:type", content: "product" },
+          ],
+          links: [{ rel: "canonical", href: url }],
+        };
+      }
       const d = tools[toolSlug];
       if (!d) return { meta: [{ title: "Tool nicht gefunden – Toolfolio" }] };
       const url = `https://toolfolio.lovable.app/verzeichnis/${toolSlug}${ERFAHRUNG_SUFFIX}`;
@@ -160,6 +193,8 @@ function Page() {
   const { cluster: slug } = Route.useParams();
   const toolSlug = resolveToolSlug(slug);
   if (toolSlug) {
+    const custom = customToolPages[toolSlug];
+    if (custom) return custom();
     const data = tools[toolSlug];
     if (!data) return null;
     return <SoftwareDetailPage data={data} />;
