@@ -725,7 +725,10 @@ export function AiCredits() {
   const [zeitraum, setZeitraum] = useState<Zeitraum>("monat");
   const [tools, setTools] = useState<ToolDaten[]>(initialTools);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [connectProviderId, setConnectProviderId] = useState<string | null>(null);
   const openTool = tools.find((t) => t.id === openId) ?? null;
+  const connectProvider =
+    aiProviders.find((p) => p.id === connectProviderId) ?? null;
 
   const gesamtMonat = tools.reduce((s, t) => s + t.monat, 0);
   const monatsSchnitt = 475; // fiktiver Schnitt
