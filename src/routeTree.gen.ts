@@ -19,6 +19,7 @@ import { Route as SeatsRouteImport } from './routes/seats'
 import { Route as PreiseRouteImport } from './routes/preise'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as KontaktRouteImport } from './routes/kontakt'
+import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as GesellschaftenRouteImport } from './routes/gesellschaften'
 import { Route as FristenRouteImport } from './routes/fristen'
@@ -125,6 +126,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const KontaktRoute = KontaktRouteImport.update({
   id: '/kontakt',
   path: '/kontakt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpressumRoute = ImpressumRouteImport.update({
+  id: '/impressum',
+  path: '/impressum',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImportRoute = ImportRouteImport.update({
@@ -443,6 +449,7 @@ export interface FileRoutesByFullPath {
   '/fristen': typeof FristenRoute
   '/gesellschaften': typeof GesellschaftenRoute
   '/import': typeof ImportRoute
+  '/impressum': typeof ImpressumRoute
   '/kontakt': typeof KontaktRoute
   '/onboarding': typeof OnboardingRoute
   '/preise': typeof PreiseRoute
@@ -510,6 +517,7 @@ export interface FileRoutesByTo {
   '/fristen': typeof FristenRoute
   '/gesellschaften': typeof GesellschaftenRoute
   '/import': typeof ImportRoute
+  '/impressum': typeof ImpressumRoute
   '/kontakt': typeof KontaktRoute
   '/onboarding': typeof OnboardingRoute
   '/preise': typeof PreiseRoute
@@ -580,6 +588,7 @@ export interface FileRoutesById {
   '/fristen': typeof FristenRoute
   '/gesellschaften': typeof GesellschaftenRoute
   '/import': typeof ImportRoute
+  '/impressum': typeof ImpressumRoute
   '/kontakt': typeof KontaktRoute
   '/onboarding': typeof OnboardingRoute
   '/preise': typeof PreiseRoute
@@ -651,6 +660,7 @@ export interface FileRouteTypes {
     | '/fristen'
     | '/gesellschaften'
     | '/import'
+    | '/impressum'
     | '/kontakt'
     | '/onboarding'
     | '/preise'
@@ -718,6 +728,7 @@ export interface FileRouteTypes {
     | '/fristen'
     | '/gesellschaften'
     | '/import'
+    | '/impressum'
     | '/kontakt'
     | '/onboarding'
     | '/preise'
@@ -787,6 +798,7 @@ export interface FileRouteTypes {
     | '/fristen'
     | '/gesellschaften'
     | '/import'
+    | '/impressum'
     | '/kontakt'
     | '/onboarding'
     | '/preise'
@@ -857,6 +869,7 @@ export interface RootRouteChildren {
   FristenRoute: typeof FristenRoute
   GesellschaftenRoute: typeof GesellschaftenRoute
   ImportRoute: typeof ImportRoute
+  ImpressumRoute: typeof ImpressumRoute
   KontaktRoute: typeof KontaktRoute
   OnboardingRoute: typeof OnboardingRoute
   PreiseRoute: typeof PreiseRoute
@@ -969,6 +982,13 @@ declare module '@tanstack/react-router' {
       path: '/kontakt'
       fullPath: '/kontakt'
       preLoaderRoute: typeof KontaktRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impressum': {
+      id: '/impressum'
+      path: '/impressum'
+      fullPath: '/impressum'
+      preLoaderRoute: typeof ImpressumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/import': {
@@ -1429,6 +1449,7 @@ const rootRouteChildren: RootRouteChildren = {
   FristenRoute: FristenRoute,
   GesellschaftenRoute: GesellschaftenRoute,
   ImportRoute: ImportRoute,
+  ImpressumRoute: ImpressumRoute,
   KontaktRoute: KontaktRoute,
   OnboardingRoute: OnboardingRoute,
   PreiseRoute: PreiseRoute,
