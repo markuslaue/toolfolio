@@ -52,6 +52,7 @@ import { Route as FuerSlugRouteImport } from './routes/fuer.$slug'
 import { Route as FeaturesSlugRouteImport } from './routes/features.$slug'
 import { Route as EmailVorschauWelcomeRouteImport } from './routes/email-vorschau.welcome'
 import { Route as EmailVorschauTrialWarnungRouteImport } from './routes/email-vorschau.trial-warnung'
+import { Route as EmailVorschauSpikeAlarmRouteImport } from './routes/email-vorschau.spike-alarm'
 import { Route as EmailVorschauFristenWarnungRouteImport } from './routes/email-vorschau.fristen-warnung'
 import { Route as EinstellungenUnternehmenRouteImport } from './routes/einstellungen.unternehmen'
 import { Route as EinstellungenTeamRouteImport } from './routes/einstellungen.team'
@@ -288,6 +289,11 @@ const EmailVorschauTrialWarnungRoute =
     path: '/email-vorschau/trial-warnung',
     getParentRoute: () => rootRouteImport,
   } as any)
+const EmailVorschauSpikeAlarmRoute = EmailVorschauSpikeAlarmRouteImport.update({
+  id: '/email-vorschau/spike-alarm',
+  path: '/email-vorschau/spike-alarm',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmailVorschauFristenWarnungRoute =
   EmailVorschauFristenWarnungRouteImport.update({
     id: '/email-vorschau/fristen-warnung',
@@ -438,6 +444,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/email-vorschau/fristen-warnung': typeof EmailVorschauFristenWarnungRoute
+  '/email-vorschau/spike-alarm': typeof EmailVorschauSpikeAlarmRoute
   '/email-vorschau/trial-warnung': typeof EmailVorschauTrialWarnungRoute
   '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
   '/features/$slug': typeof FeaturesSlugRoute
@@ -500,6 +507,7 @@ export interface FileRoutesByTo {
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/email-vorschau/fristen-warnung': typeof EmailVorschauFristenWarnungRoute
+  '/email-vorschau/spike-alarm': typeof EmailVorschauSpikeAlarmRoute
   '/email-vorschau/trial-warnung': typeof EmailVorschauTrialWarnungRoute
   '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
   '/features/$slug': typeof FeaturesSlugRoute
@@ -565,6 +573,7 @@ export interface FileRoutesById {
   '/einstellungen/team': typeof EinstellungenTeamRoute
   '/einstellungen/unternehmen': typeof EinstellungenUnternehmenRoute
   '/email-vorschau/fristen-warnung': typeof EmailVorschauFristenWarnungRoute
+  '/email-vorschau/spike-alarm': typeof EmailVorschauSpikeAlarmRoute
   '/email-vorschau/trial-warnung': typeof EmailVorschauTrialWarnungRoute
   '/email-vorschau/welcome': typeof EmailVorschauWelcomeRoute
   '/features/$slug': typeof FeaturesSlugRoute
@@ -631,6 +640,7 @@ export interface FileRouteTypes {
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
     | '/email-vorschau/fristen-warnung'
+    | '/email-vorschau/spike-alarm'
     | '/email-vorschau/trial-warnung'
     | '/email-vorschau/welcome'
     | '/features/$slug'
@@ -693,6 +703,7 @@ export interface FileRouteTypes {
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
     | '/email-vorschau/fristen-warnung'
+    | '/email-vorschau/spike-alarm'
     | '/email-vorschau/trial-warnung'
     | '/email-vorschau/welcome'
     | '/features/$slug'
@@ -757,6 +768,7 @@ export interface FileRouteTypes {
     | '/einstellungen/team'
     | '/einstellungen/unternehmen'
     | '/email-vorschau/fristen-warnung'
+    | '/email-vorschau/spike-alarm'
     | '/email-vorschau/trial-warnung'
     | '/email-vorschau/welcome'
     | '/features/$slug'
@@ -817,6 +829,7 @@ export interface RootRouteChildren {
   AuthRegistrierenRoute: typeof AuthRegistrierenRoute
   AuthVerifizierenRoute: typeof AuthVerifizierenRoute
   EmailVorschauFristenWarnungRoute: typeof EmailVorschauFristenWarnungRoute
+  EmailVorschauSpikeAlarmRoute: typeof EmailVorschauSpikeAlarmRoute
   EmailVorschauTrialWarnungRoute: typeof EmailVorschauTrialWarnungRoute
   EmailVorschauWelcomeRoute: typeof EmailVorschauWelcomeRoute
   FuerSlugRoute: typeof FuerSlugRoute
@@ -1135,6 +1148,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailVorschauTrialWarnungRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email-vorschau/spike-alarm': {
+      id: '/email-vorschau/spike-alarm'
+      path: '/email-vorschau/spike-alarm'
+      fullPath: '/email-vorschau/spike-alarm'
+      preLoaderRoute: typeof EmailVorschauSpikeAlarmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/email-vorschau/fristen-warnung': {
       id: '/email-vorschau/fristen-warnung'
       path: '/email-vorschau/fristen-warnung'
@@ -1349,6 +1369,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRegistrierenRoute: AuthRegistrierenRoute,
   AuthVerifizierenRoute: AuthVerifizierenRoute,
   EmailVorschauFristenWarnungRoute: EmailVorschauFristenWarnungRoute,
+  EmailVorschauSpikeAlarmRoute: EmailVorschauSpikeAlarmRoute,
   EmailVorschauTrialWarnungRoute: EmailVorschauTrialWarnungRoute,
   EmailVorschauWelcomeRoute: EmailVorschauWelcomeRoute,
   FuerSlugRoute: FuerSlugRoute,
