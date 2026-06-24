@@ -30,6 +30,8 @@ import {
   Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ConsentProvider, CookieSettingsLink } from "@/components/marketing/consent-banner";
+
 
 export const fmtEUR = (n: number) =>
   new Intl.NumberFormat("de-DE", {
