@@ -55,6 +55,7 @@ import { Route as EinstellungenTeamRouteImport } from './routes/einstellungen.te
 import { Route as EinstellungenPlanRouteImport } from './routes/einstellungen.plan'
 import { Route as EinstellungenDatenRouteImport } from './routes/einstellungen.daten'
 import { Route as EinstellungenBenachrichtigungenRouteImport } from './routes/einstellungen.benachrichtigungen'
+import { Route as AnbieterPortalListingRouteImport } from './routes/anbieter-portal.listing'
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 import { Route as VerzeichnisClusterIndexRouteImport } from './routes/verzeichnis.$cluster.index'
 import { Route as VerzeichnisClusterCategoryRouteImport } from './routes/verzeichnis.$cluster.$category'
@@ -291,6 +292,11 @@ const EinstellungenBenachrichtigungenRoute =
     path: '/benachrichtigungen',
     getParentRoute: () => EinstellungenRoute,
   } as any)
+const AnbieterPortalListingRoute = AnbieterPortalListingRouteImport.update({
+  id: '/anbieter-portal/listing',
+  path: '/anbieter-portal/listing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AbosAboIdRoute = AbosAboIdRouteImport.update({
   id: '/abos/$aboId',
   path: '/abos/$aboId',
@@ -339,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/ueber-uns': typeof UeberUnsRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -388,6 +395,7 @@ export interface FileRoutesByTo {
   '/ueber-uns': typeof UeberUnsRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -440,6 +448,7 @@ export interface FileRoutesById {
   '/ueber-uns': typeof UeberUnsRoute
   '/zahlungskanaele': typeof ZahlungskanaeleRoute
   '/abos/$aboId': typeof AbosAboIdRoute
+  '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -493,6 +502,7 @@ export interface FileRouteTypes {
     | '/ueber-uns'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/anbieter-portal/listing'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -542,6 +552,7 @@ export interface FileRouteTypes {
     | '/ueber-uns'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/anbieter-portal/listing'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -593,6 +604,7 @@ export interface FileRouteTypes {
     | '/ueber-uns'
     | '/zahlungskanaele'
     | '/abos/$aboId'
+    | '/anbieter-portal/listing'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -645,6 +657,7 @@ export interface RootRouteChildren {
   UeberUnsRoute: typeof UeberUnsRoute
   ZahlungskanaeleRoute: typeof ZahlungskanaeleRoute
   AbosAboIdRoute: typeof AbosAboIdRoute
+  AnbieterPortalListingRoute: typeof AnbieterPortalListingRoute
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
   VergleichSlugRoute: typeof VergleichSlugRoute
@@ -982,6 +995,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EinstellungenBenachrichtigungenRouteImport
       parentRoute: typeof EinstellungenRoute
     }
+    '/anbieter-portal/listing': {
+      id: '/anbieter-portal/listing'
+      path: '/anbieter-portal/listing'
+      fullPath: '/anbieter-portal/listing'
+      preLoaderRoute: typeof AnbieterPortalListingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/abos/$aboId': {
       id: '/abos/$aboId'
       path: '/abos/$aboId'
@@ -1073,6 +1093,7 @@ const rootRouteChildren: RootRouteChildren = {
   UeberUnsRoute: UeberUnsRoute,
   ZahlungskanaeleRoute: ZahlungskanaeleRoute,
   AbosAboIdRoute: AbosAboIdRoute,
+  AnbieterPortalListingRoute: AnbieterPortalListingRoute,
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
   VergleichSlugRoute: VergleichSlugRoute,
