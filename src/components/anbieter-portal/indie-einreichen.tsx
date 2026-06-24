@@ -307,12 +307,14 @@ function Field({
   );
 }
 
+type Basis = { name: string; url: string; kategorie: string; kurz: string; lang: string; preise: string; kontakt: string };
+
 function Schritt1({
   basis,
   setBasis,
 }: {
-  basis: ReturnType<typeof useState<{ name: string; url: string; kategorie: string; kurz: string; lang: string; preise: string; kontakt: string }>>[0] extends infer T ? any : any;
-  setBasis: any;
+  basis: Basis;
+  setBasis: (b: Basis) => void;
 }) {
   return (
     <>
