@@ -1406,7 +1406,7 @@ export function Footer() {
       title: "Recht",
       links: [
         { label: "Impressum", href: "/impressum" },
-        { label: "Datenschutz", href: "#" },
+        { label: "Datenschutz", href: "/datenschutz" },
         { label: "AGB", href: "#" },
       ],
     },

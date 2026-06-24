@@ -28,6 +28,7 @@ import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as EntwicklerRouteImport } from './routes/entwickler'
 import { Route as EinstellungenRouteImport } from './routes/einstellungen'
 import { Route as DemoRouteImport } from './routes/demo'
+import { Route as DatenschutzRouteImport } from './routes/datenschutz'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BudgetRouteImport } from './routes/budget'
 import { Route as BerichteRouteImport } from './routes/berichte'
@@ -171,6 +172,11 @@ const EinstellungenRoute = EinstellungenRouteImport.update({
 const DemoRoute = DemoRouteImport.update({
   id: '/demo',
   path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatenschutzRoute = DatenschutzRouteImport.update({
+  id: '/datenschutz',
+  path: '/datenschutz',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -441,6 +447,7 @@ export interface FileRoutesByFullPath {
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
   '/dashboard': typeof DashboardRoute
+  '/datenschutz': typeof DatenschutzRoute
   '/demo': typeof DemoRoute
   '/einstellungen': typeof EinstellungenRouteWithChildren
   '/entwickler': typeof EntwicklerRoute
@@ -511,6 +518,7 @@ export interface FileRoutesByTo {
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
   '/dashboard': typeof DashboardRoute
+  '/datenschutz': typeof DatenschutzRoute
   '/demo': typeof DemoRoute
   '/entwickler': typeof EntwicklerRoute
   '/freigaben': typeof FreigabenRoute
@@ -580,6 +588,7 @@ export interface FileRoutesById {
   '/berichte': typeof BerichteRoute
   '/budget': typeof BudgetRoute
   '/dashboard': typeof DashboardRoute
+  '/datenschutz': typeof DatenschutzRoute
   '/demo': typeof DemoRoute
   '/einstellungen': typeof EinstellungenRouteWithChildren
   '/entwickler': typeof EntwicklerRoute
@@ -652,6 +661,7 @@ export interface FileRouteTypes {
     | '/berichte'
     | '/budget'
     | '/dashboard'
+    | '/datenschutz'
     | '/demo'
     | '/einstellungen'
     | '/entwickler'
@@ -722,6 +732,7 @@ export interface FileRouteTypes {
     | '/berichte'
     | '/budget'
     | '/dashboard'
+    | '/datenschutz'
     | '/demo'
     | '/entwickler'
     | '/freigaben'
@@ -790,6 +801,7 @@ export interface FileRouteTypes {
     | '/berichte'
     | '/budget'
     | '/dashboard'
+    | '/datenschutz'
     | '/demo'
     | '/einstellungen'
     | '/entwickler'
@@ -861,6 +873,7 @@ export interface RootRouteChildren {
   BerichteRoute: typeof BerichteRoute
   BudgetRoute: typeof BudgetRoute
   DashboardRoute: typeof DashboardRoute
+  DatenschutzRoute: typeof DatenschutzRoute
   DemoRoute: typeof DemoRoute
   EinstellungenRoute: typeof EinstellungenRouteWithChildren
   EntwicklerRoute: typeof EntwicklerRoute
@@ -1045,6 +1058,13 @@ declare module '@tanstack/react-router' {
       path: '/demo'
       fullPath: '/demo'
       preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/datenschutz': {
+      id: '/datenschutz'
+      path: '/datenschutz'
+      fullPath: '/datenschutz'
+      preLoaderRoute: typeof DatenschutzRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -1441,6 +1461,7 @@ const rootRouteChildren: RootRouteChildren = {
   BerichteRoute: BerichteRoute,
   BudgetRoute: BudgetRoute,
   DashboardRoute: DashboardRoute,
+  DatenschutzRoute: DatenschutzRoute,
   DemoRoute: DemoRoute,
   EinstellungenRoute: EinstellungenRouteWithChildren,
   EntwicklerRoute: EntwicklerRoute,
