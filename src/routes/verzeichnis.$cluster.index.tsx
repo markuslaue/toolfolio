@@ -9,6 +9,7 @@ import {
   toolfolioDetail,
   type SoftwareDetailData,
 } from "@/components/marketing/software-detail-page";
+import { Immoware24DetailPage } from "@/components/marketing/immoware24-detail-page";
 
 const clusters: Record<string, ClusterData> = {
   [vertragsmanagementCluster.slug]: vertragsmanagementCluster,
@@ -16,6 +17,21 @@ const clusters: Record<string, ClusterData> = {
 
 const tools: Record<string, SoftwareDetailData> = {
   toolfolio: toolfolioDetail,
+};
+
+const customToolPages: Record<string, () => JSX.Element> = {
+  immoware24: () => <Immoware24DetailPage />,
+};
+
+const customToolMeta: Record<string, { name: string; categoryName: string; clusterName: string; clusterSlug: string; categorySlug: string; tagline: string }> = {
+  immoware24: {
+    name: "Immoware24",
+    tagline: "Cloudbasierte All-in-One-Lösung für Miet-, WEG- und Sondereigentumsverwaltung mit Banking, GoBD-Buchhaltung und KI-Funktionen.",
+    clusterName: "Branchen- & Fachsoftware",
+    clusterSlug: "branchen-fachsoftware",
+    categoryName: "Immobilienverwaltung",
+    categorySlug: "immobilienverwaltung",
+  },
 };
 
 const ERFAHRUNG_SUFFIX = "-erfahrung";
