@@ -55,6 +55,7 @@ import { Route as EinstellungenTeamRouteImport } from './routes/einstellungen.te
 import { Route as EinstellungenPlanRouteImport } from './routes/einstellungen.plan'
 import { Route as EinstellungenDatenRouteImport } from './routes/einstellungen.daten'
 import { Route as EinstellungenBenachrichtigungenRouteImport } from './routes/einstellungen.benachrichtigungen'
+import { Route as AuthVerifizierenRouteImport } from './routes/auth.verifizieren'
 import { Route as AuthRegistrierenRouteImport } from './routes/auth.registrieren'
 import { Route as AuthPasswortVergessenRouteImport } from './routes/auth.passwort-vergessen'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
@@ -300,6 +301,11 @@ const EinstellungenBenachrichtigungenRoute =
     path: '/benachrichtigungen',
     getParentRoute: () => EinstellungenRoute,
   } as any)
+const AuthVerifizierenRoute = AuthVerifizierenRouteImport.update({
+  id: '/auth/verifizieren',
+  path: '/auth/verifizieren',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRegistrierenRoute = AuthRegistrierenRouteImport.update({
   id: '/auth/registrieren',
   path: '/auth/registrieren',
@@ -405,6 +411,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/passwort-vergessen': typeof AuthPasswortVergessenRoute
   '/auth/registrieren': typeof AuthRegistrierenRoute
+  '/auth/verifizieren': typeof AuthVerifizierenRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -463,6 +470,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/passwort-vergessen': typeof AuthPasswortVergessenRoute
   '/auth/registrieren': typeof AuthRegistrierenRoute
+  '/auth/verifizieren': typeof AuthVerifizierenRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -524,6 +532,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/passwort-vergessen': typeof AuthPasswortVergessenRoute
   '/auth/registrieren': typeof AuthRegistrierenRoute
+  '/auth/verifizieren': typeof AuthVerifizierenRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -586,6 +595,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/passwort-vergessen'
     | '/auth/registrieren'
+    | '/auth/verifizieren'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -644,6 +654,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/passwort-vergessen'
     | '/auth/registrieren'
+    | '/auth/verifizieren'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -704,6 +715,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/passwort-vergessen'
     | '/auth/registrieren'
+    | '/auth/verifizieren'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -765,6 +777,7 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthPasswortVergessenRoute: typeof AuthPasswortVergessenRoute
   AuthRegistrierenRoute: typeof AuthRegistrierenRoute
+  AuthVerifizierenRoute: typeof AuthVerifizierenRoute
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
   VergleichSlugRoute: typeof VergleichSlugRoute
@@ -1102,6 +1115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EinstellungenBenachrichtigungenRouteImport
       parentRoute: typeof EinstellungenRoute
     }
+    '/auth/verifizieren': {
+      id: '/auth/verifizieren'
+      path: '/auth/verifizieren'
+      fullPath: '/auth/verifizieren'
+      preLoaderRoute: typeof AuthVerifizierenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/registrieren': {
       id: '/auth/registrieren'
       path: '/auth/registrieren'
@@ -1265,6 +1285,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthPasswortVergessenRoute: AuthPasswortVergessenRoute,
   AuthRegistrierenRoute: AuthRegistrierenRoute,
+  AuthVerifizierenRoute: AuthVerifizierenRoute,
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
   VergleichSlugRoute: VergleichSlugRoute,
