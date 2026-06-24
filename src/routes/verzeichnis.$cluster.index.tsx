@@ -1,3 +1,4 @@
+import type * as React from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import {
   ClusterHubPage,
