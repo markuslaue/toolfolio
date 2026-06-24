@@ -55,6 +55,7 @@ import { Route as EinstellungenTeamRouteImport } from './routes/einstellungen.te
 import { Route as EinstellungenPlanRouteImport } from './routes/einstellungen.plan'
 import { Route as EinstellungenDatenRouteImport } from './routes/einstellungen.daten'
 import { Route as EinstellungenBenachrichtigungenRouteImport } from './routes/einstellungen.benachrichtigungen'
+import { Route as AnbieterPortalPlatzierungRouteImport } from './routes/anbieter-portal.platzierung'
 import { Route as AnbieterPortalListingRouteImport } from './routes/anbieter-portal.listing'
 import { Route as AnbieterPortalLeadsRouteImport } from './routes/anbieter-portal.leads'
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
@@ -293,6 +294,12 @@ const EinstellungenBenachrichtigungenRoute =
     path: '/benachrichtigungen',
     getParentRoute: () => EinstellungenRoute,
   } as any)
+const AnbieterPortalPlatzierungRoute =
+  AnbieterPortalPlatzierungRouteImport.update({
+    id: '/anbieter-portal/platzierung',
+    path: '/anbieter-portal/platzierung',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AnbieterPortalListingRoute = AnbieterPortalListingRouteImport.update({
   id: '/anbieter-portal/listing',
   path: '/anbieter-portal/listing',
@@ -353,6 +360,7 @@ export interface FileRoutesByFullPath {
   '/abos/$aboId': typeof AbosAboIdRoute
   '/anbieter-portal/leads': typeof AnbieterPortalLeadsRoute
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
+  '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -404,6 +412,7 @@ export interface FileRoutesByTo {
   '/abos/$aboId': typeof AbosAboIdRoute
   '/anbieter-portal/leads': typeof AnbieterPortalLeadsRoute
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
+  '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -458,6 +467,7 @@ export interface FileRoutesById {
   '/abos/$aboId': typeof AbosAboIdRoute
   '/anbieter-portal/leads': typeof AnbieterPortalLeadsRoute
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
+  '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -513,6 +523,7 @@ export interface FileRouteTypes {
     | '/abos/$aboId'
     | '/anbieter-portal/leads'
     | '/anbieter-portal/listing'
+    | '/anbieter-portal/platzierung'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -564,6 +575,7 @@ export interface FileRouteTypes {
     | '/abos/$aboId'
     | '/anbieter-portal/leads'
     | '/anbieter-portal/listing'
+    | '/anbieter-portal/platzierung'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -617,6 +629,7 @@ export interface FileRouteTypes {
     | '/abos/$aboId'
     | '/anbieter-portal/leads'
     | '/anbieter-portal/listing'
+    | '/anbieter-portal/platzierung'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -671,6 +684,7 @@ export interface RootRouteChildren {
   AbosAboIdRoute: typeof AbosAboIdRoute
   AnbieterPortalLeadsRoute: typeof AnbieterPortalLeadsRoute
   AnbieterPortalListingRoute: typeof AnbieterPortalListingRoute
+  AnbieterPortalPlatzierungRoute: typeof AnbieterPortalPlatzierungRoute
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
   VergleichSlugRoute: typeof VergleichSlugRoute
@@ -1008,6 +1022,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EinstellungenBenachrichtigungenRouteImport
       parentRoute: typeof EinstellungenRoute
     }
+    '/anbieter-portal/platzierung': {
+      id: '/anbieter-portal/platzierung'
+      path: '/anbieter-portal/platzierung'
+      fullPath: '/anbieter-portal/platzierung'
+      preLoaderRoute: typeof AnbieterPortalPlatzierungRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/anbieter-portal/listing': {
       id: '/anbieter-portal/listing'
       path: '/anbieter-portal/listing'
@@ -1115,6 +1136,7 @@ const rootRouteChildren: RootRouteChildren = {
   AbosAboIdRoute: AbosAboIdRoute,
   AnbieterPortalLeadsRoute: AnbieterPortalLeadsRoute,
   AnbieterPortalListingRoute: AnbieterPortalListingRoute,
+  AnbieterPortalPlatzierungRoute: AnbieterPortalPlatzierungRoute,
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
   VergleichSlugRoute: VergleichSlugRoute,
