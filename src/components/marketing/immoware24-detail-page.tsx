@@ -1,4 +1,7 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
+import immoware24Kontakt from "@/assets/immoware24-kontakt.webp.asset.json";
+import immoware24Buchungen from "@/assets/immoware24-buchungen.png.asset.json";
+import immoware24Zaehler from "@/assets/immoware24-ve-zaehler.png.asset.json";
 import {
   ArrowRight,
   ChevronRight,
@@ -22,6 +25,11 @@ import {
   Tag,
   AlertTriangle,
   CalendarClock,
+  X,
+  Play,
+  ImageIcon,
+  Users,
+  Wrench,
 } from "lucide-react";
 import { Nav, Footer, Reveal } from "./marketing-home";
 import {
@@ -183,6 +191,43 @@ export function Immoware24DetailPage() {
   const [anliegen, setAnliegen] = useState("");
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (lightbox === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox]);
+
+  const videos = [
+    {
+      id: "fV3sUEWtJ4M",
+      title: "Immoware24 im Überblick",
+      desc: "Aufmacher-Video: zentrale Funktionen, Aufbau und Nutzen der Plattform für Verwalter.",
+    },
+    {
+      id: "rOTStTlPaj0",
+      title: "Praxis-Einblick aus der Verwaltung",
+      desc: "Wie Verwalter Miet- und WEG-Objekte digital im Alltag managen.",
+    },
+    {
+      id: "nKJk0G8Jalc",
+      title: "Funktionen im Detail",
+      desc: "Tiefer Blick auf Buchhaltung, Abrechnungen und Portal24.",
+    },
+  ];
+
+  const screenshots = [
+    { src: immoware24Buchungen.url, label: "Rechnungswesen: Liste offener Posten", caption: "Buchhaltung mit offenen Posten, Mahnwesen und Banktransaktionen." },
+    { src: immoware24Zaehler.url, label: "Zählermanagement: VE-Zähler", caption: "Zähler der Verwaltungseinheiten mit Ablesungen und PDF-Erfassung." },
+    { src: immoware24Kontakt.url, label: "Kontakt hinzufügen", caption: "Strukturierte Stammdaten für Mieter, Eigentümer, Dienstleister und Beirat." },
+    { src: immoware24Buchungen.url, label: "Betriebskostenabrechnung (Beispiel)", caption: "Abrechnungslauf mit Verteilerschlüsseln und Einzelnachweisen." },
+    { src: immoware24Zaehler.url, label: "Portal24 (Beispiel)", caption: "Eigentümer- und Mieter-Portal mit Belegen, Nachrichten und Abrechnungen." },
+    { src: immoware24Kontakt.url, label: "Dokumentenmanagement (Beispiel)", caption: "KI-gestützte Zuordnung von Dokumenten zu Objekten und Vorgängen." },
+  ];
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -606,6 +651,309 @@ export function Immoware24DetailPage() {
               </a>
             </Reveal>
           ))}
+        </div>
+      </section>
+
+      {/* Videos */}
+      <section id="videos" className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+        <Reveal>
+          <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Immoware24 in Aktion</h2>
+          <p className="mt-2 max-w-2xl text-foreground/70">
+            Drei eingebettete Videos vom Anbieter, datenschutzfreundlich über youtube-nocookie und nur bei Bedarf nachgeladen.
+          </p>
+        </Reveal>
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Reveal>
+            <figure className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
+              <div className="relative aspect-video w-full bg-black">
+                <iframe
+                  className="absolute inset-0 size-full"
+                  src={`https://www.youtube-nocookie.com/embed/${videos[0].id}`}
+                  title={videos[0].title}
+                  loading="lazy"
+                  allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              </div>
+              <figcaption className="p-5">
+                <div className="font-display text-lg font-semibold inline-flex items-center gap-2"><Play className="size-4 text-primary" /> {videos[0].title}</div>
+                <p className="mt-1.5 text-sm text-foreground/70 leading-relaxed">{videos[0].desc}</p>
+              </figcaption>
+            </figure>
+          </Reveal>
+          <div className="grid grid-cols-1 gap-6">
+            {videos.slice(1).map((v, i) => (
+              <Reveal key={v.id} delay={i * 60}>
+                <figure className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
+                  <div className="relative aspect-video w-full bg-black">
+                    <iframe
+                      className="absolute inset-0 size-full"
+                      src={`https://www.youtube-nocookie.com/embed/${v.id}`}
+                      title={v.title}
+                      loading="lazy"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
+                  </div>
+                  <figcaption className="p-5">
+                    <div className="font-display text-base font-semibold inline-flex items-center gap-2"><Play className="size-4 text-primary" /> {v.title}</div>
+                    <p className="mt-1.5 text-sm text-foreground/70 leading-relaxed">{v.desc}</p>
+                  </figcaption>
+                </figure>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Screenshots / Galerie */}
+      <section id="screenshots" className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+        <Reveal>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Screenshots &amp; Einblicke</h2>
+              <p className="mt-2 max-w-2xl text-foreground/70">
+                Originale Oberflächen aus Immoware24, ergänzt um Platzhalter-Slots für weitere Module. Klick auf ein Bild öffnet die große Ansicht.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/60 px-3 py-1 text-xs font-semibold text-foreground/70">
+              <ImageIcon className="size-3.5" /> {screenshots.length} Ansichten
+            </span>
+          </div>
+        </Reveal>
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {screenshots.map((s, i) => (
+            <Reveal key={i} delay={(i % 3) * 50}>
+              <button
+                type="button"
+                onClick={() => setLightbox(i)}
+                className="group block w-full text-left"
+                aria-label={`Vergrößern: ${s.label}`}
+              >
+                <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+                  {/* Browserrahmen */}
+                  <div className="flex items-center gap-1.5 border-b border-border bg-muted/60 px-3 py-2">
+                    <span className="size-2.5 rounded-full bg-[#FF7A66]" />
+                    <span className="size-2.5 rounded-full bg-[#F5A623]" />
+                    <span className="size-2.5 rounded-full bg-[#12B76A]" />
+                    <span className="ml-2 truncate text-[11px] text-foreground/55">app.immoware24.de</span>
+                  </div>
+                  <div className="aspect-[16/10] w-full overflow-hidden bg-background">
+                    <img
+                      src={s.src}
+                      alt={s.label}
+                      loading="lazy"
+                      className="size-full object-cover object-top transition group-hover:scale-[1.02]"
+                    />
+                  </div>
+                </div>
+                <div className="mt-2.5 text-sm font-medium">{s.label}</div>
+                <div className="text-xs text-foreground/60">{s.caption}</div>
+              </button>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* Lightbox */}
+      {lightbox !== null && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={screenshots[lightbox].label}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 sm:p-8"
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
+            aria-label="Schließen"
+            className="absolute right-4 top-4 inline-flex size-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+          >
+            <X className="size-5" />
+          </button>
+          <figure className="max-h-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={screenshots[lightbox].src}
+              alt={screenshots[lightbox].label}
+              className="max-h-[80vh] w-auto max-w-full rounded-2xl border border-white/10 shadow-2xl"
+            />
+            <figcaption className="mt-3 text-center text-sm text-white/80">
+              <span className="font-medium text-white">{screenshots[lightbox].label}</span> &middot; {screenshots[lightbox].caption}
+            </figcaption>
+          </figure>
+        </div>
+      )}
+
+      {/* Großer SEO-Content: Immoware24 im Detail */}
+      <section id="immoware24-im-detail" className="mx-auto max-w-4xl px-4 sm:px-6 pb-20">
+        <Reveal>
+          <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Immoware24 im Detail</h2>
+          <p className="mt-2 text-foreground/70">
+            Der ausführliche Lese-Bereich, gegliedert in mehrere Themenblöcke. Faktenbasis ist die öffentliche Anbieter-Information, Demo-Elemente sind klar gekennzeichnet.
+          </p>
+        </Reveal>
+
+        <div className="mt-10 space-y-12">
+          <Reveal>
+            <article>
+              <h3 className="font-display text-xl sm:text-2xl font-semibold tracking-tight inline-flex items-center gap-2">
+                <Users className="size-5 text-primary" /> Für wen sich Immoware24 eignet
+              </h3>
+              <div className="mt-4 space-y-4 text-foreground/80 leading-relaxed">
+                <p>
+                  Immoware24 richtet sich an professionelle Immobilienverwalter, vom kleineren Verwaltungsbüro bis zu größeren Beständen mit mehreren tausend Verwaltungseinheiten. Die Software bündelt Miet-, WEG- und Sondereigentumsverwaltung in einer Oberfläche, sodass Teams nicht zwischen mehreren Tools wechseln müssen.
+                </p>
+                <p>
+                  In der <strong>Mietverwaltung</strong> verwaltest du Verträge, Mieterstammdaten, Sollstellungen und Mahnwesen. Sollstellungen lassen sich automatisiert anlegen, offene Posten sind jederzeit nach Debitor oder Objekt filterbar, und der Schriftverkehr läuft über anwaltlich geprüfte Vorlagen.
+                </p>
+                <p>
+                  Für die <strong>WEG- oder GdWE-Verwaltung</strong> sind Beschlussdokumentation, Eigentümerversammlungen und die Beirat-Einbindung im Tool. Die Online-Eigentümerversammlung erlaubt es, hybrid oder vollständig digital zu tagen, mit Abstimmungen und Protokoll-Vorlagen.
+                </p>
+                <p>
+                  In der <strong>Sondereigentumsverwaltung</strong> verbindest du Aufgaben des Sondereigentums mit den vorhandenen WEG-Strukturen. Mieter, Eigentümer und Beirat haben jeweils eigene Sichten über das Portal24.
+                </p>
+              </div>
+            </article>
+          </Reveal>
+
+          <Reveal>
+            <article>
+              <h3 className="font-display text-xl sm:text-2xl font-semibold tracking-tight inline-flex items-center gap-2">
+                <Wrench className="size-5 text-primary" /> Funktionen im Detail
+              </h3>
+              <div className="mt-4 space-y-5 text-foreground/80 leading-relaxed">
+                <div>
+                  <h4 className="font-display text-lg font-semibold text-foreground">Online-Banking &amp; Zahlungszuordnung</h4>
+                  <p className="mt-2">
+                    SEPA-Zahlungsverkehr und EBICS-Anbindung sind integriert. Kontoauszüge werden importiert und Zahlungen den offenen Posten automatisch zugeordnet. Du arbeitest direkt in der Software, ohne Wechsel ins Online-Banking deiner Hausbank.
+                  </p>
+                </div>
+                <figure className="overflow-hidden rounded-2xl border border-border bg-card">
+                  <img src={immoware24Buchungen.url} alt="Liste offener Posten" loading="lazy" className="w-full" />
+                  <figcaption className="px-4 py-2 text-xs text-foreground/55">Beispiel: offene Posten gruppiert nach Debitor.</figcaption>
+                </figure>
+
+                <div>
+                  <h4 className="font-display text-lg font-semibold text-foreground">GoBD-konforme Buchhaltung</h4>
+                  <p className="mt-2">
+                    Buchungen werden revisionssicher abgelegt, jede Änderung ist nachvollziehbar. Konten, Journale und periodische Abschlüsse erfüllen die Anforderungen an eine ordnungsmäßige Buchführung, sodass Unterlagen einer Betriebsprüfung standhalten.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-display text-lg font-semibold text-foreground">Betriebs- und Heizkostenabrechnung</h4>
+                  <p className="mt-2">
+                    Die Software erstellt Betriebs- und Heizkostenabrechnungen nach gesetzlichen Vorgaben. Verteilerschlüssel, Vorauszahlungen, Einzelnachweise und §35a-Anlagen lassen sich automatisiert generieren und an Mieter oder Eigentümer übermitteln.
+                  </p>
+                </div>
+                <figure className="overflow-hidden rounded-2xl border border-border bg-card">
+                  <img src={immoware24Zaehler.url} alt="VE-Zähler" loading="lazy" className="w-full" />
+                  <figcaption className="px-4 py-2 text-xs text-foreground/55">Beispiel: Zählerstände der Verwaltungseinheiten als Grundlage der Abrechnung.</figcaption>
+                </figure>
+
+                <div>
+                  <h4 className="font-display text-lg font-semibold text-foreground">KI-Dokumentenmanagement</h4>
+                  <p className="mt-2">
+                    Eingehende Dokumente werden automatisch erkannt, klassifiziert und den richtigen Objekten, Verträgen oder Vorgängen zugeordnet. Das spart manuelle Ablage und reduziert Fehler in der Akte.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-display text-lg font-semibold text-foreground">Portal24 für Mieter und Eigentümer</h4>
+                  <p className="mt-2">
+                    Mieter, Eigentümer und Beiräte haben eigene Online-Bereiche. Sie sehen Belege, Abrechnungen und Nachrichten, können Anliegen melden und Dokumente sicher austauschen. Das entlastet den Posteingang der Verwaltung spürbar.
+                  </p>
+                </div>
+                <figure className="overflow-hidden rounded-2xl border border-border bg-card">
+                  <img src={immoware24Kontakt.url} alt="Kontakt hinzufügen" loading="lazy" className="w-full" />
+                  <figcaption className="px-4 py-2 text-xs text-foreground/55">Beispiel: strukturierte Stammdatenpflege für Mieter und Eigentümer.</figcaption>
+                </figure>
+
+                <div>
+                  <h4 className="font-display text-lg font-semibold text-foreground">Online-Eigentümerversammlung</h4>
+                  <p className="mt-2">
+                    Versammlungen lassen sich digital oder hybrid durchführen, mit Einladungen, Tagesordnungen, Beschlussabstimmungen und Protokoll-Vorlagen. Eigentümer können aus der Ferne teilnehmen, was Quoren spürbar erleichtert.
+                  </p>
+                </div>
+              </div>
+            </article>
+          </Reveal>
+
+          <Reveal>
+            <article>
+              <h3 className="font-display text-xl sm:text-2xl font-semibold tracking-tight">So läuft die Arbeit damit ab</h3>
+              <ol className="mt-4 space-y-3 text-foreground/80 leading-relaxed">
+                <li><strong>1. Objekt anlegen.</strong> Stammdaten für Gebäude, Einheiten und Eigentümer pflegst du zentral. Du legst Gemeinschaftsordnung, Verteilerschlüssel und Beirat-Daten an.</li>
+                <li><strong>2. Verträge und Zahlungen.</strong> Mietverträge und Sollstellungen werden hinterlegt, Bankkonten verbunden, Zahlungen automatisch zugeordnet.</li>
+                <li><strong>3. Abrechnung.</strong> Betriebs- und Heizkostenabrechnungen laufen mit den hinterlegten Schlüsseln, Vorauszahlungen und Verbräuchen automatisiert.</li>
+                <li><strong>4. Kommunikation.</strong> Mieter und Eigentümer arbeiten über Portal24, Schriftverkehr läuft per E-Mail-Client oder Serienbrief direkt aus der Software.</li>
+                <li><strong>5. Versammlung &amp; Beschlüsse.</strong> Einladung, Durchführung und Protokoll der Eigentümerversammlung sind im Tool, online oder hybrid.</li>
+              </ol>
+            </article>
+          </Reveal>
+
+          <Reveal>
+            <article>
+              <h3 className="font-display text-xl sm:text-2xl font-semibold tracking-tight">Sicherheit und Datenschutz</h3>
+              <div className="mt-4 space-y-3 text-foreground/80 leading-relaxed">
+                <p>
+                  Immoware24 ist ISO 27001 zertifiziert und betreibt die Plattform in deutschen Rechenzentren mit georedundanter Spiegelung. Damit sind die Anforderungen an Vertraulichkeit, Integrität und Verfügbarkeit für personenbezogene Daten von Mietern und Eigentümern abgedeckt.
+                </p>
+                <p>
+                  Da der Anbieter Auftragsverarbeiter im Sinne der DSGVO ist, schließt deine Verwaltung einen Auftragsverarbeitungsvertrag ab. Datenminimierung und klare Rechtsgrundlagen lassen sich im Tool dokumentieren.
+                </p>
+              </div>
+            </article>
+          </Reveal>
+
+          <Reveal>
+            <article>
+              <h3 className="font-display text-xl sm:text-2xl font-semibold tracking-tight">Integrationen und Schnittstellen</h3>
+              <div className="mt-4 space-y-3 text-foreground/80 leading-relaxed">
+                <p>
+                  Über EBICS und SEPA bindest du Hausbankkonten an. Belege gelangen über Posteingang, Upload oder Mail in das Dokumentenmanagement. Für Heizkostendienste lassen sich externe Abrechnungen importieren und in die Gesamtabrechnung einfügen.
+                </p>
+                <p>
+                  Ergänzend bietet der Anbieter Schnittstellen zu Dienstleistern aus dem Immobilien-Ökosystem an. Welche Konnektoren für deine Verwaltung relevant sind, klärst du am besten direkt im Anfrageformular oben.
+                </p>
+              </div>
+            </article>
+          </Reveal>
+
+          <Reveal>
+            <article>
+              <h3 className="font-display text-xl sm:text-2xl font-semibold tracking-tight">Häufige Fragen rund um Immobilienverwaltungssoftware</h3>
+              <div className="mt-4 space-y-5 text-foreground/80 leading-relaxed">
+                <div>
+                  <h4 className="font-display text-base font-semibold text-foreground">Worauf solltest du bei einer Hausverwaltungssoftware achten?</h4>
+                  <p className="mt-2">
+                    Wichtig sind GoBD-konforme Buchhaltung, integriertes Banking, automatisierte Betriebs- und Heizkostenabrechnung, ein verlässliches Dokumentenmanagement und Portale für Mieter und Eigentümer. Dazu kommen Sicherheit (ISO 27001, deutsche Rechenzentren) und ein Lizenzmodell, das mit Verwaltungseinheiten skaliert.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-display text-base font-semibold text-foreground">Cloud oder lokale Installation?</h4>
+                  <p className="mt-2">
+                    Cloud-Lösungen wie Immoware24 ersparen dir lokale Server, Backups und Updates. Du arbeitest aus dem Büro, dem Home Office oder unterwegs mit dem gleichen Datenstand. Lokale Installationen lohnen sich nur in seltenen Sonderfällen.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-display text-base font-semibold text-foreground">Wie lange dauert die Einführung?</h4>
+                  <p className="mt-2">
+                    Erste Objekte lassen sich in Tagen aufsetzen, eine saubere Migration größerer Bestände dauert mehrere Wochen. Hilfreich sind ein klarer Migrationsplan, definierte Stammdaten und Schulungen für das Team. Eine 30-tägige Testphase erlaubt dir, das Tool mit echten Daten zu prüfen.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-display text-base font-semibold text-foreground">Wie spielen Verwaltungssoftware und ein Software-Tracker zusammen?</h4>
+                  <p className="mt-2">
+                    Während Immoware24 deine Immobilien verwaltet, hilft dir Toolfolio dabei, die Software-Abos deiner Verwaltung im Blick zu behalten: Kosten je Tool, Kündigungsfristen, Verlängerungen, Nutzungstransparenz. Du verbindest beides, indem du Immoware24 als Abo im Tracker hinterlegst.
+                  </p>
+                </div>
+              </div>
+            </article>
+          </Reveal>
         </div>
       </section>
 
