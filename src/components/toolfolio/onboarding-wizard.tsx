@@ -24,6 +24,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fmtEUR } from "@/lib/toolfolio-data";
 import { cn } from "@/lib/utils";
+import { aiProviders, capabilityBadge, type AiProvider } from "@/lib/ai-providers";
+import { ConnectAiServiceModal, type ConnectionResult } from "./connect-ai-service-modal";
 
 type Profil = "Agentur" | "Freelancer" | "Solopreneur" | "Unternehmen";
 type ToolMenge = "unter 10" | "10 bis 30" | "30 bis 60" | "mehr als 60";
@@ -117,25 +119,36 @@ export function OnboardingWizard() {
   // Schritt 4
   const [abos, setAbos] = useState<ErkanntesAbo[]>(erkannteAbosMock);
 
-  // Schritt 5
+  // Schritt 5 (Kunden)
   const [kunden, setKunden] = useState<string[]>(["Nordwerk", "Kessler", "Solea"]);
   const [kundeInput, setKundeInput] = useState("");
 
+  // Schritt AI (verbundene Provider)
+  const [aiVerbunden, setAiVerbunden] = useState<Record<string, boolean>>({});
+
   const zeigtKunden = profil === "Agentur" || profil === "Unternehmen";
-  const stepLabels = ["Profil", "Zahlung", "Bestand", "Prüfen", ...(zeigtKunden ? ["Kunden"] : []), "Fertig"];
+  const stepLabels = [
+    "Profil",
+    "Zahlung",
+    "Bestand",
+    "Prüfen",
+    "AI-Services",
+    ...(zeigtKunden ? ["Kunden"] : []),
+    "Fertig",
+  ];
   const totalSteps = stepLabels.length;
-  // map internal step (1..6) to visible index when step 5 is hidden
+  // internal step indices: 1 Profil, 2 Zahlung, 3 Bestand, 4 Prüfen, 5 AI, 6 Kunden (opt), 7 Fertig
   const visibleStep = useMemo(() => {
-    if (!zeigtKunden && step >= 5) return step - 1;
+    if (!zeigtKunden && step >= 6) return step - 1;
     return step;
   }, [step, zeigtKunden]);
 
   const next = () => {
-    if (step === 4 && !zeigtKunden) setStep(6);
-    else setStep((s) => Math.min(6, s + 1));
+    if (step === 5 && !zeigtKunden) setStep(7);
+    else setStep((s) => Math.min(7, s + 1));
   };
   const back = () => {
-    if (step === 6 && !zeigtKunden) setStep(4);
+    if (step === 7 && !zeigtKunden) setStep(5);
     else setStep((s) => Math.max(1, s - 1));
   };
 
@@ -248,7 +261,13 @@ export function OnboardingWizard() {
                 ]}
               />
             )}
-            {step === 5 && zeigtKunden && (
+            {step === 5 && (
+              <SchrittAi
+                verbunden={aiVerbunden}
+                onConnected={(id) => setAiVerbunden((v) => ({ ...v, [id]: true }))}
+              />
+            )}
+            {step === 6 && zeigtKunden && (
               <Schritt5
                 kunden={kunden}
                 setKunden={setKunden}
@@ -256,11 +275,11 @@ export function OnboardingWizard() {
                 setKundeInput={setKundeInput}
               />
             )}
-            {step === 6 && <Schritt6 abos={abos} onDone={() => navigate({ to: "/" })} />}
+            {step === 7 && <Schritt6 abos={abos} onDone={() => navigate({ to: "/" })} />}
           </div>
 
           {/* Footer Nav */}
-          {step !== 6 && (
+          {step !== 7 && (
             <div className="flex items-center justify-between mt-6">
               <Button
                 variant="ghost"
@@ -271,17 +290,16 @@ export function OnboardingWizard() {
                 <ChevronLeft className="h-4 w-4" /> Zurück
               </Button>
               <div className="flex items-center gap-2">
-                {(step === 3 || step === 5) && (
+                {(step === 3 || step === 5 || step === 6) && (
                   <button
                     onClick={() => {
-                      if (step === 3) {
-                        if (zeigtKunden) setStep(5);
-                        else setStep(6);
-                      } else next();
+                      if (step === 3) setStep(5);
+                      else if (step === 5) setStep(zeigtKunden ? 6 : 7);
+                      else setStep(7);
                     }}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3"
                   >
-                    Überspringen, mache ich später
+                    {step === 5 ? "Spaeter in den Integrationen erledigen" : "Überspringen, mache ich später"}
                   </button>
                 )}
                 <Button
@@ -968,6 +986,85 @@ function Bilanz({ wert, label, highlight }: { wert: string; label: string; highl
         {wert}
       </p>
       <p className="text-sm text-muted-foreground mt-1">{label}</p>
+    </div>
+  );
+}
+
+/* ---------- Schritt AI ---------- */
+function SchrittAi({
+  verbunden,
+  onConnected,
+}: {
+  verbunden: Record<string, boolean>;
+  onConnected: (id: string) => void;
+}) {
+  const [active, setActive] = useState<AiProvider | null>(null);
+  const [open, setOpen] = useState(false);
+  const handleConnected = (id: string, r: ConnectionResult) => {
+    if (r.status === "connected") onConnected(id);
+  };
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h2 className="font-display text-2xl md:text-3xl font-bold">AI-Services verbinden (optional)</h2>
+        <p className="text-muted-foreground">
+          Wenn du AI-Tools nutzt, kannst du den Verbrauch live anbinden statt ihn nur aus Rechnungen
+          zu schaetzen. Du kannst das jederzeit ueberspringen und spaeter in den Integrationen erledigen.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {aiProviders.map((p) => {
+          const badge = capabilityBadge(p.usageCapability);
+          const ok = !!verbunden[p.id];
+          return (
+            <button
+              key={p.id}
+              onClick={() => {
+                setActive(p);
+                setOpen(true);
+              }}
+              className={cn(
+                "text-left rounded-2xl p-4 border-2 bg-card card-lift transition-all flex items-start gap-3",
+                ok ? "border-success bg-success/5" : "border-border hover:border-primary/40",
+              )}
+            >
+              <div
+                className="size-11 rounded-xl grid place-items-center font-display font-bold text-white shrink-0"
+                style={{ background: p.farbe }}
+              >
+                {p.initial}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold truncate">{p.name}</span>
+                  {ok && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-success">
+                      <Check className="size-3" /> verbunden
+                    </span>
+                  )}
+                </div>
+                <span
+                  className="mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                  style={{ background: badge.bg, color: badge.text }}
+                >
+                  {p.usageLabel}
+                </span>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {ok ? "Verbindung steht. Du kannst weiter." : "API-Key hinterlegen und Verbindung testen."}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <ConnectAiServiceModal
+        provider={active}
+        open={open}
+        onOpenChange={setOpen}
+        onConnected={handleConnected}
+      />
     </div>
   );
 }

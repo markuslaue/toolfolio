@@ -1,5 +1,6 @@
 import type { Abo, Kategorie, Zahlungskanal, Kunde, Interval, Status } from "./toolfolio-data";
 import { abos as baseAbos } from "./toolfolio-data";
+import type { UsageCapability } from "./ai-providers";
 
 export type Hinweis = "frist" | "spike" | "sparvorschlag" | "preiserhoehung" | "zombie";
 export type ErweiterterStatus = Status | "gekündigt" | "archiviert";
@@ -8,6 +9,12 @@ export interface AboListItem extends Omit<Abo, "status"> {
   status: ErweiterterStatus;
   hinweise: Hinweis[];
   waehrung?: "USD";
+  costType?: "flat" | "usage_based";
+  integrationProviderId?: string;
+  usageCapability?: UsageCapability;
+  lastSyncedAt?: string;
+  currentPeriodSpend?: number;
+  creditsRemaining?: number;
 }
 
 const extra: AboListItem[] = [
@@ -26,6 +33,28 @@ const extra: AboListItem[] = [
 ];
 
 // Add hinweise to base abos
+const usageMeta: Record<string, Partial<AboListItem>> = {
+  "Anthropic API": {
+    costType: "usage_based",
+    integrationProviderId: "anthropic",
+    usageCapability: "full",
+    lastSyncedAt: "vor 8 Min.",
+    currentPeriodSpend: 312.4,
+  },
+  OpenAI: {
+    costType: "usage_based",
+    integrationProviderId: "openai",
+    usageCapability: "full",
+    lastSyncedAt: "vor 12 Min.",
+    currentPeriodSpend: 184.2,
+  },
+  "Perplexity API": {
+    costType: "usage_based",
+    usageCapability: "partial",
+  },
+  ElevenLabs: { costType: "usage_based" },
+};
+
 const enriched: AboListItem[] = baseAbos.map((a): AboListItem => {
   const h: Hinweis[] = [];
   if (a.tool === "Ahrefs") h.push("frist");
@@ -35,7 +64,12 @@ const enriched: AboListItem[] = baseAbos.map((a): AboListItem => {
   if (a.tool === "Anthropic API") h.push("spike");
   if (a.tool === "Figma") h.push("sparvorschlag");
   if (a.tool === "Linear") h.push("sparvorschlag");
-  return { ...a, hinweise: h, waehrung: a.tool === "Adobe Creative Cloud" ? "USD" : undefined };
+  return {
+    ...a,
+    hinweise: h,
+    waehrung: a.tool === "Adobe Creative Cloud" ? "USD" : undefined,
+    ...(usageMeta[a.tool] ?? {}),
+  };
 });
 
 export const alleAbos: AboListItem[] = [...enriched, ...extra];

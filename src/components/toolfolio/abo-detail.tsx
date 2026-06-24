@@ -405,6 +405,7 @@ export function AboDetail({ aboId }: { aboId?: string }) {
               {abo.variant === "fix" ? <FixChart /> : <UsageChart />}
               {abo.variant === "verbrauch" && (
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                  <Pill bg="#E7F8EF" text="#0B6B40"><Zap className="size-3" /> Per API verbunden, Live-Verbrauch</Pill>
                   <Pill bg="#F0F6FF" text="#1D4ED8"><Zap className="size-3" /> Auto-Recharge lädt bei 0 nach</Pill>
                   <Pill bg="#FEF3DA" text="#8A5A0B"><AlertTriangle className="size-3" /> 28 € Guthaben verfällt am Monatsende</Pill>
                 </div>
