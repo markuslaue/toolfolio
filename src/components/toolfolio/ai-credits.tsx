@@ -928,6 +928,15 @@ export function AiCredits() {
                 t={t}
                 onOpen={() => setOpenId(t.id)}
                 onSetBudget={() => setOpenId(t.id)}
+                onConnect={(toolId) => {
+                  // Tool-IDs aus ai-credits auf Provider-IDs mappen
+                  const map: Record<string, string> = {
+                    elevenlabs: "openai",
+                    replicate: "openai",
+                    lovable: "openai",
+                  };
+                  setConnectProviderId(map[toolId] ?? "openai");
+                }}
               />
             ))}
           </div>
@@ -939,6 +948,11 @@ export function AiCredits() {
         onClose={() => setOpenId(null)}
         tool={openTool}
         onUpdate={updateTool}
+      />
+      <ConnectAiServiceModal
+        provider={connectProvider}
+        open={!!connectProvider}
+        onOpenChange={(o) => !o && setConnectProviderId(null)}
       />
     </div>
   );
