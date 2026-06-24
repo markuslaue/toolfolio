@@ -55,6 +55,7 @@ import { Route as EinstellungenTeamRouteImport } from './routes/einstellungen.te
 import { Route as EinstellungenPlanRouteImport } from './routes/einstellungen.plan'
 import { Route as EinstellungenDatenRouteImport } from './routes/einstellungen.daten'
 import { Route as EinstellungenBenachrichtigungenRouteImport } from './routes/einstellungen.benachrichtigungen'
+import { Route as AuthRegistrierenRouteImport } from './routes/auth.registrieren'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AnbieterPortalPlatzierungRouteImport } from './routes/anbieter-portal.platzierung'
 import { Route as AnbieterPortalListingRouteImport } from './routes/anbieter-portal.listing'
@@ -298,6 +299,11 @@ const EinstellungenBenachrichtigungenRoute =
     path: '/benachrichtigungen',
     getParentRoute: () => EinstellungenRoute,
   } as any)
+const AuthRegistrierenRoute = AuthRegistrierenRouteImport.update({
+  id: '/auth/registrieren',
+  path: '/auth/registrieren',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/auth/login',
   path: '/auth/login',
@@ -391,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/registrieren': typeof AuthRegistrierenRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -447,6 +454,7 @@ export interface FileRoutesByTo {
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/registrieren': typeof AuthRegistrierenRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -506,6 +514,7 @@ export interface FileRoutesById {
   '/anbieter-portal/listing': typeof AnbieterPortalListingRoute
   '/anbieter-portal/platzierung': typeof AnbieterPortalPlatzierungRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/registrieren': typeof AuthRegistrierenRoute
   '/einstellungen/benachrichtigungen': typeof EinstellungenBenachrichtigungenRoute
   '/einstellungen/daten': typeof EinstellungenDatenRoute
   '/einstellungen/plan': typeof EinstellungenPlanRoute
@@ -566,6 +575,7 @@ export interface FileRouteTypes {
     | '/anbieter-portal/listing'
     | '/anbieter-portal/platzierung'
     | '/auth/login'
+    | '/auth/registrieren'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -622,6 +632,7 @@ export interface FileRouteTypes {
     | '/anbieter-portal/listing'
     | '/anbieter-portal/platzierung'
     | '/auth/login'
+    | '/auth/registrieren'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -680,6 +691,7 @@ export interface FileRouteTypes {
     | '/anbieter-portal/listing'
     | '/anbieter-portal/platzierung'
     | '/auth/login'
+    | '/auth/registrieren'
     | '/einstellungen/benachrichtigungen'
     | '/einstellungen/daten'
     | '/einstellungen/plan'
@@ -739,6 +751,7 @@ export interface RootRouteChildren {
   AnbieterPortalListingRoute: typeof AnbieterPortalListingRoute
   AnbieterPortalPlatzierungRoute: typeof AnbieterPortalPlatzierungRoute
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthRegistrierenRoute: typeof AuthRegistrierenRoute
   FuerSlugRoute: typeof FuerSlugRoute
   KundenKundeIdRoute: typeof KundenKundeIdRoute
   VergleichSlugRoute: typeof VergleichSlugRoute
@@ -1076,6 +1089,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EinstellungenBenachrichtigungenRouteImport
       parentRoute: typeof EinstellungenRoute
     }
+    '/auth/registrieren': {
+      id: '/auth/registrieren'
+      path: '/auth/registrieren'
+      fullPath: '/auth/registrieren'
+      preLoaderRoute: typeof AuthRegistrierenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/login': {
       id: '/auth/login'
       path: '/auth/login'
@@ -1223,6 +1243,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnbieterPortalListingRoute: AnbieterPortalListingRoute,
   AnbieterPortalPlatzierungRoute: AnbieterPortalPlatzierungRoute,
   AuthLoginRoute: AuthLoginRoute,
+  AuthRegistrierenRoute: AuthRegistrierenRoute,
   FuerSlugRoute: FuerSlugRoute,
   KundenKundeIdRoute: KundenKundeIdRoute,
   VergleichSlugRoute: VergleichSlugRoute,
