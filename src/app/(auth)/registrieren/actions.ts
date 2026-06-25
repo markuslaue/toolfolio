@@ -2,7 +2,6 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { safeRedirect } from "@/lib/safe-redirect";
 
 export type RegisterState = {
   error?: string;
@@ -41,7 +40,6 @@ export async function register(
   }
 
   const [first, ...rest] = parsed.data.name.trim().split(/\s+/);
-  const target = safeRedirect(parsed.data.redirect, "/app");
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   const supabase = await createClient();
@@ -55,7 +53,7 @@ export async function register(
         last_name: rest.join(" ") || null,
         consent: "true",
       },
-      emailRedirectTo: `${siteUrl}/auth/callback?redirect=${encodeURIComponent(target)}`,
+      emailRedirectTo: `${siteUrl}/auth/callback?redirect=/verifizieren`,
     },
   });
 
