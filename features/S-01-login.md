@@ -132,8 +132,37 @@ Google als Auth-Provider in Supabase aktivieren (aktuell aus) - Client-ID/Secret
 - Test-Account `test@toolfolio.de` (bestaetigt) angelegt, Auto-Profil verifiziert.
 - **Bewusst spaeter:** Google-Provider im Supabase-Dashboard aktivieren (braucht Google-Cloud-OAuth-App). "Angemeldet bleiben" ist vorerst UI-only (Supabase verwaltet Session/Refresh; echte TTL-Steuerung spaeter).
 
-## QA Test Results
-_To be added by /qa_
+## QA Test Results (2026-06-25)
+
+### Akzeptanzkriterien
+| # | Kriterium | Ergebnis |
+|---|-----------|----------|
+| 1 | Korrekte Daten -> /app (bzw. redirect) | PASS (manuell bestaetigt) |
+| 2 | Falsche Daten -> neutrale Fehlermeldung | PASS (Meldung neutral). Hinweis: Persistenz des E-Mail-Felds bei Fehler im Browser pruefen (B2) |
+| 3 | Google-SSO -> /app | DEFERRED (Provider noch nicht aktiviert, bewusst) |
+| 4 | Unauth /app, /anbieter -> /login?redirect | PASS (307 verifiziert) |
+| 5 | 2FA-Schritt bei aktivem Faktor | PASS by design (Step-up implementiert, ohne Enrollment nicht voll testbar) |
+| 6 | Bereits eingeloggt + /login -> /app | **FAIL (B1)** - nicht implementiert |
+| 7 | Passwort Anzeigen-Umschalter | PASS |
+
+### Security-Audit (Red Team)
+- Kein Service-Role-Key im Client-Bundle (0 Treffer in `.next/static`). PASS
+- RLS `profiles`: anonym keine Zeilen sichtbar (`[]`), owner-only. PASS
+- Open-Redirect: externe/manipulierte Ziele abgewiesen (Unit-Tests + live). PASS
+- Konto-Enumeration: neutrale Login- und Recovery-Meldungen. PASS
+- Rate-Limiting: durch Supabase Auth abgedeckt. PASS
+
+### Bugs
+- **B1 (Medium):** Eingeloggter Nutzer auf `/login` wird nicht auf `/app` weitergeleitet (AC 6). Fix: in `(auth)/login/page.tsx` Session pruefen und ggf. weiterleiten.
+- **B2 (Low):** Bei fehlgeschlagenem Login koennte das E-Mail-Feld geleert werden (React-19-Form-Reset) - im Browser verifizieren; AC 2 ("Eingabe bleibt erhalten").
+- **B3 (Low):** Unbestaetigte E-Mail zeigt generische Meldung statt Verifizierungs-Hinweis/Resend - gehoert zu S-04.
+- **Info:** OAuth-Fehler leitet auf `/login?error=oauth` ohne sichtbares Banner.
+
+### Regression
+Bestehende Routen (/, /app-Gating, /anbieter, Marketing-Shell) unveraendert funktionsfaehig; Build/Lint/Typecheck gruen.
+
+### Produktionsreife
+**Keine Critical/High-Bugs.** Empfehlung: B1 (AC-Verstoss) vor "Approved" beheben (kleiner Fix), B2 verifizieren, B3 mit S-04. Danach produktionsreif.
 
 ## Deployment
 _To be added by /deploy_
