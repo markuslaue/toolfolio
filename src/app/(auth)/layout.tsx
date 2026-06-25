@@ -24,7 +24,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                 Alle deine Software-Abos im Griff. Und du zahlst weniger.
               </h1>
               <p className="mt-4 text-base text-white/80">
-                Behalte Kosten, Vertraege und Fristen aller Tools deiner Agentur an
+                Behalte Kosten, Verträge und Fristen aller Tools deiner Agentur an
                 einem ruhigen Ort im Blick.
               </p>
             </div>

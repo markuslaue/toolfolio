@@ -5,7 +5,7 @@ const navLinks = [
   { href: "/produkt", label: "Produkt" },
   { href: "/verzeichnis", label: "Verzeichnis" },
   { href: "/preise", label: "Preise" },
-  { href: "/ueber-uns", label: "Ueber uns" },
+  { href: "/ueber-uns", label: "Über uns" },
 ];
 
 /** Oeffentliche Navigation (Marketing und Verzeichnis). Platzhalter bis M-01. */

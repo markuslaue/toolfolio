@@ -13,7 +13,7 @@ const groups = [
   {
     title: "Unternehmen",
     links: [
-      { href: "/ueber-uns", label: "Ueber uns" },
+      { href: "/ueber-uns", label: "Über uns" },
       { href: "/kontakt", label: "Kontakt" },
       { href: "/sicherheit", label: "Sicherheit & Datenschutz" },
     ],

@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s | Toolfolio",
   },
   description:
-    "Toolfolio bringt alle deine Software-Abos an einen Ort, warnt vor Kosten und Kuendigungsfristen und zeigt, wo du bei gleicher Leistung weniger zahlst.",
+    "Toolfolio bringt alle deine Software-Abos an einen Ort, warnt vor Kosten und Kündigungsfristen und zeigt, wo du bei gleicher Leistung weniger zahlst.",
 };
 
 export default function RootLayout({

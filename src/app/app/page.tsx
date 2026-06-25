@@ -9,7 +9,7 @@ export default function DashboardPage() {
         Dashboard
       </h1>
       <p className="mt-2 text-muted-foreground">
-        Die vollwertige Uebersicht (Feature B-01) folgt. Hier laufen Gesamtkosten,
+        Die vollwertige Übersicht (Feature B-01) folgt. Hier laufen Gesamtkosten,
         Fristen, KI-Kosten und der Spar-Fortschritt zusammen.
       </p>
     </div>

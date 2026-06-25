@@ -19,7 +19,7 @@ export async function login(
 ): Promise<LoginState> {
   return {
     error:
-      "Die Anmeldung wird im naechsten Schritt mit Supabase verbunden (S-01 /backend).",
+      "Die Anmeldung wird im nächsten Schritt mit Supabase verbunden (S-01 /backend).",
   };
 }
 
@@ -28,7 +28,7 @@ export async function verifyTwoFactor(
   _formData: FormData,
 ): Promise<LoginState> {
   return {
-    error: "Die Zwei-Faktor-Pruefung wird im /backend-Schritt verbunden.",
+    error: "Die Zwei-Faktor-Prüfung wird im /backend-Schritt verbunden.",
     twoFactor: true,
   };
 }

@@ -15,10 +15,10 @@ import { ToolfolioLogo } from "@/components/brand";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { href: "/app", label: "Uebersicht", icon: LayoutDashboard },
+  { href: "/app", label: "Übersicht", icon: LayoutDashboard },
   { href: "/app/abos", label: "Abos", icon: Receipt },
   { href: "/app/kunden", label: "Kunden", icon: Users },
-  { href: "/app/zahlungskanaele", label: "Zahlungskanaele", icon: CreditCard },
+  { href: "/app/zahlungskanaele", label: "Zahlungskanäle", icon: CreditCard },
   { href: "/app/verzeichnis", label: "Verzeichnis", icon: BookOpen },
   { href: "/app/berichte", label: "Berichte", icon: FileBarChart },
   { href: "/app/einstellungen", label: "Einstellungen", icon: Settings },

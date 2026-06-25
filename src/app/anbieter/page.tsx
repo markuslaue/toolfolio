@@ -7,7 +7,7 @@ export default function ProviderHomePage() {
       </h1>
       <p className="mt-2 text-muted-foreground">
         Das Anbieter-Dashboard (Feature A-01) folgt: Profil-Performance,
-        Sichtbarkeit und Listing-Pflege. Organische Position ist nicht kaeuflich.
+        Sichtbarkeit und Listing-Pflege. Organische Position ist nicht käuflich.
       </p>
     </div>
   );

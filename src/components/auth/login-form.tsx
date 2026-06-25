@@ -41,7 +41,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
           href="/login"
           className="mb-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="size-3.5" /> Zurueck
+          <ArrowLeft className="size-3.5" /> Zurück
         </Link>
         <div className="flex items-center gap-3">
           <span className="grid size-10 place-content-center rounded-xl bg-primary/10 text-primary">
@@ -49,7 +49,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
           </span>
           <div>
             <h1 className="font-display text-2xl font-semibold">
-              Bestaetigung in zwei Schritten
+              Bestätigung in zwei Schritten
             </h1>
             <p className="text-sm text-muted-foreground">
               Gib den Code aus deiner Authenticator-App ein.
@@ -78,7 +78,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
             className="h-12 w-full rounded-xl text-base"
           >
             {mfaPending && <Loader2 className="size-4 animate-spin" />}
-            Bestaetigen
+            Bestätigen
           </Button>
         </form>
       </div>
@@ -88,7 +88,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
   return (
     <div className="rounded-3xl border bg-card p-7 shadow-soft sm:p-8">
       <h1 className="font-display text-3xl font-semibold tracking-tight">
-        Willkommen zurueck
+        Willkommen zurück
       </h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
         Melde dich mit deinem Toolfolio-Konto an.
@@ -191,7 +191,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
         </Link>{" "}
         und nimmst unsere{" "}
         <Link href="/datenschutz" className="underline hover:text-foreground">
-          Datenschutzerklaerung
+          Datenschutzerklärung
         </Link>{" "}
         zur Kenntnis.
       </p>

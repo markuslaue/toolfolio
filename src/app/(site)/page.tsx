@@ -11,14 +11,14 @@ export default function HomePage() {
         Fundament steht (INFRA-1)
       </span>
       <h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-        Behalte den Ueberblick ueber jede Software, die dein Geld abbucht.
+        Behalte den Überblick über jede Software, die dein Geld abbucht.
         <br />
-        Und zahl weniger dafuer.
+        Und zahl weniger dafür.
       </h1>
       <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">
         Toolfolio bringt alle deine Software-Abos an einen Ort, warnt vor Kosten
-        und Kuendigungsfristen und zeigt dir, wo du bei gleicher Leistung weniger
-        zahlst. Fuer Agenturen, Freelancer und Solopreneure im DACH-Raum.
+        und Kündigungsfristen und zeigt dir, wo du bei gleicher Leistung weniger
+        zahlst. Für Agenturen, Freelancer und Solopreneure im DACH-Raum.
       </p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link
@@ -35,7 +35,7 @@ export default function HomePage() {
         </Link>
       </div>
       <p className="mt-6 text-sm text-muted-foreground">
-        DSGVO-konform, keine Passwoerter gespeichert, made for DACH.
+        DSGVO-konform, keine Passwörter gespeichert, made for DACH.
       </p>
     </section>
   );
