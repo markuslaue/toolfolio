@@ -23,7 +23,7 @@
 | 13 | B-08 | Kunden-Liste | 1 | B-05 | **Deployed (Approved)** |
 | 14 | B-09 | Kunde-Detail | 1 | B-08 | Geplant |
 | 15 | B-10 | Sparvorschlaege | 1 | B-04 | Geplant |
-| 16 | B-01 | Dashboard | 1 | B-03, B-08 | Geplant |
+| 16 | B-01 | Dashboard | 1 | B-03, B-08 | **Deployed (Approved)** |
 | 17 | B-11 | Benachrichtigungen | 1 | B-01 | Geplant |
 | 18 | B-02 | Onboarding-Wizard | 1 | B-05, B-06, B-08 | Geplant |
 | 19 | B-28 | Einstellungen - Benachrichtigungen | 1 | B-26 | Geplant |
