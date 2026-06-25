@@ -38,7 +38,17 @@ export async function login(
     password: parsed.data.password,
   });
   if (error) {
-    // Neutrale Meldung, keine Konto-Enumeration.
+    // Unbestaetigte E-Mail: konkreter Hinweis (laut Spec, S-04 ergaenzt Resend).
+    if (
+      error.code === "email_not_confirmed" ||
+      /not confirmed/i.test(error.message)
+    ) {
+      return {
+        error:
+          "Bitte bestätige zuerst deine E-Mail-Adresse über den Link, den wir dir geschickt haben.",
+      };
+    }
+    // Sonst neutrale Meldung, keine Konto-Enumeration.
     return {
       error: "E-Mail oder Passwort stimmen nicht. Bitte versuche es erneut.",
     };

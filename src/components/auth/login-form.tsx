@@ -32,6 +32,10 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
     initial,
   );
   const [showPw, setShowPw] = useState(false);
+  // E-Mail kontrolliert halten, damit sie bei fehlgeschlagenem Login erhalten
+  // bleibt (React 19 setzt Formulare mit Action sonst zurueck). Passwort bleibt
+  // bewusst unkontrolliert und wird geleert.
+  const [email, setEmail] = useState("");
 
   // Zweiter Schritt: Zwei-Faktor (Backend setzt state.twoFactor)
   if (state.twoFactor) {
@@ -124,6 +128,8 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
             autoComplete="email"
             placeholder="du@agentur.de"
             required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="mt-1.5 h-11 rounded-xl"
           />
         </div>
