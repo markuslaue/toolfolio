@@ -58,6 +58,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
         </div>
 
         <form action={mfaAction} className="mt-6 space-y-4">
+          <input type="hidden" name="redirect" value={redirectTo ?? ""} />
           <div>
             <Label htmlFor="code">Sechsstelliger Code</Label>
             <Input
@@ -96,6 +97,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
 
       {/* SSO (nur Google im MVP) */}
       <form action={signInWithGoogle} className="mt-6">
+        <input type="hidden" name="redirect" value={redirectTo ?? ""} />
         <button
           type="submit"
           className="flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-border bg-card text-sm font-medium transition-colors hover:bg-muted/60"
