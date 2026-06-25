@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { AbosClient } from "@/components/app/abos-client";
+import { AbosListe } from "@/components/app/abos-liste";
 import { createClient } from "@/lib/supabase/server";
 import type { Abo } from "@/lib/abos";
 
@@ -19,5 +19,5 @@ export default async function AbosPage() {
     .order("naechste_abbuchung", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
 
-  return <AbosClient abos={(data as Abo[]) ?? []} />;
+  return <AbosListe abos={(data as Abo[]) ?? []} />;
 }

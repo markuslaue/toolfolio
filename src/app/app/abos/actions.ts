@@ -117,6 +117,41 @@ export async function updateAbo(id: string, input: AboInput): Promise<AboResult>
   return { ok: true, id };
 }
 
+export async function bulkDeleteAbos(ids: string[]): Promise<AboResult> {
+  if (!ids?.length) return { error: "Keine Abos ausgewählt." };
+  const { supabase, user } = await userOrError();
+  if (!user) return { error: "Bitte melde dich erneut an." };
+
+  const { error } = await supabase
+    .from("abos")
+    .delete()
+    .in("id", ids)
+    .eq("user_id", user.id);
+
+  if (error) return { error: "Löschen hat nicht geklappt. Bitte versuche es erneut." };
+  revalidatePath("/app/abos");
+  return { ok: true };
+}
+
+export async function bulkSetStatus(
+  ids: string[],
+  status: "archiviert" | "pausiert" | "aktiv",
+): Promise<AboResult> {
+  if (!ids?.length) return { error: "Keine Abos ausgewählt." };
+  const { supabase, user } = await userOrError();
+  if (!user) return { error: "Bitte melde dich erneut an." };
+
+  const { error } = await supabase
+    .from("abos")
+    .update({ status })
+    .in("id", ids)
+    .eq("user_id", user.id);
+
+  if (error) return { error: "Aktualisieren hat nicht geklappt. Bitte versuche es erneut." };
+  revalidatePath("/app/abos");
+  return { ok: true };
+}
+
 export async function deleteAbo(id: string): Promise<AboResult> {
   if (!id) return { error: "Unbekanntes Abo." };
   const { supabase, user } = await userOrError();
