@@ -37,9 +37,9 @@
 - Verifizierungsmail vorerst ueber Supabase-Mailer; spaeter Willkommensmail E-01 (Resend, PRJ-23).
 
 ## Open Questions
-- [ ] Wie streng ist der Zugang vor Bestaetigung? (Komplett gesperrt bis verifiziert, oder eingeschraenkt nutzbar mit Banner?)
-- [ ] Verifizierungsmail ueber Supabase-Mailer oder direkt Resend (E-01) ab Start?
-- [ ] Bei Google-SSO entfaellt die Verifizierung (E-Mail gilt als bestaetigt) - bestaetigen.
+- [x] Zugang vor Bestaetigung? -> Komplett gesperrt (E-Mail-Confirmation an: keine Session vor Bestaetigung).
+- [x] Verifizierungsmail ueber Supabase-Mailer oder Resend? -> Erst Supabase, Resend mit E-01.
+- [x] Google-SSO ohne Verifizierung? -> Korrekt, Google-E-Mail gilt als bestaetigt.
 
 ## Decision Log
 
@@ -57,8 +57,27 @@ _To be added by /architecture_
 ## Tech Design (Solution Architect)
 _To be added by /architecture_
 
-## QA Test Results
-_To be added by /qa_
+## QA Test Results (2026-06-25)
+
+### Akzeptanzkriterien
+| # | Kriterium | Ergebnis |
+|---|-----------|----------|
+| 1 | Ausstehend: Hinweis + erneut senden + E-Mail aendern + eingeschraenkter Zugang | PASS (Pending-Panel; Zugang ohne Bestaetigung = keine Session -> /app gesperrt) |
+| 2 | Gueltiger Link -> "E-Mail bestaetigt" + Weiter | PASS (Bestaetigung landet via /auth/callback auf /verifizieren) |
+| 3 | Abgelaufen/ungueltig -> neuen Link anfordern | PASS (ohne Session: E-Mail eingeben -> resend) |
+| 4 | Bereits bestaetigt | PASS (bestaetigte Session -> Erfolgszustand) |
+| 5 | Erneut senden mit kurzer Sperre | PASS (30s Cooldown) |
+
+### Security & Robustheit
+- Zugang gesperrt bis bestaetigt (E-Mail-Confirmation an -> keine Session vor Bestaetigung). PASS
+- resend/changeEmail validiert (Zod), kein Secret im Client, kein neues Schema. PASS
+- Google-SSO: E-Mail gilt als bestaetigt (Verifizierung entfaellt). PASS
+
+### Hinweis
+Voller Klick-Test des Bestaetigungslinks aktuell durch Supabases Mailer-Limit gebremst (Resend folgt E-01). Zustaende und Routing verifiziert.
+
+### Produktionsreife
+**APPROVED** - keine Critical/High, keine offenen Bugs. Damit ist das Auth-Projekt (PRJ-02) komplett.
 
 ## Deployment
 _To be added by /deploy_

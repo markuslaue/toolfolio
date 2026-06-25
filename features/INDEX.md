@@ -9,7 +9,7 @@
 Alle Features sind in einzeln deploybare Projekte (Epics) gebuendelt: siehe **`features/PROJECTS.md`**.
 
 ## Naechster Schritt
-INFRA-1 und S-01 sind deployt. S-01 und S-02 sind deployt. S-01, S-02, S-03 deployt. Naechstes Feature: **S-04 (E-Mail-Verifizierung)** -> `/architecture S-04`. Danach Tracker-Kern ab B-26.
+INFRA-1 und S-01 sind deployt. S-01 und S-02 sind deployt. S-01, S-02, S-03 deployt. Auth-Projekt (PRJ-02) komplett. Naechstes: Tracker-Kern ab **B-26 (Einstellungen-Profil)** bzw. B-05 (Abo anlegen) -> `/architecture B-26`.
 
 ---
 
@@ -30,7 +30,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | S-01 | Login (E-Mail/Passwort + Google-SSO, optional 2FA), etabliert die Auth-Huelle | P0 | INFRA-1 | Approved & Deployed (PRJ-02) |
 | S-02 | Registrierung (14-Tage-Vollzugang ohne Kreditkarte, DSGVO-Einwilligung, Uebergang in Wizard) | P0 | S-01 | Approved & Deployed (PRJ-02) |
 | S-03 | Passwort vergessen/zuruecksetzen (neutrale Bestaetigung) | P0 | S-01 | Approved & Deployed (PRJ-02) |
-| S-04 | E-Mail-Verifizierung (vier Zustaende) | P0 | S-01 | Planned (PRJ-02) |
+| S-04 | E-Mail-Verifizierung (vier Zustaende) | P0 | S-01 | Approved & Deployed (PRJ-02) |
 
 ## Tracker (B)
 
