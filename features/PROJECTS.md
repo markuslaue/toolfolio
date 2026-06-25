@@ -43,7 +43,7 @@
 | 33 | F-G1 | Verifizierte Preise mit Datenzustaenden | 2 | F-G2 | Geplant |
 | 34 | F-G3 | KI-Auswertung anonym (nur Aggregate an Claude-API) | 2 | F-G2 | Geplant |
 | 35 | B-16 | Benchmark-Ansicht | 2 | F-G2 | Geplant |
-| 36 | B-12 | Fristen- & Trial-Waechter (deutscher USP) | 2 | B-04 | Geplant |
+| 36 | B-12 | Fristen- & Trial-Waechter (deutscher USP) | 2 | B-04 | **Deployed (In-App; E-Mail offen)** |
 | 37 | B-13 | AI-Credits / variable Kosten | 2 | B-04 | Geplant |
 | 38 | B-14 | Beleg-Postfach | 2 | B-03 | Geplant |
 | 39 | B-19 | Rechnungs- & Vertragsarchiv (AGB-Snapshot) | 2 | B-14 | Geplant |

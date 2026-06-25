@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Receipt,
+  BellRing,
   Users,
   CreditCard,
   BookOpen,
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 const items = [
   { href: "/app", label: "Übersicht", icon: LayoutDashboard },
   { href: "/app/abos", label: "Abos", icon: Receipt },
+  { href: "/app/fristen", label: "Fristen", icon: BellRing },
   { href: "/app/kunden", label: "Kunden", icon: Users },
   { href: "/app/zahlungskanaele", label: "Zahlungskanäle", icon: CreditCard },
   { href: "/app/verzeichnis", label: "Verzeichnis", icon: BookOpen },

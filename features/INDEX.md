@@ -47,7 +47,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | B-09 | Kunde-Detailseite (Weiterverrechnung, Marge) | P0 | B-08 | Roadmap |
 | B-10 | Sparvorschlaege (+ Gutscheine/Retention-Ergaenzung) | P0 | B-01 | Roadmap |
 | B-11 | Benachrichtigungen / Aktivitaets-Feed | P0 | B-01 | Roadmap |
-| B-12 | Fristen-Waechter / Kalender (deutscher USP) | P1 | B-04 | Roadmap |
+| B-12 | Fristen-Waechter / Kalender (deutscher USP) | P1 | B-04 | Approved & Deployed In-App (PRJ-08); E-Mail offen |
 | B-13 | AI-Credits / variable Kosten - Detail | P1 | B-04 | Roadmap |
 | B-14 | Beleg-Postfach (eigene Inbox-Adresse, Parsing, Review) | P1 | B-03 | Roadmap |
 | B-15 | Verzeichnis (App-Kontext, intern) | P1 | B-05, V-01 | Roadmap |
