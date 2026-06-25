@@ -21,7 +21,7 @@
 | 11 | B-07 | Zahlungskanaele | 1 | B-05 | **Deployed (Approved)** |
 | 12 | B-06 | Kontoauszug-Import | 1 | B-07 | Geplant |
 | 13 | B-08 | Kunden-Liste | 1 | B-05 | **Deployed (Approved)** |
-| 14 | B-09 | Kunde-Detail | 1 | B-08 | Geplant |
+| 14 | B-09 | Kunde-Detail | 1 | B-08 | **Deployed (Approved)** |
 | 15 | B-10 | Sparvorschlaege | 1 | B-04 | Geplant |
 | 16 | B-01 | Dashboard | 1 | B-03, B-08 | **Deployed (Approved)** |
 | 17 | B-11 | Benachrichtigungen | 1 | B-01 | Geplant |

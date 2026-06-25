@@ -3,27 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus, Users, MoreHorizontal, Loader2, Check } from "lucide-react";
+import { Plus, Users, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,59 +21,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { cn } from "@/lib/utils";
+import { KundeDialog } from "@/components/app/kunde-dialog";
 import { formatEur } from "@/lib/constants";
 import {
-  KUNDE_STATUS,
   KUNDE_STATUS_LABEL,
-  KUNDE_FARBEN,
   kundeInitial,
   type KundeMitStats,
   type KundeStatus,
 } from "@/lib/kunden";
-import {
-  createKunde,
-  updateKunde,
-  deleteKunde,
-  type KundeInput,
-} from "@/app/app/kunden/actions";
-
-type FormState = {
-  name: string;
-  ansprechpartner: string;
-  email: string;
-  farbe: string;
-  status: KundeStatus;
-  weiterverrechnet: boolean;
-  aufschlag_prozent: string;
-  notizen: string;
-};
-
-function leer(): FormState {
-  return {
-    name: "",
-    ansprechpartner: "",
-    email: "",
-    farbe: KUNDE_FARBEN[0],
-    status: "aktiv",
-    weiterverrechnet: false,
-    aufschlag_prozent: "",
-    notizen: "",
-  };
-}
-
-function ausKunde(k: KundeMitStats): FormState {
-  return {
-    name: k.name,
-    ansprechpartner: k.ansprechpartner ?? "",
-    email: k.email ?? "",
-    farbe: k.farbe,
-    status: k.status,
-    weiterverrechnet: k.weiterverrechnet,
-    aufschlag_prozent: k.aufschlag_prozent?.toString() ?? "",
-    notizen: k.notizen ?? "",
-  };
-}
+import { deleteKunde } from "@/app/app/kunden/actions";
 
 const STATUS_STYLE: Record<KundeStatus, string> = {
   aktiv: "bg-success/15 text-[#0B6B40]",
@@ -104,49 +41,20 @@ export function KundenClient({ kunden }: { kunden: KundeMitStats[] }) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [aktiv, setAktiv] = useState<KundeMitStats | null>(null);
-  const [data, setData] = useState<FormState>(leer());
-  const [busy, setBusy] = useState(false);
   const [loeschId, setLoeschId] = useState<string | null>(null);
 
-  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setData((d) => ({ ...d, [key]: value }));
-  }
   function neu() {
     setAktiv(null);
-    setData(leer());
     setDialogOpen(true);
   }
   function bearbeiten(k: KundeMitStats) {
     setAktiv(k);
-    setData(ausKunde(k));
     setDialogOpen(true);
-  }
-
-  async function speichern() {
-    setBusy(true);
-    const input: KundeInput = {
-      name: data.name,
-      ansprechpartner: data.ansprechpartner,
-      email: data.email,
-      farbe: data.farbe,
-      status: data.status,
-      weiterverrechnet: data.weiterverrechnet,
-      aufschlag_prozent: data.aufschlag_prozent === "" ? null : Number(data.aufschlag_prozent),
-      notizen: data.notizen,
-    };
-    const res = aktiv ? await updateKunde(aktiv.id, input) : await createKunde(input);
-    setBusy(false);
-    if (res.error) return toast.error(res.error);
-    toast.success(aktiv ? "Kunde gespeichert" : "Kunde hinzugefügt");
-    setDialogOpen(false);
-    router.refresh();
   }
 
   async function loeschen() {
     if (!loeschId) return;
-    setBusy(true);
     const res = await deleteKunde(loeschId);
-    setBusy(false);
     setLoeschId(null);
     if (res.error) return toast.error(res.error);
     toast.success("Kunde gelöscht");
@@ -183,9 +91,13 @@ export function KundenClient({ kunden }: { kunden: KundeMitStats[] }) {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {kunden.map((k) => (
-            <div key={k.id} className="rounded-2xl border bg-card p-4 shadow-soft">
+            <div key={k.id} className="rounded-2xl border bg-card p-4 shadow-soft transition-colors hover:border-primary/40">
               <div className="flex items-start justify-between">
-                <div className="flex min-w-0 items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => router.push(`/app/kunden/${k.id}`)}
+                  className="flex min-w-0 items-center gap-3 text-left"
+                >
                   <span
                     className="grid size-10 shrink-0 place-items-center rounded-xl font-display text-sm font-semibold text-white"
                     style={{ backgroundColor: k.farbe }}
@@ -200,7 +112,7 @@ export function KundenClient({ kunden }: { kunden: KundeMitStats[] }) {
                       </div>
                     )}
                   </div>
-                </div>
+                </button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" aria-label="Aktionen" className="size-8">
@@ -219,127 +131,42 @@ export function KundenClient({ kunden }: { kunden: KundeMitStats[] }) {
                 </DropdownMenu>
               </div>
 
-              <div className="mt-3 flex items-center gap-2">
-                <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${STATUS_STYLE[k.status]}`}>
-                  {KUNDE_STATUS_LABEL[k.status]}
-                </span>
-                {k.weiterverrechnet && (
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
-                    Weiterverrechnung{k.aufschlag_prozent != null ? ` +${k.aufschlag_prozent}%` : ""}
+              <button
+                type="button"
+                onClick={() => router.push(`/app/kunden/${k.id}`)}
+                className="mt-3 block w-full text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${STATUS_STYLE[k.status]}`}>
+                    {KUNDE_STATUS_LABEL[k.status]}
                   </span>
-                )}
-              </div>
-
-              <div className="mt-3 flex items-end justify-between border-t pt-3">
-                <div className="text-xs text-muted-foreground">
-                  {k.tools} {k.tools === 1 ? "Abo" : "Abos"}
+                  {k.weiterverrechnet && (
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                      Weiterverrechnung{k.aufschlag_prozent != null ? ` +${k.aufschlag_prozent}%` : ""}
+                    </span>
+                  )}
                 </div>
-                <div className="text-right">
-                  <div className="font-semibold tabular-nums">{formatEur(k.kostenMonat)}</div>
-                  <div className="text-xs text-muted-foreground">pro Monat</div>
+                <div className="mt-3 flex items-end justify-between border-t pt-3">
+                  <div className="text-xs text-muted-foreground">
+                    {k.tools} {k.tools === 1 ? "Abo" : "Abos"}
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold tabular-nums">{formatEur(k.kostenMonat)}</div>
+                    <div className="text-xs text-muted-foreground">pro Monat</div>
+                  </div>
                 </div>
-              </div>
+              </button>
             </div>
           ))}
         </div>
       )}
 
-      {/* Anlegen/Bearbeiten */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{aktiv ? "Kunde bearbeiten" : "Kunde hinzufügen"}</DialogTitle>
-            <DialogDescription>Stammdaten und Weiterverrechnung pflegen.</DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" value={data.name} onChange={(e) => set("name", e.target.value)} placeholder="z. B. Kunde Nordwerk" />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="ap">Ansprechpartner</Label>
-                <Input id="ap" value={data.ansprechpartner} onChange={(e) => set("ansprechpartner", e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="mail">E-Mail</Label>
-                <Input id="mail" type="email" value={data.email} onChange={(e) => set("email", e.target.value)} placeholder="kontakt@kunde.de" />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Farbe</Label>
-              <div className="flex flex-wrap gap-2">
-                {KUNDE_FARBEN.map((f) => (
-                  <button
-                    key={f}
-                    type="button"
-                    onClick={() => set("farbe", f)}
-                    aria-label={`Farbe ${f}`}
-                    className={cn(
-                      "grid size-8 place-items-center rounded-full transition",
-                      data.farbe === f ? "ring-2 ring-foreground ring-offset-2" : "",
-                    )}
-                    style={{ backgroundColor: f }}
-                  >
-                    {data.farbe === f && <Check className="size-4 text-white" />}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Status</Label>
-              <Select value={data.status} onValueChange={(v) => set("status", v as KundeStatus)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {KUNDE_STATUS.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {KUNDE_STATUS_LABEL[s]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border bg-background/60 px-4 py-3">
-              <span className="text-sm font-medium">Kosten weiterverrechnen</span>
-              <Switch checked={data.weiterverrechnet} onCheckedChange={(v) => set("weiterverrechnet", v)} />
-            </div>
-            {data.weiterverrechnet && (
-              <div className="space-y-1.5">
-                <Label htmlFor="auf">Standard-Aufschlag in Prozent</Label>
-                <Input
-                  id="auf"
-                  value={data.aufschlag_prozent}
-                  onChange={(e) => set("aufschlag_prozent", e.target.value)}
-                  inputMode="decimal"
-                  placeholder="z. B. 15"
-                  className="max-w-[160px] tabular-nums"
-                />
-              </div>
-            )}
-
-            <div className="space-y-1.5">
-              <Label htmlFor="notiz">Notiz</Label>
-              <Textarea id="notiz" rows={3} value={data.notizen} onChange={(e) => set("notizen", e.target.value)} />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={busy}>
-              Abbrechen
-            </Button>
-            <Button onClick={speichern} disabled={busy}>
-              {busy && <Loader2 className="size-4 animate-spin" />}
-              {aktiv ? "Speichern" : "Hinzufügen"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <KundeDialog
+        key={aktiv?.id ?? "neu"}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        kunde={aktiv}
+      />
 
       <AlertDialog open={!!loeschId} onOpenChange={(o) => !o && setLoeschId(null)}>
         <AlertDialogContent>
