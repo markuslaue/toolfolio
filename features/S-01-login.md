@@ -161,8 +161,14 @@ Google als Auth-Provider in Supabase aktivieren (aktuell aus) - Client-ID/Secret
 ### Regression
 Bestehende Routen (/, /app-Gating, /anbieter, Marketing-Shell) unveraendert funktionsfaehig; Build/Lint/Typecheck gruen.
 
+### Nachbesserung (2026-06-25, alle behoben)
+- **B1 behoben:** Login-Seite prueft die Session und leitet Eingeloggte auf /app (bzw. redirect).
+- **B2 behoben:** E-Mail-Feld kontrolliert -> bleibt bei fehlgeschlagenem Login erhalten.
+- **B3 behoben:** Unbestaetigte E-Mail zeigt konkreten Hinweis (Resend-UI folgt in S-04).
+- Typecheck/Lint/Test (5/5)/Build gruen, live deployt und verifiziert.
+
 ### Produktionsreife
-**Keine Critical/High-Bugs.** Empfehlung: B1 (AC-Verstoss) vor "Approved" beheben (kleiner Fix), B2 verifizieren, B3 mit S-04. Danach produktionsreif.
+**APPROVED** - keine offenen Bugs, keine Critical/High. S-01 ist produktionsreif und live (https://toolfolio.de/login).
 
 ## Deployment
 _To be added by /deploy_
