@@ -137,6 +137,8 @@ export function RegisterForm({ redirectTo }: { redirectTo?: string }) {
 
       <form action={formAction} className="space-y-4">
         <input type="hidden" name="redirect" value={redirectTo ?? ""} />
+        {/* Einwilligung deterministisch aus dem Checkbox-Status uebertragen. */}
+        <input type="hidden" name="consent" value={accept ? "on" : ""} />
         <div>
           <Label htmlFor="name">Name</Label>
           <Input
@@ -225,7 +227,6 @@ export function RegisterForm({ redirectTo }: { redirectTo?: string }) {
 
         <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-border/60 bg-muted/30 p-3 text-sm">
           <Checkbox
-            name="consent"
             checked={accept}
             onCheckedChange={(v) => setAccept(v === true)}
             className="mt-0.5"

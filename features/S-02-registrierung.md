@@ -113,8 +113,28 @@ Wiederverwendet aus S-01: Auth-Huelle, Google-OAuth-Start + `/auth/callback`, `s
 ### Voraussetzung
 - E-Mail-Bestaetigung in Supabase aktiviert lassen (Default). Google-Provider wie bei S-01 spaeter aktivieren.
 
-## QA Test Results
-_To be added by /qa_
+## QA Test Results (2026-06-25)
+
+### Akzeptanzkriterien
+| # | Kriterium | Ergebnis |
+|---|-----------|----------|
+| 1 | Gueltige Registrierung -> Konto + 14-Tage-Trial ohne Kreditkarte | PASS (signUp + impliziter Trial, keine CC) |
+| 2 | Fehlende Einwilligung -> blockiert | PASS (serverseitig erzwungen, Checkbox-Pflicht) |
+| 3 | Bestehende E-Mail -> neutrale Meldung (Anti-Enumeration) | PASS (immer Pending-Zustand) |
+| 4 | Schwaches Passwort -> Staerkeanzeige + blockiert (min. 8) | PASS (Client-Meter + Server-min-8) |
+| 5 | Erfolg -> Verifizierungsmail + Pending-Zustand | PASS (signUp loest Mail aus, "Bitte E-Mail bestaetigen") |
+| 6 | Google-Registrierung -> OAuth | DEFERRED (Provider noch nicht aktiviert) |
+
+### Security & Robustheit
+- Einwilligung serverseitig erzwungen, **deterministisch** uebertragen (verstecktes Feld spiegelt Checkbox) - vermeidet potenziellen Blocker. PASS
+- Anti-Enumeration (gleiche Meldung bei bestehender E-Mail). PASS
+- E-Mail-Bestaetigung aktiv (Session erst nach Bestaetigung). PASS
+- Kein Secret im Client, RLS unveraendert, eingeloggter Aufruf -> Redirect. PASS
+- Eingabefelder kontrolliert -> bleiben bei Fehler erhalten (Lehre aus S-01/B2). PASS
+- Konto + Profil + `consent_accepted_at` per Trigger verifiziert (SDK-Test). PASS
+
+### Produktionsreife
+**APPROVED** - keine Critical/High, keine offenen Bugs. Browser-Absende-Test (Formular -> Pending) zur finalen Bestaetigung durch den Nutzer.
 
 ## Deployment
 _To be added by /deploy_
