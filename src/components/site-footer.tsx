@@ -7,7 +7,7 @@ const groups = [
     links: [
       { href: "/produkt", label: "Funktionen" },
       { href: "/preise", label: "Preise" },
-      { href: "/verzeichnis", label: "Verzeichnis" },
+      { href: "/registrieren", label: "Kostenlos starten" },
     ],
   },
   {
