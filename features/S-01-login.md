@@ -45,9 +45,9 @@
 - Google-Provider in Supabase Auth konfigurieren (Dashboard) - aktuell noch deaktiviert.
 
 ## Open Questions
-- [ ] Microsoft-SSO im MVP, oder vorerst nur Google? (FEATURES nennt Google; Lovable-Login zeigt Google + Microsoft.)
-- [ ] 2FA bereits im MVP aktiv, oder Schritt nur vorbereiten und spaeter scharf schalten?
-- [ ] Konkrete Rate-Limit-/Lockout-Politik (Anzahl Versuche, Sperrdauer)?
+- [x] Microsoft-SSO im MVP? -> Nein, nur Google (bestaetigt 2026-06-25).
+- [x] 2FA im MVP aktiv? -> Vorbereitet (Step-up implementiert), Einrichtung erst B-26.
+- [x] Rate-Limit-/Lockout-Politik? -> Supabase Auth bringt eingebautes Rate-Limiting; kein Custom noetig.
 
 ## Decision Log
 
@@ -123,7 +123,14 @@ Google als Auth-Provider in Supabase aktivieren (aktuell aus) - Client-ID/Secret
 - Login-Formular `src/components/auth/login-form.tsx` (Client, `useActionState`): Google-SSO (nur Google, Default), E-Mail/Passwort mit Anzeigen-Umschalter, "Angemeldet bleiben", Fehlerbanner, 2FA-Zweitschritt-Ansicht, Links zu Registrierung/Recovery/AGB/Datenschutz.
 - Seite `src/app/(auth)/login/page.tsx` liest `redirect` mit Open-Redirect-Schutz (nur interne Pfade).
 - shadcn-Komponenten ergaenzt: button, input, label, checkbox. Design-Tokens in `globals.css` 1:1 mit Lovable abgeglichen (paper/coral/success, shadow-soft/-lift, font-display).
-- **Offen (/backend):** Server-Actions in `src/app/(auth)/login/actions.ts` sind Platzhalter (signInWithPassword, MFA, Google-OAuth + Callback, `profiles`-Tabelle + RLS, Session/Redirect).
+- ~~Offen (/backend)~~ erledigt (siehe unten).
+
+### Implementierung (Backend, erledigt 2026-06-25)
+- Migration `supabase/migrations/..._profiles.sql`: `profiles` (id->auth.users, first_name, last_name, role, created_at), RLS owner-only (select/update), Trigger `handle_new_user` legt Profil bei Konto-Anlage an. Per `supabase db push` eingespielt.
+- Login-Actions echt: `signInWithPassword` (neutrale Fehlermeldung), MFA-Step-up ueber AAL (`getAuthenticatorAssuranceLevel` -> 2FA-Schritt nur bei vorhandenem Faktor), `challenge`/`verify`. Google: `signInWithOAuth` + Route-Handler `src/app/auth/callback/route.ts` (`exchangeCodeForSession`), absolute Redirects ueber `NEXT_PUBLIC_SITE_URL`.
+- `safeRedirect`-Helper (interne Pfade) zentral + Unit-Tests.
+- Test-Account `test@toolfolio.de` (bestaetigt) angelegt, Auto-Profil verifiziert.
+- **Bewusst spaeter:** Google-Provider im Supabase-Dashboard aktivieren (braucht Google-Cloud-OAuth-App). "Angemeldet bleiben" ist vorerst UI-only (Supabase verwaltet Session/Refresh; echte TTL-Steuerung spaeter).
 
 ## QA Test Results
 _To be added by /qa_
