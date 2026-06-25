@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const fmtEUR = (n: number) =>
+export const fmtEUR = (n: number) =>
   new Intl.NumberFormat("de-DE", {
     style: "currency",
     currency: "EUR",
@@ -53,7 +53,7 @@ function useReveal<T extends HTMLElement>() {
   return { ref, shown };
 }
 
-function Reveal({
+export function Reveal({
   children,
   className,
   delay = 0,
@@ -79,7 +79,7 @@ function Reveal({
 }
 
 /** Browser-Rahmen (16:10) fuer die eingebetteten Backend-Vorschauen. */
-function ScreenshotFrame({
+export function ScreenshotFrame({
   label,
   caption,
   children,
@@ -122,7 +122,7 @@ function ScreenshotFrame({
 
 /* ---------- Eingebettete Backend-Vorschauen ---------- */
 
-function PreviewDashboard() {
+export function PreviewDashboard() {
   return (
     <div className="absolute inset-0 grid grid-cols-3 gap-3 p-5">
       <div className="col-span-2 flex flex-col rounded-2xl border border-border bg-card p-4">
@@ -187,7 +187,7 @@ function PreviewDashboard() {
   );
 }
 
-function PreviewImport() {
+export function PreviewImport() {
   const rows = [
     { d: "01.06.", t: "STRIPE *FIGMA", b: 45, neu: false },
     { d: "03.06.", t: "ANTHROPIC API", b: 312, neu: true },
@@ -234,7 +234,7 @@ function PreviewImport() {
   );
 }
 
-function PreviewFristen() {
+export function PreviewFristen() {
   const items = [
     { t: "Adobe Creative Cloud", days: 4, severity: "danger", note: "Verlängert sich um 12 Monate" },
     { t: "Framer Trial", days: 9, severity: "warn", note: "Wird kostenpflichtig" },
@@ -269,7 +269,7 @@ function PreviewFristen() {
   );
 }
 
-function PreviewAiCredits() {
+export function PreviewAiCredits() {
   return (
     <div className="absolute inset-0 flex flex-col gap-3 p-5">
       <div className="flex items-center justify-between text-xs">
@@ -297,7 +297,7 @@ function PreviewAiCredits() {
   );
 }
 
-function PreviewBenchmark() {
+export function PreviewBenchmark() {
   const rows = [
     { t: "Linear", you: 49, market: 39, diff: 10 },
     { t: "Notion", you: 96, market: 84, diff: 12 },
@@ -345,7 +345,7 @@ function PreviewBenchmark() {
   );
 }
 
-function PreviewSparvorschlaege() {
+export function PreviewSparvorschlaege() {
   const items = [
     { t: "Figma jährlich statt monatlich", save: 144, btn: "Umstellen" },
     { t: "Loom seit 5 Monaten ungenutzt", save: 180, btn: "Prüfen" },
@@ -378,7 +378,7 @@ function PreviewSparvorschlaege() {
   );
 }
 
-function PreviewKunde() {
+export function PreviewKunde() {
   const tools = [
     { t: "Figma", k: 45, c: "var(--color-cat-design)" },
     { t: "OpenAI", k: 184, c: "var(--color-cat-ai)" },
@@ -420,7 +420,7 @@ function PreviewKunde() {
   );
 }
 
-function PreviewVerzeichnis() {
+export function PreviewVerzeichnis() {
   const rows = [
     { t: "Linear", cat: "Entwicklung", ab: 8, verified: true },
     { t: "Height", cat: "Entwicklung", ab: 6, verified: true },
