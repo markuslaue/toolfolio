@@ -184,11 +184,13 @@ export function AboFormPanel({
   onOpenChange,
   abo,
   onSaved,
+  onDeleted,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   abo?: Abo | null;
   onSaved?: () => void;
+  onDeleted?: () => void;
 }) {
   const router = useRouter();
   const bearbeiten = !!abo;
@@ -285,8 +287,11 @@ export function AboFormPanel({
     toast.success("Abo gelöscht");
     setDirty(false);
     onOpenChange(false);
-    onSaved?.();
-    router.refresh();
+    if (onDeleted) onDeleted();
+    else {
+      onSaved?.();
+      router.refresh();
+    }
   }
 
   return (

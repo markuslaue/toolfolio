@@ -152,6 +152,22 @@ export async function bulkSetStatus(
   return { ok: true };
 }
 
+export async function setErinnerung(id: string, on: boolean): Promise<AboResult> {
+  if (!id) return { error: "Unbekanntes Abo." };
+  const { supabase, user } = await userOrError();
+  if (!user) return { error: "Bitte melde dich erneut an." };
+
+  const { error } = await supabase
+    .from("abos")
+    .update({ erinnerung: on })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) return { error: "Das hat nicht geklappt. Bitte versuche es erneut." };
+  revalidatePath("/app/abos");
+  return { ok: true };
+}
+
 export async function deleteAbo(id: string): Promise<AboResult> {
   if (!id) return { error: "Unbekanntes Abo." };
   const { supabase, user } = await userOrError();

@@ -39,7 +39,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | B-01 | Dashboard (KPIs, Aktions-Center, Spar-Fortschritt), etabliert App-Shell + Design | P0 | INFRA-1, S-01 | Roadmap |
 | B-02 | Onboarding-Wizard (Zahlungskanaele, Import, Beleg-Postfach, erste Abos, Kunden) | P0 | B-01, S-02 | Roadmap |
 | B-03 | Abos-Listenansicht (Filter, Sortierung, Gruppierung, Bulk) | P0 | B-01 | Approved & Deployed (PRJ-07) |
-| B-04 | Abo-Detailseite | P0 | B-03 | Roadmap |
+| B-04 | Abo-Detailseite | P0 | B-03 | Approved & Deployed (PRJ-07) |
 | B-05 | Abo anlegen/bearbeiten (Slide-over, Verzeichnis-Verknuepfung) | P0 | B-03 | Approved & Deployed (PRJ-07) |
 | B-06 | Kontoauszug-Import (CSV/CAMT/MT940, Erkennung, Review) | P0 | B-03 | Roadmap |
 | B-07 | Zahlungskanaele-Verwaltung (nur Referenzen, keine Secrets) | P0 | B-01 | Roadmap |

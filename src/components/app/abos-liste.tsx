@@ -306,9 +306,8 @@ export function AbosListe({ abos }: { abos: Abo[] }) {
     setAktiv(null);
     setPanelOpen(true);
   }
-  function bearbeiten(a: Abo) {
-    setAktiv(a);
-    setPanelOpen(true);
+  function oeffnen(a: Abo) {
+    router.push(`/app/abos/${a.id}`);
   }
 
   async function bulk(fn: () => Promise<{ error?: string }>, erfolg: string) {
@@ -558,7 +557,7 @@ export function AbosListe({ abos }: { abos: Abo[] }) {
                         {g.items.map((a) => (
                           <tr
                             key={a.id}
-                            onClick={() => bearbeiten(a)}
+                            onClick={() => oeffnen(a)}
                             className="cursor-pointer border-b last:border-0 hover:bg-muted/40"
                           >
                             <td className={cn("px-4", padY)} onClick={(e) => e.stopPropagation()}>
@@ -593,7 +592,7 @@ export function AbosListe({ abos }: { abos: Abo[] }) {
                     <ToolZelle a={a} />
                     <Checkbox checked={selected.has(a.id)} onCheckedChange={() => toggleRow(a.id)} aria-label={`${a.tool} auswählen`} />
                   </div>
-                  <button onClick={() => bearbeiten(a)} className="mt-3 w-full text-left">
+                  <button onClick={() => oeffnen(a)} className="mt-3 w-full text-left">
                     <div className="flex items-end justify-between">
                       <div>
                         <div className="text-lg font-semibold tabular-nums">{preis(a)}</div>
