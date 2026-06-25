@@ -103,4 +103,4 @@
 ---
 
 ## Naechster Schritt
-INFRA-1 ist deployt. **S-01..S-04 sind spezifiziert.** Als Naechstes `/architecture S-01`, dann `/frontend` + `/backend`, danach S-02..S-04. Anschliessend der Tracker-Kern ab B-26 (#6).
+#1 INFRA-1 und #2 S-01 sind deployt (live). Als Naechstes **#3 S-02 (Registrierung)**: `/architecture S-02` -> `/frontend` -> `/backend` -> `/qa`. Danach #4 S-03, #5 S-04, dann Tracker-Kern ab #6 (B-26).

@@ -9,7 +9,7 @@
 Alle Features sind in einzeln deploybare Projekte (Epics) gebuendelt: siehe **`features/PROJECTS.md`**.
 
 ## Naechster Schritt
-PRJ-01 (Fundament/INFRA-1) ist deployt. Aktuell in Spezifikation: **PRJ-02 (Auth)** - Specs S-01..S-04 liegen vor. Danach `/architecture S-01`.
+INFRA-1 und S-01 sind deployt. Naechstes Feature: **S-02 (Registrierung)** -> `/architecture S-02`. Danach S-03, S-04, dann Tracker-Kern ab B-26.
 
 ---
 
