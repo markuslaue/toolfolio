@@ -70,7 +70,8 @@ Dazu: `/help` (wo stehe ich), `/refine <ID>` (Spec ueberarbeiten), `/init` (nur 
 - Skills erwarten `docs/PRD.md`, `features/INDEX.md`, `docs/design-system.md` - alle vorhanden.
 - **`/init` ist faktisch erledigt:** PROJECT.md = PRD-Quelle, FEATURES.md + Template-Bibliothek = Feature-Map, ARCHITECTURE.md = Tech-Design-Grundlage. Nicht erneut `/init` laufen lassen.
 - **Feature-IDs:** Wir nutzen das etablierte Schema **B- / M- / V- / A- / S- / E- / R-** (nicht "PROJ-X"). Wo ein Skill "PROJ-X" sagt, ist unsere jeweilige Template-ID gemeint. Spec-Dateien liegen unter `features/<ID>-kurzname.md` (z. B. `features/B-12-fristen-waechter.md`).
-- Beim Bauen eines Screens: zugehoerige Original-Lovable-Prompt unter `docs/blueprint/lovable-prompts/` als visuelle Referenz lesen, aber Datenmodell/Backend nach FEATURES.md + ARCHITECTURE.md + Spec bauen.
+- **Optik-Referenz (1:1):** Der echte Lovable-Code liegt unter `.lovable-ref/` (gitignored, TanStack Start + React + Tailwind + shadcn). Beim Bauen eines Screens die passende Lovable-Komponente als visuelle Vorlage uebernehmen (Markup/Tailwind portierbar), z. B. `.lovable-ref/src/components/auth/login-page.tsx` fuer S-01. Bereiche: `auth/`, `marketing/`, `toolfolio/` (Tracker), `anbieter-portal/`, `ui/` (shadcn). Datenmodell/Backend aber nach FEATURES.md + ARCHITECTURE.md + Spec bauen, nicht aus dem Lovable-Mock.
+- Die textuellen Lovable-Prompts (Design-Intent/Akzeptanzkriterien) liegen im Chat bzw. unter `docs/blueprint/`.
 
 ---
 
