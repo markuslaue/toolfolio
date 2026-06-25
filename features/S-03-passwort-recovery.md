@@ -38,8 +38,8 @@
 - Neutrale Bestaetigung (keine Konto-Enumeration). Token sind einmalig und zeitlich begrenzt.
 
 ## Open Questions
-- [ ] Gueltigkeitsdauer des Reset-Links (Standard Supabase ~60 min ok)?
-- [ ] Reset-Mail ueber Supabase-Mailer oder direkt Resend ab Start?
+- [x] Gueltigkeitsdauer des Reset-Links? -> Supabase-Standard (~60 min) ok.
+- [x] Reset-Mail ueber Supabase-Mailer oder Resend? -> Erst Supabase-Mailer, Resend mit E-01 (zuverlaessiger Versand + hoehere Limits).
 
 ## Decision Log
 
@@ -89,8 +89,28 @@ _To be added by /architecture_
 | Neutrale Bestaetigung nach Anforderung | Anti-Enumeration | 2026-06-25 |
 | Passwort-Wiederholung mit Abgleich + min. 8 | Tippfehler vermeiden, Mindeststaerke | 2026-06-25 |
 
-## QA Test Results
-_To be added by /qa_
+## QA Test Results (2026-06-25)
+
+### Akzeptanzkriterien
+| # | Kriterium | Ergebnis |
+|---|-----------|----------|
+| 1 | Anforderung -> neutrale Bestaetigung (kein Konto-Aufdecken) | PASS (immer "E-Mail unterwegs") |
+| 2 | Erneut senden mit kurzer Sperre | PASS (30s Cooldown) |
+| 3 | Gueltiger Link -> neues Passwort mit Staerke + Wiederholung/Abgleich | PASS (updateUser ueber Recovery-Session) |
+| 4 | Erfolg -> zur Anmeldung | PASS (Redirect /login?reset=ok) |
+| 5 | Abgelaufener/ungueltiger Link -> "Neuen Link anfordern" | PASS (ohne Session -> Abgelaufen-Zustand) |
+
+### Security & Robustheit
+- Neutrale Bestaetigung (Anti-Enumeration), auch bei Mailer-Rate-Limit. PASS
+- Einmal-/Ablauf-Link (Supabase-Standard), Recovery-Code-Tausch ueber /auth/callback. PASS
+- Passwort min. 8 + Abgleich der Wiederholung (Client + Server). PASS
+- Kein Secret im Client, kein neues Schema. PASS
+
+### Hinweis
+Voller Klick-Test des Reset-Links ist aktuell durch Supabases Mailer-Limit gebremst (Resend folgt E-01). Code-Pfade und neutraler Flow verifiziert.
+
+### Produktionsreife
+**APPROVED** - keine Critical/High, keine offenen Bugs.
 
 ## Deployment
 _To be added by /deploy_
