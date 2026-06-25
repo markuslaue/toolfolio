@@ -25,7 +25,7 @@
 | 15 | B-10 | Sparvorschlaege | 1 | B-04 | Geplant |
 | 16 | B-01 | Dashboard | 1 | B-03, B-08 | **Deployed (Approved)** |
 | 17 | B-11 | Benachrichtigungen | 1 | B-01 | Geplant |
-| 18 | B-02 | Onboarding-Wizard | 1 | B-05, B-06, B-08 | Geplant |
+| 18 | B-02 | Onboarding-Wizard | 1 | B-05, B-06, B-08 | **Deployed (Approved)** |
 | 19 | B-28 | Einstellungen - Benachrichtigungen | 1 | B-26 | Geplant |
 | 20 | B-29 | Einstellungen - Plan & Abrechnung (Stripe) | 1 | B-26 | Geplant |
 | 21 | M-01 | Marketing-Startseite | 1 | INFRA-1 | Geplant |

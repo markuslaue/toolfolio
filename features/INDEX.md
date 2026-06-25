@@ -37,7 +37,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | ID | Feature | Prio | Abhaengig von | Status |
 |----|---------|------|---------------|--------|
 | B-01 | Dashboard (KPIs, Aktions-Center, Spar-Fortschritt), etabliert App-Shell + Design | P0 | INFRA-1, S-01 | Approved & Deployed (PRJ-07) |
-| B-02 | Onboarding-Wizard (Zahlungskanaele, Import, Beleg-Postfach, erste Abos, Kunden) | P0 | B-01, S-02 | Roadmap |
+| B-02 | Onboarding-Wizard (Zahlungskanaele, Import, Beleg-Postfach, erste Abos, Kunden) | P0 | B-01, S-02 | Approved & Deployed (PRJ-07) |
 | B-03 | Abos-Listenansicht (Filter, Sortierung, Gruppierung, Bulk) | P0 | B-01 | Approved & Deployed (PRJ-07) |
 | B-04 | Abo-Detailseite | P0 | B-03 | Approved & Deployed (PRJ-07) |
 | B-05 | Abo anlegen/bearbeiten (Slide-over, Verzeichnis-Verknuepfung) | P0 | B-03 | Approved & Deployed (PRJ-07) |

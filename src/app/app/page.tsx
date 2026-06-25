@@ -32,6 +32,14 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Neue Nutzer einmalig ins Onboarding leiten (kein globaler Gate, nur Dashboard).
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarded_at")
+    .eq("id", user.id)
+    .single();
+  if (!profile?.onboarded_at) redirect("/app/onboarding");
+
   const { data } = await supabase.from("abos").select("*");
   const abos = (data as Abo[]) ?? [];
 
