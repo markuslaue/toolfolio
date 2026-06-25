@@ -15,7 +15,7 @@
 | 5 | S-04 | E-Mail-Verifizierung | 1 | S-02 | **Deployed (Approved)** |
 | 6 | B-26 | Einstellungen - Profil (etabliert Settings-Huelle) | 1 | S-01 | **Deployed (Approved)** |
 | 7 | B-27 | Einstellungen - Unternehmen | 1 | B-26 | Geplant |
-| 8 | B-05 | Abo anlegen/bearbeiten | 1 | S-01 | Geplant |
+| 8 | B-05 | Abo anlegen/bearbeiten | 1 | S-01 | **Deployed (Approved)** |
 | 9 | B-03 | Abos-Liste | 1 | B-05 | Geplant |
 | 10 | B-04 | Abo-Detail | 1 | B-03 | Geplant |
 | 11 | B-07 | Zahlungskanaele | 1 | B-05 | Geplant |
