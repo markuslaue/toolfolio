@@ -7,16 +7,19 @@ import { safeRedirect } from "@/lib/safe-redirect";
  * auf den (intern validierten) Zielpfad weiter.
  */
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = request.nextUrl;
+  const { searchParams } = request.nextUrl;
   const code = searchParams.get("code");
   const target = safeRedirect(searchParams.get("redirect"), "/app");
+  // Hinter dem Reverse-Proxy ist request.origin der interne Host. Fuer absolute
+  // Weiterleitungen die oeffentliche Site-URL nutzen.
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
 
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${target}`);
+      return NextResponse.redirect(`${base}${target}`);
     }
   }
-  return NextResponse.redirect(`${origin}/login?error=oauth`);
+  return NextResponse.redirect(`${base}/login?error=oauth`);
 }
