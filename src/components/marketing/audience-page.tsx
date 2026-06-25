@@ -83,6 +83,13 @@ function FaqItem({ q, a }: Faq) {
   );
 }
 
+/** Client-Wrapper: loest die Daten clientseitig auf (audienceData liegt im "use client"-Modul). */
+export function AudienceBySlug({ slug }: { slug: AudienceSlug }) {
+  const data = audienceData[slug];
+  if (!data) return null;
+  return <AudiencePage data={data} />;
+}
+
 export function AudiencePage({ data }: { data: AudienceData }) {
   const Icon = data.icon;
   return (
