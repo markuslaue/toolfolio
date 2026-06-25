@@ -55,7 +55,39 @@ _To be added by /architecture_
 ---
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+
+### A) Struktur (zwei Seiten in der Auth-Huelle)
+```
+/passwort-vergessen  (Anfordern)
++-- "Passwort vergessen?" -> E-Mail -> "Link senden"
++-- Neutrale Bestaetigung "E-Mail unterwegs" (verraet nicht, ob Konto existiert) + erneut senden (Cooldown)
+
+/passwort-neu  (ueber den Reset-Link, mit Recovery-Session)
++-- "Neues Passwort festlegen": Passwort + Wiederholung (Abgleich) + Staerkeanzeige -> speichern
++-- Erfolg "Passwort geaendert" -> zur Anmeldung
++-- Abgelaufen/ungueltig (keine Recovery-Session) -> "Neuen Link anfordern"
+```
+
+### B) Datenmodell / Flow (Klartext)
+- **Anfordern:** `resetPasswordForEmail(email, redirectTo=/auth/callback?redirect=/passwort-neu)` schickt einen Einmal-Link. Antwort immer neutral (Anti-Enumeration).
+- **Link-Klick:** landet auf `/auth/callback` (vorhandene Route), tauscht den Code gegen eine **Recovery-Session** und leitet auf `/passwort-neu`.
+- **Neues Passwort:** auf `/passwort-neu` besteht die Recovery-Session -> `updateUser({ password })`. Ohne Session -> Abgelaufen-Zustand.
+- Kein neues Schema. Reset-Mail vorerst ueber Supabase-Mailer (Resend folgt PRJ-23).
+
+### C) Technische Entscheidungen
+- Wiederverwendung der `/auth/callback`-Route (Code-Tausch) auch fuer Recovery, via `redirect`-Param `/passwort-neu`.
+- Neutrale Bestaetigung + Einmal-/Ablauf-Link (Supabase-Standard).
+- Passwort serverseitig via Server-Aktion gesetzt; Mindestlaenge 8 + Abgleich der Wiederholung (Client) + Server-Validierung.
+
+### D) Abhaengigkeiten
+- Keine neuen Pakete.
+
+### Technical Decisions
+| Decision | Rationale | Date |
+|----------|-----------|------|
+| Recovery ueber bestehende /auth/callback + Zielseite /passwort-neu | Wiederverwendung, ein PKCE-Pfad | 2026-06-25 |
+| Neutrale Bestaetigung nach Anforderung | Anti-Enumeration | 2026-06-25 |
+| Passwort-Wiederholung mit Abgleich + min. 8 | Tippfehler vermeiden, Mindeststaerke | 2026-06-25 |
 
 ## QA Test Results
 _To be added by /qa_
