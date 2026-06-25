@@ -177,7 +177,15 @@ function preis(a: Abo): string {
   return a.waehrung === "USD" ? `$${wert}` : `${wert} €`;
 }
 
-export function AbosListe({ abos }: { abos: Abo[] }) {
+export function AbosListe({
+  abos,
+  kanalOptionen = [],
+  kundenOptionen = [],
+}: {
+  abos: Abo[];
+  kanalOptionen?: string[];
+  kundenOptionen?: string[];
+}) {
   const router = useRouter();
 
   const [query, setQuery] = useState("");
@@ -638,7 +646,14 @@ export function AbosListe({ abos }: { abos: Abo[] }) {
         </div>
       )}
 
-      <AboFormPanel key={aktiv?.id ?? "neu"} open={panelOpen} onOpenChange={setPanelOpen} abo={aktiv} />
+      <AboFormPanel
+        key={aktiv?.id ?? "neu"}
+        open={panelOpen}
+        onOpenChange={setPanelOpen}
+        abo={aktiv}
+        kanalOptionen={kanalOptionen}
+        kundenOptionen={kundenOptionen}
+      />
 
       <AlertDialog open={confirmBulkDelete} onOpenChange={setConfirmBulkDelete}>
         <AlertDialogContent>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AbosListe } from "@/components/app/abos-liste";
 import { createClient } from "@/lib/supabase/server";
+import { ladeAboOptionen } from "@/lib/abo-optionen";
 import type { Abo } from "@/lib/abos";
 
 export const metadata: Metadata = { title: "Abos" };
@@ -19,5 +20,13 @@ export default async function AbosPage() {
     .order("naechste_abbuchung", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
 
-  return <AbosListe abos={(data as Abo[]) ?? []} />;
+  const { kanalOptionen, kundenOptionen } = await ladeAboOptionen();
+
+  return (
+    <AbosListe
+      abos={(data as Abo[]) ?? []}
+      kanalOptionen={kanalOptionen}
+      kundenOptionen={kundenOptionen}
+    />
+  );
 }

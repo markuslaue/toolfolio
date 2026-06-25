@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { AboDetail } from "@/components/app/abo-detail";
 import { createClient } from "@/lib/supabase/server";
+import { ladeAboOptionen } from "@/lib/abo-optionen";
 import type { Abo } from "@/lib/abos";
 
 export const metadata: Metadata = { title: "Abo" };
@@ -27,5 +28,13 @@ export default async function AboDetailPage({
 
   if (!data) notFound();
 
-  return <AboDetail abo={data as Abo} />;
+  const { kanalOptionen, kundenOptionen } = await ladeAboOptionen();
+
+  return (
+    <AboDetail
+      abo={data as Abo}
+      kanalOptionen={kanalOptionen}
+      kundenOptionen={kundenOptionen}
+    />
+  );
 }

@@ -99,7 +99,15 @@ function Zeile({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-export function AboDetail({ abo }: { abo: Abo }) {
+export function AboDetail({
+  abo,
+  kanalOptionen = [],
+  kundenOptionen = [],
+}: {
+  abo: Abo;
+  kanalOptionen?: string[];
+  kundenOptionen?: string[];
+}) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -327,6 +335,8 @@ export function AboDetail({ abo }: { abo: Abo }) {
         open={editOpen}
         onOpenChange={setEditOpen}
         abo={abo}
+        kanalOptionen={kanalOptionen}
+        kundenOptionen={kundenOptionen}
         onSaved={() => router.refresh()}
         onDeleted={() => router.push("/app/abos")}
       />

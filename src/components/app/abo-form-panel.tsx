@@ -185,12 +185,16 @@ export function AboFormPanel({
   abo,
   onSaved,
   onDeleted,
+  kanalOptionen = [],
+  kundenOptionen = [],
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   abo?: Abo | null;
   onSaved?: () => void;
   onDeleted?: () => void;
+  kanalOptionen?: string[];
+  kundenOptionen?: string[];
 }) {
   const router = useRouter();
   const bearbeiten = !!abo;
@@ -424,14 +428,26 @@ export function AboFormPanel({
                   value={data.zahlungskanal}
                   onChange={(e) => set("zahlungskanal", e.target.value)}
                   placeholder="z. B. Visa •••• 4821"
+                  list="kanal-optionen"
                 />
+                <datalist id="kanal-optionen">
+                  {kanalOptionen.map((k) => (
+                    <option key={k} value={k} />
+                  ))}
+                </datalist>
               </Field>
               <Field label="Kunde">
                 <Input
                   value={data.kunde}
                   onChange={(e) => set("kunde", e.target.value)}
                   placeholder="Intern / nicht zugeordnet"
+                  list="kunde-optionen"
                 />
+                <datalist id="kunde-optionen">
+                  {kundenOptionen.map((k) => (
+                    <option key={k} value={k} />
+                  ))}
+                </datalist>
               </Field>
               <Field label="Status">
                 <Select value={data.status} onValueChange={(v) => set("status", v)}>
