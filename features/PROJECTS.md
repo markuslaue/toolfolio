@@ -9,7 +9,7 @@
 | # | ID | Projekt | Ph | Abhaengig von | Status |
 |---|----|---------|----|---------------|--------|
 | 1 | INFRA-1 | Fundament (Next.js + Supabase + Design-System + Shells) | 1 | - | **Deployed** |
-| 2 | S-01 | Login (etabliert Auth-Huelle) | 1 | INFRA-1 | **In Bau (Architektur fertig)** |
+| 2 | S-01 | Login (etabliert Auth-Huelle) | 1 | INFRA-1 | **In Bau (Frontend fertig, Backend offen)** |
 | 3 | S-02 | Registrierung (14-Tage-Trial) | 1 | S-01 | **In Spezifikation** |
 | 4 | S-03 | Passwort-Recovery | 1 | S-01 | **In Spezifikation** |
 | 5 | S-04 | E-Mail-Verifizierung | 1 | S-02 | **In Spezifikation** |

@@ -1,87 +1,32 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+  Toolfolio Design-Tokens - 1:1 abgeglichen mit dem Lovable-Design (.lovable-ref/src/styles.css).
+  Fonts ueber next/font (--font-bricolage / --font-jakarta), siehe src/app/layout.tsx.
+*/
 
 @custom-variant dark (&:is(.dark *));
 
-/*
-  Toolfolio Design-Tokens. Quelle: docs/design-system.md.
-  shadcn-kompatible Variablen (--primary, --background ...) plus Toolfolio-Status-
-  und Kategorie-Farben. Cards nutzen bewusst grosse Rundungen (rounded-[20px]).
-*/
-:root {
-  --radius: 0.875rem; /* ~14px fuer Buttons; Cards explizit rounded-[20px] */
-
-  --background: #fbf7f1; /* Creme */
-  --foreground: #1f1d2b; /* Ink */
-  --card: #ffffff;
-  --card-foreground: #1f1d2b;
-  --popover: #ffffff;
-  --popover-foreground: #1f1d2b;
-  --primary: #6c5ce7; /* Violett */
-  --primary-foreground: #ffffff;
-  --secondary: #f1ecfb; /* helles Violett */
-  --secondary-foreground: #1f1d2b;
-  --muted: #f3efe8;
-  --muted-foreground: #6b7280;
-  --accent: #ff7a66; /* Koralle */
-  --accent-foreground: #1f1d2b;
-  --destructive: #f0533d; /* warmes Rot */
-  --destructive-foreground: #ffffff;
-  --border: #ece7de;
-  --input: #ece7de;
-  --ring: #6c5ce7;
-
-  /* Toolfolio-Status */
-  --positive: #12b76a; /* Emerald: Ersparnis, verifiziert */
-  --warning: #f5a623; /* Amber: Fristen, Trials */
-  --risk: #f0533d; /* warmes Rot: Preiserhoehung, Spike */
-
-  /* Kategorie-Farben */
-  --cat-design: #e84393;
-  --cat-seo: #12b76a;
-  --cat-ai: #6c5ce7;
-  --cat-comm: #3b82f6;
-  --cat-dev: #0fb5ba;
-  --cat-productivity: #f5a623;
-  --cat-ecommerce: #fb923c;
-
-  --chart-1: #6c5ce7;
-  --chart-2: #ff7a66;
-  --chart-3: #12b76a;
-  --chart-4: #f5a623;
-  --chart-5: #3b82f6;
-}
-
-.dark {
-  --background: #1a1822;
-  --foreground: #f4f1ea;
-  --card: #232030;
-  --card-foreground: #f4f1ea;
-  --popover: #232030;
-  --popover-foreground: #f4f1ea;
-  --primary: #8b7cf0;
-  --primary-foreground: #15131d;
-  --secondary: #2b2740;
-  --secondary-foreground: #f4f1ea;
-  --muted: #2a2738;
-  --muted-foreground: #a8a3b5;
-  --accent: #ff8f7d;
-  --accent-foreground: #15131d;
-  --destructive: #f0533d;
-  --destructive-foreground: #ffffff;
-  --border: #322e44;
-  --input: #322e44;
-  --ring: #8b7cf0;
-}
-
 @theme inline {
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 10px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-coral: var(--coral);
+  --color-coral-foreground: var(--coral-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -90,45 +35,154 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 
-  --color-positive: var(--positive);
-  --color-warning: var(--warning);
-  --color-risk: var(--risk);
+  --color-cat-design: #e84393;
+  --color-cat-seo: #12b76a;
+  --color-cat-ai: #6c5ce7;
+  --color-cat-comm: #3b82f6;
+  --color-cat-dev: #0fb5ba;
+  --color-cat-prod: #f5a623;
+  --color-cat-ecom: #fb923c;
 
-  --color-cat-design: var(--cat-design);
-  --color-cat-seo: var(--cat-seo);
-  --color-cat-ai: var(--cat-ai);
-  --color-cat-comm: var(--cat-comm);
-  --color-cat-dev: var(--cat-dev);
-  --color-cat-productivity: var(--cat-productivity);
-  --color-cat-ecommerce: var(--cat-ecommerce);
+  --font-sans: var(--font-jakarta), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", var(--font-jakarta), sans-serif;
 
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+  --shadow-soft: 0 1px 2px rgba(31, 29, 43, 0.04), 0 8px 24px -8px rgba(108, 92, 231, 0.1);
+  --shadow-lift: 0 4px 8px rgba(31, 29, 43, 0.06), 0 16px 40px -12px rgba(108, 92, 231, 0.18);
+}
 
-  --font-sans: var(--font-jakarta);
-  --font-display: var(--font-bricolage);
+:root {
+  --radius: 1.25rem; /* 20px Cards */
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 6px);
+  /* Toolfolio warme Palette */
+  --paper: #fbf7f1;
+  --surface: #ffffff;
+  --background: var(--paper);
+  --foreground: #1f1d2b;
+
+  --primary: #6c5ce7;
+  --primary-foreground: #ffffff;
+
+  --coral: #ff7a66;
+  --coral-foreground: #ffffff;
+
+  --secondary: #f3eee5;
+  --secondary-foreground: #1f1d2b;
+
+  --muted: #f3eee5;
+  --muted-foreground: #6b6779;
+
+  --accent: #efeafe;
+  --accent-foreground: #6c5ce7;
+
+  --destructive: #f0533d;
+  --destructive-foreground: #ffffff;
+
+  --success: #12b76a;
+  --success-foreground: #ffffff;
+
+  --warning: #f5a623;
+  --warning-foreground: #1f1d2b;
+
+  --border: #ece6da;
+  --input: #ece6da;
+  --ring: #6c5ce7;
+
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface);
+  --popover-foreground: var(--foreground);
+
+  --sidebar: #fbf7f1;
+  --sidebar-foreground: #1f1d2b;
+  --sidebar-primary: #6c5ce7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #efeafe;
+  --sidebar-accent-foreground: #6c5ce7;
+  --sidebar-border: #ece6da;
+  --sidebar-ring: #6c5ce7;
+
+  --chart-1: #6c5ce7;
+  --chart-2: #12b76a;
+  --chart-3: #f5a623;
+  --chart-4: #ff7a66;
+  --chart-5: #3b82f6;
 }
 
 @layer base {
   * {
-    border-color: var(--border);
+    border-color: var(--color-border);
   }
+  html,
   body {
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-sans), system-ui, Arial, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+  }
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  .tabular {
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
+
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+@utility shadow-lift {
+  box-shadow: var(--shadow-lift);
+}
+@utility card-lift {
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+@keyframes draw-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@utility animate-draw {
+  animation: draw-in 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes confetti-pop {
+  0% {
+    transform: translate(0, 0) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(1);
+    opacity: 0;
   }
 }

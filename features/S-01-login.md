@@ -118,6 +118,13 @@ Serverseitig: eine **Server-Aktion** verarbeitet den E-Mail/Passwort-Login (uebe
 ### Voraussetzung (einmalig, Dashboard)
 Google als Auth-Provider in Supabase aktivieren (aktuell aus) - Client-ID/Secret in Supabase hinterlegen, Redirect-URL auf die Callback-Route setzen. Erledigen wir im `/backend`-Schritt.
 
+### Implementierung (Frontend, erledigt 2026-06-25)
+- Auth-Huelle als `src/app/(auth)/layout.tsx` (Split-Layout, 1:1 nach Lovable `.lovable-ref/.../auth-shell.tsx`).
+- Login-Formular `src/components/auth/login-form.tsx` (Client, `useActionState`): Google-SSO (nur Google, Default), E-Mail/Passwort mit Anzeigen-Umschalter, "Angemeldet bleiben", Fehlerbanner, 2FA-Zweitschritt-Ansicht, Links zu Registrierung/Recovery/AGB/Datenschutz.
+- Seite `src/app/(auth)/login/page.tsx` liest `redirect` mit Open-Redirect-Schutz (nur interne Pfade).
+- shadcn-Komponenten ergaenzt: button, input, label, checkbox. Design-Tokens in `globals.css` 1:1 mit Lovable abgeglichen (paper/coral/success, shadow-soft/-lift, font-display).
+- **Offen (/backend):** Server-Actions in `src/app/(auth)/login/actions.ts` sind Platzhalter (signInWithPassword, MFA, Google-OAuth + Callback, `profiles`-Tabelle + RLS, Session/Redirect).
+
 ## QA Test Results
 _To be added by /qa_
 

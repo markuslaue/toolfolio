@@ -27,7 +27,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 
 | ID | Feature | Prio | Abhaengig von | Status |
 |----|---------|------|---------------|--------|
-| S-01 | Login (E-Mail/Passwort + Google-SSO, optional 2FA), etabliert die Auth-Huelle | P0 | INFRA-1 | Architected (PRJ-02) |
+| S-01 | Login (E-Mail/Passwort + Google-SSO, optional 2FA), etabliert die Auth-Huelle | P0 | INFRA-1 | In Progress (Frontend, PRJ-02) |
 | S-02 | Registrierung (14-Tage-Vollzugang ohne Kreditkarte, DSGVO-Einwilligung, Uebergang in Wizard) | P0 | S-01 | Planned (PRJ-02) |
 | S-03 | Passwort vergessen/zuruecksetzen (neutrale Bestaetigung) | P0 | S-01 | Planned (PRJ-02) |
 | S-04 | E-Mail-Verifizierung (vier Zustaende) | P0 | S-01 | Planned (PRJ-02) |

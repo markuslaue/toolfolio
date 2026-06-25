@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Lovable-Code ist nur Optik-Referenz, nicht Teil unserer Codebasis.
+    ".lovable-ref/**",
   ]),
 ]);
 
