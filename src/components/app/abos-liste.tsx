@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -21,6 +22,7 @@ import {
   Bell,
   CalendarClock,
   Receipt,
+  FileUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -367,9 +369,16 @@ export function AbosListe({
             <span className="font-medium text-foreground">{formatEur(monatsBilanz)}</span> pro Monat
           </p>
         </div>
-        <Button onClick={neu} className="gap-1.5">
-          <Plus className="size-4" /> Abo hinzufügen
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" className="gap-1.5">
+            <Link href="/app/abos/import">
+              <FileUp className="size-4" /> Importieren
+            </Link>
+          </Button>
+          <Button onClick={neu} className="gap-1.5">
+            <Plus className="size-4" /> Abo hinzufügen
+          </Button>
+        </div>
       </div>
 
       {abos.length === 0 ? (

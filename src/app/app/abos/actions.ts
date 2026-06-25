@@ -117,6 +117,26 @@ export async function updateAbo(id: string, input: AboInput): Promise<AboResult>
   return { ok: true, id };
 }
 
+export async function bulkCreateAbos(inputs: AboInput[]): Promise<AboResult & { angelegt?: number }> {
+  if (!inputs?.length) return { error: "Keine Abos ausgewählt." };
+  const { supabase, user } = await userOrError();
+  if (!user) return { error: "Bitte melde dich erneut an." };
+
+  const rows: Record<string, unknown>[] = [];
+  for (const input of inputs) {
+    const parsed = aboSchema.safeParse(input);
+    if (!parsed.success) continue; // ungueltige Zeilen ueberspringen
+    rows.push({ ...parsed.data, user_id: user.id });
+  }
+  if (!rows.length) return { error: "Keine gültigen Abos zum Anlegen." };
+
+  const { error } = await supabase.from("abos").insert(rows);
+  if (error) return { error: "Anlegen hat nicht geklappt. Bitte versuche es erneut." };
+  revalidatePath("/app/abos");
+  revalidatePath("/app");
+  return { ok: true, angelegt: rows.length };
+}
+
 export async function bulkDeleteAbos(ids: string[]): Promise<AboResult> {
   if (!ids?.length) return { error: "Keine Abos ausgewählt." };
   const { supabase, user } = await userOrError();
