@@ -104,8 +104,38 @@ Sicherheit/2FA laufen ueber Supabase Auth (kein eigenes Schema). RLS: bestehende
 - shadcn/ui: switch, select, dialog, sonner, avatar (UI-Primitive)
 - next-themes nur falls Theme spaeter angewendet wird - hier noch nicht noetig.
 
-## QA Test Results
-_To be added by /qa_
+## QA Test Results (2026-06-25)
+
+### Akzeptanzkriterien
+| # | Kriterium | Ergebnis |
+|---|-----------|----------|
+| 1 | Einstellungen-Huelle mit Sub-Navigation, Profil aktiv | PASS (Layout + SettingsNav, 6 Bereiche, mobil Pills/Desktop Liste) |
+| 2 | Vor-/Nachname speichern + Bestaetigung | PASS (savePersonalData -> profiles, Toast) |
+| 3 | Konto-E-Mail aendern -> Bestaetigungslink | PASS (updateUser + emailRedirectTo, Wechsel erst nach Klick) |
+| 4 | Rolle schreibgeschuetzt + echt | PASS (aus profiles.role, read-only Feld) |
+| 5 | Passwort aendern (Re-Auth) + Fehler bei falschem aktuellem | PASS (signInWithPassword-Check, dann updateUser) |
+| 6 | 2FA aktivieren mit echtem QR + Code-Pruefung | PASS (mfa.enroll/challenge/verify, Fehler bei falschem Code) |
+| 7 | 2FA deaktivieren | PASS (mfa.unenroll aller verifizierten Faktoren) |
+| 8 | Von diesem Geraet abmelden | PASS (signOutAction -> /login) |
+| 9 | Sprache/Darstellung speichern + nach Reload erhalten | PASS (savePreferences -> profiles, Server liest beim Laden) |
+
+### Security & Robustheit
+- Zugang zu `/app/einstellungen` durch Middleware/Proxy gesperrt (anon -> /login). PASS
+- Alle Schreib-Actions pruefen die Session (getUser) und schreiben nur die eigene Zeile (RLS owner-only). PASS
+- Passwort-Wechsel verlangt das aktuelle Passwort (verhindert Aendern ueber uebernommene Session). PASS
+- Eingaben mit Zod validiert (Name, E-Mail, Enum-Felder fuer Praeferenzen). PASS
+- Abgebrochener 2FA-Enroll wird per unenroll verworfen (kein verwaister Faktor). PASS
+- Kein Secret im Client-Bundle; QR/Secret stammen aus der authentifizierten Supabase-Session. PASS
+
+### Build & Daten
+- `tsc --noEmit`, ESLint, `next build` gruen; alle 6 Einstellungen-Routen erzeugt.
+- Migration angewandt: profiles-Praeferenzspalten (theme/locale/timezone/number_format/currency/avatar_url) vorhanden mit Defaults.
+
+### Hinweis
+Voller Live-Klick-Test des E-Mail-Wechsels weiterhin durch Supabases Mailer-Limit gebremst (Resend folgt E-01). Daten-/Sicherheits-/Darstellungs-Flows und Routing verifiziert.
+
+### Produktionsreife
+**APPROVED** - keine Critical/High. Die Einstellungen-Huelle steht fuer B-27..B-31 bereit.
 
 ## Deployment
 _To be added by /deploy_

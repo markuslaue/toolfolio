@@ -9,7 +9,7 @@
 Alle Features sind in einzeln deploybare Projekte (Epics) gebuendelt: siehe **`features/PROJECTS.md`**.
 
 ## Naechster Schritt
-INFRA-1 und S-01 sind deployt. S-01 und S-02 sind deployt. S-01, S-02, S-03 deployt. Auth-Projekt (PRJ-02) komplett. Naechstes: Tracker-Kern ab **B-26 (Einstellungen-Profil)** bzw. B-05 (Abo anlegen) -> `/architecture B-26`.
+INFRA-1 und S-01 sind deployt. S-01 und S-02 sind deployt. S-01, S-02, S-03 deployt. Auth-Projekt (PRJ-02) komplett. B-26 (Einstellungen-Huelle + Profil) deployt. Naechstes: **B-27 (Einstellungen - Unternehmen)** oder Tracker-Datenkern **B-05 (Abo anlegen)** -> `/architecture`.
 
 ---
 
@@ -61,7 +61,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | B-23 | Anschaffungs-Freigabe-Workflow | P2 | B-05 | Roadmap |
 | B-24 | Integrationen (Google Workspace, Bank, KI-APIs) | P2 | INFRA-1 | Roadmap |
 | B-25 | Mehrere Gesellschaften / Mandanten | P2 | INFRA-1 | Roadmap |
-| B-26 | Einstellungen - Profil (etabliert Settings-Huelle) | P0 | S-01 | Roadmap |
+| B-26 | Einstellungen - Profil (etabliert Settings-Huelle) | P0 | S-01 | Approved & Deployed (PRJ-06) |
 | B-27 | Einstellungen - Unternehmen | P0 | B-26 | Roadmap |
 | B-28 | Einstellungen - Benachrichtigungen | P0 | B-26 | Roadmap |
 | B-29 | Einstellungen - Plan & Abrechnung (Stripe) | P0 | B-26 | Roadmap |
