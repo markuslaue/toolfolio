@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 /**
  * Huelle der eingeloggten Tracker-Welt (B-Templates). Auth wird in der
@@ -20,6 +21,7 @@ export default function AppLayout({
         </header>
         <main className="flex-1 p-6">{children}</main>
       </div>
+      <Toaster />
     </div>
   );
 }
