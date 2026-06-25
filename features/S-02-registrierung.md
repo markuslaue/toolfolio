@@ -44,9 +44,10 @@
 - Schlankes Formular (wenig Pflichtfelder), Rest folgt im Wizard.
 
 ## Open Questions
-- [ ] Wird der Trial-Status (Start/Ablauf) schon hier in der DB gesetzt, oder erst mit PRJ-10 (Plan & Abrechnung)?
-- [ ] Microsoft-SSO im MVP? (analog S-01)
-- [ ] Mindest-Passwortstaerke (Laenge/Regeln) - an Supabase-Policy koppeln?
+- [x] Trial-Status in DB jetzt oder PRJ-10? -> Implizit aus Anlage-Zeitpunkt, explizit mit B-29.
+- [x] Microsoft-SSO im MVP? -> Nein, nur Google.
+- [x] Mindest-Passwortstaerke? -> Min. 8 + clientseitige Staerkeanzeige, plus Supabase-Policy.
+- [x] Persistentes Einwilligungs-Protokoll? -> Ja, Zeitstempel `consent_accepted_at` in `profiles` speichern (rechtlich sauber). Versionsbezug zu R-02/R-03 spaeter verfeinern.
 
 ## Decision Log
 
@@ -58,12 +59,59 @@
 | Keine Konto-Enumeration bei bestehender E-Mail | Sicherheit/Datensparsamkeit | 2026-06-25 |
 
 ### Technical Decisions
-_To be added by /architecture_
+| Decision | Rationale | Date |
+|----------|-----------|------|
+| Supabase `signUp` + Name als Metadaten, Profil via Trigger | Wiederverwendung der S-01-Grundlage, kein eigenes Konto-Handling | 2026-06-25 |
+| Trial implizit aus Anlage-Zeitpunkt, explizite Felder erst B-29 | Kein vorzeitiger Schema-Eingriff | 2026-06-25 |
+| E-Mail-Bestaetigung an, danach Pending-Zustand | Sicherheits-Default "gesperrt bis verifiziert" | 2026-06-25 |
+| Generische Erfolgsmeldung bei bestehender E-Mail | Anti-Enumeration | 2026-06-25 |
+| Einzelnes Name-Feld -> Vor-/Nachname (Split am ersten Leerzeichen) | Matcht Lovable-UI, fuellt profiles | 2026-06-25 |
+| Nur Google-SSO im MVP | Konsistent zu S-01 | 2026-06-25 |
+| Einwilligung mit Zeitstempel (`consent_accepted_at`) speichern | Rechtlich sauberer DSGVO-Nachweis, datensparsam | 2026-06-25 |
 
 ---
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+
+### A) Komponenten-Struktur (in der vorhandenen Auth-Huelle)
+```
+/registrieren (Auth-Huelle aus S-01)
++-- Registrierungs-Karte
+|   +-- Ueberschrift "Kostenlos starten"
+|   +-- Trial-Hinweis (14 Tage voller Agentur-Zugang, keine Kreditkarte)
+|   +-- Button "Mit Google registrieren" (SSO)
+|   +-- Trenner "oder mit E-Mail"
+|   +-- Formular
+|   |   +-- Name
+|   |   +-- Geschaeftliche E-Mail
+|   |   +-- Passwort (Staerkeanzeige + Anzeigen-Umschalter, min. 8)
+|   |   +-- Pflicht-Checkbox: AGB + Datenschutz akzeptieren
+|   |   +-- Fehlerbanner
+|   |   +-- Button "Konto erstellen" (Ladezustand)
+|   +-- Fusszeile "Schon ein Konto? Anmelden" (-> /login)
++-- Erfolgs-/Pending-Zustand: "Bitte bestaetige deine E-Mail" (S-04 formalisiert /verifizieren)
+```
+Wiederverwendet aus S-01: Auth-Huelle, Google-OAuth-Start + `/auth/callback`, `safeRedirect`.
+
+### B) Datenmodell (Klartext)
+- **Konto + Passwort** ueber Supabase Auth `signUp`. Der **Name** wird als Konto-Metadaten mitgegeben; der bereits gebaute Trigger (`handle_new_user`, S-01) legt damit automatisch den `profiles`-Eintrag an. Einzelnes Name-Feld wird in Vor-/Nachname aufgeteilt (erstes Wort / Rest).
+- **E-Mail-Bestaetigung ist an** (Default-Entscheidung "gesperrt bis verifiziert"): nach der Registrierung erhaelt der Nutzer eine Bestaetigungsmail (vorerst Supabase-Mailer); Zugang zu /app erst nach Bestaetigung (S-04).
+- **Trial:** 14 Tage voller Agentur-Zugang, **implizit** abgeleitet aus dem Anlage-Zeitpunkt. Explizite Plan-/Trial-Felder kommen mit B-29 (Plan & Abrechnung). Kein Schema-Eingriff in S-02.
+- **DSGVO-Einwilligung:** Pflicht-Checkbox, server- und clientseitig erzwungen. Der Zeitpunkt der Einwilligung wird als Nachweis in `profiles` (`consent_accepted_at`) gespeichert. Der Bezug auf konkrete AGB-/Datenschutz-Versionen wird verfeinert, sobald R-02/R-03 final sind.
+
+### C) Technische Entscheidungen (das Warum)
+- **Supabase `signUp` + Metadaten -> Trigger:** kein eigenes Konto-Handling, Profil entsteht automatisch (Wiederverwendung der S-01-Grundlage).
+- **Registrierung ueber Server-Aktion:** Passwort serverseitig, sauber im App Router (wie S-01).
+- **Anti-Enumeration:** Bei bereits registrierter E-Mail zeigt Supabase keinen klaren "existiert"-Hinweis; wir zeigen generisch "Bitte bestaetige deine E-Mail" - kein Aufdecken bestehender Konten.
+- **E-Mail-Bestaetigung an, danach Pending-Zustand:** entspricht dem Sicherheits-Default; der Uebergang ins Onboarding (B-02) erfolgt nach der Bestaetigung.
+- **Nur Google-SSO** (Microsoft spaeter), 2FA hier nicht relevant (erst nach Login).
+- **Passwortstaerke** clientseitig visuell (Mindestlaenge 8), zusaetzlich Supabase-Policy.
+
+### D) Abhaengigkeiten (Pakete)
+- Keine neuen Pakete (`@supabase/ssr`, `zod`, shadcn-Komponenten bereits vorhanden). Staerkeanzeige als kleine eigene Logik, keine Library.
+
+### Voraussetzung
+- E-Mail-Bestaetigung in Supabase aktiviert lassen (Default). Google-Provider wie bei S-01 spaeter aktivieren.
 
 ## QA Test Results
 _To be added by /qa_
