@@ -114,6 +114,72 @@ export async function savePreferences(
   return { ok: true };
 }
 
+const leerNull = (v: unknown) => (typeof v === "string" && v.trim() === "" ? null : v);
+
+/** Unternehmensdaten speichern (Upsert je Nutzer). */
+export async function saveUnternehmen(
+  _prev: ProfileState,
+  formData: FormData,
+): Promise<ProfileState> {
+  const parsed = z
+    .object({
+      name: z.preprocess(leerNull, z.string().trim().nullable().optional()),
+      strasse: z.preprocess(leerNull, z.string().trim().nullable().optional()),
+      plz: z.preprocess(leerNull, z.string().trim().nullable().optional()),
+      ort: z.preprocess(leerNull, z.string().trim().nullable().optional()),
+      land: z.string().trim().min(1).default("Deutschland"),
+      ust_id: z.preprocess(leerNull, z.string().trim().nullable().optional()),
+      steuernummer: z.preprocess(leerNull, z.string().trim().nullable().optional()),
+    })
+    .safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: "Bitte prüfe deine Eingaben." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Bitte melde dich erneut an." };
+
+  const { error } = await supabase
+    .from("unternehmen")
+    .upsert({ ...parsed.data, user_id: user.id }, { onConflict: "user_id" });
+  if (error) return { error: "Speichern hat nicht geklappt. Bitte versuche es erneut." };
+  revalidatePath("/app/einstellungen/unternehmen");
+  return { ok: true };
+}
+
+/** Benachrichtigungs-Einstellungen speichern. */
+export async function saveBenachrichtigungen(
+  _prev: ProfileState,
+  formData: FormData,
+): Promise<ProfileState> {
+  const parsed = z
+    .object({
+      benachrichtigung_frist: z.boolean(),
+      benachrichtigung_trial: z.boolean(),
+      benachrichtigung_produkt: z.boolean(),
+      benachrichtigung_vorlauf: z.number().int().min(1).max(60),
+    })
+    .safeParse({
+      benachrichtigung_frist: formData.get("frist") === "true",
+      benachrichtigung_trial: formData.get("trial") === "true",
+      benachrichtigung_produkt: formData.get("produkt") === "true",
+      benachrichtigung_vorlauf: Number(formData.get("vorlauf") ?? 14),
+    });
+  if (!parsed.success) return { error: "Bitte prüfe deine Auswahl." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Bitte melde dich erneut an." };
+
+  const { error } = await supabase.from("profiles").update(parsed.data).eq("id", user.id);
+  if (error) return { error: "Speichern hat nicht geklappt. Bitte versuche es erneut." };
+  revalidatePath("/app/einstellungen/benachrichtigungen");
+  return { ok: true };
+}
+
 /** Von diesem Geraet abmelden und zum Login. */
 export async function signOutAction() {
   const supabase = await createClient();

@@ -5,7 +5,7 @@ import { fristenDigest, type MailFrist } from "@/lib/email-templates";
 
 export const dynamic = "force-dynamic";
 
-const FENSTER_TAGE = 14;
+const MAX_VORLAUF = 60; // breitestes Fenster; pro Nutzer wird auf dessen Vorlaufzeit gefiltert
 
 function tageBis(iso: string): number {
   const a = new Date(iso);
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   const heute = new Date();
   const grenze = new Date(heute);
-  grenze.setDate(grenze.getDate() + FENSTER_TAGE);
+  grenze.setDate(grenze.getDate() + MAX_VORLAUF);
   const heuteIso = heute.toISOString().slice(0, 10);
   const grenzeIso = grenze.toISOString().slice(0, 10);
 
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     const add = (datum: string | null, art: MailFrist["art"], konsequenz: string) => {
       if (!datum) return;
       const t = tageBis(datum);
-      if (t < 0 || t > FENSTER_TAGE) return;
+      if (t < 0 || t > MAX_VORLAUF) return;
       const list = proNutzer.get(a.user_id) ?? [];
       list.push({ tool: a.tool, art, datum, tage: t, konsequenz, ref: `abo-${a.id}:${art}:${datum}` });
       proNutzer.set(a.user_id, list);
@@ -75,9 +75,23 @@ export async function POST(req: NextRequest) {
     .in("user_id", userIds);
   const schonGesendet = new Set((logRows ?? []).map((r) => `${r.user_id}|${r.ref}`));
 
-  // Profile (Vorname) laden.
-  const { data: profile } = await supabase.from("profiles").select("id, first_name").in("id", userIds);
-  const vorname = new Map((profile ?? []).map((p) => [p.id as string, (p.first_name as string | null) ?? null]));
+  // Profile inkl. Benachrichtigungs-Praeferenzen laden.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, first_name, benachrichtigung_frist, benachrichtigung_trial, benachrichtigung_vorlauf")
+    .in("id", userIds);
+  type Pref = { first_name: string | null; frist: boolean; trial: boolean; vorlauf: number };
+  const prefs = new Map<string, Pref>(
+    (profile ?? []).map((p) => [
+      p.id as string,
+      {
+        first_name: (p.first_name as string | null) ?? null,
+        frist: (p.benachrichtigung_frist as boolean | null) ?? true,
+        trial: (p.benachrichtigung_trial as boolean | null) ?? true,
+        vorlauf: (p.benachrichtigung_vorlauf as number | null) ?? 14,
+      },
+    ]),
+  );
 
   // E-Mail-Adressen ueber die Admin-API.
   const { data: userList } = await supabase.auth.admin.listUsers({ perPage: 1000 });
@@ -87,13 +101,21 @@ export async function POST(req: NextRequest) {
   const eintraege: { ref: string; user_id: string }[] = [];
 
   for (const [uid, fristenAll] of proNutzer) {
-    const frische = fristenAll.filter((f) => !schonGesendet.has(`${uid}|${f.ref}`));
+    const pref = prefs.get(uid) ?? { first_name: null, frist: true, trial: true, vorlauf: 14 };
+    // Pro Nutzer: Opt-out je Art und individuelle Vorlaufzeit beachten.
+    const frische = fristenAll.filter((f) => {
+      if (schonGesendet.has(`${uid}|${f.ref}`)) return false;
+      if (f.tage > pref.vorlauf) return false;
+      if (f.art === "kuendigung" && !pref.frist) return false;
+      if (f.art === "trial" && !pref.trial) return false;
+      return true;
+    });
     if (frische.length === 0) continue;
     const adr = email.get(uid);
     if (!adr) continue;
 
     frische.sort((a, b) => a.tage - b.tage);
-    const { subject, html } = fristenDigest(vorname.get(uid) ?? null, frische, appUrl);
+    const { subject, html } = fristenDigest(pref.first_name, frische, appUrl);
     const res = await sendEmail({ to: adr, subject, html });
     if (res.ok) {
       sent++;
