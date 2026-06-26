@@ -54,7 +54,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | B-16 | Benchmark-Ansicht (aus Aggregat-Ebene) | P1 | F-G2 (Aggregat) | Roadmap |
 | B-17 | Berichte / Weiterverrechnungs-Report | P1 | B-09 | Approved & Deployed |
 | B-18 | DATEV- / Steuer-Export (Reverse-Charge) | P1 | B-03 | Approved & Deployed |
-| B-19 | Rechnungs- und Vertragsarchiv (AGB-Snapshot) | P1 | B-14 | Roadmap |
+| B-19 | Rechnungs- und Vertragsarchiv (AGB-Snapshot) | P1 | B-14 | In Review |
 | B-20 | Budget & Forecast | P2 | B-03 | Approved & Deployed |
 | B-21 | Seats- / Lizenzverwaltung | P2 | B-22 | Roadmap |
 | B-22 | Team / Wer-nutzt-was (Offboarding) | P2 | B-30 | Roadmap |

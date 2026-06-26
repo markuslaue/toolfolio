@@ -11,6 +11,7 @@ import {
   BookOpen,
   FileBarChart,
   FileSpreadsheet,
+  FolderArchive,
   PiggyBank,
   Bell,
   Bot,
@@ -32,6 +33,7 @@ const items = [
   { href: "/app/zahlungskanaele", label: "Zahlungskanäle", icon: CreditCard },
   { href: "/app/verzeichnis", label: "Verzeichnis", icon: BookOpen },
   { href: "/app/berichte", label: "Berichte", icon: FileBarChart },
+  { href: "/app/archiv", label: "Archiv", icon: FolderArchive },
   { href: "/app/steuer", label: "Steuer-Export", icon: FileSpreadsheet },
   { href: "/app/einstellungen", label: "Einstellungen", icon: Settings },
 ];
