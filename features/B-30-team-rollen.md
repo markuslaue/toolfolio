@@ -1,6 +1,6 @@
 # B-30: Einstellungen - Team & Rollen
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (Einstellungen) · **Created:** 2026-06-26
 
 ## User Stories
