@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, BellRing, Bell, TimerReset, Megaphone } from "lucide-react";
+import { Loader2, BellRing, Bell, TimerReset, Megaphone, FileBarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,7 @@ export type Prefs = {
   benachrichtigung_frist: boolean;
   benachrichtigung_trial: boolean;
   benachrichtigung_produkt: boolean;
+  benachrichtigung_report: boolean;
   benachrichtigung_vorlauf: number;
 };
 
@@ -60,6 +61,7 @@ export function BenachrichtigungenForm({ initial }: { initial: Prefs }) {
   const [frist, setFrist] = useState(initial.benachrichtigung_frist);
   const [trial, setTrial] = useState(initial.benachrichtigung_trial);
   const [produkt, setProdukt] = useState(initial.benachrichtigung_produkt);
+  const [report, setReport] = useState(initial.benachrichtigung_report);
   const [vorlauf, setVorlauf] = useState(String(initial.benachrichtigung_vorlauf));
 
   const [state, action, pending] = useActionState(saveBenachrichtigungen, {} as ProfileState);
@@ -81,11 +83,13 @@ export function BenachrichtigungenForm({ initial }: { initial: Prefs }) {
       <input type="hidden" name="frist" value={frist ? "true" : "false"} />
       <input type="hidden" name="trial" value={trial ? "true" : "false"} />
       <input type="hidden" name="produkt" value={produkt ? "true" : "false"} />
+      <input type="hidden" name="report" value={report ? "true" : "false"} />
       <input type="hidden" name="vorlauf" value={vorlauf} />
 
       <div className="px-6">
         <Zeile icon={Bell} titel="Kündigungsfristen" desc="E-Mail, bevor sich ein Abo still verlängert." checked={frist} onCheckedChange={setFrist} />
         <Zeile icon={TimerReset} titel="Trial-Enden" desc="E-Mail, bevor ein Trial kostenpflichtig wird." checked={trial} onCheckedChange={setTrial} />
+        <Zeile icon={FileBarChart} titel="Monatsreport" desc="Monatliche Zusammenfassung deiner Softwarekosten, Sparvorschläge und Fristen." checked={report} onCheckedChange={setReport} />
         <Zeile icon={Megaphone} titel="Produkt-News" desc="Gelegentliche Hinweise zu neuen Funktionen. Kein Spam." checked={produkt} onCheckedChange={setProdukt} />
       </div>
 

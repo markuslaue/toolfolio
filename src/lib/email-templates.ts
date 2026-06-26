@@ -133,3 +133,113 @@ export function teamEinladung(
   </body></html>`;
   return { subject, html };
 }
+
+function kopf(): string {
+  return `
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+        <tr>
+          <td width="36" height="36" style="width:36px;height:36px;background:${PRIMARY};border-radius:10px;text-align:center;vertical-align:middle;color:#ffffff;font-weight:700;font-size:20px;line-height:36px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">T</td>
+          <td style="padding-left:10px;vertical-align:middle;font-size:19px;font-weight:600;letter-spacing:-0.01em;color:${INK};">Toolfolio</td>
+        </tr>
+      </table>`;
+}
+
+function eur(n: number): string {
+  return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(n);
+}
+
+/** E-01: Willkommens-Mail nach erfolgreicher Anmeldung/Verifizierung. */
+export function willkommen(vorname: string | null, appUrl: string): { subject: string; html: string } {
+  const subject = "Willkommen bei Toolfolio";
+  const html = `
+  <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+  <body style="margin:0;background:${PAPER};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:${INK};">
+    <div style="max-width:560px;margin:0 auto;padding:24px 16px;">
+      ${kopf()}
+      <div style="background:#fff;border:1px solid #ece6da;border-radius:20px;padding:24px;">
+        <h1 style="margin:0 0 6px;font-size:20px;">${vorname ? `Willkommen, ${escape(vorname)}!` : "Willkommen!"}</h1>
+        <p style="margin:0 0 14px;font-size:15px;color:#3d3a4d;line-height:1.5;">
+          Schoen, dass du da bist. Toolfolio bringt deine Software-Abos an einen Ort, warnt vor Kosten und Kuendigungsfristen und zeigt, wo du bei gleicher Leistung weniger zahlst.
+        </p>
+        <p style="margin:0 0 8px;font-size:15px;font-weight:600;">So startest du:</p>
+        <ol style="margin:0 0 18px;padding-left:20px;font-size:15px;color:#3d3a4d;line-height:1.7;">
+          <li>Abos importieren oder anlegen</li>
+          <li>Zahlungskanaele und Fristen hinterlegen</li>
+          <li>Sparvorschlaege und Berichte ansehen</li>
+        </ol>
+        <div style="text-align:center;margin-top:8px;">
+          <a href="${appUrl}/app" style="display:inline-block;background:${PRIMARY};color:#fff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;">Zum Dashboard</a>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:12px;color:#6b6779;margin-top:16px;line-height:1.5;">
+        Du bekommst diese Mail, weil du dich bei Toolfolio registriert hast.<br>OMMM GmbH, Leipzig
+      </p>
+    </div>
+  </body></html>`;
+  return { subject, html };
+}
+
+export type MailReport = {
+  monatLabel: string;
+  gesamtMonat: number;
+  fixMonat: number;
+  varMonat: number;
+  topKategorien: { name: string; betrag: number }[];
+  sparAnzahl: number;
+  sparPotenzial: number;
+  spikes: { name: string; faktor: number }[];
+  fristenAnzahl: number;
+};
+
+/** E-06: Monatsreport (buendelt Kostenueberblick, Sparvorschlaege E-07, AI-Spikes E-04, Fristen). */
+export function monatsReport(vorname: string | null, r: MailReport, appUrl: string): { subject: string; html: string } {
+  const subject = `Dein Toolfolio-Report fuer ${r.monatLabel}`;
+  const katRows = r.topKategorien
+    .map((k) => `<tr><td style="padding:6px 0;font-size:14px;color:#3d3a4d;">${escape(k.name)}</td><td style="padding:6px 0;text-align:right;font-size:14px;font-weight:600;color:${INK};">${eur(k.betrag)}</td></tr>`)
+    .join("");
+  const spikeBlock = r.spikes.length
+    ? `<div style="margin-top:16px;background:#fff4f1;border:1px solid #ffd9cf;border-radius:12px;padding:12px 14px;">
+         <div style="font-weight:600;font-size:14px;color:#b4341f;">AI-Spend-Spikes</div>
+         ${r.spikes.map((s) => `<div style="font-size:13px;color:#6b6779;margin-top:2px;">${escape(s.name)}, ${String(s.faktor).replace(".", ",")}-facher Schnitt</div>`).join("")}
+       </div>`
+    : "";
+  const sparBlock = r.sparAnzahl
+    ? `<div style="margin-top:16px;background:#ecfdf3;border:1px solid #c7f0d8;border-radius:12px;padding:12px 14px;">
+         <div style="font-weight:600;font-size:14px;color:#067647;">${r.sparAnzahl} offene Sparvorschlaege</div>
+         <div style="font-size:13px;color:#6b6779;margin-top:2px;">Bis zu ${eur(r.sparPotenzial)} pro Jahr Potenzial.</div>
+       </div>`
+    : "";
+  const fristBlock = r.fristenAnzahl
+    ? `<div style="margin-top:16px;background:#fff8ec;border:1px solid #ffe6bf;border-radius:12px;padding:12px 14px;">
+         <div style="font-weight:600;font-size:14px;color:#92600a;">${r.fristenAnzahl} anstehende Frist${r.fristenAnzahl === 1 ? "" : "en"}</div>
+         <div style="font-size:13px;color:#6b6779;margin-top:2px;">Pruefe rechtzeitig, damit sich nichts still verlaengert.</div>
+       </div>`
+    : "";
+  const html = `
+  <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+  <body style="margin:0;background:${PAPER};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:${INK};">
+    <div style="max-width:560px;margin:0 auto;padding:24px 16px;">
+      ${kopf()}
+      <div style="background:#fff;border:1px solid #ece6da;border-radius:20px;padding:24px;">
+        <h1 style="margin:0 0 4px;font-size:20px;">${vorname ? `Hallo ${escape(vorname)},` : "Hallo,"}</h1>
+        <p style="margin:0 0 16px;font-size:15px;color:#3d3a4d;line-height:1.5;">dein Software-Kosten-Ueberblick fuer ${escape(r.monatLabel)}.</p>
+        <div style="background:#faf7f2;border-radius:14px;padding:16px;text-align:center;">
+          <div style="font-size:12px;color:#6b6779;text-transform:uppercase;letter-spacing:.04em;">Kosten diesen Monat</div>
+          <div style="font-size:30px;font-weight:700;color:${INK};">${eur(r.gesamtMonat)}</div>
+          <div style="font-size:12px;color:#6b6779;">fix ${eur(r.fixMonat)} · variabel ${eur(r.varMonat)}</div>
+        </div>
+        ${r.topKategorien.length ? `<table style="width:100%;border-collapse:collapse;margin-top:16px;"><tr><td style="font-size:12px;color:#6b6779;text-transform:uppercase;letter-spacing:.04em;padding-bottom:4px;">Top-Kategorien</td><td></td></tr>${katRows}</table>` : ""}
+        ${spikeBlock}
+        ${sparBlock}
+        ${fristBlock}
+        <div style="text-align:center;margin-top:22px;">
+          <a href="${appUrl}/app/berichte" style="display:inline-block;background:${PRIMARY};color:#fff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;">Berichte ansehen</a>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:12px;color:#6b6779;margin-top:16px;line-height:1.5;">
+        Du bekommst diese Mail, weil der Monatsreport in deinen Benachrichtigungen aktiviert ist. Du kannst ihn in den Einstellungen abstellen.<br>OMMM GmbH, Leipzig
+      </p>
+    </div>
+  </body></html>`;
+  return { subject, html };
+}
