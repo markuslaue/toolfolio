@@ -12,6 +12,7 @@ import {
   FileBarChart,
   PiggyBank,
   Bell,
+  Bot,
   Settings,
 } from "lucide-react";
 import { ToolfolioLogo } from "@/components/brand";
@@ -23,6 +24,7 @@ const items = [
   { href: "/app/fristen", label: "Fristen", icon: BellRing },
   { href: "/app/benachrichtigungen", label: "Benachrichtigungen", icon: Bell },
   { href: "/app/sparen", label: "Sparvorschläge", icon: PiggyBank },
+  { href: "/app/ai-credits", label: "AI-Credits", icon: Bot },
   { href: "/app/kunden", label: "Kunden", icon: Users },
   { href: "/app/zahlungskanaele", label: "Zahlungskanäle", icon: CreditCard },
   { href: "/app/verzeichnis", label: "Verzeichnis", icon: BookOpen },

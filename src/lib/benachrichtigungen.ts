@@ -108,6 +108,31 @@ export function buildAktionen(
   return out;
 }
 
+/** Spike-Benachrichtigungen aus AI-Credit-Diensten mit erkanntem Ausreisser. */
+export function buildSpikeAktionen(
+  spikes: { id: string; name: string; faktor: number }[],
+  statusMap: Map<string, BenachrStatus>,
+): Aktion[] {
+  const out: Aktion[] = [];
+  for (const s of spikes) {
+    const key = `spike:${s.id}`;
+    const st = statusMap.get(key);
+    if (st === "erledigt" || st === "ignoriert") continue;
+    out.push({
+      key,
+      typ: "spike",
+      titel: `AI-Spend-Spike bei ${s.name}`,
+      beschreibung: `Der Verbrauch liegt diesen Monat beim ${String(s.faktor).replace(".", ",")}-fachen deines Schnitts.`,
+      chip: s.name,
+      zeit: "diesen Monat",
+      gruppe: "Heute",
+      ungelesen: st !== "gelesen",
+      aktion: { label: "Verlauf ansehen", to: "/app/ai-credits" },
+    });
+  }
+  return out;
+}
+
 /** Zeitgruppe + relativer Text aus einem Zeitstempel (Vergangenheit). */
 export function zeitgruppe(ts: number, heute = new Date()): { gruppe: Zeitgruppe; zeit: string } {
   const diffMs = heute.getTime() - ts;

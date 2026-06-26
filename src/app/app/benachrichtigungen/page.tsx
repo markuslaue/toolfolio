@@ -4,7 +4,8 @@ import { BenachrichtigungenClient } from "@/components/app/benachrichtigungen-cl
 import { createClient } from "@/lib/supabase/server";
 import { deriveFristen } from "@/lib/fristen";
 import { berechneVorschlaege } from "@/lib/sparvorschlaege";
-import { buildAktionen, zeitgruppe, type Aktion, type AktivitaetsEintrag, type BenachrStatus } from "@/lib/benachrichtigungen";
+import { buildAktionen, buildSpikeAktionen, zeitgruppe, type Aktion, type AktivitaetsEintrag, type BenachrStatus } from "@/lib/benachrichtigungen";
+import { berechneAiCredits, type AiService, type AiSpendRow } from "@/lib/ai-credits";
 import type { Abo } from "@/lib/abos";
 import type { Zahlungskanal } from "@/lib/zahlungskanaele";
 
@@ -21,12 +22,14 @@ export default async function Page() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: abos }, { data: kanaele }, { data: kunden }, { data: spar }, { data: benachr }] = await Promise.all([
+  const [{ data: abos }, { data: kanaele }, { data: kunden }, { data: spar }, { data: benachr }, { data: aiServices }, { data: aiSpend }] = await Promise.all([
     supabase.from("abos").select("*").eq("user_id", user.id),
     supabase.from("zahlungskanaele").select("*").eq("user_id", user.id),
     supabase.from("kunden").select("name, created_at").eq("user_id", user.id),
     supabase.from("sparvorschlag_status").select("vorschlag_key, status, titel, ersparnis_jahr, updated_at").eq("user_id", user.id),
     supabase.from("benachrichtigung_status").select("key, status").eq("user_id", user.id),
+    supabase.from("ai_services").select("id, name, farbe, budget_monat").eq("user_id", user.id),
+    supabase.from("ai_spend").select("service_id, jahr, monat, betrag").eq("user_id", user.id),
   ]);
 
   const aboList = (abos as Abo[]) ?? [];
@@ -40,7 +43,9 @@ export default async function Page() {
   const statusMap = new Map<string, BenachrStatus>(
     ((benachr as { key: string; status: BenachrStatus }[]) ?? []).map((r) => [r.key, r.status]),
   );
-  const aktionen: Aktion[] = buildAktionen(fristen, offeneVorschlaege, statusMap);
+  const { daten: aiDaten } = berechneAiCredits((aiServices as AiService[]) ?? [], (aiSpend as AiSpendRow[]) ?? []);
+  const spikes = aiDaten.filter((d) => d.spikeFaktor).map((d) => ({ id: d.id, name: d.name, faktor: d.spikeFaktor as number }));
+  const aktionen: Aktion[] = [...buildAktionen(fristen, offeneVorschlaege, statusMap), ...buildSpikeAktionen(spikes, statusMap)];
 
   // Aktivitaet aus echten Ereignissen
   const roh: { typ: AktivitaetsEintrag["typ"]; text: string; ts: number }[] = [];
