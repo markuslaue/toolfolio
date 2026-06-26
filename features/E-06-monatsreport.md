@@ -1,6 +1,6 @@
 # E-06: Monats-Report (buendelt E-04 Spike + E-07 Sparvorschlag)
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (E-Mail) · **Bereich:** E · **Created:** 2026-06-26 · **Prio:** P1 · **Abhaengig von:** B-17, B-10, B-13
 
 ## Acceptance Criteria

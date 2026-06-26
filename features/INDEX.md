@@ -144,12 +144,12 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 
 | ID | Feature | Prio | Abhaengig von | Status |
 |----|---------|------|---------------|--------|
-| E-01 | Willkommen | P1 | S-02 | In Review |
+| E-01 | Willkommen | P1 | S-02 | Approved & Deployed |
 | E-02 | Fristen-Warnung | P1 | B-12 | Roadmap |
 | E-03 | Trial-Warnung | P1 | B-12 | Roadmap |
 | E-04 | Spike-Alarm | P1 | B-13 | Roadmap |
 | E-05 | Preiserhoehung erkannt | P1 | B-19 | Roadmap |
-| E-06 | Wochen-/Monatsreport | P1 | B-17 | In Review |
+| E-06 | Wochen-/Monatsreport | P1 | B-17 | Approved & Deployed |
 | E-07 | Sparvorschlag | P1 | B-10 | Roadmap |
 | E-08 | Lead an Anbieter | P2 | V-04 | Roadmap |
 

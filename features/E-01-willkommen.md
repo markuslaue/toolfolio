@@ -1,6 +1,6 @@
 # E-01: Willkommens-Mail
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (E-Mail) · **Bereich:** E · **Created:** 2026-06-26 · **Prio:** P1 · **Abhaengig von:** S-02
 
 ## Acceptance Criteria
