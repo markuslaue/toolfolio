@@ -10,6 +10,7 @@ import {
   CreditCard,
   BookOpen,
   FileBarChart,
+  FileSpreadsheet,
   PiggyBank,
   Bell,
   Bot,
@@ -29,6 +30,7 @@ const items = [
   { href: "/app/zahlungskanaele", label: "Zahlungskanäle", icon: CreditCard },
   { href: "/app/verzeichnis", label: "Verzeichnis", icon: BookOpen },
   { href: "/app/berichte", label: "Berichte", icon: FileBarChart },
+  { href: "/app/steuer", label: "Steuer-Export", icon: FileSpreadsheet },
   { href: "/app/einstellungen", label: "Einstellungen", icon: Settings },
 ];
 
