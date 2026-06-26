@@ -1,6 +1,6 @@
 # B-22: Team / Wer-nutzt-was (Offboarding)
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (Tracker) · **Bereich:** B · **Created:** 2026-06-27 · **Prio:** P2 · **Abhaengig von:** B-30
 
 ## User Stories
