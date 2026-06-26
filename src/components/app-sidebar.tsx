@@ -10,6 +10,7 @@ import {
   CreditCard,
   BookOpen,
   FileBarChart,
+  PiggyBank,
   Settings,
 } from "lucide-react";
 import { ToolfolioLogo } from "@/components/brand";
@@ -19,6 +20,7 @@ const items = [
   { href: "/app", label: "Übersicht", icon: LayoutDashboard },
   { href: "/app/abos", label: "Abos", icon: Receipt },
   { href: "/app/fristen", label: "Fristen", icon: BellRing },
+  { href: "/app/sparen", label: "Sparvorschläge", icon: PiggyBank },
   { href: "/app/kunden", label: "Kunden", icon: Users },
   { href: "/app/zahlungskanaele", label: "Zahlungskanäle", icon: CreditCard },
   { href: "/app/verzeichnis", label: "Verzeichnis", icon: BookOpen },
