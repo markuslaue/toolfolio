@@ -62,10 +62,12 @@ export function fristenDigest(
   <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
   <body style="margin:0;background:${PAPER};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:${INK};">
     <div style="max-width:560px;margin:0 auto;padding:24px 16px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
-        <span style="display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:${PRIMARY};color:#fff;font-weight:700;">T</span>
-        <span style="font-size:18px;font-weight:600;">Toolfolio</span>
-      </div>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+        <tr>
+          <td width="36" height="36" style="width:36px;height:36px;background:${PRIMARY};border-radius:10px;text-align:center;vertical-align:middle;color:#ffffff;font-weight:700;font-size:20px;line-height:36px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">T</td>
+          <td style="padding-left:10px;vertical-align:middle;font-size:19px;font-weight:600;letter-spacing:-0.01em;color:${INK};">Toolfolio</td>
+        </tr>
+      </table>
       <div style="background:#fff;border:1px solid #ece6da;border-radius:20px;padding:24px;">
         <h1 style="margin:0 0 6px;font-size:20px;">${vorname ? `Hallo ${escape(vorname)},` : "Hallo,"}</h1>
         <p style="margin:0 0 18px;font-size:15px;color:#3d3a4d;line-height:1.5;">
