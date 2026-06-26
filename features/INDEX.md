@@ -64,7 +64,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | B-26 | Einstellungen - Profil (etabliert Settings-Huelle) | P0 | S-01 | Approved & Deployed (PRJ-06) |
 | B-27 | Einstellungen - Unternehmen | P0 | B-26 | Approved & Deployed (PRJ-06) |
 | B-28 | Einstellungen - Benachrichtigungen | P0 | B-26 | Approved & Deployed (PRJ-06) |
-| B-29 | Einstellungen - Plan & Abrechnung (Stripe) | P0 | B-26 | Roadmap |
+| B-29 | Einstellungen - Plan & Abrechnung (Stripe) | P0 | B-26 | Approved & Deployed |
 | B-30 | Einstellungen - Team & Rollen | P1 | B-26 | Roadmap |
 | B-31 | Einstellungen - Daten & Datenschutz | P1 | B-26 | Approved & Deployed (PRJ-06) |
 

@@ -1,6 +1,6 @@
 # B-29: Plan & Abrechnung (Stripe)
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (Einstellungen/Billing) · **Created:** 2026-06-26
 
 ## User Stories
