@@ -58,7 +58,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | B-20 | Budget & Forecast | P2 | B-03 | Approved & Deployed |
 | B-21 | Seats- / Lizenzverwaltung | P2 | B-22 | Approved & Deployed |
 | B-22 | Team / Wer-nutzt-was (Offboarding) | P2 | B-30 | Approved & Deployed |
-| B-23 | Anschaffungs-Freigabe-Workflow | P2 | B-05 | Roadmap |
+| B-23 | Anschaffungs-Freigabe-Workflow | P2 | B-05 | In Review |
 | B-24 | Integrationen (Google Workspace, Bank, KI-APIs) | P2 | INFRA-1 | Roadmap |
 | B-25 | Mehrere Gesellschaften / Mandanten | P2 | INFRA-1 | Roadmap |
 | B-26 | Einstellungen - Profil (etabliert Settings-Huelle) | P0 | S-01 | Approved & Deployed (PRJ-06) |

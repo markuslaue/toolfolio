@@ -18,6 +18,7 @@ import {
   LineChart,
   KeyRound,
   Armchair,
+  ClipboardCheck,
   Settings,
 } from "lucide-react";
 import { ToolfolioLogo } from "@/components/brand";
@@ -34,6 +35,7 @@ const items = [
   { href: "/app/kunden", label: "Kunden", icon: Users },
   { href: "/app/zugaenge", label: "Team & Zugänge", icon: KeyRound },
   { href: "/app/seats", label: "Seats & Lizenzen", icon: Armchair },
+  { href: "/app/freigaben", label: "Freigaben", icon: ClipboardCheck },
   { href: "/app/zahlungskanaele", label: "Zahlungskanäle", icon: CreditCard },
   { href: "/app/verzeichnis", label: "Verzeichnis", icon: BookOpen },
   { href: "/app/berichte", label: "Berichte", icon: FileBarChart },
