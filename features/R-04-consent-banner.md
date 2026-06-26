@@ -1,6 +1,6 @@
 # R-04: Cookie-/Consent-Banner (privacy-first)
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (Recht) · **Bereich:** R · **Created:** 2026-06-26 · **Prio:** P0
 
 ## Leitidee
