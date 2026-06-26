@@ -36,3 +36,11 @@
 - Build gruen (tsc/ESLint/next build). Routen /app/einstellungen/plan (gated) + /api/stripe/webhook.
 - Webhook: unsignierter POST -> 400 (Secret geladen). Signierte Subscription-Events aktualisieren Profil (Smoke-Test).
 - Security: Plan-Spalten fuer authenticated/anon nicht beschreibbar; Secret nur serverseitig. PASS.
+
+## Security-Audit (2026-06-26, Red-Team)
+Empirisch gegen DB + Live-Endpunkte getestet:
+- **GEFUNDEN & GEFIXT (kritisch):** Spalten-REVOKE war wirkungslos (Supabase gibt 'authenticated' tabellenweites UPDATE). Eingeloggter Nutzer konnte plan='agentur', subscription_status='active' und fremde stripe_customer_id direkt per PostgREST setzen. Fix: BEFORE-UPDATE-Trigger protect_billing_columns (Migration 20260626120000), schuetzt plan/stripe_*/subscription_status/plan_intervall/current_period_end/cancel_at_period_end UND role. Nach Fix: alle 4 Angriffe 42501 BLOCKIERT, legitime Updates + Service-Role unveraendert OK.
+- Webhook-Faelschung (gefaktes "subscription active" ohne gueltige Signatur): 400 abgewiesen. Replay durch Stripe-Timestamp-Toleranz begrenzt.
+- Kein Secret im Client-Bundle (lokal + live, sk_test/whsec/service_role: 0 Treffer); lib/stripe.ts import "server-only".
+- Checkout: Betrag/Preis serverseitig aus Plan-Enum aufgeloest (PRICE_IDS), kein Client-injizierter Betrag. Customer an eingeloggten Nutzer gebunden (kein IDOR). Portal nur fuer eigene stripe_customer_id (RLS).
+- Kartendaten: niemals auf unserem Server, Eingabe nur auf Stripe-Hosted-Checkout (Vermittler-Prinzip eingehalten).
