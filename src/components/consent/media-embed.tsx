@@ -34,7 +34,7 @@ export function MediaEmbed({ src, title, host = "YouTube" }: { src: string; titl
       <span className="grid size-12 place-items-center rounded-full bg-primary/10 text-primary"><Play className="size-6" /></span>
       <div className="text-sm font-medium">{title}</div>
       <p className="max-w-sm text-xs text-muted-foreground">
-        Dieser Inhalt von {host} wird erst nach deiner Zustimmung geladen. Dabei koennen Daten an {host} uebertragen werden.
+        Dieser Inhalt von {host} wird erst nach deiner Zustimmung geladen. Dabei können Daten an {host} übertragen werden.
       </p>
       <div className="flex flex-wrap justify-center gap-2">
         <Button size="sm" onClick={() => setEinmal(true)}>Einmal laden</Button>

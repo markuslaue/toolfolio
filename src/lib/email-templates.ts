@@ -159,13 +159,13 @@ export function willkommen(vorname: string | null, appUrl: string): { subject: s
       <div style="background:#fff;border:1px solid #ece6da;border-radius:20px;padding:24px;">
         <h1 style="margin:0 0 6px;font-size:20px;">${vorname ? `Willkommen, ${escape(vorname)}!` : "Willkommen!"}</h1>
         <p style="margin:0 0 14px;font-size:15px;color:#3d3a4d;line-height:1.5;">
-          Schoen, dass du da bist. Toolfolio bringt deine Software-Abos an einen Ort, warnt vor Kosten und Kuendigungsfristen und zeigt, wo du bei gleicher Leistung weniger zahlst.
+          Schön, dass du da bist. Toolfolio bringt deine Software-Abos an einen Ort, warnt vor Kosten und Kündigungsfristen und zeigt, wo du bei gleicher Leistung weniger zahlst.
         </p>
         <p style="margin:0 0 8px;font-size:15px;font-weight:600;">So startest du:</p>
         <ol style="margin:0 0 18px;padding-left:20px;font-size:15px;color:#3d3a4d;line-height:1.7;">
           <li>Abos importieren oder anlegen</li>
-          <li>Zahlungskanaele und Fristen hinterlegen</li>
-          <li>Sparvorschlaege und Berichte ansehen</li>
+          <li>Zahlungskanäle und Fristen hinterlegen</li>
+          <li>Sparvorschläge und Berichte ansehen</li>
         </ol>
         <div style="text-align:center;margin-top:8px;">
           <a href="${appUrl}/app" style="display:inline-block;background:${PRIMARY};color:#fff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;">Zum Dashboard</a>
@@ -193,7 +193,7 @@ export type MailReport = {
 
 /** E-06: Monatsreport (buendelt Kostenueberblick, Sparvorschlaege E-07, AI-Spikes E-04, Fristen). */
 export function monatsReport(vorname: string | null, r: MailReport, appUrl: string): { subject: string; html: string } {
-  const subject = `Dein Toolfolio-Report fuer ${r.monatLabel}`;
+  const subject = `Dein Toolfolio-Report für ${r.monatLabel}`;
   const katRows = r.topKategorien
     .map((k) => `<tr><td style="padding:6px 0;font-size:14px;color:#3d3a4d;">${escape(k.name)}</td><td style="padding:6px 0;text-align:right;font-size:14px;font-weight:600;color:${INK};">${eur(k.betrag)}</td></tr>`)
     .join("");
@@ -205,14 +205,14 @@ export function monatsReport(vorname: string | null, r: MailReport, appUrl: stri
     : "";
   const sparBlock = r.sparAnzahl
     ? `<div style="margin-top:16px;background:#ecfdf3;border:1px solid #c7f0d8;border-radius:12px;padding:12px 14px;">
-         <div style="font-weight:600;font-size:14px;color:#067647;">${r.sparAnzahl} offene Sparvorschlaege</div>
+         <div style="font-weight:600;font-size:14px;color:#067647;">${r.sparAnzahl} offene Sparvorschläge</div>
          <div style="font-size:13px;color:#6b6779;margin-top:2px;">Bis zu ${eur(r.sparPotenzial)} pro Jahr Potenzial.</div>
        </div>`
     : "";
   const fristBlock = r.fristenAnzahl
     ? `<div style="margin-top:16px;background:#fff8ec;border:1px solid #ffe6bf;border-radius:12px;padding:12px 14px;">
          <div style="font-weight:600;font-size:14px;color:#92600a;">${r.fristenAnzahl} anstehende Frist${r.fristenAnzahl === 1 ? "" : "en"}</div>
-         <div style="font-size:13px;color:#6b6779;margin-top:2px;">Pruefe rechtzeitig, damit sich nichts still verlaengert.</div>
+         <div style="font-size:13px;color:#6b6779;margin-top:2px;">Prüfe rechtzeitig, damit sich nichts still verlängert.</div>
        </div>`
     : "";
   const html = `
@@ -222,7 +222,7 @@ export function monatsReport(vorname: string | null, r: MailReport, appUrl: stri
       ${kopf()}
       <div style="background:#fff;border:1px solid #ece6da;border-radius:20px;padding:24px;">
         <h1 style="margin:0 0 4px;font-size:20px;">${vorname ? `Hallo ${escape(vorname)},` : "Hallo,"}</h1>
-        <p style="margin:0 0 16px;font-size:15px;color:#3d3a4d;line-height:1.5;">dein Software-Kosten-Ueberblick fuer ${escape(r.monatLabel)}.</p>
+        <p style="margin:0 0 16px;font-size:15px;color:#3d3a4d;line-height:1.5;">dein Software-Kosten-Überblick für ${escape(r.monatLabel)}.</p>
         <div style="background:#faf7f2;border-radius:14px;padding:16px;text-align:center;">
           <div style="font-size:12px;color:#6b6779;text-transform:uppercase;letter-spacing:.04em;">Kosten diesen Monat</div>
           <div style="font-size:30px;font-weight:700;color:${INK};">${eur(r.gesamtMonat)}</div>

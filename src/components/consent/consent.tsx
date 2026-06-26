@@ -91,8 +91,8 @@ export function ConsentManager() {
               <div className="min-w-0">
                 <div className="font-display font-semibold">Datenschutz, kurz gemacht</div>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Wir setzen nur technisch notwendige Cookies und messen die Reichweite cookielos mit Plausible (keine personenbezogenen Profile, kein seitenuebergreifendes Tracking). Externe Inhalte wie Videos laden wir erst nach deiner Zustimmung. Mehr in der{" "}
-                  <Link href="/datenschutz" className="text-primary underline">Datenschutzerklaerung</Link>.
+                  Wir setzen nur technisch notwendige Cookies und messen die Reichweite cookielos mit Plausible (keine personenbezogenen Profile, kein seitenübergreifendes Tracking). Externe Inhalte wie Videos laden wir erst nach deiner Zustimmung. Mehr in der{" "}
+                  <Link href="/datenschutz" className="text-primary underline">Datenschutzerklärung</Link>.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button size="sm" onClick={c.akzeptiereAlle}>Alle akzeptieren</Button>
