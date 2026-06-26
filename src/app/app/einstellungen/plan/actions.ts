@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { stripe, PRICE_IDS, type BezahlPlan, type Intervall } from "@/lib/stripe";
+import { getStripe, PRICE_IDS, type BezahlPlan, type Intervall } from "@/lib/stripe";
 
 type Result = { url?: string; error?: string };
 
@@ -13,7 +13,7 @@ function siteUrl() {
 /** Stripe-Customer fuer den Nutzer holen oder anlegen (ID am Profil ablegen). */
 async function ensureCustomer(userId: string, email: string | undefined, vorhandene: string | null): Promise<string> {
   if (vorhandene) return vorhandene;
-  const customer = await stripe.customers.create({
+  const customer = await getStripe().customers.create({
     email,
     metadata: { user_id: userId },
   });
@@ -41,7 +41,7 @@ export async function createCheckout(plan: BezahlPlan, intervall: Intervall): Pr
 
   const customer = await ensureCustomer(user.id, user.email, profil?.stripe_customer_id ?? null);
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     mode: "subscription",
     customer,
     line_items: [{ price, quantity: 1 }],
@@ -75,7 +75,7 @@ export async function openPortal(): Promise<Result> {
 
   if (!profil?.stripe_customer_id) return { error: "Noch kein Abo vorhanden." };
 
-  const session = await stripe.billingPortal.sessions.create({
+  const session = await getStripe().billingPortal.sessions.create({
     customer: profil.stripe_customer_id,
     return_url: `${siteUrl()}/app/einstellungen/plan`,
   });

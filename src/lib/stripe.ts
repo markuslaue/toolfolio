@@ -2,8 +2,20 @@ import "server-only";
 import Stripe from "stripe";
 import type { PlanId } from "@/lib/constants";
 
-/** Serverseitiger Stripe-Client. Secret nie an den Client geben. */
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "");
+/**
+ * Serverseitiger Stripe-Client, lazy. NICHT auf Modulebene konstruieren:
+ * zur Build-Zeit fehlt das Secret (env_file gilt nur zur Laufzeit) und der
+ * Konstruktor wuerfe sonst beim Sammeln der Seitendaten. Secret nie an den Client geben.
+ */
+let _stripe: Stripe | null = null;
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) throw new Error("STRIPE_SECRET_KEY ist nicht gesetzt.");
+    _stripe = new Stripe(key);
+  }
+  return _stripe;
+}
 
 export type Intervall = "month" | "year";
 export type BezahlPlan = Exclude<PlanId, "free">; // pro | agentur

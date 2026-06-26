@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { stripe, planVonPrice } from "@/lib/stripe";
+import { getStripe, planVonPrice } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
   const body = await req.text();
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, sig, secret);
+    event = getStripe().webhooks.constructEvent(body, sig, secret);
   } catch {
     return NextResponse.json({ error: "Signatur ungueltig" }, { status: 400 });
   }
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         if (session.subscription) {
-          const sub = await stripe.subscriptions.retrieve(session.subscription as string);
+          const sub = await getStripe().subscriptions.retrieve(session.subscription as string);
           if (session.metadata?.user_id && !sub.metadata?.user_id) {
             sub.metadata = { ...sub.metadata, user_id: session.metadata.user_id };
           }
