@@ -1,9 +1,18 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+
+/** Storage-Pfad aus einer oeffentlichen avatars-URL ziehen (oder null). */
+function currentAvatarPath(uid: string, url: string | null): string | null {
+  if (!url) return null;
+  const m = url.split("?")[0].match(/\/avatars\/(.+)$/);
+  const path = m?.[1];
+  return path && path.startsWith(`${uid}/`) ? path : null;
+}
 
 export type ProfileState = { ok?: boolean; error?: string };
 export type PersonalState = {
@@ -72,6 +81,56 @@ export async function savePersonalData(
 
   revalidatePath("/app/einstellungen");
   return { ok: true, emailSent, email: parsed.data.email };
+}
+
+const AVATAR_MAX = 2 * 1024 * 1024; // 2 MB
+const AVATAR_MIME = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+
+/** Profilbild in den oeffentlichen avatars-Bucket laden und am Profil verlinken. */
+export async function uploadAvatar(formData: FormData): Promise<{ ok?: boolean; error?: string; url?: string }> {
+  const datei = formData.get("avatar");
+  if (!(datei instanceof File) || datei.size === 0) return { error: "Bitte wähle ein Bild aus." };
+  if (datei.size > AVATAR_MAX) return { error: "Das Bild ist zu groß (max. 2 MB)." };
+  if (!AVATAR_MIME.includes(datei.type)) return { error: "Nur PNG, JPG, WebP oder GIF." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Bitte melde dich erneut an." };
+
+  const ext = datei.type === "image/png" ? "png" : datei.type === "image/webp" ? "webp" : datei.type === "image/gif" ? "gif" : "jpg";
+  // Eindeutiger Dateiname pro Upload (Pfad-Praefix = user_id fuer die RLS).
+  // So kein Konflikt und kein Loeschen noetig (Upsert/Delete scheitern im
+  // public-Bucket an der RLS). Alte Datei aufraeumen ist best effort.
+  const altPath = currentAvatarPath(user.id, (await supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle()).data?.avatar_url ?? null);
+  const path = `${user.id}/${randomUUID()}.${ext}`;
+  const { error: upErr } = await supabase.storage.from("avatars").upload(path, datei, { contentType: datei.type, upsert: false });
+  if (upErr) return { error: "Das Bild konnte nicht hochgeladen werden." };
+  if (altPath) await supabase.storage.from("avatars").remove([altPath]); // best effort
+
+  const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+  const url = `${pub.publicUrl}?v=${Date.now()}`; // Cache-Busting nach Neu-Upload
+  const { error } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+  if (error) return { error: "Bild gespeichert, aber das Profil konnte nicht aktualisiert werden." };
+  revalidatePath("/app/einstellungen");
+  return { ok: true, url };
+}
+
+/** Profilbild entfernen. */
+export async function removeAvatar(): Promise<{ ok?: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { data: prof } = await supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle();
+  const path = currentAvatarPath(user.id, prof?.avatar_url ?? null);
+  if (path) await supabase.storage.from("avatars").remove([path]); // best effort
+  const { error } = await supabase.from("profiles").update({ avatar_url: null }).eq("id", user.id);
+  if (error) return { error: "Konnte nicht entfernt werden." };
+  revalidatePath("/app/einstellungen");
+  return { ok: true };
 }
 
 /** Sprache, Zeitzone, Theme, Format und Waehrung speichern. */

@@ -21,7 +21,7 @@ export default async function ProfilPage() {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "first_name, last_name, role, locale, timezone, theme, number_format, currency",
+      "first_name, last_name, role, locale, timezone, theme, number_format, currency, avatar_url",
     )
     .eq("id", user.id)
     .single();
@@ -44,6 +44,7 @@ export default async function ProfilPage() {
         theme: profile?.theme ?? "hell",
         numberFormat: profile?.number_format ?? "de",
         currency: profile?.currency ?? "EUR",
+        avatarUrl: profile?.avatar_url ?? null,
       }}
       twoFactorActive={twoFactorActive}
     />

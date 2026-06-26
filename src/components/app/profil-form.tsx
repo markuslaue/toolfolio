@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
   Camera,
@@ -40,6 +40,8 @@ import {
   savePersonalData,
   savePreferences,
   signOutAction,
+  uploadAvatar,
+  removeAvatar,
   type PersonalState,
   type ProfileState,
 } from "@/app/app/einstellungen/actions";
@@ -54,6 +56,7 @@ type Initial = {
   theme: string;
   numberFormat: string;
   currency: string;
+  avatarUrl: string | null;
 };
 
 function Card({
@@ -96,6 +99,30 @@ export function ProfilForm({
   const [vorname, setVorname] = useState(initial.firstName);
   const [nachname, setNachname] = useState(initial.lastName);
   const [email, setEmail] = useState(initial.email);
+
+  // Avatar
+  const [avatar, setAvatar] = useState(initial.avatarUrl);
+  const [avatarBusy, startAvatar] = useTransition();
+  const fileRef = useRef<HTMLInputElement>(null);
+  function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    const fd = new FormData();
+    fd.set("avatar", f);
+    startAvatar(async () => {
+      const r = await uploadAvatar(fd);
+      if (r.error) toast.error(r.error);
+      else { setAvatar(r.url ?? null); toast.success("Profilbild aktualisiert"); }
+    });
+  }
+  function onRemoveAvatar() {
+    startAvatar(async () => {
+      const r = await removeAvatar();
+      if (r.error) toast.error(r.error);
+      else { setAvatar(null); toast.success("Profilbild entfernt"); }
+    });
+  }
 
   const [personalState, personalAction, personalPending] = useActionState(
     savePersonalData,
@@ -148,17 +175,24 @@ export function ProfilForm({
           }
         >
           <div className="flex items-center gap-5">
+            <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" onChange={onPickAvatar} />
             <div className="relative">
-              <div className="grid size-20 place-items-center rounded-full bg-primary/15 font-display text-2xl font-semibold text-primary">
-                {initialen}
-              </div>
+              {avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatar} alt="Profilbild" className="size-20 rounded-full object-cover" />
+              ) : (
+                <div className="grid size-20 place-items-center rounded-full bg-primary/15 font-display text-2xl font-semibold text-primary">
+                  {initialen}
+                </div>
+              )}
               <button
                 type="button"
-                onClick={() => toast("Avatar-Upload folgt in Kürze.")}
+                disabled={avatarBusy}
+                onClick={() => fileRef.current?.click()}
                 className="absolute -bottom-1 -right-1 grid size-8 place-items-center rounded-full border border-border bg-card text-muted-foreground shadow-soft hover:text-foreground"
                 aria-label="Bild ändern"
               >
-                <Camera className="size-4" />
+                {avatarBusy ? <Loader2 className="size-4 animate-spin" /> : <Camera className="size-4" />}
               </button>
             </div>
             <div>
@@ -166,13 +200,16 @@ export function ProfilForm({
                 {vorname} {nachname}
               </div>
               <div className="text-sm text-muted-foreground">{initial.rolle}</div>
-              <button
-                type="button"
-                onClick={() => toast("Avatar-Upload folgt in Kürze.")}
-                className="mt-1 text-xs font-medium text-primary hover:underline"
-              >
-                Bild ändern
-              </button>
+              <div className="mt-1 flex items-center gap-3">
+                <button type="button" disabled={avatarBusy} onClick={() => fileRef.current?.click()} className="text-xs font-medium text-primary hover:underline">
+                  Bild ändern
+                </button>
+                {avatar && (
+                  <button type="button" disabled={avatarBusy} onClick={onRemoveAvatar} className="text-xs font-medium text-muted-foreground hover:text-destructive">
+                    Entfernen
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
