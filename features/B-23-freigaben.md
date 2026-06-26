@@ -1,6 +1,6 @@
 # B-23: Anschaffungs-Freigabe-Workflow
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (Tracker) · **Bereich:** B · **Created:** 2026-06-27 · **Prio:** P2 · **Abhaengig von:** B-05
 
 ## User Stories
