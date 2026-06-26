@@ -1,6 +1,6 @@
 # B-10: Sparvorschlaege
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (Tracker) · **Created:** 2026-06-26 · **Prio:** P0
 
 ## User Stories
