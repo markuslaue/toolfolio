@@ -1,6 +1,6 @@
 # B-20: Budget & Forecast
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (Tracker) · **Created:** 2026-06-26 · **Prio:** P2
 
 ## User Stories
