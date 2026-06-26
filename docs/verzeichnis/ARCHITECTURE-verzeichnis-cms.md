@@ -59,8 +59,14 @@ Alle Tabellen im Schema `public`, Praefix `dir_` zur klaren Trennung vom Tracker
 - **dir_produkt_medien** (id, produkt_id, typ[screenshot|video|logo|sonstiges], url, alt, position) — nur durch Anbieter befuellbar (A-02), Admin read-only.
 - **dir_produkt_team** (id, produkt_id, name, rolle, foto_url) — nur Anbieter.
 
-### 3.4 Herkunft C (verifizierte Bewertungen)
-- **dir_review** (id, produkt_id, user_id[Tracker-Konto, nur zur Verifizierung], sterne[1..5], text, verifiziert[bool, true via Abrechnungsnachweis], created_at) — **nur verifizierte Eigen-Nutzer**, keine Drittquellen. Aggregat (Schnitt, Anzahl) read-only an der Produktseite. Verifizierung = Tool taucht in den (anonymisierten) Tracker-Daten des Bewertenden auf; die Verknuepfung bleibt anonymisiert/aggregiert (Leitplanke Datentrennung).
+### 3.4 Herkunft C (Bewertungen, zweistufig)
+Entscheidung 2026-06-26: **zwei Stufen**, im Frontend klar getrennt dargestellt.
+- **dir_review** (id, produkt_id, user_id[nullable], sterne[1..5], text, verifiziert[bool], verifiziert_methode[tracker|null], status[neu|freigegeben|abgelehnt], autor_name, autor_email[nullable, nur intern fuer Anti-Abuse], created_at).
+- **Verifiziert** (`verifiziert = true`): Bewerter ist eingeloggter Toolfolio-Nutzer **und** das Tool taucht in seinen (anonymisierten) Tracker-Daten auf. Pruefung serverseitig, nur Ja/Nein, keine personenbezogenen Tracker-Daten ins Verzeichnis (Datentrennung gewahrt). Badge `verifizierte Bewertung`.
+- **Nicht verifiziert** (`verifiziert = false`): offene Bewertung, **auch ohne Toolfolio-Account**, kein Nutzungsnachweis. Badge `nicht verifiziert`.
+- **First-Party-Pflicht:** Bewertungen werden ausschliesslich direkt auf Toolfolio abgegeben. Weiterhin verboten: gecrawlte/Drittanbieter-Bewertungen aus dem Netz.
+- **Moderation/Anti-Abuse (wegen offener Stufe):** Status-Workflow (neu -> freigegeben/abgelehnt), Rate-Limiting, optional E-Mail-Bestaetigung/Captcha fuer anonyme Bewertungen, Spam-/Doppel-Erkennung.
+- **UWG/EU-Omnibus:** Verifizierungsstatus muss transparent ausgewiesen sein (genau das leistet die Zwei-Stufen-Kennzeichnung); Aggregat darf nicht irrefuehrend sein. Schnitt/Anzahl ggf. getrennt fuer verifiziert vs. gesamt ausweisen.
 
 ### 3.5 Claim und Outreach
 - **dir_claim** (id, produkt_id, anbieter_user_id|null, status, verifiziert_am, methode[domain|email|dns]) — Claim-Lebenszyklus.
@@ -77,7 +83,7 @@ Jedes Produktfeld traegt eine erkennbare Herkunft (`dir_produkt.herkunft`):
 
 - **A, KI-recherchiert + redaktionell freigegeben** (faktisch, paraphrasiert): Kurz-/Langbeschreibung, Features, Plattformen/Einsatzgebiet/Kategorisierung, Preis-Hinweis, Pro/Contra. KI darf vorbefuellen; geht erst nach Freigabe live. Badge: `KI-recherchiert` -> `redaktionell geprueft`.
 - **B, nur Anbieter (Claim):** Screenshots, Team, Logo, Medien. **KI befuellt NIE.** Platzhalter `vom Anbieter ergaenzbar` bis Claim. Befuellung im Anbieter-Modul (A-02).
-- **C, nur verifizierte Eigen-Nutzer:** Sterne/Bewertungen. Keine Drittanbieter-/gecrawlten Bewertungen. Badge: `verifizierte Bewertung`.
+- **C, Bewertungen (zweistufig, First-Party):** *verifiziert* (eingeloggter Nutzer + Tool im anonymisierten Tracker) mit Badge `verifizierte Bewertung`, plus *nicht verifiziert* (offen, auch ohne Account, ohne Nachweis) mit Badge `nicht verifiziert`. Im Frontend klar getrennt. Keine gecrawlten/Drittanbieter-Bewertungen. Moderation + Verifizierungs-Transparenz (UWG). Details §3.4.
 
 **Preis-Sorgfalt (UWG, Pflicht):** Preis und veraenderliche Fakten tragen sichtbar **Stand (Datum) + Quelle + Link** auf die Anbieterseite. Pflichtkennzeichnung, nicht optional.
 
@@ -91,7 +97,7 @@ Auf jeder Collection sind Produkte in drei sichtbar getrennten Zonen: **Gesponse
 
 ## 6. Zugriff, Rollen, Sicherheit
 
-- **Admin-CMS (AD):** nur Rolle `admin`. Gate serverseitig ueber Supabase-Rolle/RLS, nie nur im Frontend. (`profiles.role` existiert bereits mit owner/admin/member; `admin` ist die globale Redaktionsrolle — Abgrenzung zur Mandanten-Rolle in der Spec klaeren.)
+- **Admin-CMS (AD):** **globale Redaktionsrolle als Allowlist** (Entscheidung 2026-06-26: kleines festes Team). Umsetzung: `profiles.is_staff boolean` (oder Tabelle `dir_redaktion`/Allowlist von user_ids), **getrennt** von der Mandanten-Rolle `profiles.role` (owner/admin/member je Konto). Ein Konto-Admin ist NICHT automatisch Redakteur. Gate serverseitig ueber RLS, nie nur im Frontend. Die konkreten Redakteurs-E-Mails liefert Markus beim Bau.
 - **Oeffentlich (V):** anon liest nur `status = veroeffentlicht`. SSG/SSR fuer SEO.
 - **Anbieter (A):** schreibt nur Herkunft-B-Felder des **geclaimten** Produkts.
 - **Keine Geheimnisse im Client:** Anthropic-Key serverseitig/verschluesselt, KI-Laeufe nur ueber Backend-Worker.

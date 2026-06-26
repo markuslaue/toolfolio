@@ -37,7 +37,7 @@ Internes Redaktions-CMS, mit dem ausschliesslich der Admin das oeffentliche, SEO
 - Echte Claim-Verifizierung (Domain/E-Mail/DNS).
 - Realer Outreach-Versand (spaeter ueber Resend, mit Einwilligung/B2B-Rahmen, vgl. E-Mails).
 - Oeffentliche Ausspielung der Inhalte: **V-01..V-15**.
-- Verifizierte Bewertungen (Herkunft C) Erfassung: **V-12** (Review abgeben) + Aggregat-/Benchmark-Ebene **B-16/F-G2**.
+- Bewertungs-Erfassung (Herkunft C, zweistufig verifiziert/nicht verifiziert): **V-12** (Review abgeben) + Verifizierungs-Check gegen anonymisierte Aggregat-/Tracker-Ebene **F-G2/B-16**.
 
 ## Tech Design (Kurz, Details in Architektur)
 - Tabellen `dir_cluster`, `dir_kategorie`, `dir_collection`, `dir_produkt`, `dir_collection_produkt` (Zone+Position), `dir_produkt_medien`, `dir_produkt_team`, `dir_review`, `dir_claim`, `dir_outreach`, `dir_ki_job`. RLS pro Tabelle (anon liest nur veroeffentlicht; Admin global; Anbieter nur eigenes Produkt + Herkunft B).
@@ -53,6 +53,10 @@ Internes Redaktions-CMS, mit dem ausschliesslich der Admin das oeffentliche, SEO
 | KI nur Herkunft A, Screenshots/Team nur Anbieter | Urheber-/Datenbankrecht; Fakten paraphrasiert, Medien mit Schoepfungshoehe nicht generieren | 2026-06-26 |
 | Bau erst mit Verzeichnis-Phase | Nutzerentscheidung: Verzeichnis kommt ganz am Ende; Tracker-Funktionalitaet zuerst abschliessen | 2026-06-26 |
 
-## Open Questions
-- [ ] Globale Admin-Rolle vs. Mandanten-Rolle: `profiles.role` traegt owner/admin/member je Konto. Fuer das CMS braucht es eine **globale** Redaktionsrolle (z. B. Allowlist per user_id oder `is_staff`-Flag), nicht die Konto-Rolle. Im Fundament klaeren.
-- [ ] Verifizierung Herkunft C: wie wird "Nutzer setzt das Tool ein" anonymisiert aus dem Tracker abgeleitet, ohne die Datentrennung zu verletzen? (Aggregat-Schwelle, kein personenbezogener Join.)
+## Entscheidungen (2026-06-26, von Markus)
+- **Redaktionsrolle = kleines festes Team (Allowlist).** Globale Redaktionsrolle getrennt von der Konto-Rolle `profiles.role`; Umsetzung als `profiles.is_staff` bzw. Allowlist. Ein Konto-Admin ist NICHT automatisch Redakteur. Konkrete E-Mail-Adressen liefert Markus beim Bau.
+- **Bewertungen zweistufig:** *verifiziert* (eingeloggter Nutzer + Tool im anonymisierten Tracker, serverseitig Ja/Nein) und *nicht verifiziert* (offen, auch ohne Toolfolio-Account, ohne Nachweis). Im Frontend klar getrennt gekennzeichnet. First-Party (keine gecrawlten/Drittbewertungen). Erfordert Moderation/Anti-Abuse + UWG-Transparenz (Verifizierungsstatus ausweisen, Aggregat nicht irrefuehrend).
+
+## Offene Punkte fuer den Bau (kein Blocker)
+- [ ] Redakteurs-E-Mail-Liste von Markus einholen (beim AD-Fundament).
+- [ ] Moderations-Workflow + Anti-Abuse fuer offene Bewertungen final ausgestalten (Status, Rate-Limit, Captcha/Mail-Bestaetigung).
