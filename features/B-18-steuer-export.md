@@ -1,6 +1,6 @@
 # B-18: Steuer- / DATEV-Export (Reverse-Charge)
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (Tracker) · **Created:** 2026-06-26 · **Prio:** P1
 
 ## User Stories
