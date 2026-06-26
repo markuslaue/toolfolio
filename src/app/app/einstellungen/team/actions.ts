@@ -36,6 +36,11 @@ export async function inviteMember(_prev: TeamState, formData: FormData): Promis
   if (!user) return { error: "Bitte melde dich erneut an." };
   if (parsed.data.email === user.email?.toLowerCase()) return { error: "Du kannst dich nicht selbst einladen." };
 
+  // Plan-Gating: Team-Einladungen sind im Agentur-Plan enthalten.
+  const { data: planRow } = await supabase.from("profiles").select("plan").eq("id", user.id).maybeSingle();
+  if (planRow?.plan !== "agentur")
+    return { error: "Team-Einladungen sind im Agentur-Plan enthalten. Wechsle unter Plan & Abrechnung." };
+
   const token = randomBytes(24).toString("hex");
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 

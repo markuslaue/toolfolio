@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState, useEffect, useState, useTransition } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
-import { UserPlus, Loader2, Trash2, Crown, ShieldCheck, Mail, Clock } from "lucide-react";
+import { UserPlus, Loader2, Trash2, Crown, ShieldCheck, Mail, Clock, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,7 +31,7 @@ function RoleBadge({ role }: { role: "owner" | "admin" | "member" }) {
   return <Badge variant="outline">Mitglied</Badge>;
 }
 
-export function TeamClient({ owner, members, invites }: { owner: Owner; members: Member[]; invites: Invite[] }) {
+export function TeamClient({ owner, members, invites, canTeam }: { owner: Owner; members: Member[]; invites: Invite[]; canTeam: boolean }) {
   const [state, formAction, pending] = useActionState<TeamState, FormData>(inviteMember, {});
   const [rolle, setRolle] = useState<"admin" | "member">("member");
   const [busy, startTransition] = useTransition();
@@ -51,37 +52,55 @@ export function TeamClient({ owner, members, invites }: { owner: Owner; members:
 
   return (
     <div className="space-y-6">
-      {/* Einladen */}
-      <section className="rounded-[20px] border bg-card p-6 shadow-soft">
-        <div className="flex items-center gap-2">
-          <UserPlus className="size-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold">Mitglied einladen</h2>
-        </div>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Lade Kolleginnen und Kollegen ein. Sie sehen die Abos, Kosten und Fristen des Kontos. Bearbeiten bleibt vorerst dir vorbehalten.
-        </p>
-        <form action={formAction} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
-          <div className="flex-1 space-y-1.5">
-            <Label htmlFor="email">E-Mail-Adresse</Label>
-            <Input id="email" name="email" type="email" required placeholder="kollege@agentur.de" />
+      {/* Upsell, wenn Team nicht im Plan enthalten */}
+      {!canTeam && (
+        <section className="rounded-[20px] border border-primary/20 bg-primary/5 p-6">
+          <div className="flex items-center gap-2">
+            <Sparkles className="size-5 text-primary" />
+            <h2 className="font-display text-lg font-semibold">Team ist im Agentur-Plan enthalten</h2>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="role">Rolle</Label>
-            <input type="hidden" name="role" value={rolle} />
-            <Select value={rolle} onValueChange={(v) => setRolle(v as "admin" | "member")}>
-              <SelectTrigger id="role" className="sm:w-44"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="member">Mitglied (nur Ansicht)</SelectItem>
-                <SelectItem value="admin">Administrator</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button type="submit" disabled={pending} className="gap-2">
-            {pending ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
-            Einladen
+          <p className="mt-2 text-sm text-muted-foreground">
+            Lade Kolleginnen und Kollegen ein, vergib Rollen und teile die Sicht auf Abos, Kosten und Fristen. Wechsle dafür in den Agentur-Plan.
+          </p>
+          <Button asChild className="mt-4 gap-2">
+            <Link href="/app/einstellungen/plan">Plan ansehen <ArrowRight className="size-4" /></Link>
           </Button>
-        </form>
-      </section>
+        </section>
+      )}
+
+      {/* Einladen */}
+      {canTeam && (
+        <section className="rounded-[20px] border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <UserPlus className="size-5 text-primary" />
+            <h2 className="font-display text-lg font-semibold">Mitglied einladen</h2>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Lade Kolleginnen und Kollegen ein. Sie sehen die Abos, Kosten und Fristen des Kontos. Bearbeiten bleibt vorerst dir vorbehalten.
+          </p>
+          <form action={formAction} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex-1 space-y-1.5">
+              <Label htmlFor="email">E-Mail-Adresse</Label>
+              <Input id="email" name="email" type="email" required placeholder="kollege@agentur.de" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="role">Rolle</Label>
+              <input type="hidden" name="role" value={rolle} />
+              <Select value={rolle} onValueChange={(v) => setRolle(v as "admin" | "member")}>
+                <SelectTrigger id="role" className="sm:w-44"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="member">Mitglied (nur Ansicht)</SelectItem>
+                  <SelectItem value="admin">Administrator</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button type="submit" disabled={pending} className="gap-2">
+              {pending ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
+              Einladen
+            </Button>
+          </form>
+        </section>
+      )}
 
       {/* Mitglieder */}
       <section className="rounded-[20px] border bg-card p-6 shadow-soft">
