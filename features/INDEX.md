@@ -72,24 +72,24 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 
 | ID | Feature | Prio | Abhaengig von | Status |
 |----|---------|------|---------------|--------|
-| M-01 | Startseite (v2) | P0 | INFRA-1 | Roadmap |
-| M-02 | Pricing | P0 | INFRA-1 | Roadmap |
-| M-03 | Features-Uebersicht (v2) | P0 | INFRA-1 | Roadmap |
-| M-07 | Ueber uns / E-E-A-T | P0 | INFRA-1 | Roadmap |
-| M-08 | Sicherheit & Datenschutz | P0 | INFRA-1 | Roadmap |
-| M-11 | Kontakt | P0 | INFRA-1 | Roadmap |
-| M-16 | 404 / Fehlerseite | P0 | INFRA-1 | Roadmap |
+| M-01 | Startseite (v2) | P0 | INFRA-1 | Approved & Deployed |
+| M-02 | Pricing | P0 | INFRA-1 | Approved & Deployed |
+| M-03 | Features-Uebersicht (v2) | P0 | INFRA-1 | Approved & Deployed |
+| M-07 | Ueber uns / E-E-A-T | P0 | INFRA-1 | Approved & Deployed |
+| M-08 | Sicherheit & Datenschutz | P0 | INFRA-1 | Approved & Deployed |
+| M-11 | Kontakt | P0 | INFRA-1 | Approved & Deployed |
+| M-16 | 404 / Fehlerseite | P0 | INFRA-1 | Approved & Deployed |
 | M-04 | Feature-Detailseite (Template) | P1 | M-03 | Roadmap |
-| M-05 | Zielgruppen-Seite (Template) | P1 | M-03 | Roadmap |
-| M-06 | Vergleichsseite (Template) + Content-Pack | P1 | M-03 | Roadmap |
+| M-05 | Zielgruppen-Seite (Template) | P1 | M-03 | Approved & Deployed |
+| M-06 | Vergleichsseite (Template) + Content-Pack | P1 | M-03 | Approved & Deployed |
 | M-09 | Magazin/Blog - Hub | P1 | INFRA-1 | Roadmap |
 | M-10 | Magazin/Blog - Artikel (Template) | P1 | M-09 | Roadmap |
-| M-12 | Demo buchen | P2 | INFRA-1 | Roadmap |
-| M-13 | Fuer Anbieter (Sales) | P2 | INFRA-1 | Roadmap |
-| M-14 | Affiliate / Partner | P2 | INFRA-1 | Roadmap |
-| M-15 | Changelog | P2 | INFRA-1 | Roadmap |
+| M-12 | Demo buchen | P2 | INFRA-1 | Approved & Deployed |
+| M-13 | Fuer Anbieter (Sales) | P2 | INFRA-1 | Approved & Deployed |
+| M-14 | Affiliate / Partner | P2 | INFRA-1 | Approved & Deployed |
+| M-15 | Changelog | P2 | INFRA-1 | Approved & Deployed |
 | M-17 | Indie-SaaS listen | P2 | M-18 | Roadmap |
-| M-18 | Vertrauens-Badge & Listing-Standard | P2 | INFRA-1 | Roadmap |
+| M-18 | Vertrauens-Badge & Listing-Standard | P2 | INFRA-1 | Approved & Deployed |
 
 ## Verzeichnis (V)
 
@@ -148,9 +148,9 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 
 | ID | Feature | Prio | Abhaengig von | Status |
 |----|---------|------|---------------|--------|
-| R-01 | Impressum | P0 | INFRA-1 | Roadmap |
-| R-02 | Datenschutzerklaerung | P0 | INFRA-1 | Roadmap |
-| R-03 | AGB (inkl. Vermittler-Klarstellung) | P0 | INFRA-1 | Roadmap |
+| R-01 | Impressum | P0 | INFRA-1 | Approved & Deployed |
+| R-02 | Datenschutzerklaerung | P0 | INFRA-1 | Approved & Deployed |
+| R-03 | AGB (inkl. Vermittler-Klarstellung) | P0 | INFRA-1 | Approved & Deployed |
 | R-04 | Cookie-/Consent-Banner (privacy-first) | P0 | INFRA-1 | Roadmap |
 
 ---
