@@ -1,6 +1,6 @@
 # B-13: AI-Credits / variable Kosten
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (Tracker) · **Created:** 2026-06-26 · **Prio:** P1
 
 ## User Stories
