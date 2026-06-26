@@ -1,4 +1,5 @@
 import { Globe2 } from "lucide-react";
+import { ConsentSettingsButton } from "@/components/consent/consent-settings-button";
 
 const cols: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -96,9 +97,7 @@ export function SiteFooter() {
         <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground">
           <div>OMMM GmbH, Leipzig. Alle Rechte vorbehalten.</div>
           <div className="flex items-center gap-4">
-            <a href="/datenschutz" className="hover:text-foreground">
-              Cookie-Einstellungen
-            </a>
+            <ConsentSettingsButton className="hover:text-foreground" />
             <span className="flex items-center gap-2">
               <Globe2 className="size-4" /> Deutsch (DACH)
             </span>

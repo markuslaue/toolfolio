@@ -160,7 +160,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | R-01 | Impressum | P0 | INFRA-1 | Approved & Deployed |
 | R-02 | Datenschutzerklaerung | P0 | INFRA-1 | Approved & Deployed |
 | R-03 | AGB (inkl. Vermittler-Klarstellung) | P0 | INFRA-1 | Approved & Deployed |
-| R-04 | Cookie-/Consent-Banner (privacy-first) | P0 | INFRA-1 | Roadmap |
+| R-04 | Cookie-/Consent-Banner (privacy-first) | P0 | INFRA-1 | In Review |
 
 ---
 
