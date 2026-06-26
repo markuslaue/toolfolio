@@ -20,6 +20,10 @@ services:
     env_file: .env
     expose:
       - "3000"
+    # Host-lokaler Port, damit der vorgelagerte nginx (Front-Proxy auf diesem VPS)
+    # die App erreichen kann. Nur an 127.0.0.1 gebunden, nicht oeffentlich.
+    ports:
+      - "127.0.0.1:8090:3000"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.toolfolio.rule=Host(`toolfolio.de`) || Host(`www.toolfolio.de`)"
