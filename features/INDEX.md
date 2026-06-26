@@ -1,7 +1,7 @@
 # Feature-Map (INDEX) - Toolfolio
 
 > Die Feature-Map, die die Skills lesen. Detaillierte Beschreibung jedes Templates: `FEATURES.md` und `docs/blueprint/`. Phasen-Definition: `PROJECT.md` §12.
-> **ID-Schema:** B (Tracker), M (Marketing), V (Verzeichnis), A (Anbieter/Marktplatz), S (Auth), E (E-Mail), R (Recht), INFRA (Fundament). Spec-Dateien: `features/<ID>-kurzname.md`.
+> **ID-Schema:** B (Tracker), M (Marketing), V (Verzeichnis), AD (Admin/Redaktion-CMS), A (Anbieter/Marktplatz), S (Auth), E (E-Mail), R (Recht), F (uebergreifend/Datenwert), INFRA (Fundament). Spec-Dateien: `features/<ID>-kurzname.md`.
 > **Prioritaet:** P0 = MVP (Phase 1), P1 = Phase 2, P2 = Phase 3, P3 = Phase 4/5.
 > **Status:** Roadmap -> Planned (nach /write-spec) -> in Bau -> QA -> Deployed.
 
@@ -122,6 +122,15 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | A-06 | Indie-Einreichung / Vertrauens-Check | P2 | A-01, M-18 | Roadmap |
 | A-07 | Builder-Dashboard | P3 | A-01 | Roadmap |
 | ~~A-03~~ | Leads (gestrichen, kein Backend-Posteingang, siehe E-08) | - | - | Cancelled |
+
+## Admin / Redaktion - Verzeichnis-CMS (AD)
+
+> Internes Redaktions-Backend fuer das Verzeichnis (nur Admin). Speist die oeffentlichen V-Features. Architektur: `docs/verzeichnis/ARCHITECTURE-verzeichnis-cms.md`. Planung abgeschlossen, **Bau mit der Verzeichnis-Phase** (Nutzerentscheidung: Verzeichnis kommt ganz am Ende).
+
+| ID | Feature | Prio | Abhaengig von | Status |
+|----|---------|------|---------------|--------|
+| AD-01 | Verzeichnis-Redaktion (Admin-CMS): Struktur-Baum, Editoren, Produkt-DB (Herkuenfte A/B/C), KI-Workflows, Claim/Outreach | P1 | INFRA-1, F-G2 | Planned |
+| AD-02 | Taxonomie-Import & Strukturierung (1315 Kategorien -> Collections) | P1 | AD-01 | Planned |
 
 ## Uebergreifend - Datenwert (F)
 

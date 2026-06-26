@@ -49,7 +49,9 @@
 | 39 | B-19 | Rechnungs- & Vertragsarchiv (AGB-Snapshot) | 2 | B-14 | Geplant |
 | 40 | B-17 | Berichte / Weiterverrechnungs-Report | 2 | B-09 | Geplant |
 | 41 | B-18 | DATEV- / Steuer-Export | 2 | B-03 | Geplant |
-| 42 | V-01 | Verzeichnis-Startseite / Hub | 2 | M-01 | Geplant |
+| 41.1 | AD-01 | Verzeichnis-Redaktion (Admin-CMS): Struktur, Produkt-DB, KI-Workflows, Claim/Outreach | 2 | INFRA-1, F-G2 | In Spezifikation |
+| 41.2 | AD-02 | Taxonomie-Import (1315 Kategorien -> Collections) | 2 | AD-01 | In Spezifikation |
+| 42 | V-01 | Verzeichnis-Startseite / Hub | 2 | AD-01, M-01 | Geplant |
 | 43 | V-02 | Cluster-Hub (Template) | 2 | V-01 | Geplant |
 | 44 | V-03 | Kategorie / Collection (drei Zonen) | 2 | V-02 | Geplant |
 | 45 | V-04 | Software-Detailseite (Herzstueck, v2 Attribution/Lead/Rabatt) | 2 | V-03, F-G1 | Geplant |
