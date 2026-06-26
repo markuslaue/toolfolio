@@ -1,6 +1,6 @@
 # B-21: Seats- / Lizenzverwaltung
 
-## Status: In Review
+## Status: Approved & Deployed
 **Projekt:** PRJ (Tracker) · **Bereich:** B · **Created:** 2026-06-27 · **Prio:** P2 · **Abhaengig von:** B-22
 
 ## User Stories

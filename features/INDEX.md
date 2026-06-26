@@ -56,7 +56,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | B-18 | DATEV- / Steuer-Export (Reverse-Charge) | P1 | B-03 | Approved & Deployed |
 | B-19 | Rechnungs- und Vertragsarchiv (AGB-Snapshot) | P1 | B-14 | Approved & Deployed |
 | B-20 | Budget & Forecast | P2 | B-03 | Approved & Deployed |
-| B-21 | Seats- / Lizenzverwaltung | P2 | B-22 | In Review |
+| B-21 | Seats- / Lizenzverwaltung | P2 | B-22 | Approved & Deployed |
 | B-22 | Team / Wer-nutzt-was (Offboarding) | P2 | B-30 | Approved & Deployed |
 | B-23 | Anschaffungs-Freigabe-Workflow | P2 | B-05 | Roadmap |
 | B-24 | Integrationen (Google Workspace, Bank, KI-APIs) | P2 | INFRA-1 | Roadmap |
