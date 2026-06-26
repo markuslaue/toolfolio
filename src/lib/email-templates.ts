@@ -93,3 +93,43 @@ export function fristenDigest(
 function escape(s: string): string {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
 }
+
+const ROLLE_LABEL: Record<string, string> = { admin: "Administrator", member: "Mitglied" };
+
+/** E-04: Einladung in ein Toolfolio-Team. */
+export function teamEinladung(
+  einladerName: string,
+  rolle: string,
+  acceptUrl: string,
+): { subject: string; html: string } {
+  const subject = `${einladerName} lädt dich zu Toolfolio ein`;
+  const html = `
+  <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+  <body style="margin:0;background:${PAPER};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:${INK};">
+    <div style="max-width:560px;margin:0 auto;padding:24px 16px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+        <tr>
+          <td width="36" height="36" style="width:36px;height:36px;background:${PRIMARY};border-radius:10px;text-align:center;vertical-align:middle;color:#ffffff;font-weight:700;font-size:20px;line-height:36px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">T</td>
+          <td style="padding-left:10px;vertical-align:middle;font-size:19px;font-weight:600;letter-spacing:-0.01em;color:${INK};">Toolfolio</td>
+        </tr>
+      </table>
+      <div style="background:#fff;border:1px solid #ece6da;border-radius:20px;padding:24px;">
+        <h1 style="margin:0 0 6px;font-size:20px;">Du wurdest eingeladen</h1>
+        <p style="margin:0 0 18px;font-size:15px;color:#3d3a4d;line-height:1.5;">
+          ${escape(einladerName)} möchte dich als <strong>${ROLLE_LABEL[rolle] ?? "Mitglied"}</strong> zum Toolfolio-Konto hinzufügen. Damit siehst du die Software-Abos, Kosten und Fristen des Teams an einem Ort.
+        </p>
+        <div style="text-align:center;margin-top:22px;">
+          <a href="${acceptUrl}" style="display:inline-block;background:${PRIMARY};color:#fff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;">Einladung annehmen</a>
+        </div>
+        <p style="margin:18px 0 0;font-size:13px;color:#6b6779;line-height:1.5;">
+          Falls der Button nicht funktioniert, öffne diesen Link: <br><span style="color:${PRIMARY};">${escape(acceptUrl)}</span>
+        </p>
+      </div>
+      <p style="text-align:center;font-size:12px;color:#6b6779;margin-top:16px;line-height:1.5;">
+        Du bekommst diese Mail, weil dich jemand zu seinem Toolfolio-Team eingeladen hat. Wenn du das nicht erwartest, ignoriere die Mail einfach.<br>
+        OMMM GmbH, Leipzig
+      </p>
+    </div>
+  </body></html>`;
+  return { subject, html };
+}
