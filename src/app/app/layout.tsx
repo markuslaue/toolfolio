@@ -1,5 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { AccountSwitcher } from "@/components/app/account-switcher";
+import { ReadOnlyProvider } from "@/components/app/read-only-context";
+import { ReadOnlyBanner } from "@/components/app/read-only-banner";
 import { Toaster } from "@/components/ui/sonner";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveAccount, listAccounts } from "@/lib/active-account";
@@ -32,19 +34,27 @@ export default async function AppLayout({
     active = act;
   }
 
+  // Schreibgeschuetzt, wenn der Nutzer im aktiven Konto nur Mitglied (member) ist.
+  // Owner und Admin duerfen schreiben (siehe has_admin_access, B-25).
+  const aktivesKonto = accounts.find((a) => a.id === active);
+  const readOnly = aktivesKonto?.rolle === "member";
+
   return (
-    <div className="flex min-h-screen flex-1">
-      <AppSidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between gap-4 border-b bg-background/85 px-6 backdrop-blur">
-          <p className="font-display text-lg font-bold text-foreground">
-            Moin{vorname ? `, ${vorname}` : ""}
-          </p>
-          {accounts.length > 1 && <AccountSwitcher accounts={accounts} active={active} />}
-        </header>
-        <main className="flex-1 p-6">{children}</main>
+    <ReadOnlyProvider readOnly={readOnly}>
+      <div className="flex min-h-screen flex-1">
+        <AppSidebar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="flex h-16 items-center justify-between gap-4 border-b bg-background/85 px-6 backdrop-blur">
+            <p className="font-display text-lg font-bold text-foreground">
+              Moin{vorname ? `, ${vorname}` : ""}
+            </p>
+            {accounts.length > 1 && <AccountSwitcher accounts={accounts} active={active} />}
+          </header>
+          <ReadOnlyBanner />
+          <main className="flex-1 p-6">{children}</main>
+        </div>
+        <Toaster />
       </div>
-      <Toaster />
-    </div>
+    </ReadOnlyProvider>
   );
 }

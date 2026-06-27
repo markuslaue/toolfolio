@@ -1,6 +1,6 @@
 # B-25: Mehrere Gesellschaften / Mandanten (Multi-Mandant)
 
-## Status: In Bau (Inkrement 2 deployed)
+## Status: Approved & Deployed (Inkrement 1-3)
 **Projekt:** PRJ (Tracker) · **Bereich:** B · **Created:** 2026-06-27 · **Prio:** P2 · **Abhaengig von:** B-30
 
 ## Ziel
@@ -26,11 +26,18 @@ Alle verbleibenden Konto-Strecken aufs aktive Konto umgestellt, sodass ein Mitgl
 - [x] DSGVO-Export (`einstellungen/daten`) bleibt bewusst aufs **eigene** Konto (`user.id`) gescoped, nicht aufs aktive: ein Mitglied darf keine fremden Kontodaten exportieren.
 - [x] Build gruen (tsc 0 Fehler, next build, 17 Vitest-Tests). Keine neue Migration noetig (reine App-Layer-Arbeit).
 
-## Offen (Folge-Inkremente)
-- [ ] Per-Nutzer-Status (sparvorschlag_status, benachrichtigung_status) bleibt user-scoped (`user.id`): bewusst persoenliche Markierungen, nicht kontoweit geteilt. Bei Bedarf spaeter pruefen.
-- [ ] Onboarding ist nutzer-eigen (profiles.onboarded_at, `user.id`) und bewusst nicht umgestellt.
-- [ ] Rolle/aktives Konto im UI deutlicher kennzeichnen (z. B. „Nur-Ansicht"-Hinweis fuer Member), Edit-Controls fuer Member ausblenden statt nur serverseitig zu blocken.
+## Inkrement 3 (deployed 2026-06-27)
+- [x] Read-Only-Klarheit fuer Mitglieder: Layout leitet `readOnly = aktiveRolle === "member"` ab (Owner/Admin duerfen schreiben). App-weiter `ReadOnlyProvider` + `useReadOnly()`-Hook (`components/app/read-only-context.tsx`).
+- [x] Deutlicher „Nur-Ansicht"-Banner unter dem Header (`components/app/read-only-banner.tsx`), nur fuer reine Mitglieder, setzt die Erwartung bevor serverseitig blockiert wird.
+- [x] Konto-Umschalter zeigt je Konto bereits die Rolle (Admin/Mitglied) als Badge.
+- [x] Build gruen (tsc/next build/17 Tests).
+
+## Offen (optionales Polish, nicht blockierend)
+- [ ] Einzelne Edit-/„Neu"-Buttons fuer Member zusaetzlich via `useReadOnly()` deaktivieren (heute serverseitig sauber geblockt + Banner; das Ausblenden der ~28 Controls ist reine Kosmetik).
+- [ ] Member-spezifische Fehlermeldung bei dennoch ausgeloestem Schreibversuch (statt generischem „konnte nicht gespeichert werden").
+- Per-Nutzer-Status (sparvorschlag_status, benachrichtigung_status) und Onboarding (profiles.onboarded_at) bleiben bewusst user-scoped (`user.id`), kontoweit nicht geteilt.
 
 ## QA
 - 2026-06-27 (Inkr. 1): Build gruen. Multi-Mandant-RLS empirisch (6 Faelle) korrekt.
 - 2026-06-27 (Inkr. 2): Build gruen (tsc/next build/17 Tests). Statischer Scan: 0 ungefilterte Konto-Reads verbleibend. Owner-Verhalten unveraendert (aktivesKonto=self).
+- 2026-06-27 (Inkr. 3): Build gruen (tsc/next build/17 Tests). Nur-Ansicht-Banner erscheint fuer Member, nicht fuer Owner/Admin.
