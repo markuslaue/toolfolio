@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 
 export type AboResult = {
   ok?: boolean;
@@ -73,7 +74,9 @@ async function userOrError() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  return { supabase, user };
+  // Aktives Konto (= Mandant): eigenes oder ein Konto, in dem man Mitglied ist.
+  const account = user ? await getActiveAccount(supabase, user.id) : null;
+  return { supabase, user, account };
 }
 
 export async function createAbo(input: AboInput): Promise<AboResult> {
@@ -82,12 +85,12 @@ export async function createAbo(input: AboInput): Promise<AboResult> {
     return { error: "Bitte prüfe deine Eingaben.", fieldErrors: feldFehler(parsed.error) };
   }
 
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { data, error } = await supabase
     .from("abos")
-    .insert({ ...parsed.data, user_id: user.id })
+    .insert({ ...parsed.data, user_id: account })
     .select("id")
     .single();
 
@@ -103,14 +106,14 @@ export async function updateAbo(id: string, input: AboInput): Promise<AboResult>
     return { error: "Bitte prüfe deine Eingaben.", fieldErrors: feldFehler(parsed.error) };
   }
 
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase
     .from("abos")
     .update(parsed.data)
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", account);
 
   if (error) return { error: "Speichern hat nicht geklappt. Bitte versuche es erneut." };
   revalidatePath("/app/abos");
@@ -119,14 +122,14 @@ export async function updateAbo(id: string, input: AboInput): Promise<AboResult>
 
 export async function bulkCreateAbos(inputs: AboInput[]): Promise<AboResult & { angelegt?: number }> {
   if (!inputs?.length) return { error: "Keine Abos ausgewählt." };
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const rows: Record<string, unknown>[] = [];
   for (const input of inputs) {
     const parsed = aboSchema.safeParse(input);
     if (!parsed.success) continue; // ungueltige Zeilen ueberspringen
-    rows.push({ ...parsed.data, user_id: user.id });
+    rows.push({ ...parsed.data, user_id: account });
   }
   if (!rows.length) return { error: "Keine gültigen Abos zum Anlegen." };
 
@@ -139,14 +142,14 @@ export async function bulkCreateAbos(inputs: AboInput[]): Promise<AboResult & { 
 
 export async function bulkDeleteAbos(ids: string[]): Promise<AboResult> {
   if (!ids?.length) return { error: "Keine Abos ausgewählt." };
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase
     .from("abos")
     .delete()
     .in("id", ids)
-    .eq("user_id", user.id);
+    .eq("user_id", account);
 
   if (error) return { error: "Löschen hat nicht geklappt. Bitte versuche es erneut." };
   revalidatePath("/app/abos");
@@ -158,14 +161,14 @@ export async function bulkSetStatus(
   status: "archiviert" | "pausiert" | "aktiv",
 ): Promise<AboResult> {
   if (!ids?.length) return { error: "Keine Abos ausgewählt." };
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase
     .from("abos")
     .update({ status })
     .in("id", ids)
-    .eq("user_id", user.id);
+    .eq("user_id", account);
 
   if (error) return { error: "Aktualisieren hat nicht geklappt. Bitte versuche es erneut." };
   revalidatePath("/app/abos");
@@ -174,14 +177,14 @@ export async function bulkSetStatus(
 
 export async function setErinnerung(id: string, on: boolean): Promise<AboResult> {
   if (!id) return { error: "Unbekanntes Abo." };
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase
     .from("abos")
     .update({ erinnerung: on })
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", account);
 
   if (error) return { error: "Das hat nicht geklappt. Bitte versuche es erneut." };
   revalidatePath("/app/abos");
@@ -190,14 +193,14 @@ export async function setErinnerung(id: string, on: boolean): Promise<AboResult>
 
 export async function deleteAbo(id: string): Promise<AboResult> {
   if (!id) return { error: "Unbekanntes Abo." };
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase
     .from("abos")
     .delete()
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", account);
 
   if (error) return { error: "Löschen hat nicht geklappt. Bitte versuche es erneut." };
   revalidatePath("/app/abos");
