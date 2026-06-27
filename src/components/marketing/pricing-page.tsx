@@ -16,16 +16,17 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Reveal, fmtEUR } from "@/components/marketing/marketing-home";
+import { PLANS, FREE_ABO_LIMIT, YEARLY_DISCOUNT } from "@/lib/constants";
 
 /**
- * Platzhalter, Preise & Limits zentral hier anpassen.
- * Werte sind Hypothesen zum Validieren, keine echten Endpreise.
+ * Preise & Limits kommen zentral aus src/lib/constants.ts (einzige Quelle der Wahrheit).
+ * Hier nur die Abbildung auf die Seitenstruktur, keine eigenen Preiswerte.
  */
 const PLAEN = {
-  jahresRabattProzent: 20,
-  free: { monat: 0, jahrProMonat: 0, aboLimit: 15, nutzer: 1 },
-  pro: { monat: 14, jahrProMonat: 11, nutzer: 1 },
-  agentur: { monat: 69, jahrProMonat: 55, nutzer: "Mehrere" },
+  jahresRabattProzent: Math.round(YEARLY_DISCOUNT * 100),
+  free: { monat: PLANS.free.monthlyEur, jahrProMonat: PLANS.free.yearlyMonthlyEur, aboLimit: FREE_ABO_LIMIT, nutzer: PLANS.free.nutzer },
+  pro: { monat: PLANS.pro.monthlyEur, jahrProMonat: PLANS.pro.yearlyMonthlyEur, nutzer: PLANS.pro.nutzer },
+  agentur: { monat: PLANS.agentur.monthlyEur, jahrProMonat: PLANS.agentur.yearlyMonthlyEur, nutzer: PLANS.agentur.nutzer },
 } as const;
 
 type Cadence = "monat" | "jahr";

@@ -25,8 +25,12 @@ import {
   PreviewSparvorschlaege,
   PreviewKunde,
 } from "@/components/marketing/marketing-home";
+import { PLANS } from "@/lib/constants";
 
 export type ComparisonSlug = "excel" | "sastrify" | "cledara" | "spendesk" | "pleo" | "zluri" | "torii";
+
+// Startpreis des guenstigsten bezahlten Tarifs, zentral aus den Tarifkonstanten.
+const STARTPREIS = `ab ${PLANS.pro.monthlyEur} €/Monat`;
 
 type Row = { feature: string; toolfolio: string | boolean; alt: string | boolean };
 type Group = { label: string; rows: Row[] };
@@ -381,7 +385,7 @@ export const comparisonData: Record<ComparisonSlug, ComparisonData> = {
       { label: "Kosten optimieren", rows: [{ feature: "Benchmark gegen Markt", toolfolio: true, alt: false }, { feature: "Konkrete Sparvorschläge", toolfolio: true, alt: false }, { feature: "AI-Credits Multi-Provider", toolfolio: true, alt: false }] },
       { label: "Agentur-Funktionen", rows: [{ feature: "Kosten pro Kunde", toolfolio: true, alt: "Manuell" }, { feature: "Weiterverrechnungs-Report", toolfolio: true, alt: false }, { feature: "Marge pro Kunde", toolfolio: true, alt: false }] },
       { label: "Steuer & Belege", rows: [{ feature: "DATEV-Export", toolfolio: true, alt: false }, { feature: "Reverse-Charge automatisch", toolfolio: true, alt: "Selbst pflegen" }, { feature: "Belege am Abo", toolfolio: true, alt: false }] },
-      { label: "Preis und Einrichtung", rows: [{ feature: "Preis", toolfolio: "Free, ab 19 €/Monat", alt: "Kostenlos" }, { feature: "Einrichtung", toolfolio: "5 Minuten", alt: "Stunden" }, { feature: "Sprache", toolfolio: "Deutsch, DACH-spezifisch", alt: "Sprachunabhängig" }] },
+      { label: "Preis und Einrichtung", rows: [{ feature: "Preis", toolfolio: `Free, ${STARTPREIS}`, alt: "Kostenlos" }, { feature: "Einrichtung", toolfolio: "5 Minuten", alt: "Stunden" }, { feature: "Sprache", toolfolio: "Deutsch, DACH-spezifisch", alt: "Sprachunabhängig" }] },
     ],
     diffs: [
       { title: "Automatische Erfassung statt Handarbeit.", body: "Du leitest Rechnungs-Mails an deine Toolfolio-Adresse weiter. Anbieter, Betrag, Verlängerung werden erkannt, die Tabelle pflegt sich von selbst.", slot: "Import-Flow", Preview: PreviewImport },
@@ -423,7 +427,7 @@ export const comparisonData: Record<ComparisonSlug, ComparisonData> = {
     altDataAsOf: "November 2025, Sastrify als Teil von Deel IT",
     groups: [
       { label: "Zielgruppe", rows: [{ feature: "Kleine Teams (1 bis 20)", toolfolio: true, alt: "Eher 50+" }, { feature: "Freelancer und Solopreneure", toolfolio: true, alt: false }, { feature: "Enterprise mit Procurement", toolfolio: false, alt: true }] },
-      { label: "Preis und Einstieg", rows: [{ feature: "Free-Plan", toolfolio: true, alt: "Nicht öffentlich beziffert" }, { feature: "Startpreis", toolfolio: "ab 19 €/Monat", alt: "Auf Anfrage" }, { feature: "Einrichtung", toolfolio: "5 Minuten", alt: "Onboarding-Prozess" }] },
+      { label: "Preis und Einstieg", rows: [{ feature: "Free-Plan", toolfolio: true, alt: "Nicht öffentlich beziffert" }, { feature: "Startpreis", toolfolio: STARTPREIS, alt: "Auf Anfrage" }, { feature: "Einrichtung", toolfolio: "5 Minuten", alt: "Onboarding-Prozess" }] },
       { label: "DACH-Fokus", rows: [{ feature: "DATEV-Export", toolfolio: true, alt: "" }, { feature: "Reverse-Charge automatisch", toolfolio: true, alt: "" }, { feature: "Deutsche Oberfläche", toolfolio: true, alt: "Englisch primär" }] },
       { label: "Funktionen", rows: [{ feature: "Fristen-Wächter", toolfolio: true, alt: true }, { feature: "Benchmark", toolfolio: true, alt: true }, { feature: "Kosten pro Kunde / Weiterverrechnung", toolfolio: true, alt: "" }, { feature: "SSO-Discovery / IT-Governance", toolfolio: false, alt: true }] },
     ],
@@ -466,7 +470,7 @@ export const comparisonData: Record<ComparisonSlug, ComparisonData> = {
     groups: [
       { label: "Modell", rows: [{ feature: "Karten-frei nutzbar", toolfolio: true, alt: "" }, { feature: "Auch ohne IT-Setup", toolfolio: true, alt: "" }] },
       { label: "DACH", rows: [{ feature: "DATEV-Export", toolfolio: true, alt: "" }, { feature: "Reverse-Charge", toolfolio: true, alt: "" }, { feature: "Deutsche Oberfläche", toolfolio: true, alt: "Englisch primär" }] },
-      { label: "Preis", rows: [{ feature: "Free-Plan", toolfolio: true, alt: "" }, { feature: "Startpreis", toolfolio: "ab 19 €/Monat", alt: "Auf Anfrage" }] },
+      { label: "Preis", rows: [{ feature: "Free-Plan", toolfolio: true, alt: "" }, { feature: "Startpreis", toolfolio: STARTPREIS, alt: "Auf Anfrage" }] },
     ],
     diffs: [
       { title: "Ohne Karten-Pflicht.", body: "Du brauchst keine virtuellen Karten, um Toolfolio zu nutzen. Mail-Forward und Kontoauszug reichen.", slot: "Import", Preview: PreviewImport },

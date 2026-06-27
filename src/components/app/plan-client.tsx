@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Check, Sparkles, Building2, UserCheck, ArrowRight, Loader2, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { formatEur, PLANS, YEARLY_DISCOUNT, type PlanId } from "@/lib/constants";
+import { formatEur, PLANS, YEARLY_DISCOUNT, planMonatsbetrag, type PlanId } from "@/lib/constants";
 import { createCheckout, openPortal } from "@/app/app/einstellungen/plan/actions";
 
 export type Billing = {
@@ -47,10 +47,9 @@ function fmtDate(iso: string | null) {
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
-/** Monatsbetrag je Tarif und Abrechnungszyklus (mit Jahresrabatt). */
+/** Monatsbetrag je Tarif und Abrechnungszyklus (zentrale, explizite Jahrespreise). */
 function betragProMonat(plan: PlanId, cadence: Cadence) {
-  const m = PLANS[plan].monthlyEur;
-  return cadence === "jahr" ? Math.round(m * (1 - YEARLY_DISCOUNT) * 100) / 100 : m;
+  return planMonatsbetrag(plan, cadence);
 }
 
 export function PlanClient({ billing, status }: { billing: Billing; status?: string }) {
