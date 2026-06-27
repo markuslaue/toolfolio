@@ -30,6 +30,7 @@ import {
   Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PLANS, FREE_ABO_LIMIT } from "@/lib/constants";
 
 export const fmtEUR = (n: number) =>
   new Intl.NumberFormat("de-DE", {
@@ -860,10 +861,11 @@ function Trust() {
 }
 
 function PricingTeaser() {
+  // Preise zentral aus src/lib/constants.ts (einzige Quelle der Wahrheit).
   const plans = [
-    { name: "Free", price: "0 €", sub: "für immer", note: "Bis 15 Abos, manuelles Erfassen, Fristen-Erinnerungen.", featured: false },
-    { name: "Pro", price: fmtEUR(14), sub: "pro Monat", note: "Unbegrenzte Abos, Import, Benchmark, Sparvorschläge.", featured: true },
-    { name: "Agentur", price: fmtEUR(69), sub: "pro Monat", note: "Kosten pro Kunde, Team & Rollen, mehrere Gesellschaften.", featured: false },
+    { name: PLANS.free.name, price: "0 €", sub: "für immer", note: `Bis ${FREE_ABO_LIMIT} Abos, manuelles Erfassen, Fristen-Erinnerungen.`, featured: false },
+    { name: PLANS.pro.name, price: fmtEUR(PLANS.pro.monthlyEur), sub: "pro Monat", note: "Unbegrenzte Abos, Import, Benchmark, Sparvorschläge.", featured: true },
+    { name: PLANS.agentur.name, price: fmtEUR(PLANS.agentur.monthlyEur), sub: "pro Monat", note: "Kosten pro Kunde, Team & Rollen, mehrere Gesellschaften.", featured: false },
   ];
   return (
     <section className="py-20 sm:py-28">
