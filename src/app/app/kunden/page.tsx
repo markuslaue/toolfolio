@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { KundenClient } from "@/components/app/kunden-client";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import { monatlich, type Abo } from "@/lib/abos";
 import type { Kunde, KundeMitStats } from "@/lib/kunden";
 
@@ -13,10 +14,11 @@ export default async function KundenPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: kunden }, { data: abos }] = await Promise.all([
-    supabase.from("kunden").select("*").order("name"),
-    supabase.from("abos").select("kunde, kosten, intervall"),
+    supabase.from("kunden").select("*").eq("user_id", account).order("name"),
+    supabase.from("abos").select("kunde, kosten, intervall").eq("user_id", account),
   ]);
 
   // Kennzahlen je Kunde aus den Abos ableiten (Match ueber den Namen).

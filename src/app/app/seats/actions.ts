@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 
 export type SeatResult = { ok?: boolean; error?: string };
 
@@ -12,8 +13,9 @@ export async function setLizenzen(aboId: string, lizenzen: number | null): Promi
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Bitte melde dich erneut an." };
-  const { error } = await supabase.from("abos").update({ lizenzen }).eq("id", aboId).eq("user_id", user.id);
+  const account = user ? await getActiveAccount(supabase, user.id) : null;
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
+  const { error } = await supabase.from("abos").update({ lizenzen }).eq("id", aboId).eq("user_id", account);
   if (error) return { error: "Lizenzen konnten nicht gespeichert werden." };
   revalidatePath("/app/seats");
   return { ok: true };

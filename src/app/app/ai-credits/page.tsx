@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AiCreditsClient } from "@/components/app/ai-credits-client";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import { berechneAiCredits, type AiService, type AiSpendRow } from "@/lib/ai-credits";
 
 export const metadata: Metadata = { title: "AI-Credits" };
@@ -12,10 +13,11 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: services }, { data: spend }] = await Promise.all([
-    supabase.from("ai_services").select("id, name, farbe, budget_monat").eq("user_id", user.id).order("created_at"),
-    supabase.from("ai_spend").select("service_id, jahr, monat, betrag").eq("user_id", user.id),
+    supabase.from("ai_services").select("id, name, farbe, budget_monat").eq("user_id", account).order("created_at"),
+    supabase.from("ai_spend").select("service_id, jahr, monat, betrag").eq("user_id", account),
   ]);
 
   const heute = new Date();

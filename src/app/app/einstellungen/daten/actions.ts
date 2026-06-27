@@ -13,15 +13,16 @@ export async function exportData(): Promise<{ json?: string; error?: string }> {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Bitte melde dich erneut an." };
 
-  // Alles ueber den nutzergebundenen Client -> RLS liefert nur eigene Zeilen.
+  // DSGVO-Auskunft betrifft ausschliesslich das EIGENE Konto (user.id),
+  // nicht ein per Mitgliedschaft aktiv geschaltetes fremdes Konto.
   const [profil, unternehmen, abos, kunden, kanaele, quittungen, log] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
     supabase.from("unternehmen").select("*").eq("user_id", user.id).maybeSingle(),
-    supabase.from("abos").select("*"),
-    supabase.from("kunden").select("*"),
-    supabase.from("zahlungskanaele").select("*"),
-    supabase.from("frist_quittungen").select("*"),
-    supabase.from("notification_log").select("*"),
+    supabase.from("abos").select("*").eq("user_id", user.id),
+    supabase.from("kunden").select("*").eq("user_id", user.id),
+    supabase.from("zahlungskanaele").select("*").eq("user_id", user.id),
+    supabase.from("frist_quittungen").select("*").eq("user_id", user.id),
+    supabase.from("notification_log").select("*").eq("user_id", user.id),
   ]);
 
   const dump = {

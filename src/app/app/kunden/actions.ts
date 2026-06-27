@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 
 export type KundeResult = { ok?: boolean; id?: string; error?: string };
 
@@ -30,7 +31,8 @@ async function userOrError() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  return { supabase, user };
+  const account = user ? await getActiveAccount(supabase, user.id) : null;
+  return { supabase, user, account };
 }
 
 export async function createKunde(input: KundeInput): Promise<KundeResult> {
@@ -38,12 +40,12 @@ export async function createKunde(input: KundeInput): Promise<KundeResult> {
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Bitte prüfe deine Eingaben." };
   }
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { data, error } = await supabase
     .from("kunden")
-    .insert({ ...parsed.data, user_id: user.id })
+    .insert({ ...parsed.data, user_id: account })
     .select("id")
     .single();
   if (error) return { error: "Anlegen hat nicht geklappt. Bitte versuche es erneut." };
@@ -57,14 +59,14 @@ export async function updateKunde(id: string, input: KundeInput): Promise<KundeR
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Bitte prüfe deine Eingaben." };
   }
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase
     .from("kunden")
     .update(parsed.data)
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", account);
   if (error) return { error: "Speichern hat nicht geklappt. Bitte versuche es erneut." };
   revalidatePath("/app/kunden");
   return { ok: true, id };
@@ -72,14 +74,14 @@ export async function updateKunde(id: string, input: KundeInput): Promise<KundeR
 
 export async function deleteKunde(id: string): Promise<KundeResult> {
   if (!id) return { error: "Unbekannter Kunde." };
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase
     .from("kunden")
     .delete()
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", account);
   if (error) return { error: "Löschen hat nicht geklappt. Bitte versuche es erneut." };
   revalidatePath("/app/kunden");
   return { ok: true };

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { BudgetClient } from "@/components/app/budget-client";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import { berechneBudget } from "@/lib/budget";
 import { berechneVorschlaege } from "@/lib/sparvorschlaege";
 import type { Abo } from "@/lib/abos";
@@ -15,10 +16,11 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: abos }, { data: spend }, { data: profil }, { data: sparStatus }] = await Promise.all([
-    supabase.from("abos").select("*").eq("user_id", user.id),
-    supabase.from("ai_spend").select("service_id, jahr, monat, betrag").eq("user_id", user.id),
+    supabase.from("abos").select("*").eq("user_id", account),
+    supabase.from("ai_spend").select("service_id, jahr, monat, betrag").eq("user_id", account),
     supabase.from("profiles").select("budget_jahr").eq("id", user.id).maybeSingle(),
     supabase.from("sparvorschlag_status").select("vorschlag_key").eq("user_id", user.id),
   ]);

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { SteuerClient, type AboPosten, type AiPosten } from "@/components/app/steuer-client";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import { monatlich, type Abo } from "@/lib/abos";
 import type { AiService, AiSpendRow } from "@/lib/ai-credits";
 
@@ -13,11 +14,12 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: abos }, { data: services }, { data: spend }] = await Promise.all([
-    supabase.from("abos").select("*").eq("user_id", user.id),
-    supabase.from("ai_services").select("id, name, farbe, budget_monat").eq("user_id", user.id),
-    supabase.from("ai_spend").select("service_id, jahr, monat, betrag").eq("user_id", user.id),
+    supabase.from("abos").select("*").eq("user_id", account),
+    supabase.from("ai_services").select("id, name, farbe, budget_monat").eq("user_id", account),
+    supabase.from("ai_spend").select("service_id, jahr, monat, betrag").eq("user_id", account),
   ]);
 
   const aboPosten: AboPosten[] = ((abos as Abo[]) ?? [])

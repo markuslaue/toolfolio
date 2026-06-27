@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { SeatsClient, type ToolSeat } from "@/components/app/seats-client";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import { monatlich, type Abo } from "@/lib/abos";
 
 export const metadata: Metadata = { title: "Seats & Lizenzen" };
@@ -14,11 +15,12 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: abos }, { data: zugaenge }, { data: personen }] = await Promise.all([
-    supabase.from("abos").select("id, tool, farbe, kategorie, kosten, intervall, status, lizenzen").eq("user_id", user.id).order("tool"),
-    supabase.from("tool_zugang").select("abo_id, person_id").eq("user_id", user.id),
-    supabase.from("personen").select("id, name, rolle").eq("user_id", user.id),
+    supabase.from("abos").select("id, tool, farbe, kategorie, kosten, intervall, status, lizenzen").eq("user_id", account).order("tool"),
+    supabase.from("tool_zugang").select("abo_id, person_id").eq("user_id", account),
+    supabase.from("personen").select("id, name, rolle").eq("user_id", account),
   ]);
 
   const personById = new Map(((personen as { id: string; name: string; rolle: string | null }[]) ?? []).map((p) => [p.id, p]));

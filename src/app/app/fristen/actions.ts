@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 
 export type FristResult = { ok?: boolean; error?: string };
 
@@ -19,7 +20,8 @@ async function userOrError() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  return { supabase, user };
+  const account = user ? await getActiveAccount(supabase, user.id) : null;
+  return { supabase, user, account };
 }
 
 /** Eine Frist als erledigt/ignoriert quittieren (idempotent ueber Unique-Key). */
@@ -27,11 +29,11 @@ export async function quittiereFrist(input: z.input<typeof schema>): Promise<Fri
   const parsed = schema.safeParse(input);
   if (!parsed.success) return { error: "Ungültige Frist." };
 
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase.from("frist_quittungen").upsert(
-    { ...parsed.data, user_id: user.id },
+    { ...parsed.data, user_id: account },
     { onConflict: "user_id,quelle_id,art,datum" },
   );
   if (error) return { error: "Das hat nicht geklappt. Bitte versuche es erneut." };
@@ -46,13 +48,13 @@ export async function widerrufeFrist(input: {
   art: string;
   datum: string;
 }): Promise<FristResult> {
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase
     .from("frist_quittungen")
     .delete()
-    .eq("user_id", user.id)
+    .eq("user_id", account)
     .eq("quelle_id", input.quelle_id)
     .eq("art", input.art)
     .eq("datum", input.datum);

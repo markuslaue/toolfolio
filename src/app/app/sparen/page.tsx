@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { SparvorschlaegeClient } from "@/components/app/sparvorschlaege-client";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import { berechneVorschlaege, type Vorschlag, type Typ, type Status, type ToolRef } from "@/lib/sparvorschlaege";
 import type { Abo } from "@/lib/abos";
 
@@ -24,9 +25,10 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: abos }, { data: status }] = await Promise.all([
-    supabase.from("abos").select("*").eq("user_id", user.id),
+    supabase.from("abos").select("*").eq("user_id", account),
     supabase.from("sparvorschlag_status").select("*").eq("user_id", user.id),
   ]);
 

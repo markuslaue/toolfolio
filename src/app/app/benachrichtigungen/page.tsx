@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { BenachrichtigungenClient } from "@/components/app/benachrichtigungen-client";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import { deriveFristen } from "@/lib/fristen";
 import { berechneVorschlaege } from "@/lib/sparvorschlaege";
 import { buildAktionen, buildSpikeAktionen, zeitgruppe, type Aktion, type AktivitaetsEintrag, type BenachrStatus } from "@/lib/benachrichtigungen";
@@ -21,15 +22,16 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: abos }, { data: kanaele }, { data: kunden }, { data: spar }, { data: benachr }, { data: aiServices }, { data: aiSpend }] = await Promise.all([
-    supabase.from("abos").select("*").eq("user_id", user.id),
-    supabase.from("zahlungskanaele").select("*").eq("user_id", user.id),
-    supabase.from("kunden").select("name, created_at").eq("user_id", user.id),
+    supabase.from("abos").select("*").eq("user_id", account),
+    supabase.from("zahlungskanaele").select("*").eq("user_id", account),
+    supabase.from("kunden").select("name, created_at").eq("user_id", account),
     supabase.from("sparvorschlag_status").select("vorschlag_key, status, titel, ersparnis_jahr, updated_at").eq("user_id", user.id),
     supabase.from("benachrichtigung_status").select("key, status").eq("user_id", user.id),
-    supabase.from("ai_services").select("id, name, farbe, budget_monat").eq("user_id", user.id),
-    supabase.from("ai_spend").select("service_id, jahr, monat, betrag").eq("user_id", user.id),
+    supabase.from("ai_services").select("id, name, farbe, budget_monat").eq("user_id", account),
+    supabase.from("ai_spend").select("service_id, jahr, monat, betrag").eq("user_id", account),
   ]);
 
   const aboList = (abos as Abo[]) ?? [];

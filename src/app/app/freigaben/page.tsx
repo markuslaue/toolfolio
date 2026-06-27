@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { FreigabenClient, type Antrag, type Kontext } from "@/components/app/freigaben-client";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import { monatlich, type Abo } from "@/lib/abos";
 
 export const metadata: Metadata = { title: "Freigaben" };
@@ -14,12 +15,13 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: antraege }, { data: abos }, { data: profil }, { data: personen }] = await Promise.all([
-    supabase.from("freigabe_antrag").select("id, tool, kategorie, kosten, intervall, antragsteller, begruendung, status, grund_ablehnung").eq("user_id", user.id).order("created_at", { ascending: false }),
-    supabase.from("abos").select("kategorie, kosten, intervall, status").eq("user_id", user.id),
+    supabase.from("freigabe_antrag").select("id, tool, kategorie, kosten, intervall, antragsteller, begruendung, status, grund_ablehnung").eq("user_id", account).order("created_at", { ascending: false }),
+    supabase.from("abos").select("kategorie, kosten, intervall, status").eq("user_id", account),
     supabase.from("profiles").select("budget_jahr").eq("id", user.id).maybeSingle(),
-    supabase.from("personen").select("name").eq("user_id", user.id).order("name"),
+    supabase.from("personen").select("name").eq("user_id", account).order("name"),
   ]);
 
   const aktiveAbos = ((abos as Abo[]) ?? []).filter((a) => a.status === "aktiv" || a.status === "Trial");

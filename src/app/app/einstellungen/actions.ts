@@ -5,6 +5,7 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 
 /** Storage-Pfad aus einer oeffentlichen avatars-URL ziehen (oder null). */
 function currentAvatarPath(uid: string, url: string | null): string | null {
@@ -197,11 +198,12 @@ export async function saveUnternehmen(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const account = user ? await getActiveAccount(supabase, user.id) : null;
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase
     .from("unternehmen")
-    .upsert({ ...parsed.data, user_id: user.id }, { onConflict: "user_id" });
+    .upsert({ ...parsed.data, user_id: account }, { onConflict: "user_id" });
   if (error) return { error: "Speichern hat nicht geklappt. Bitte versuche es erneut." };
   revalidatePath("/app/einstellungen/unternehmen");
   return { ok: true };

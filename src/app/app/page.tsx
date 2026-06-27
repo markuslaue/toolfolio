@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Dashboard } from "@/components/app/dashboard";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import {
   monatlich,
   KATEGORIE_FARBEN,
@@ -40,7 +41,8 @@ export default async function DashboardPage() {
     .single();
   if (!profile?.onboarded_at) redirect("/app/onboarding");
 
-  const { data } = await supabase.from("abos").select("*");
+  const account = await getActiveAccount(supabase, user.id);
+  const { data } = await supabase.from("abos").select("*").eq("user_id", account);
   const abos = (data as Abo[]) ?? [];
 
   const lebend = abos.filter((a) => a.status !== "archiviert" && a.status !== "gekuendigt");

@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 
 export type KanalResult = { ok?: boolean; id?: string; error?: string };
 
@@ -31,7 +32,8 @@ async function userOrError() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  return { supabase, user };
+  const account = user ? await getActiveAccount(supabase, user.id) : null;
+  return { supabase, user, account };
 }
 
 export async function createKanal(input: KanalInput): Promise<KanalResult> {
@@ -39,12 +41,12 @@ export async function createKanal(input: KanalInput): Promise<KanalResult> {
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Bitte prüfe deine Eingaben." };
   }
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { data, error } = await supabase
     .from("zahlungskanaele")
-    .insert({ ...parsed.data, user_id: user.id })
+    .insert({ ...parsed.data, user_id: account })
     .select("id")
     .single();
   if (error) return { error: "Anlegen hat nicht geklappt. Bitte versuche es erneut." };
@@ -58,14 +60,14 @@ export async function updateKanal(id: string, input: KanalInput): Promise<KanalR
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Bitte prüfe deine Eingaben." };
   }
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase
     .from("zahlungskanaele")
     .update(parsed.data)
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", account);
   if (error) return { error: "Speichern hat nicht geklappt. Bitte versuche es erneut." };
   revalidatePath("/app/zahlungskanaele");
   return { ok: true, id };
@@ -73,14 +75,14 @@ export async function updateKanal(id: string, input: KanalInput): Promise<KanalR
 
 export async function deleteKanal(id: string): Promise<KanalResult> {
   if (!id) return { error: "Unbekannter Kanal." };
-  const { supabase, user } = await userOrError();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const { error } = await supabase
     .from("zahlungskanaele")
     .delete()
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", account);
   if (error) return { error: "Löschen hat nicht geklappt. Bitte versuche es erneut." };
   revalidatePath("/app/zahlungskanaele");
   return { ok: true };

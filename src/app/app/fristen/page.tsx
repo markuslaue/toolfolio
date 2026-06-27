@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { FristenWaechter } from "@/components/app/fristen-waechter";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import { deriveFristen } from "@/lib/fristen";
 import type { Abo } from "@/lib/abos";
 import type { Zahlungskanal } from "@/lib/zahlungskanaele";
@@ -16,11 +17,12 @@ export default async function FristenPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: abos }, { data: kanaele }, { data: quittungen }] = await Promise.all([
-    supabase.from("abos").select("*"),
-    supabase.from("zahlungskanaele").select("*"),
-    supabase.from("frist_quittungen").select("quelle_id, art, datum"),
+    supabase.from("abos").select("*").eq("user_id", account),
+    supabase.from("zahlungskanaele").select("*").eq("user_id", account),
+    supabase.from("frist_quittungen").select("quelle_id, art, datum").eq("user_id", account),
   ]);
 
   const erledigt = new Set(

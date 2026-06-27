@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 
 export type ArchivResult = { ok?: boolean; error?: string };
 
@@ -15,7 +16,8 @@ async function userClient() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  return { supabase, user };
+  const account = user ? await getActiveAccount(supabase, user.id) : null;
+  return { supabase, user, account };
 }
 
 /** Dokument anlegen, optional mit Datei-Upload in den privaten Bucket. */
@@ -37,8 +39,8 @@ export async function uploadDokument(_prev: ArchivResult, formData: FormData): P
     });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Bitte prüfe deine Eingabe." };
 
-  const { supabase, user } = await userClient();
-  if (!user) return { error: "Bitte melde dich erneut an." };
+  const { supabase, user, account } = await userClient();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
 
   const datei = formData.get("datei");
   let storage_path: string | null = null;
@@ -62,7 +64,7 @@ export async function uploadDokument(_prev: ArchivResult, formData: FormData): P
   const betrag = parsed.data.betrag ? Number(parsed.data.betrag.replace(",", ".")) : null;
 
   const { error } = await supabase.from("dokumente").insert({
-    user_id: user.id,
+    user_id: account,
     abo_id: parsed.data.abo_id || null,
     typ: parsed.data.typ,
     titel: parsed.data.titel,
@@ -83,9 +85,9 @@ export async function uploadDokument(_prev: ArchivResult, formData: FormData): P
 
 /** Signierte Download-URL fuer ein eigenes Dokument erzeugen. */
 export async function getDownloadUrl(id: string): Promise<{ url?: string; error?: string }> {
-  const { supabase, user } = await userClient();
-  if (!user) return { error: "Bitte melde dich erneut an." };
-  const { data: doc } = await supabase.from("dokumente").select("storage_path").eq("id", id).eq("user_id", user.id).maybeSingle();
+  const { supabase, user, account } = await userClient();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
+  const { data: doc } = await supabase.from("dokumente").select("storage_path").eq("id", id).eq("user_id", account).maybeSingle();
   if (!doc?.storage_path) return { error: "Zu diesem Eintrag ist keine Datei hinterlegt." };
   const { data, error } = await supabase.storage.from("dokumente").createSignedUrl(doc.storage_path, 120);
   if (error || !data) return { error: "Download-Link konnte nicht erstellt werden." };
@@ -94,11 +96,11 @@ export async function getDownloadUrl(id: string): Promise<{ url?: string; error?
 
 /** Dokument loeschen (Datei + Metadaten). */
 export async function deleteDokument(id: string): Promise<ArchivResult> {
-  const { supabase, user } = await userClient();
-  if (!user) return { error: "Bitte melde dich erneut an." };
-  const { data: doc } = await supabase.from("dokumente").select("storage_path").eq("id", id).eq("user_id", user.id).maybeSingle();
+  const { supabase, user, account } = await userClient();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
+  const { data: doc } = await supabase.from("dokumente").select("storage_path").eq("id", id).eq("user_id", account).maybeSingle();
   if (doc?.storage_path) await supabase.storage.from("dokumente").remove([doc.storage_path]);
-  const { error } = await supabase.from("dokumente").delete().eq("id", id).eq("user_id", user.id);
+  const { error } = await supabase.from("dokumente").delete().eq("id", id).eq("user_id", account);
   if (error) return { error: "Dokument konnte nicht gelöscht werden." };
   revalidatePath("/app/archiv");
   return { ok: true };

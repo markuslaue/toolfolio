@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { BerichteClient, type KundenReport } from "@/components/app/berichte-client";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import { monatlich, type Abo } from "@/lib/abos";
 import type { Kunde } from "@/lib/kunden";
 
@@ -15,11 +16,12 @@ export default async function BerichtePage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: unternehmen }, { data: kunden }, { data: abos }] = await Promise.all([
-    supabase.from("unternehmen").select("name, strasse, plz, ort, ust_id").eq("user_id", user.id).maybeSingle(),
-    supabase.from("kunden").select("*"),
-    supabase.from("abos").select("*"),
+    supabase.from("unternehmen").select("name, strasse, plz, ort, ust_id").eq("user_id", account).maybeSingle(),
+    supabase.from("kunden").select("*").eq("user_id", account),
+    supabase.from("abos").select("*").eq("user_id", account),
   ]);
 
   const kundeByName = new Map(((kunden as Kunde[]) ?? []).map((k) => [k.name, k]));

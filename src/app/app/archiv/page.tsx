@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ArchivClient, type Dok, type AboRef, type DocTyp } from "@/components/app/archiv-client";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 
 export const metadata: Metadata = { title: "Archiv" };
 
@@ -13,10 +14,11 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: docs }, { data: abos }] = await Promise.all([
-    supabase.from("dokumente").select("id, abo_id, typ, titel, datum, jahr, betrag, storage_path").eq("user_id", user.id).order("datum", { ascending: false }),
-    supabase.from("abos").select("id, tool, farbe, kategorie, initial").eq("user_id", user.id).order("tool"),
+    supabase.from("dokumente").select("id, abo_id, typ, titel, datum, jahr, betrag, storage_path").eq("user_id", account).order("datum", { ascending: false }),
+    supabase.from("abos").select("id, tool, farbe, kategorie, initial").eq("user_id", account).order("tool"),
   ]);
 
   const dokumente: Dok[] = ((docs as DokRow[]) ?? []).map((d) => ({

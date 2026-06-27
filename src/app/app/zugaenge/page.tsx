@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ZugaengeClient, type Person, type Zugang, type ToolRef } from "@/components/app/zugaenge-client";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import { monatlich, type Abo } from "@/lib/abos";
 
 export const metadata: Metadata = { title: "Team & Zugänge" };
@@ -12,11 +13,12 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const [{ data: personen }, { data: zugaenge }, { data: abos }] = await Promise.all([
-    supabase.from("personen").select("id, name, rolle, email, status, austritt").eq("user_id", user.id).order("created_at"),
-    supabase.from("tool_zugang").select("id, person_id, abo_id, platz_kosten, ist_owner").eq("user_id", user.id),
-    supabase.from("abos").select("id, tool, farbe, kategorie, kosten, intervall, status").eq("user_id", user.id).order("tool"),
+    supabase.from("personen").select("id, name, rolle, email, status, austritt").eq("user_id", account).order("created_at"),
+    supabase.from("tool_zugang").select("id, person_id, abo_id, platz_kosten, ist_owner").eq("user_id", account),
+    supabase.from("abos").select("id, tool, farbe, kategorie, kosten, intervall, status").eq("user_id", account).order("tool"),
   ]);
 
   const tools: ToolRef[] = ((abos as Abo[]) ?? [])

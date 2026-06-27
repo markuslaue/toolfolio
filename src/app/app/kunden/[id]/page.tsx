@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { KundeDetail } from "@/components/app/kunde-detail";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveAccount } from "@/lib/active-account";
 import type { Abo } from "@/lib/abos";
 import type { Kunde } from "@/lib/kunden";
 
@@ -18,12 +19,13 @@ export default async function KundeDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const account = await getActiveAccount(supabase, user.id);
 
   const { data: kunde } = await supabase
     .from("kunden")
     .select("*")
     .eq("id", id)
-    .eq("user_id", user.id)
+    .eq("user_id", account)
     .single();
   if (!kunde) notFound();
 
@@ -32,6 +34,7 @@ export default async function KundeDetailPage({
     .from("abos")
     .select("*")
     .eq("kunde", (kunde as Kunde).name)
+    .eq("user_id", account)
     .order("naechste_abbuchung", { ascending: true, nullsFirst: false });
 
   return <KundeDetail kunde={kunde as Kunde} abos={(abos as Abo[]) ?? []} />;
