@@ -57,6 +57,11 @@ Internes Redaktions-CMS, mit dem ausschliesslich der Admin das oeffentliche, SEO
 - **Redaktionsrolle = kleines festes Team (Allowlist).** Globale Redaktionsrolle getrennt von der Konto-Rolle `profiles.role`; Umsetzung als `profiles.is_staff` bzw. Allowlist. Ein Konto-Admin ist NICHT automatisch Redakteur. Konkrete E-Mail-Adressen liefert Markus beim Bau.
 - **Bewertungen zweistufig:** *verifiziert* (eingeloggter Nutzer + Tool im anonymisierten Tracker, serverseitig Ja/Nein) und *nicht verifiziert* (offen, auch ohne Toolfolio-Account, ohne Nachweis). Im Frontend klar getrennt gekennzeichnet. First-Party (keine gecrawlten/Drittbewertungen). Erfordert Moderation/Anti-Abuse + UWG-Transparenz (Verifizierungsstatus ausweisen, Aggregat nicht irrefuehrend).
 
+## Status Fundament (2026-06-27)
+- **`profiles.is_staff` existiert** (globale Superadmin-/Redaktionsrolle, getrennt von role), **per Trigger geschuetzt** (kein Selbst-Setzen, 42501 verifiziert).
+- **Markus' Konto ist `is_staff = true` UND `role = owner`** -> nutzt Toolfolio normal (eigener Toolstack) und ist zugleich Superadmin/Redakteur. Ueberlebt den ausstehenden E-Mail-Wechsel (per Profil-ID geflaggt).
+- AD-01-Bau: Admin-Shell + AD-Routen + dir_*-Schreib-RLS gaten auf `is_staff`.
+
 ## Offene Punkte fuer den Bau (kein Blocker)
-- [ ] Redakteurs-E-Mail-Liste von Markus einholen (beim AD-Fundament).
+- [ ] Weitere Redakteure: deren Profil per Service-Role auf is_staff=true setzen (kein UI noetig fuers MVP).
 - [ ] Moderations-Workflow + Anti-Abuse fuer offene Bewertungen final ausgestalten (Status, Rate-Limit, Captcha/Mail-Bestaetigung).

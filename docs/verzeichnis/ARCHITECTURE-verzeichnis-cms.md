@@ -97,7 +97,9 @@ Auf jeder Collection sind Produkte in drei sichtbar getrennten Zonen: **Gesponse
 
 ## 6. Zugriff, Rollen, Sicherheit
 
-- **Admin-CMS (AD):** **globale Redaktionsrolle als Allowlist** (Entscheidung 2026-06-26: kleines festes Team). Umsetzung: `profiles.is_staff boolean` (oder Tabelle `dir_redaktion`/Allowlist von user_ids), **getrennt** von der Mandanten-Rolle `profiles.role` (owner/admin/member je Konto). Ein Konto-Admin ist NICHT automatisch Redakteur. Gate serverseitig ueber RLS, nie nur im Frontend. Die konkreten Redakteurs-E-Mails liefert Markus beim Bau.
+- **Admin-CMS (AD):** **globale Redaktions-/Superadmin-Rolle** `profiles.is_staff boolean` (seit 2026-06-27 vorhanden), **getrennt** von der Mandanten-Rolle `profiles.role` (owner/admin/member je Konto). Ein Konto-Admin ist NICHT automatisch Redakteur. `is_staff` ist **per Trigger geschuetzt** (protect_billing_columns), nur Service-Role/Migration darf es setzen, kein Nutzer selbst (Privilege-Escalation-Schutz, empirisch verifiziert: Selbst-Setzen -> 42501).
+  - **Superadmin-Konto (Markus):** sein Konto (Profil-ID stabil; E-Mail aktuell test@toolfolio.de, Wechsel auf markus.laue@ommm.de ausstehend) ist bereits `is_staff = true` UND `role = owner`. Damit nutzt er Toolfolio **operativ ganz normal** (eigener Toolstack) und hat zusaetzlich Zugriff auf das spaetere CMS.
+  - **CMS-Gate (AD-01):** Admin-Shell + alle AD-Routen + dir_*-Schreib-RLS pruefen `is_staff = true` (serverseitig, nie nur Frontend). Markus' Konto ist dann automatisch freigeschaltet. Weitere Redakteure: einfach deren Profil per Service-Role auf is_staff=true setzen.
 - **Oeffentlich (V):** anon liest nur `status = veroeffentlicht`. SSG/SSR fuer SEO.
 - **Anbieter (A):** schreibt nur Herkunft-B-Felder des **geclaimten** Produkts.
 - **Keine Geheimnisse im Client:** Anthropic-Key serverseitig/verschluesselt, KI-Laeufe nur ueber Backend-Worker.
