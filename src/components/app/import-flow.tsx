@@ -33,7 +33,7 @@ import {
   KATEGORIE_FARBEN,
   type Intervall,
 } from "@/lib/abos";
-import { parseCsv, erkenneAbos, type Treffer, type Konfidenz } from "@/lib/import";
+import { parseKontoauszug, erkenneAbos, type Treffer, type Konfidenz } from "@/lib/import";
 import { bulkCreateAbos, type AboInput } from "@/app/app/abos/actions";
 
 type Row = Treffer & { include: boolean };
@@ -68,9 +68,9 @@ export function ImportFlow({
     const f = files?.[0];
     if (!f) return;
     const text = await f.text();
-    const buchungen = parseCsv(text);
+    const { buchungen } = parseKontoauszug(f.name, text);
     if (buchungen.length === 0) {
-      toast.error("Dieses Format konnten wir nicht lesen. Probiere einen CSV-Export deiner Bank.");
+      toast.error("Dieses Format konnten wir nicht lesen. Unterstützt werden CSV, CAMT.053 (XML) und MT940.");
       return;
     }
     const treffer = erkenneAbos(buchungen, existingTools);
@@ -170,11 +170,10 @@ export function ImportFlow({
               onClick={() => fileRef.current?.click()}
               className={cn("cursor-pointer rounded-[20px] border-2 border-dashed p-10 text-center transition-colors", dragOver ? "border-primary bg-primary/5" : "border-primary/40 bg-background hover:bg-primary/[0.03]")}
             >
-              <input ref={fileRef} type="file" className="hidden" accept=".csv,.txt" onChange={(e) => handleFile(e.target.files)} />
+              <input ref={fileRef} type="file" className="hidden" accept=".csv,.txt,.xml,.sta,.940,.mt940" onChange={(e) => handleFile(e.target.files)} />
               <div className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary"><Upload className="size-7" /></div>
               <div className="font-display text-lg font-semibold">Zieh deinen Kontoauszug hierher oder wähle eine Datei.</div>
-              <div className="mt-1 text-sm text-muted-foreground">Unterstützt: CSV (Export aus deinem Online-Banking)</div>
-              <div className="mt-1 text-xs text-muted-foreground">CAMT.053 und MT940 folgen in Kürze.</div>
+              <div className="mt-1 text-sm text-muted-foreground">Unterstützt: CSV, CAMT.053 (XML) und MT940 (Export aus deinem Online-Banking)</div>
             </div>
 
             {datei && (

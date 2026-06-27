@@ -153,6 +153,148 @@ export function parseCsv(text: string): Buchung[] {
   return out;
 }
 
+/* ---------------- CAMT.053 (ISO 20022 XML) ---------------- */
+
+/** Tag-Inhalt aus einem XML-Block holen, Namespace-Praefix (z. B. ns:) ignorierend. */
+function xmlTag(block: string, tag: string): string | null {
+  const m = block.match(new RegExp(`<(?:\\w+:)?${tag}[^>]*>([\\s\\S]*?)</(?:\\w+:)?${tag}>`, "i"));
+  return m ? m[1] : null;
+}
+
+/** Alle Vorkommen eines Tags als Array. */
+function xmlTagAll(block: string, tag: string): string[] {
+  const re = new RegExp(`<(?:\\w+:)?${tag}[^>]*>([\\s\\S]*?)</(?:\\w+:)?${tag}>`, "gi");
+  const out: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(block)) !== null) out.push(m[1]);
+  return out;
+}
+
+function entschaerfeXml(s: string): string {
+  return s
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Parst einen CAMT.053-Auszug (camt.053, Bank-to-Customer Statement).
+ * Liest die einzelnen Buchungen (<Ntry>): Betrag, Soll/Haben, Buchungsdatum und
+ * den beschreibenden Text (Verwendungszweck, Beguenstigter/Auftraggeber).
+ */
+export function parseCamt053(text: string): Buchung[] {
+  const out: Buchung[] = [];
+  for (const entry of xmlTagAll(text, "Ntry")) {
+    const amtRaw = xmlTag(entry, "Amt");
+    if (!amtRaw) continue;
+    const betragAbs = Number(amtRaw.replace(/[^\d.]/g, ""));
+    if (!isFinite(betragAbs)) continue;
+    const ind = (xmlTag(entry, "CdtDbtInd") ?? "").toUpperCase();
+    const betrag = ind.startsWith("DB") ? -betragAbs : betragAbs;
+
+    // Buchungsdatum bevorzugt aus <BookgDt>, sonst <ValDt>.
+    const datumBlock = xmlTag(entry, "BookgDt") ?? xmlTag(entry, "ValDt") ?? "";
+    const datumM = datumBlock.match(/\d{4}-\d{2}-\d{2}/);
+    const datum = datumM ? datumM[0] : "";
+
+    // Beschreibung: Verwendungszweck (Ustrd) + Namen (Nm) + Zusatzinfo (AddtlNtryInf).
+    const teile = [
+      ...xmlTagAll(entry, "Ustrd"),
+      ...xmlTagAll(entry, "Nm"),
+      xmlTag(entry, "AddtlNtryInf") ?? "",
+    ]
+      .map(entschaerfeXml)
+      .filter(Boolean);
+    const gesehen = new Set<string>();
+    const textZeile = teile.filter((t) => (gesehen.has(t) ? false : gesehen.add(t))).join(" ");
+
+    out.push({ datum, text: textZeile, betrag });
+  }
+  return out;
+}
+
+/* ---------------- MT940 (SWIFT) ---------------- */
+
+/**
+ * Parst einen MT940-Auszug (SWIFT-Format vieler deutscher Banken).
+ * Wertet die :61:-Umsatzzeilen (Datum, Soll/Haben, Betrag) und die folgenden
+ * :86:-Mehrzweckzeilen (Verwendungszweck) aus.
+ */
+export function parseMt940(text: string): Buchung[] {
+  const out: Buchung[] = [];
+  // In Felder zerlegen: jedes Feld beginnt am Zeilenanfang mit :NN: bzw. :NNx:.
+  const roh = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const zeilen = roh.split("\n");
+
+  let aktuell: Buchung | null = null;
+  let imVerwendungszweck = false;
+
+  const flush = () => {
+    if (aktuell) out.push(aktuell);
+    aktuell = null;
+    imVerwendungszweck = false;
+  };
+
+  for (const zeile of zeilen) {
+    const feld = zeile.match(/^:(\d{2}[A-Z]?):(.*)$/);
+    if (feld) {
+      const tag = feld[1];
+      const rest = feld[2];
+      if (tag === "61") {
+        flush();
+        // :61: Valuta(JJMMTT) [Buchung(MMTT)] Soll/Haben(C/D/RC/RD) [Funds] Betrag(mit Komma) ...
+        const m = rest.match(/^(\d{6})(\d{4})?(RC|RD|C|D)([A-Z])?([\d,]+)/);
+        if (m) {
+          const [, valuta, , mark, , betragRoh] = m;
+          const jahr = "20" + valuta.slice(0, 2);
+          const datum = `${jahr}-${valuta.slice(2, 4)}-${valuta.slice(4, 6)}`;
+          const betragAbs = Number(betragRoh.replace(",", "."));
+          const soll = mark === "D" || mark === "RD";
+          if (isFinite(betragAbs)) {
+            aktuell = { datum, text: "", betrag: soll ? -betragAbs : betragAbs };
+          }
+        }
+      } else if (tag.startsWith("86")) {
+        // Verwendungszweck: ?NN-Subfeldmarker durch Leerzeichen ersetzen.
+        if (aktuell) {
+          aktuell.text = (aktuell.text + " " + rest.replace(/\?\d{2}/g, " ")).replace(/\s+/g, " ").trim();
+          imVerwendungszweck = true;
+        }
+      } else {
+        imVerwendungszweck = false;
+      }
+    } else if (imVerwendungszweck && aktuell) {
+      // Fortsetzungszeile des :86:-Felds.
+      aktuell.text = (aktuell.text + " " + zeile.replace(/\?\d{2}/g, " ")).replace(/\s+/g, " ").trim();
+    }
+  }
+  flush();
+  return out;
+}
+
+/* ---------------- Format-Dispatcher ---------------- */
+
+export type AuszugFormat = "csv" | "camt" | "mt940";
+
+/**
+ * Erkennt das Auszugsformat anhand Dateiname und Inhalt und parst entsprechend.
+ * Unterstuetzt CSV, CAMT.053 (XML) und MT940 (SWIFT).
+ */
+export function parseKontoauszug(dateiname: string, text: string): { buchungen: Buchung[]; format: AuszugFormat } {
+  const name = dateiname.toLowerCase();
+  const probe = text.slice(0, 4000);
+  const istCamt = name.endsWith(".xml") || /camt\.05/i.test(probe) || /<(?:\w+:)?Document/i.test(probe) || /<(?:\w+:)?Ntry>/i.test(probe);
+  const istMt940 = name.endsWith(".sta") || name.endsWith(".940") || name.endsWith(".mt940") || /^\s*:\d{2}[A-Z]?:/m.test(probe);
+
+  if (istCamt) return { buchungen: parseCamt053(text), format: "camt" };
+  if (istMt940) return { buchungen: parseMt940(text), format: "mt940" };
+  return { buchungen: parseCsv(text), format: "csv" };
+}
+
 /* ---------------- Erkennung ---------------- */
 
 function erkenneMerchant(text: string): Eintrag | null {

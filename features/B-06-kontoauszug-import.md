@@ -1,4 +1,4 @@
-# B-06: Kontoauszug-Import (CSV, Erkennung, Review)
+# B-06: Kontoauszug-Import (CSV / CAMT.053 / MT940, Erkennung, Review)
 
 ## Status: Approved & Deployed
 **Created:** 2026-06-25
@@ -60,3 +60,17 @@ src/lib/import.ts: parseCsv (Trennzeichen/Betrag/Datum/Spalten) + erkenneAbos (G
 
 ## Deployment
 Via rsync + docker compose Rebuild auf VPS B.
+
+---
+
+## Nachtrag 2026-06-27: CAMT.053 + MT940 ergaenzt
+Die beiden DACH-Bankformate sind jetzt zusaetzlich zum CSV implementiert (waren im Original „bewusst spaeter").
+- `src/lib/import.ts`: neue Parser `parseCamt053` (ISO-20022-XML, liest `<Ntry>`: Betrag, `CdtDbtInd` Soll/Haben, `BookgDt`/`ValDt`, Text aus `Ustrd`+`Nm`+`AddtlNtryInf`) und `parseMt940` (SWIFT: `:61:`-Umsatzzeilen mit Valuta/Vorzeichen/Betrag, `:86:`-Verwendungszweck inkl. Mehrzeilen, `?NN`-Subfeldmarker entfernt).
+- Neuer Dispatcher `parseKontoauszug(dateiname, text)` erkennt das Format an Endung + Inhalt (CAMT an `<Document>`/`<Ntry>`/`camt.05`, MT940 an `:NN:`-Feldern) und faellt sonst auf CSV zurueck. Gibt `{ buchungen, format }` zurueck.
+- XML-Parsing bewusst regexbasiert (kein DOMParser): laeuft identisch im Browser und in Node-Tests, namespace-praefix-tolerant. Weiterhin reines Client-Parsing, Rohdaten verlassen den Browser nicht.
+- `ImportFlow`: nutzt den Dispatcher, akzeptiert `.csv,.txt,.xml,.sta,.940,.mt940`, Upload-Hinweis aktualisiert.
+- Erkennungs-Pipeline (`erkenneAbos`) unveraendert, da formatunabhaengig auf `Buchung[]`.
+
+### QA-Nachtrag (2026-06-27)
+- 10 neue Vitest-Faelle in `src/lib/import.test.ts` (CAMT: Betrag/Vorzeichen/Datum/Text, Soll-negativ/Haben-positiv; MT940: `:61:`+`:86:`, `?NN`-Bereinigung; Dispatcher-Format-Erkennung; Ende-zu-Ende CAMT/MT940 -> Notion-Abo erkannt; Gutschriften ignoriert). Gesamt 27 Tests gruen.
+- tsc 0 Fehler, `next build` gruen.

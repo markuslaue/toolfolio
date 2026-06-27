@@ -41,7 +41,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | B-03 | Abos-Listenansicht (Filter, Sortierung, Gruppierung, Bulk) | P0 | B-01 | Approved & Deployed (PRJ-07) |
 | B-04 | Abo-Detailseite | P0 | B-03 | Approved & Deployed (PRJ-07) |
 | B-05 | Abo anlegen/bearbeiten (Slide-over, Verzeichnis-Verknuepfung) | P0 | B-03 | Approved & Deployed (PRJ-07) |
-| B-06 | Kontoauszug-Import (CSV/CAMT/MT940, Erkennung, Review) | P0 | B-03 | Approved & Deployed (PRJ-07; CSV) |
+| B-06 | Kontoauszug-Import (CSV/CAMT/MT940, Erkennung, Review) | P0 | B-03 | Approved & Deployed (CSV+CAMT.053+MT940) |
 | B-07 | Zahlungskanaele-Verwaltung (nur Referenzen, keine Secrets) | P0 | B-01 | Approved & Deployed (PRJ-07) |
 | B-08 | Kunden-Listenansicht (Agentur-Layer) | P0 | B-01 | Approved & Deployed (PRJ-07) |
 | B-09 | Kunde-Detailseite (Weiterverrechnung, Marge) | P0 | B-08 | Approved & Deployed (PRJ-07) |
