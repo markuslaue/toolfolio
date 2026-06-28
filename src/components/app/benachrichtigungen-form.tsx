@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, BellRing, Bell, TimerReset, Megaphone, FileBarChart, PiggyBank, Cpu } from "lucide-react";
+import { Loader2, BellRing, Bell, TimerReset, Megaphone, FileBarChart, PiggyBank, Cpu, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,7 @@ export type Prefs = {
   benachrichtigung_report: boolean;
   benachrichtigung_sparen: boolean;
   benachrichtigung_spike: boolean;
+  benachrichtigung_preis: boolean;
   benachrichtigung_vorlauf: number;
 };
 
@@ -66,6 +67,7 @@ export function BenachrichtigungenForm({ initial }: { initial: Prefs }) {
   const [report, setReport] = useState(initial.benachrichtigung_report);
   const [sparen, setSparen] = useState(initial.benachrichtigung_sparen);
   const [spike, setSpike] = useState(initial.benachrichtigung_spike);
+  const [preis, setPreis] = useState(initial.benachrichtigung_preis);
   const [vorlauf, setVorlauf] = useState(String(initial.benachrichtigung_vorlauf));
 
   const [state, action, pending] = useActionState(saveBenachrichtigungen, {} as ProfileState);
@@ -90,12 +92,14 @@ export function BenachrichtigungenForm({ initial }: { initial: Prefs }) {
       <input type="hidden" name="report" value={report ? "true" : "false"} />
       <input type="hidden" name="sparen" value={sparen ? "true" : "false"} />
       <input type="hidden" name="spike" value={spike ? "true" : "false"} />
+      <input type="hidden" name="preis" value={preis ? "true" : "false"} />
       <input type="hidden" name="vorlauf" value={vorlauf} />
 
       <div className="px-6">
         <Zeile icon={Bell} titel="Kündigungsfristen" desc="E-Mail, bevor sich ein Abo still verlängert." checked={frist} onCheckedChange={setFrist} />
         <Zeile icon={TimerReset} titel="Trial-Enden" desc="E-Mail, bevor ein Trial kostenpflichtig wird." checked={trial} onCheckedChange={setTrial} />
         <Zeile icon={Cpu} titel="AI-Spike-Alarm" desc="E-Mail, wenn dein KI-Verbrauch deutlich über dem Schnitt liegt." checked={spike} onCheckedChange={setSpike} />
+        <Zeile icon={TrendingUp} titel="Preiserhöhungen" desc="E-Mail, wenn der Preis eines deiner Tools steigt." checked={preis} onCheckedChange={setPreis} />
         <Zeile icon={PiggyBank} titel="Sparvorschläge" desc="E-Mail, wenn wir eine konkrete Spar-Chance finden, etwa Wechsel auf eine Jahreslizenz." checked={sparen} onCheckedChange={setSparen} />
         <Zeile icon={FileBarChart} titel="Monatsreport" desc="Monatliche Zusammenfassung deiner Softwarekosten, Sparvorschläge und Fristen." checked={report} onCheckedChange={setReport} />
         <Zeile icon={Megaphone} titel="Produkt-News" desc="Gelegentliche Hinweise zu neuen Funktionen. Kein Spam." checked={produkt} onCheckedChange={setProdukt} />

@@ -14,7 +14,7 @@ export default async function BenachrichtigungenPage() {
 
   const { data } = await supabase
     .from("profiles")
-    .select("benachrichtigung_frist, benachrichtigung_trial, benachrichtigung_produkt, benachrichtigung_report, benachrichtigung_sparen, benachrichtigung_spike, benachrichtigung_vorlauf")
+    .select("benachrichtigung_frist, benachrichtigung_trial, benachrichtigung_produkt, benachrichtigung_report, benachrichtigung_sparen, benachrichtigung_spike, benachrichtigung_preis, benachrichtigung_vorlauf")
     .eq("id", user.id)
     .single();
 
@@ -25,6 +25,7 @@ export default async function BenachrichtigungenPage() {
     benachrichtigung_report: data?.benachrichtigung_report ?? true,
     benachrichtigung_sparen: data?.benachrichtigung_sparen ?? true,
     benachrichtigung_spike: data?.benachrichtigung_spike ?? true,
+    benachrichtigung_preis: data?.benachrichtigung_preis ?? true,
     benachrichtigung_vorlauf: data?.benachrichtigung_vorlauf ?? 14,
   };
 
