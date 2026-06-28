@@ -866,6 +866,7 @@ function PricingTeaser() {
     { name: PLANS.free.name, price: "0 €", sub: "für immer", note: `Bis ${FREE_ABO_LIMIT} Tools, manuelles Erfassen, Fristen-Erinnerungen.`, featured: false },
     { name: PLANS.pro.name, price: `ab ${fmtEUR(PLANS.pro.basis.monat)}`, sub: "pro Monat", note: "Unbegrenzte Erfassungswege, Import, Benchmark, Sparvorschläge.", featured: true },
     { name: PLANS.agentur.name, price: `ab ${fmtEUR(PLANS.agentur.basis.monat)}`, sub: "pro Monat", note: "Kosten pro Kunde, Team & Rollen, mehrere Gesellschaften.", featured: false },
+    { name: PLANS.unternehmen.name, price: `ab ${fmtEUR(PLANS.unternehmen.basis.monat)}`, sub: "pro Monat", note: "Unbegrenzte Tools, SSO, priorisierter Support, Onboarding.", featured: false },
   ];
   return (
     <section className="py-20 sm:py-28">
@@ -875,15 +876,18 @@ function PricingTeaser() {
             <div className="max-w-2xl">
               <div className="text-xs font-semibold uppercase tracking-widest text-primary">Pricing-Teaser</div>
               <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Faire Preise. 14 Tage kostenlos testen.
+                Preise, die mit dir mitwachsen.
               </h2>
+              <p className="mt-3 text-muted-foreground">
+                Stell Team und Tool-Zahl ein, du zahlst nur, was du brauchst. 14 Tage kostenlos testen.
+              </p>
             </div>
             <a href="/preise" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
               Alle Preise ansehen <ArrowRight className="size-4" />
             </a>
           </div>
         </Reveal>
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {plans.map((p, i) => (
             <Reveal key={p.name} delay={i * 80}>
               <div className={cn("flex h-full flex-col rounded-3xl border p-7", p.featured ? "border-primary bg-card shadow-lift ring-1 ring-primary/30" : "border-border bg-card")}>
