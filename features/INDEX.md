@@ -95,11 +95,11 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 
 | ID | Feature | Prio | Abhaengig von | Status |
 |----|---------|------|---------------|--------|
-| V-01 | Verzeichnis-Startseite / Hub | P1 | INFRA-1 | Roadmap |
-| V-02 | Cluster-Hub (Template) | P1 | V-01 | Roadmap |
-| V-03 | Kategorie/Collection (Template, drei Zonen) | P1 | V-02 | Roadmap |
-| V-04 | Software-Detailseite (Template, v2: Attribution/Lead/Rabatt) | P1 | V-03 | Roadmap |
-| V-11 | Verzeichnis-Suche / Ergebnisse | P1 | V-01 | Roadmap |
+| V-01 | Verzeichnis-Startseite / Hub | P1 | INFRA-1 | Fundament deployed (Seed, CMS offen) |
+| V-02 | Cluster-Hub (Template) | P1 | V-01 | Fundament deployed (Seed) |
+| V-03 | Kategorie/Collection (Template, drei Zonen) | P1 | V-02 | Fundament deployed (3 Zonen, Seed) |
+| V-04 | Software-Detailseite (Template, v2: Attribution/Lead/Rabatt) | P1 | V-03 | Fundament deployed (Seed; Attribution/Lead offen) |
+| V-11 | Verzeichnis-Suche / Ergebnisse | P1 | V-01 | Fundament deployed |
 | V-05 | Software-Preise (Long-Tail) | P1 | V-04 | Roadmap |
 | V-06 | Software-Erfahrungen/Test (Long-Tail) | P1 | V-04 | Roadmap |
 | V-07 | Software-Alternativen (Long-Tail) | P1 | V-04 | Roadmap |
@@ -107,7 +107,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | V-08 | Software-Vergleich (Long-Tail) | P2 | V-04 | Roadmap |
 | V-09 | Deals & Rabatte - Hub | P2 | V-04 | Roadmap |
 | V-10 | Software-Deal (Long-Tail) | P2 | V-09 | Roadmap |
-| V-12 | Review abgeben (verifiziert durch Abrechnung) | P2 | V-04, B-16 | Roadmap |
+| V-12 | Review abgeben (verifiziert durch Abrechnung) | P2 | V-04, B-16 | Minimal deployed (moderiert; Verifizierung offen) |
 | V-14 | Software wechseln/Migration (Long-Tail) | P2 | V-04 | Roadmap |
 | V-15 | Lohnt sich [Tool] noch (Long-Tail) | P2 | V-04 | Roadmap |
 
