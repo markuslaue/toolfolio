@@ -16,9 +16,14 @@ Die ereignisbezogenen Benachrichtigungs-Mails, die an bereits gebaute Tracker-Fe
 - Adaptiert: lovable.app-Host -> toolfolio.de, Absenderkennzeichnung -> OMMM GmbH, Leipzig. Alle Links sind ueber Props ueberschreibbar (Default toolfolio.de).
 - **Vorschau-Route** `src/app/email-vorschau/[slug]/route.ts` (noindex) rendert jede Mail mit Beispieldaten zur visuellen Abnahme: `/email-vorschau/{trial,spike,preiserhoehung,sparvorschlag}`.
 
+## E-07 Trigger + Versand (deployed 2026-06-28)
+- Migration `profiles.benachrichtigung_sparen` (Opt-out, Default an) + Toggle in den Benachrichtigungs-Einstellungen (B-28, „Sparvorschlaege").
+- Cron-Route `POST /api/cron/sparvorschlag` (CRON_SECRET): findet je Nutzer den staerksten „monatlich -> jaehrlich"-Vorschlag (`berechneVorschlaege`, typ `intervall`) fuer ein **>= 3 Monate** genutztes Tool (`MIN_MONATE`), Nutzungsdauer aus `abos.created_at`, fuellt die konkrete Sparvorschlag-Mail (usageDuration/currentInterval/savingsPercent/yearlySaving). **Dedup** pro Abo+Monat via `notification_log` (`ref=savings:<aboId>:<YYYY-MM>`), respektiert Opt-out und bereits erledigte Vorschlaege (`sparvorschlag_status`). `?dry=1` liefert nur die Kandidaten ohne Versand.
+- **Versand passiert nur bei Aufruf mit dem Secret; bewusst KEIN VPS-Cron eingerichtet** (Aktivierung bleibt Markus' Go, wie bei den anderen Versand-Wegen). Dry-Run in Prod verifiziert (auth + valides JSON).
+
 ## Offen (Folge-Inkrement)
-- **Trigger + Versand verdrahten**: Erkennung (Trial-Ende aus Abo-Daten, Spike aus ai_spend, Preisanstieg aus Abo-/Archiv-Historie, Sparvorschlaege aus B-10) an Cron/Events haengen und ueber Resend versenden, gedrosselt und respektierend der Benachrichtigungs-Einstellungen (B-28). Versand bleibt bis zum Go bewusst aus (vgl. Frist-Mail-Cron).
-- Ableitung der `props` aus echten Nutzerdaten (Betraege im de-Format, Datumstexte).
+- **E-03 Trial / E-04 Spike / E-05 Preiserhoehung** analog verdrahten (Trial-Ende aus Fristen, Spike aus ai_spend, Preisanstieg braucht Preis-Historie). Templates stehen.
+- E-07-Cron bei Go auf dem VPS einplanen (z. B. woechentlich), Schwelle `MIN_MONATE` ggf. justieren.
 - E-08 Lead-an-Anbieter haengt am Verzeichnis (V-04) und kommt spaeter.
 
 ## QA
