@@ -11,6 +11,7 @@ const links: Array<{
   children?: Array<{ label: string; href: string }>;
 }> = [
   { label: "Produkt", href: "/produkt" },
+  { label: "Verzeichnis", href: "/verzeichnis" },
   {
     label: "Für wen",
     href: "/fuer/agenturen",
