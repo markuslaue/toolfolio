@@ -74,3 +74,12 @@ Die beiden DACH-Bankformate sind jetzt zusaetzlich zum CSV implementiert (waren 
 ### QA-Nachtrag (2026-06-27)
 - 10 neue Vitest-Faelle in `src/lib/import.test.ts` (CAMT: Betrag/Vorzeichen/Datum/Text, Soll-negativ/Haben-positiv; MT940: `:61:`+`:86:`, `?NN`-Bereinigung; Dispatcher-Format-Erkennung; Ende-zu-Ende CAMT/MT940 -> Notion-Abo erkannt; Gutschriften ignoriert). Gesamt 27 Tests gruen.
 - tsc 0 Fehler, `next build` gruen.
+
+---
+
+## Nachtrag 2026-06-28: Software-Klassifikator (Praezision)
+Problem: Die Erkennung machte aus JEDER Belastung einen Kandidaten (Miete, Gehalt, Steuern, Einkauf ...), wodurch der Import unbrauchbar wurde. Neu in `src/lib/import.ts`:
+- `klassifiziereTool(text, anzahl, betrag)` mit **Negativ-Liste** (Wohnen, Personal/Gehalt, Steuer/Amt, Versicherung/Kranken, Einzelhandel/Drogerie/Baumarkt, Gastro/Reise/Tanken, Bank/Bargeld/Kredit, Energie/Telco/Rundfunk, Spenden/Kammern) und **Positiv-Signalen** (bekannter Anbieter via MERCHANTS, Zahlungsdienstleister wie PayPal/Stripe/Paddle/App-Store, SaaS-Begriffe wie subscription/lizenz/cloud, Domain-Endungen .com/.io/.app ...).
+- Logik (Praezision vor Recall): bekannter Anbieter = Tool; klare Negativtreffer raus; grosse Einzelbetraege ohne Signal raus; Signal + (wiederkehrend ODER >=2 Signale) = Tool (hoch); wiederkehrend mit schwachem Signal oder einmalig mit SaaS-Wort/Domain = unklar (mittel); einmalig ohne Signal = kein Tool.
+- `erkenneAbos` ueberspringt `kein_tool` (ausser Dublette) und leitet die Konfidenz aus der Klasse ab.
+- Tests: `src/lib/import.test.ts` (14) deckt ab, dass aus einem gemischten Auszug nur die echten Tools (Notion/Framer/Figma) bleiben und Miete/Einkauf/Versicherung/Steuer/Tanken/Gehalt/Einmalkauf verworfen werden.

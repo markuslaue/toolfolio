@@ -355,9 +355,81 @@ function intervallAus(gap: number | null): Intervall {
   return "monatlich";
 }
 
+/* ---------------- Klassifikation: ist das ueberhaupt Software? ---------------- */
+
+// Klare NICHT-Software (Miete, Gehalt, Steuern, Versicherung, Einzelhandel, Tanken,
+// Reise, Bargeld, Bank, Energie/Telco, Spenden ...). Substrings, GROSS verglichen.
+const KEIN_TOOL: string[] = [
+  // Wohnen / Miete
+  "MIETE", "KALTMIETE", "WARMMIETE", "NEBENKOSTEN", "HAUSGELD", "VERMIETER", "HAUSVERWALTUNG",
+  // Personal / Gehalt
+  "GEHALT", "LOHN", "ENTGELTABRECHNUNG", "SALARY", "SOZIALVERSICHERUNG", "LOHNSTEUER", "SOZIALKASSE",
+  // Steuer / Amt
+  "FINANZAMT", "STEUER", "UMSATZSTEUER", "GEWERBESTEUER", "EINKOMMENSTEUER", "BUNDESKASSE", "STADTKASSE", "KFZ-STEUER", "ZOLL",
+  // Versicherung / Kranken / Rente
+  "VERSICHERUNG", "ALLIANZ", "AXA ", "HUK", "ERGO ", "GENERALI", "DEVK", "KRANKENKASSE", "TECHNIKER KRANK", "BARMER", "AOK", " DAK", "RENTENVERS", "BERUFSGENOSSEN",
+  // Einzelhandel / Lebensmittel / Drogerie / Baumarkt
+  "REWE", "EDEKA", "ALDI", "LIDL", "KAUFLAND", "PENNY", "NETTO MARKEN", "DM-DROGERIE", "DM FIL", "ROSSMANN", "IKEA", "MEDIA MARKT", "SATURN", "OBI ", "BAUHAUS", "HORNBACH", "LEKKERLAND",
+  // Gastro / Reise / Tanken / Mobilitaet
+  "RESTAURANT", "MCDONALD", "BURGER KING", "STARBUCKS", "BAECKEREI", "BACKEREI", "ARAL", "SHELL", "ESSO", "TOTAL TANK", "TANKSTELLE", "DEUTSCHE BAHN", "DB VERTRIEB", "FLIXBUS", "HOTEL", "LUFTHANSA", "PARKHAUS", "PARKEN",
+  // Bank / Bargeld / Gebuehren / Kredit
+  "BARGELD", "GELDAUTOMAT", "AUSZAHLUNG", "BARAUSZAHLUNG", "KONTOFUEHRUNG", "KONTOGEBUEHR", "ENTGELTABSCHLUSS", "DARLEHEN", "KREDITRATE", "TILGUNG", "ZINSABSCHLUSS",
+  // Energie / Telco / Rundfunk (eher kein SaaS)
+  "STADTWERKE", "STROM", "GASAG", "E.ON", "ENBW", "VATTENFALL", "RUNDFUNK", "RUNDFUNKBEITRAG", "GEZ",
+  // Spenden / Beitraege / Kammern
+  "SPENDE", "MITGLIEDSBEITRAG", "GEWERKSCHAFT", "IHK ", "HANDWERKSKAMMER", "KIRCHENSTEUER",
+];
+
+// SaaS-/Tool-Signale im Buchungstext.
+const SAAS_KEYWORD: string[] = [
+  "SUBSCRIPTION", "ABONNEMENT", "ABO ", "MONTHLY", "YEARLY", "ANNUAL", "SAAS", "CLOUD", "SOFTWARE",
+  "LICENSE", "LICENCE", "LIZENZ", "WORKSPACE", "SEAT", "HOSTING", "DOMAIN", "SERVER", "API ", "APP STORE",
+];
+
+// Bekannte Zahlungsdienstleister, ueber die SaaS oft abgerechnet wird.
+const PROCESSOR: string[] = [
+  "PAYPAL", "STRIPE", "PADDLE", "FASTSPRING", "FS *", "CHARGEBEE", "LEMONSQUEEZY", "LEMON SQUEEZY",
+  "GUMROAD", "RECURLY", "BRAINTREE", "2CHECKOUT", "DIGITAL RIVER", "APPLE.COM/BILL", "ITUNES.COM/BILL",
+  "GOOGLE *", "GOOGLE PAYMENT", "MICROSOFT*", "MSFT", "SQ *",
+];
+
+// Domain-Endungen deuten auf Online-/SaaS-Anbieter hin.
+const DOMAIN_RE = /\.(COM|IO|APP|AI|CO|NET|DEV|CLOUD|ORG|XYZ|TOOLS|ME|CC)\b/;
+
+type ToolKlasse = "tool" | "unklar" | "kein_tool";
+
 /**
- * Erkennt aus den Buchungen wiederkehrende Abos. Beruecksichtigt nur Belastungen
- * (negative Betraege). existingTools = vorhandene Abo-Namen (fuer Dubletten).
+ * Entscheidet, ob eine (gruppierte) Buchung ueberhaupt Software/SaaS ist.
+ * Ziel: Praezision. Einmalige Buchungen ohne jedes SaaS-Signal und klar
+ * artfremde Posten (Miete, Gehalt, Steuern, Einkauf ...) werden aussortiert.
+ */
+function klassifiziereTool(text: string, anzahl: number, betrag: number): ToolKlasse {
+  const t = text.toUpperCase();
+  if (KEIN_TOOL.some((k) => t.includes(k))) return "kein_tool";
+
+  const proc = PROCESSOR.some((p) => t.includes(p));
+  const key = SAAS_KEYWORD.some((k) => t.includes(k));
+  const domain = DOMAIN_RE.test(t);
+  const recurring = anzahl >= 2;
+  const signale = (proc ? 1 : 0) + (key ? 1 : 0) + (domain ? 1 : 0);
+
+  // Grosse Einzelbetraege ohne SaaS-Signal: eher Rechnung/Miete/Gehalt.
+  if (betrag >= 1000 && signale === 0) return "kein_tool";
+
+  // Klares Tool: SaaS-Signal kombiniert mit Wiederholung oder mehreren Signalen.
+  if (signale > 0 && (recurring || signale >= 2)) return "tool";
+  // Wiederkehrend, aber nur schwaches Signal: zur Pruefung anzeigen.
+  if (recurring) return "unklar";
+  // Einmalig mit SaaS-Wort/Domain: zur Pruefung anzeigen.
+  if (key || domain) return "unklar";
+  // Einmalig, kein Signal: kein Tool.
+  return "kein_tool";
+}
+
+/**
+ * Erkennt aus den Buchungen wiederkehrende Software-Abos. Beruecksichtigt nur
+ * Belastungen (negative Betraege) und filtert Nicht-Software algorithmisch heraus
+ * (Negativ-Liste + SaaS-Signale). existingTools = vorhandene Abo-Namen (Dubletten).
  */
 export function erkenneAbos(buchungen: Buchung[], existingTools: string[]): Treffer[] {
   const belastungen = buchungen.filter((b) => b.betrag < 0);
@@ -378,15 +450,25 @@ export function erkenneAbos(buchungen: Buchung[], existingTools: string[]): Tref
   for (const [, g] of gruppen) {
     const betraege = g.rows.map((r) => Math.abs(r.betrag)).sort((a, b) => a - b);
     const betrag = Math.round(betraege[Math.floor(betraege.length / 2)] * 100) / 100;
+    const maxBetrag = betraege[betraege.length - 1] ?? betrag;
     const daten = g.rows.map((r) => r.datum).filter(Boolean).sort();
     const letzte = daten[daten.length - 1] ?? new Date().toISOString().slice(0, 10);
     const intervall = intervallAus(medianGapTage(daten));
     const kategorie = g.merchant?.kategorie ?? "Produktivität";
     const anzahl = g.rows.length;
 
+    const dublette = vorhanden.has(g.name.toLowerCase());
+    // Klassifikation: bekannter Anbieter gilt sofort als Tool, sonst algorithmisch.
+    const volltext = g.rows.map((r) => r.text).join(" ");
+    const klasse: ToolKlasse = g.merchant ? "tool" : klassifiziereTool(volltext, anzahl, maxBetrag);
+
+    // Klar artfremde Posten (Miete, Gehalt, Einkauf ...) gar nicht vorschlagen,
+    // ausser es ist bereits ein erfasstes Tool (Dublette).
+    if (!dublette && klasse === "kein_tool") continue;
+
     let konfidenz: Konfidenz;
-    if (vorhanden.has(g.name.toLowerCase())) konfidenz = "dublette";
-    else if (g.merchant || anzahl >= 2) konfidenz = "hoch";
+    if (dublette) konfidenz = "dublette";
+    else if (klasse === "tool") konfidenz = "hoch";
     else konfidenz = "mittel";
 
     treffer.push({

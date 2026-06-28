@@ -125,3 +125,44 @@ describe("Erkennung aus CAMT und MT940", () => {
     expect(treffer).toHaveLength(0);
   });
 });
+
+/* ---------------- Klassifikation: nur Software erkennen ---------------- */
+
+const GEMISCHT = `Datum;Verwendungszweck;Betrag
+15.01.2025;NOTION LABS SUBSCRIPTION;-9,99
+15.02.2025;NOTION LABS SUBSCRIPTION;-9,99
+03.01.2025;PAYPAL *FRAMER.COM MONTHLY;-15,00
+03.02.2025;PAYPAL *FRAMER.COM MONTHLY;-15,00
+10.01.2025;FIGMA MONTHLY SUBSCRIPTION;-12,00
+01.01.2025;Miete Wohnung Musterstrasse;-850,00
+05.01.2025;REWE SAGT DANKE FILIALE 123;-54,20
+07.01.2025;Allianz Versicherung Beitrag;-45,00
+20.01.2025;FINANZAMT MITTE UMSATZSTEUER;-320,00
+22.01.2025;Aral Tankstelle Berlin;-70,30
+25.01.2025;Amazon Marktplatz Bestellung;-39,90
+28.01.2025;GEHALT Mitarbeiter Mueller;-2400,00`;
+
+describe("Software-Klassifikation im Import", () => {
+  const treffer = erkenneAbos(parseCsv(GEMISCHT), []);
+  const namen = treffer.map((t) => t.tool.toLowerCase()).join(" | ");
+
+  it("erkennt echte Software-Abos", () => {
+    expect(treffer.find((t) => t.tool === "Notion")).toBeTruthy();
+    expect(namen).toContain("framer");
+    expect(treffer.find((t) => t.tool === "Figma")).toBeTruthy();
+  });
+
+  it("filtert Miete, Einkauf, Versicherung, Steuer, Tanken, Gehalt heraus", () => {
+    expect(namen).not.toMatch(/miete|rewe|allianz|versicher|finanzamt|aral|tankstelle|gehalt|mitarbeiter/);
+  });
+
+  it("verwirft einmalige Posten ohne SaaS-Signal (z. B. Amazon-Bestellung)", () => {
+    expect(namen).not.toContain("amazon");
+    expect(namen).not.toContain("marktplatz");
+  });
+
+  it("liefert nur die echten Tools (kein Rauschen)", () => {
+    // Notion, Framer, Figma = 3 Tools, der Rest ist kein Tool.
+    expect(treffer.length).toBe(3);
+  });
+});
