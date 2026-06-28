@@ -26,9 +26,14 @@ Die ereignisbezogenen Benachrichtigungs-Mails, die an bereits gebaute Tracker-Fe
 - **E-04 Spike:** `POST /api/cron/spike`. `berechneAiCredits` liefert `spikeFaktor` (>= 1,5x Schnitt); Mail mit Abweichung %, Monats-Hochrechnung (anteilig aus dem bisherigen Monat) und Balken. Dedup je Dienst+Monat (`ref=spike:<serviceId>:<YYYY-MM>`). Neues Opt-out `benachrichtigung_spike` (Migration + Toggle in B-28 „AI-Spike-Alarm").
 - Beide `?dry=1` = Vorschau ohne Versand; Versand nur mit `CRON_SECRET`, **kein VPS-Cron** (Aktivierung = Go). Dry-Run in Prod ok.
 
+## E-05 Preiserhoehung Trigger + Versand (deployed 2026-06-28)
+- **Preis-Historie:** neue Tabelle `abo_preis_historie` (user_id, abo_id, alt/neu_kosten, alt/neu_intervall, erfasst_am) + AFTER-UPDATE-Trigger `log_abo_preisaenderung` auf `abos` (SECURITY DEFINER), der jede Kosten-/Intervall-Aenderung mitschreibt. RLS-Lesen ueber `has_account_access`, Schreiben nur Trigger/Service-Role.
+- **E-05:** `POST /api/cron/preiserhoehung`. Echte Erhoehungen (gleiches Intervall, neu > alt) der letzten 45 Tage, fuellt die Preiserhoehungs-Mail (alt/neu, Differenz, Prozent, Jahres-Mehrkosten, „gueltig ab", source=billing). Dedup je Aenderung (`ref=priceup:<historyId>`), Opt-out `benachrichtigung_preis` (Migration + Toggle B-28 „Preiserhoehungen"). `?dry=1`, Versand nur mit CRON_SECRET, **kein VPS-Cron**. Dry-Run Prod ok.
+
+**Damit ist die Benachrichtigungs-Mail-Familie E-02..E-07 vollstaendig** (Vorlage + Ausloesung). Versand-Crons fuer E-03/E-04/E-05/E-07 bereit, aber bewusst nicht scharf.
+
 ## Offen (Folge-Inkrement)
-- **E-05 Preiserhoehung** braucht eine Preis-Historie (Snapshot bei Aboaenderung / aus Archiv B-19), dann analog verdrahten. Template steht.
-- Bei Go die drei Crons (sparvorschlag/trial/spike) auf dem VPS einplanen; Schwellen (`MIN_MONATE`, Spike-Faktor, Trial-Stufen) ggf. justieren.
+- Bei Go die vier Versand-Crons (sparvorschlag/trial/spike/preiserhoehung) auf dem VPS einplanen; Schwellen (`MIN_MONATE`, Spike-Faktor 1,5x, Trial-Stufen, 45-Tage-Fenster) ggf. justieren.
 - E-08 Lead-an-Anbieter haengt am Verzeichnis (V-04) und kommt spaeter.
 
 ## QA

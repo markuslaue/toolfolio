@@ -145,10 +145,10 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | ID | Feature | Prio | Abhaengig von | Status |
 |----|---------|------|---------------|--------|
 | E-01 | Willkommen | P1 | S-02 | Approved & Deployed |
-| E-02 | Fristen-Warnung | P1 | B-12 | Roadmap |
+| E-02 | Fristen-Warnung | P1 | B-12 | Approved & Deployed (taegl. Cron live) |
 | E-03 | Trial-Warnung | P1 | B-12 | Versand verdrahtet (Cron), Aktivierung offen |
 | E-04 | Spike-Alarm | P1 | B-13 | Versand verdrahtet (Cron), Aktivierung offen |
-| E-05 | Preiserhoehung erkannt | P1 | B-19 | Vorlage deployed, Versand offen |
+| E-05 | Preiserhoehung erkannt | P1 | B-19 | Versand verdrahtet (Cron), Aktivierung offen |
 | E-06 | Wochen-/Monatsreport | P1 | B-17 | Approved & Deployed |
 | E-07 | Sparvorschlag | P1 | B-10 | Versand verdrahtet (Cron), Aktivierung offen |
 | E-08 | Lead an Anbieter | P2 | V-04 | Roadmap |
