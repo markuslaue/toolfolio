@@ -146,11 +146,11 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 |----|---------|------|---------------|--------|
 | E-01 | Willkommen | P1 | S-02 | Approved & Deployed |
 | E-02 | Fristen-Warnung | P1 | B-12 | Roadmap |
-| E-03 | Trial-Warnung | P1 | B-12 | Roadmap |
-| E-04 | Spike-Alarm | P1 | B-13 | Roadmap |
-| E-05 | Preiserhoehung erkannt | P1 | B-19 | Roadmap |
+| E-03 | Trial-Warnung | P1 | B-12 | Vorlage deployed, Versand offen |
+| E-04 | Spike-Alarm | P1 | B-13 | Vorlage deployed, Versand offen |
+| E-05 | Preiserhoehung erkannt | P1 | B-19 | Vorlage deployed, Versand offen |
 | E-06 | Wochen-/Monatsreport | P1 | B-17 | Approved & Deployed |
-| E-07 | Sparvorschlag | P1 | B-10 | Roadmap |
+| E-07 | Sparvorschlag | P1 | B-10 | Vorlage deployed, Versand offen |
 | E-08 | Lead an Anbieter | P2 | V-04 | Roadmap |
 
 ## Recht (R)
