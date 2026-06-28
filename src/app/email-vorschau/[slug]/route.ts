@@ -47,11 +47,14 @@ const VORSCHAUEN: Record<string, () => string> = {
   "sparvorschlag": () =>
     savingsEmailHTML({
       firstName: "Markus",
-      toolName: "Figma",
-      yearlySaving: "144,00 €",
+      toolName: "Canva",
+      yearlySaving: "30,00 €",
       reason: "jahreszahlung",
-      reasonText: "Bei jährlicher Zahlung statt monatlich sparst du rund 20 Prozent.",
-      showAlternatives: true,
+      usageDuration: "10 Monaten",
+      currentInterval: "monatlich",
+      recommendedInterval: "jährlich",
+      savingsPercent: "20 %",
+      reasonText: "Konstante Nutzung seit 10 Monaten, Jahreslizenz ist hier klar günstiger.",
     }),
 };
 

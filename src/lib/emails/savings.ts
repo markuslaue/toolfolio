@@ -14,6 +14,14 @@ export interface SavingsEmailProps {
   reasonText?: string;
   reason?: SavingsReason;
   clientName?: string;
+  /** Nutzungsdauer als Text, z. B. "10 Monaten" (fuer den persoenlichen Aufhaenger). */
+  usageDuration?: string;
+  /** Aktuelle Abrechnung, z. B. "monatlich". */
+  currentInterval?: string;
+  /** Empfohlene Abrechnung, z. B. "jährlich". */
+  recommendedInterval?: string;
+  /** Ersparnis in Prozent, z. B. "20 %". */
+  savingsPercent?: string;
   /** Optional: kurzer Hinweis auf Kompromisse. */
   tradeoffNote?: string;
   /** Zeigt sekundären Link "Alternativen vergleichen". */
@@ -61,6 +69,10 @@ export function savingsEmailHTML(props: SavingsEmailProps): string {
     reasonText = "[Grund, z. B. seit 6 Wochen ungenutzt]",
     reason = "ungenutzt",
     clientName,
+    usageDuration,
+    currentInterval,
+    recommendedInterval = "jährlich",
+    savingsPercent,
     tradeoffNote,
     showAlternatives = reason === "alternative" || reason === "redundant",
     detailUrl = "https://toolfolio.de/sparvorschlaege",
@@ -89,6 +101,45 @@ export function savingsEmailHTML(props: SavingsEmailProps): string {
   const tradeoff = tradeoffNote
     ? `<p style="margin: 12px 0 0; font-size: 13px; line-height: 20px; color: #6B6779; font-style: italic;">Ehrlich gesagt: ${escapeHtml(tradeoffNote)}</p>`
     : "";
+
+  // Persoenlicher Aufhaenger aus echten Nutzungsdaten (statt generischer Floskel).
+  const observation =
+    usageDuration
+      ? `<p class="copy" style="margin: 0 0 12px; font-size: 16px; line-height: 26px; color: #1F1D2B;">
+          mir ist aufgefallen: Du nutzt <strong>${escapeHtml(toolName)}</strong> schon seit <strong>${escapeHtml(usageDuration)}</strong>${currentInterval ? `, aktuell <strong>${escapeHtml(currentInterval)}</strong> abgerechnet` : ""}.
+        </p>`
+      : "";
+
+  // Konkrete Handlungsempfehlung, am staerksten bei Jahreszahlung.
+  const recommendation =
+    reason === "jahreszahlung"
+      ? `<p class="copy" style="margin: 0; font-size: 16px; line-height: 26px; color: #1F1D2B;">
+          Wenn du überzeugt bist, ${escapeHtml(toolName)} länger zu nutzen, stell von ${escapeHtml(currentInterval ?? "monatlich")} auf ${escapeHtml(recommendedInterval)} um. Bei gleicher Leistung sparst du${savingsPercent ? ` rund <strong>${escapeHtml(savingsPercent)}</strong>` : ""}${yearlySaving ? ` (<strong>${escapeHtml(yearlySaving)}</strong> im Jahr)` : ""}. Falls du dir noch nicht sicher bist, bleib ruhig monatlich, dann bist du flexibel.
+        </p>`
+      : `<p class="copy" style="margin: 0; font-size: 16px; line-height: 26px; color: #1F1D2B;">
+          Schau dir den Vorschlag in Ruhe an. Wenn er für dich passt, kannst du ihn direkt umsetzen, ohne dass du Funktionen verlierst, die du wirklich brauchst.
+        </p>`;
+
+  // Zusatzzeilen in der Fakten-Box aus den Nutzungsdaten.
+  const usageRows =
+    (usageDuration
+      ? `<tr>
+          <td style="padding: 8px 0; font-size: 14px; line-height: 22px; color: #6B6779; border-top: 1px solid rgba(31,29,43,0.08);">Genutzt seit</td>
+          <td style="padding: 8px 0; font-size: 14px; line-height: 22px; color: #1F1D2B; font-weight: 600; border-top: 1px solid rgba(31,29,43,0.08);">${escapeHtml(usageDuration)}</td>
+        </tr>`
+      : "") +
+    (currentInterval
+      ? `<tr>
+          <td style="padding: 8px 0; font-size: 14px; line-height: 22px; color: #6B6779; border-top: 1px solid rgba(31,29,43,0.08);">Aktuelle Abrechnung</td>
+          <td style="padding: 8px 0; font-size: 14px; line-height: 22px; color: #1F1D2B; font-weight: 600; border-top: 1px solid rgba(31,29,43,0.08);">${escapeHtml(currentInterval)}</td>
+        </tr>`
+      : "") +
+    (reason === "jahreszahlung"
+      ? `<tr>
+          <td style="padding: 8px 0; font-size: 14px; line-height: 22px; color: #6B6779; border-top: 1px solid rgba(31,29,43,0.08);">Empfehlung</td>
+          <td style="padding: 8px 0; font-size: 14px; line-height: 22px; color: #1F1D2B; font-weight: 600; border-top: 1px solid rgba(31,29,43,0.08);">${escapeHtml(recommendedInterval)}${savingsPercent ? ` (−${escapeHtml(savingsPercent)})` : ""}</td>
+        </tr>`
+      : "");
 
   const alternativesLink = showAlternatives
     ? `<a href="${alternativesUrl}" style="color: ${emerald}; text-decoration: underline; font-weight: 600;">Alternativen vergleichen</a>
@@ -163,9 +214,8 @@ export function savingsEmailHTML(props: SavingsEmailProps): string {
 
           <tr>
             <td class="content" style="padding: 0 40px 24px;">
-              <p class="copy" style="margin: 0; font-size: 16px; line-height: 26px; color: #1F1D2B;">
-                gute Nachricht: Wir haben eine konkrete Möglichkeit gefunden, wie du bei <strong>${escapeHtml(toolName)}</strong> sparen kannst.
-              </p>
+              ${observation || `<p class="copy" style="margin: 0; font-size: 16px; line-height: 26px; color: #1F1D2B;">gute Nachricht: Wir haben eine konkrete Möglichkeit gefunden, wie du bei <strong>${escapeHtml(toolName)}</strong> sparen kannst.</p>`}
+              ${observation ? `<p class="copy" style="margin: 0; font-size: 16px; line-height: 26px; color: #1F1D2B;">Daraus ergibt sich eine konkrete Spar-Chance:</p>` : ""}
             </td>
           </tr>
 
@@ -190,6 +240,7 @@ export function savingsEmailHTML(props: SavingsEmailProps): string {
                         <td style="padding: 8px 0; font-size: 14px; line-height: 22px; color: #6B6779; border-top: 1px solid rgba(31,29,43,0.08);">Art</td>
                         <td style="padding: 8px 0; font-size: 14px; line-height: 22px; color: #1F1D2B; font-weight: 600; border-top: 1px solid rgba(31,29,43,0.08);">${escapeHtml(reasonLabel(reason))}</td>
                       </tr>
+                      ${usageRows}
                       <tr>
                         <td style="padding: 8px 0; font-size: 14px; line-height: 22px; color: #6B6779; border-top: 1px solid rgba(31,29,43,0.08);" valign="top">Warum</td>
                         <td style="padding: 8px 0; font-size: 14px; line-height: 22px; color: #1F1D2B; font-weight: 600; border-top: 1px solid rgba(31,29,43,0.08);">${escapeHtml(reasonText)}</td>
@@ -206,9 +257,7 @@ export function savingsEmailHTML(props: SavingsEmailProps): string {
 
           <tr>
             <td class="content" style="padding: 0 40px 24px;">
-              <p class="copy" style="margin: 0; font-size: 16px; line-height: 26px; color: #1F1D2B;">
-                Schau dir den Vorschlag in Ruhe an. Wenn er für dich passt, kannst du ihn direkt umsetzen, ohne dass du Funktionen verlierst, die du wirklich brauchst.
-              </p>
+              ${recommendation}
             </td>
           </tr>
 
