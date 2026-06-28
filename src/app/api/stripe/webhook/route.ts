@@ -18,8 +18,13 @@ async function applySubscription(sub: Stripe.Subscription) {
   }
   if (!userId) return;
 
-  const priceId = sub.items.data[0]?.price?.id;
-  const map = planVonPrice(priceId);
+  // Plan aus dem BASIS-Lineitem ableiten (das Abo hat mehrere Items:
+  // Basis + Seats + Tool-Bloecke; nur das Basis-Item matcht planVonPrice).
+  let map: ReturnType<typeof planVonPrice> = null;
+  for (const item of sub.items.data) {
+    const treffer = planVonPrice(item.price?.id);
+    if (treffer) { map = treffer; break; }
+  }
   const aktiv = sub.status === "active" || sub.status === "trialing" || sub.status === "past_due";
 
   const periodEnd = sub.items.data[0]?.current_period_end ?? null;

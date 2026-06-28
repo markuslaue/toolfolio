@@ -3,11 +3,15 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Check, Sparkles, Building2, UserCheck, Landmark, ArrowRight, Loader2, CreditCard } from "lucide-react";
+import { Check, Sparkles, Building2, UserCheck, Landmark, Users, Wrench, ArrowRight, Loader2, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { formatEur, PLANS, YEARLY_DISCOUNT, planMonatsbetrag, type PlanId } from "@/lib/constants";
+import { Slider } from "@/components/ui/slider";
+import { formatEur, PLANS, YEARLY_DISCOUNT, planPreisProMonat, type PlanId } from "@/lib/constants";
 import { createCheckout, openPortal } from "@/app/app/einstellungen/plan/actions";
+
+const NUTZER_MAX = 50;
+const TOOLS_MAX = 500;
 
 export type Billing = {
   plan: PlanId;
@@ -49,14 +53,16 @@ function fmtDate(iso: string | null) {
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
-/** Monatsbetrag je Tarif und Abrechnungszyklus (zentrale, explizite Jahrespreise). */
-function betragProMonat(plan: PlanId, cadence: Cadence) {
-  return planMonatsbetrag(plan, cadence);
+/** Konfigurierter Monatsbetrag je Tarif (Basis + Slider-Aufpreise). */
+function betragProMonat(plan: PlanId, cadence: Cadence, nutzer: number, tools: number) {
+  return planPreisProMonat(plan, cadence, nutzer, tools);
 }
 
 export function PlanClient({ billing, status }: { billing: Billing; status?: string }) {
   const router = useRouter();
   const [cadence, setCadence] = useState<Cadence>(billing.plan_intervall === "year" ? "jahr" : "monat");
+  const [nutzer, setNutzer] = useState(3);
+  const [tools, setTools] = useState(40);
   const [pending, startTransition] = useTransition();
   const [busyKey, setBusyKey] = useState<string | null>(null);
 
@@ -137,12 +143,30 @@ export function PlanClient({ billing, status }: { billing: Billing; status?: str
         </button>
       </div>
 
+      {/* Konfigurator: Nutzer + Tools bestimmen den Preis und die Abrechnung */}
+      <div className="mx-auto grid max-w-2xl gap-5 rounded-[20px] border bg-card p-6 shadow-soft sm:grid-cols-2">
+        <div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="inline-flex items-center gap-2 font-medium"><Users className="size-4 text-primary" /> Nutzer im Team</span>
+            <span className="font-display text-base font-semibold tabular-nums">{nutzer >= NUTZER_MAX ? `${NUTZER_MAX}+` : nutzer}</span>
+          </div>
+          <Slider className="mt-3" value={[nutzer]} min={1} max={NUTZER_MAX} step={1} onValueChange={(v) => setNutzer(v[0])} aria-label="Anzahl Nutzer" />
+        </div>
+        <div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="inline-flex items-center gap-2 font-medium"><Wrench className="size-4 text-primary" /> Tools / Abos</span>
+            <span className="font-display text-base font-semibold tabular-nums">{tools >= TOOLS_MAX ? `${TOOLS_MAX}+` : tools}</span>
+          </div>
+          <Slider className="mt-3" value={[tools]} min={5} max={TOOLS_MAX} step={5} onValueChange={(v) => setTools(v[0])} aria-label="Anzahl Tools" />
+        </div>
+      </div>
+
       {/* Tarifkarten */}
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {order.map((id) => {
           const meta = META[id];
           const Icon = meta.icon;
-          const betrag = betragProMonat(id, cadence);
+          const betrag = betragProMonat(id, cadence, nutzer, tools);
           const konfigurierbar = PLANS[id].konfigurierbar;
           const istAktuell = billing.plan === id && (id === "free" ? !hatAbo : hatAbo);
           const jahrSumme = Math.round(betrag * 12 * 100) / 100;
@@ -157,7 +181,7 @@ export function PlanClient({ billing, status }: { billing: Billing; status?: str
           } else if (hatAbo) {
             cta = { label: "Plan wechseln", variant: meta.featured ? "primary" : "outline", action: () => go(openPortal(), `portal-${id}`) };
           } else {
-            cta = { label: `${PLANS[id].name} starten`, variant: meta.featured ? "primary" : "outline", action: () => go(createCheckout(id as Exclude<PlanId, "free">, cadence === "jahr" ? "year" : "month"), `co-${id}`) };
+            cta = { label: `${PLANS[id].name} starten`, variant: meta.featured ? "primary" : "outline", action: () => go(createCheckout(id as Exclude<PlanId, "free">, cadence === "jahr" ? "year" : "month", nutzer, tools), `co-${id}`) };
           }
 
           const busy = busyKey === `co-${id}` || busyKey === `portal-${id}` || busyKey === "portal-free";
@@ -175,7 +199,6 @@ export function PlanClient({ billing, status }: { billing: Billing; status?: str
                 </div>
               </div>
               <div className="mt-5">
-                {betrag > 0 && konfigurierbar && <span className="mr-1 text-sm text-muted-foreground">ab</span>}
                 <span className="font-display text-3xl font-bold tabular-nums">{betrag === 0 ? "0 €" : formatEur(betrag)}</span>
                 <span className="text-sm text-muted-foreground"> /Monat</span>
                 {cadence === "jahr" && betrag > 0 && (
