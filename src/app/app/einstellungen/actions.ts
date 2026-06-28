@@ -220,6 +220,7 @@ export async function saveBenachrichtigungen(
       benachrichtigung_trial: z.boolean(),
       benachrichtigung_produkt: z.boolean(),
       benachrichtigung_report: z.boolean(),
+      benachrichtigung_sparen: z.boolean(),
       benachrichtigung_vorlauf: z.number().int().min(1).max(60),
     })
     .safeParse({
@@ -227,6 +228,7 @@ export async function saveBenachrichtigungen(
       benachrichtigung_trial: formData.get("trial") === "true",
       benachrichtigung_produkt: formData.get("produkt") === "true",
       benachrichtigung_report: formData.get("report") === "true",
+      benachrichtigung_sparen: formData.get("sparen") === "true",
       benachrichtigung_vorlauf: Number(formData.get("vorlauf") ?? 14),
     });
   if (!parsed.success) return { error: "Bitte prüfe deine Auswahl." };
