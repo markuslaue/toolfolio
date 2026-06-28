@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Check, Sparkles, Building2, UserCheck, ArrowRight, Loader2, CreditCard } from "lucide-react";
+import { Check, Sparkles, Building2, UserCheck, Landmark, ArrowRight, Loader2, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { formatEur, PLANS, YEARLY_DISCOUNT, planMonatsbetrag, type PlanId } from "@/lib/constants";
@@ -21,15 +21,17 @@ export type Billing = {
 type Cadence = "monat" | "jahr";
 
 const FEATURES: Record<PlanId, string[]> = {
-  free: ["Bis 15 Abos im Tracker", "Übersichts-Dashboard", "Kontoauszug-Import", "Fristen-Wächter (Basis)", "Benchmark als Teaser", "1 Nutzer"],
-  pro: ["Unbegrenzte Abos", "Beleg-Postfach & alle Erfassungswege", "AI-Credit-Tracker", "Voller Benchmark", "Sparvorschläge und Deals", "Steuer-Export", "1 Nutzer"],
-  agentur: ["Alles aus Pro", "Kosten pro Kunde", "Weiterverrechnungs-Reports", "Team & Rollen", "Seats-Verwaltung", "Freigabe-Workflow", "Mehrere Nutzer"],
+  free: [`Bis ${PLANS.free.inklTools} Tools im Tracker`, "Übersichts-Dashboard", "Kontoauszug-Import", "Fristen-Wächter (Basis)", "Benchmark als Teaser", "1 Nutzer"],
+  pro: ["Unbegrenzte Erfassungswege", "Beleg-Postfach", "AI-Credit-Tracker", "Voller Benchmark", "Sparvorschläge und Deals", "Steuer-Export"],
+  agentur: ["Alles aus Pro", "Kosten pro Kunde", "Weiterverrechnungs-Reports", "Team & Rollen", "Seats-Verwaltung", "Freigabe-Workflow"],
+  unternehmen: ["Alles aus Agentur", "Unbegrenzte Tools", "SSO und Sicherheits-Review", "Priorisierter Support", "Persönliches Onboarding"],
 };
 
 const META: Record<PlanId, { zielgruppe: string; icon: typeof Sparkles; featured: boolean }> = {
   free: { zielgruppe: "Für Solo und Einsteiger", icon: UserCheck, featured: false },
   pro: { zielgruppe: "Für Solopreneure und Freelancer", icon: Sparkles, featured: true },
   agentur: { zielgruppe: "Für Agenturen und Teams", icon: Building2, featured: false },
+  unternehmen: { zielgruppe: "Für grosse Teams und Konzerne", icon: Landmark, featured: false },
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -83,7 +85,7 @@ export function PlanClient({ billing, status }: { billing: Billing; status?: str
     });
   }
 
-  const order: PlanId[] = ["free", "pro", "agentur"];
+  const order: PlanId[] = ["free", "pro", "agentur", "unternehmen"];
 
   return (
     <div className="space-y-6">
@@ -136,11 +138,12 @@ export function PlanClient({ billing, status }: { billing: Billing; status?: str
       </div>
 
       {/* Tarifkarten */}
-      <div className="grid gap-5 md:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {order.map((id) => {
           const meta = META[id];
           const Icon = meta.icon;
           const betrag = betragProMonat(id, cadence);
+          const konfigurierbar = PLANS[id].konfigurierbar;
           const istAktuell = billing.plan === id && (id === "free" ? !hatAbo : hatAbo);
           const jahrSumme = Math.round(betrag * 12 * 100) / 100;
 
@@ -154,7 +157,7 @@ export function PlanClient({ billing, status }: { billing: Billing; status?: str
           } else if (hatAbo) {
             cta = { label: "Plan wechseln", variant: meta.featured ? "primary" : "outline", action: () => go(openPortal(), `portal-${id}`) };
           } else {
-            cta = { label: `${PLANS[id].name} starten`, variant: meta.featured ? "primary" : "outline", action: () => go(createCheckout(id as "pro" | "agentur", cadence === "jahr" ? "year" : "month"), `co-${id}`) };
+            cta = { label: `${PLANS[id].name} starten`, variant: meta.featured ? "primary" : "outline", action: () => go(createCheckout(id as Exclude<PlanId, "free">, cadence === "jahr" ? "year" : "month"), `co-${id}`) };
           }
 
           const busy = busyKey === `co-${id}` || busyKey === `portal-${id}` || busyKey === "portal-free";
@@ -172,10 +175,16 @@ export function PlanClient({ billing, status }: { billing: Billing; status?: str
                 </div>
               </div>
               <div className="mt-5">
+                {betrag > 0 && konfigurierbar && <span className="mr-1 text-sm text-muted-foreground">ab</span>}
                 <span className="font-display text-3xl font-bold tabular-nums">{betrag === 0 ? "0 €" : formatEur(betrag)}</span>
                 <span className="text-sm text-muted-foreground"> /Monat</span>
                 {cadence === "jahr" && betrag > 0 && (
                   <div className="mt-1 text-xs text-muted-foreground">{formatEur(jahrSumme)} jährlich abgerechnet</div>
+                )}
+                {konfigurierbar && (
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    inkl. {PLANS[id].inklNutzer} Nutzer, {PLANS[id].inklTools === null ? "unbegrenzte Tools" : `${PLANS[id].inklTools} Tools`}
+                  </div>
                 )}
               </div>
               <ul className="mt-5 space-y-2 text-sm">

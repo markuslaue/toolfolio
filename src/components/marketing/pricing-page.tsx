@@ -13,137 +13,209 @@ import {
   ShieldCheck,
   Building2,
   UserCheck,
+  Landmark,
+  Wrench,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
 import { Reveal, fmtEUR } from "@/components/marketing/marketing-home";
-import { PLANS, FREE_ABO_LIMIT, YEARLY_DISCOUNT } from "@/lib/constants";
+import {
+  PLANS,
+  PLAN_ORDER,
+  FREE_ABO_LIMIT,
+  YEARLY_DISCOUNT,
+  planPreisProMonat,
+  empfohleneStufe,
+  type PlanId,
+  type Abrechnung,
+} from "@/lib/constants";
 
-/**
- * Preise & Limits kommen zentral aus src/lib/constants.ts (einzige Quelle der Wahrheit).
- * Hier nur die Abbildung auf die Seitenstruktur, keine eigenen Preiswerte.
- */
-const PLAEN = {
-  jahresRabattProzent: Math.round(YEARLY_DISCOUNT * 100),
-  free: { monat: PLANS.free.monthlyEur, jahrProMonat: PLANS.free.yearlyMonthlyEur, aboLimit: FREE_ABO_LIMIT, nutzer: PLANS.free.nutzer },
-  pro: { monat: PLANS.pro.monthlyEur, jahrProMonat: PLANS.pro.yearlyMonthlyEur, nutzer: PLANS.pro.nutzer },
-  agentur: { monat: PLANS.agentur.monthlyEur, jahrProMonat: PLANS.agentur.yearlyMonthlyEur, nutzer: PLANS.agentur.nutzer },
-} as const;
+// Slider-Grenzen (rein fuer die Marketing-Seite; Werte selbst kommen aus constants.ts).
+const NUTZER_MIN = 1;
+const NUTZER_MAX = 50;
+const TOOLS_MIN = 5;
+const TOOLS_MAX = 500;
+const TOOLS_STEP = 5;
 
-type Cadence = "monat" | "jahr";
+const META: Record<PlanId, { icon: typeof Sparkles; features: string[]; cta: string }> = {
+  free: {
+    icon: UserCheck,
+    cta: "Kostenlos starten",
+    features: [`Bis ${FREE_ABO_LIMIT} Abos im Tracker`, "Übersichts-Dashboard", "Kontoauszug-Import", "Manuelles Anlegen", "Fristen-Wächter (Basis)", "Benchmark als Teaser"],
+  },
+  pro: {
+    icon: Sparkles,
+    cta: "Pro starten",
+    features: ["Unbegrenzte Erfassungswege", "Beleg-Postfach", "AI-Credit-Tracker", "Voller Benchmark", "Sparvorschläge und Deals", "Rechnungs- und Vertragsarchiv", "Steuer-Export"],
+  },
+  agentur: {
+    icon: Building2,
+    cta: "Agentur starten",
+    features: ["Alles aus Pro", "Kosten pro Kunde", "Weiterverrechnungs-Reports", "Team & Rollen", "Seats-Verwaltung", "Freigabe-Workflow", "Mehrere Gesellschaften"],
+  },
+  unternehmen: {
+    icon: Landmark,
+    cta: "Unternehmen starten",
+    features: ["Alles aus Agentur", "Unbegrenzte Tools", "SSO und Sicherheits-Review", "Priorisierter Support", "Persönliches Onboarding", "Individuelle Auswertungen"],
+  },
+};
 
-function PriceBlock({ betrag, cadence, hinweis }: { betrag: number; cadence: Cadence; hinweis?: string }) {
-  if (betrag === 0) {
-    return (
-      <div className="flex items-baseline gap-2">
-        <span className="font-display text-5xl font-semibold tabular">0 €</span>
-        <span className="text-sm text-muted-foreground">für immer</span>
-      </div>
-    );
-  }
-  return (
-    <div>
-      <div className="flex items-baseline gap-2">
-        <span className="font-display text-5xl font-semibold tabular">{fmtEUR(betrag).replace(/\s?€/, " €")}</span>
-        <span className="text-sm text-muted-foreground">/ Monat</span>
-      </div>
-      <div className="mt-1 text-xs text-muted-foreground">
-        {cadence === "jahr" ? "jährlich abgerechnet" : "monatlich abgerechnet"}
-        {hinweis ? ` · ${hinweis}` : ""}
-      </div>
-    </div>
-  );
+function inklText(id: PlanId): string {
+  const p = PLANS[id];
+  const tools = p.inklTools === null ? "unbegrenzte Tools" : `${p.inklTools} Tools`;
+  const nutzer = `${p.inklNutzer} ${p.inklNutzer === 1 ? "Nutzer" : "Nutzer"}`;
+  return `inkl. ${nutzer}, ${tools}`;
 }
 
-function PlanCards({ cadence }: { cadence: Cadence }) {
-  const proPreis = cadence === "jahr" ? PLAEN.pro.jahrProMonat : PLAEN.pro.monat;
-  const agPreis = cadence === "jahr" ? PLAEN.agentur.jahrProMonat : PLAEN.agentur.monat;
-  const plans = [
-    {
-      name: "Free", zielgruppe: "Für Solo und Einsteiger", betrag: 0, featured: false, icon: UserCheck,
-      features: [`Bis ${PLAEN.free.aboLimit} Abos im Tracker`, "Übersichts-Dashboard", "Kontoauszug-Import", "Manuelles Anlegen", "Fristen-Wächter (Basis)", "Benchmark als Teaser", "1 Nutzer"],
-      cta: "Kostenlos starten", ctaHref: "/registrieren", ctaVariant: "ghost" as const,
-    },
-    {
-      name: "Pro", zielgruppe: "Für Solopreneure und Freelancer", betrag: proPreis, featured: true, icon: Sparkles,
-      features: ["Unbegrenzte Abos", "Beleg-Postfach & alle Erfassungswege", "AI-Credit-Tracker", "Voller Benchmark", "Sparvorschläge und Deals", "Rechnungs- und Vertragsarchiv", "Steuer-Export", "1 Nutzer"],
-      cta: "Pro starten", ctaHref: "/registrieren", ctaVariant: "primary" as const,
-    },
-    {
-      name: "Agentur", zielgruppe: "Für Agenturen und Teams", betrag: agPreis, featured: false, icon: Building2,
-      features: ["Alles aus Pro", "Kosten pro Kunde", "Weiterverrechnungs-Reports", "Team & Rollen", "Seats-Verwaltung", "Freigabe-Workflow", "Mehrere Nutzer"],
-      cta: "Agentur starten", ctaHref: "/registrieren", ctaVariant: "outline" as const,
-    },
-  ];
+function aufpreisText(id: PlanId, cadence: Abrechnung): string | null {
+  const p = PLANS[id];
+  if (!p.konfigurierbar) return null;
+  const seat = cadence === "jahr" ? p.proNutzer.jahr : p.proNutzer.monat;
+  const block = cadence === "jahr" ? p.proToolBlock.jahr : p.proToolBlock.monat;
+  const teile: string[] = [];
+  if (seat > 0) teile.push(`${fmtEUR(seat)} je weiterem Nutzer`);
+  if (p.toolBlock > 0 && block > 0) teile.push(`${fmtEUR(block)} je ${p.toolBlock} weiteren Tools`);
+  return teile.length ? teile.join(" · ") : null;
+}
 
+/* ---------------- Konfigurator (zwei Slider) ---------------- */
+
+function Konfigurator({
+  nutzer, setNutzer, tools, setTools, cadence, setCadence,
+}: {
+  nutzer: number; setNutzer: (n: number) => void;
+  tools: number; setTools: (n: number) => void;
+  cadence: Abrechnung; setCadence: (c: Abrechnung) => void;
+}) {
   return (
-    <div className="grid items-stretch gap-5 md:grid-cols-3">
-      {plans.map((p, i) => (
-        <Reveal key={p.name} delay={i * 80}>
-          <div className={cn("card-lift relative flex h-full flex-col rounded-3xl border p-7", p.featured ? "border-primary bg-card shadow-lift ring-1 ring-primary/30 md:-translate-y-2" : "border-border bg-card")}>
-            {p.featured && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-soft">Beliebt</div>
-            )}
-            <div className="flex items-center gap-3">
-              <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary"><p.icon className="size-5" /></span>
-              <div>
-                <div className="font-display text-xl font-semibold">{p.name}</div>
-                <div className="text-xs text-muted-foreground">{p.zielgruppe}</div>
-              </div>
-            </div>
-            <div className="mt-6"><PriceBlock betrag={p.betrag} cadence={cadence} /></div>
-            <ul className="mt-6 space-y-2.5 text-sm">
-              {p.features.map((f) => (
-                <li key={f} className="flex items-start gap-2"><Check className="mt-0.5 size-4 shrink-0 text-success" /><span>{f}</span></li>
-              ))}
-            </ul>
-            <Link href={p.ctaHref} className={cn("mt-7 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all", p.ctaVariant === "primary" && "bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 hover:shadow-lift", p.ctaVariant === "outline" && "border border-border bg-card hover:bg-accent", p.ctaVariant === "ghost" && "bg-secondary text-foreground hover:bg-secondary/70")}>
-              {p.cta} <ArrowRight className="size-4" />
-            </Link>
+    <div className="mx-auto mt-8 max-w-2xl rounded-3xl border border-border bg-card p-6 shadow-soft sm:p-8">
+      <div className="flex flex-col gap-6">
+        <div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="inline-flex items-center gap-2 font-medium"><Users className="size-4 text-primary" /> Nutzer im Team</span>
+            <span className="font-display text-lg font-semibold tabular-nums">{nutzer >= NUTZER_MAX ? `${NUTZER_MAX}+` : nutzer}</span>
           </div>
-        </Reveal>
-      ))}
-    </div>
-  );
-}
+          <Slider className="mt-3" value={[nutzer]} min={NUTZER_MIN} max={NUTZER_MAX} step={1} onValueChange={(v) => setNutzer(v[0])} aria-label="Anzahl Nutzer" />
+        </div>
 
-function BillingToggle({ value, onChange }: { value: Cadence; onChange: (v: Cadence) => void }) {
-  return (
-    <div className="inline-flex items-center gap-3">
-      <div className="relative inline-flex rounded-full border border-border bg-card p-1 shadow-soft">
-        {(["monat", "jahr"] as const).map((c) => (
-          <button key={c} onClick={() => onChange(c)} className={cn("relative z-10 rounded-full px-5 py-2 text-sm font-semibold transition-colors", value === c ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground")}>
-            {c === "monat" ? "Monatlich" : "Jährlich"}
-            {value === c && <span className="absolute inset-0 -z-10 rounded-full bg-primary transition-all" />}
-          </button>
-        ))}
+        <div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="inline-flex items-center gap-2 font-medium"><Wrench className="size-4 text-primary" /> Tools / Abos</span>
+            <span className="font-display text-lg font-semibold tabular-nums">{tools >= TOOLS_MAX ? `${TOOLS_MAX}+` : tools}</span>
+          </div>
+          <Slider className="mt-3" value={[tools]} min={TOOLS_MIN} max={TOOLS_MAX} step={TOOLS_STEP} onValueChange={(v) => setTools(v[0])} aria-label="Anzahl Tools" />
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
+          <div className="inline-flex rounded-full border border-border bg-background p-1">
+            {(["monat", "jahr"] as const).map((c) => (
+              <button key={c} onClick={() => setCadence(c)} className={cn("relative z-10 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors", cadence === c ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}>
+                {c === "monat" ? "Monatlich" : "Jährlich"}
+              </button>
+            ))}
+          </div>
+          <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
+            <Sparkles className="size-3" /> Spare {Math.round(YEARLY_DISCOUNT * 100)} % im Jahr
+          </span>
+        </div>
       </div>
-      <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
-        <Sparkles className="size-3" /> Spare {PLAEN.jahresRabattProzent} % im Jahr
-      </span>
     </div>
   );
 }
 
-function Hero({ cadence, setCadence }: { cadence: Cadence; setCadence: (c: Cadence) => void }) {
+/* ---------------- Tarifkarten ---------------- */
+
+function PlanCards({ nutzer, tools, cadence }: { nutzer: number; tools: number; cadence: Abrechnung }) {
+  const empfohlen = empfohleneStufe(nutzer, tools);
+
+  return (
+    <div className="grid items-stretch gap-5 lg:grid-cols-4 md:grid-cols-2">
+      {PLAN_ORDER.map((id, i) => {
+        const p = PLANS[id];
+        const meta = META[id];
+        const Icon = meta.icon;
+        const betrag = planPreisProMonat(id, cadence, nutzer, tools);
+        const featured = id === empfohlen;
+        const aufpreis = aufpreisText(id, cadence);
+
+        return (
+          <Reveal key={id} delay={i * 70}>
+            <div className={cn("card-lift relative flex h-full flex-col rounded-3xl border p-6", featured ? "border-primary bg-card shadow-lift ring-1 ring-primary/30 lg:-translate-y-2" : "border-border bg-card")}>
+              {featured && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-soft">Empfohlen</div>
+              )}
+              <div className="flex items-center gap-3">
+                <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary"><Icon className="size-5" /></span>
+                <div>
+                  <div className="font-display text-lg font-semibold">{p.name}</div>
+                  <div className="text-xs text-muted-foreground">{p.zielgruppe}</div>
+                </div>
+              </div>
+
+              <div className="mt-5">
+                {betrag === 0 ? (
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-display text-4xl font-semibold tabular-nums">0 €</span>
+                    <span className="text-sm text-muted-foreground">für immer</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="font-display text-4xl font-semibold tabular-nums">{fmtEUR(betrag).replace(/\s?€/, " €")}</span>
+                      <span className="text-sm text-muted-foreground">/ Monat</span>
+                    </div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {cadence === "jahr" ? `jährlich abgerechnet (${fmtEUR(Math.round(betrag * 12 * 100) / 100)})` : "monatlich abgerechnet"}
+                    </div>
+                  </>
+                )}
+                <div className="mt-2 text-xs font-medium text-foreground/70">{inklText(id)}</div>
+                {aufpreis && <div className="mt-0.5 text-[11px] text-muted-foreground">{aufpreis}</div>}
+              </div>
+
+              <ul className="mt-5 space-y-2 text-sm">
+                {meta.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2"><Check className="mt-0.5 size-4 shrink-0 text-success" /><span>{f}</span></li>
+                ))}
+              </ul>
+
+              <Link href="/registrieren" className={cn("mt-6 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all", featured ? "bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 hover:shadow-lift" : "border border-border bg-card hover:bg-accent")}>
+                {meta.cta} <ArrowRight className="size-4" />
+              </Link>
+            </div>
+          </Reveal>
+        );
+      })}
+    </div>
+  );
+}
+
+function Hero({
+  nutzer, setNutzer, tools, setTools, cadence, setCadence,
+}: {
+  nutzer: number; setNutzer: (n: number) => void;
+  tools: number; setTools: (n: number) => void;
+  cadence: Abrechnung; setCadence: (c: Abrechnung) => void;
+}) {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <div className="absolute -left-20 -top-32 size-[480px] rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -right-20 top-40 size-[420px] rounded-full bg-coral/15 blur-3xl" />
       </div>
-      <div className="mx-auto max-w-7xl px-4 pb-10 pt-14 text-center sm:px-6 sm:pt-20">
+      <div className="mx-auto max-w-7xl px-4 pb-8 pt-14 text-center sm:px-6 sm:pt-20">
         <Reveal>
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground">
             <span className="size-1.5 rounded-full bg-coral" /> Preise
           </div>
           <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-            Zahl weniger, <span className="text-primary">als du sparst.</span>
+            Preise, die mit dir <span className="text-primary">mitwachsen.</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">
-            Schon der Free-Tarif bringt dir den Überblick. Die bezahlten Pläne sparen aktiv Geld,
-            indem sie Fristen wahren, Redundanzen aufdecken und Alternativen vorschlagen.
+            Stell dein Team und deine Tool-Zahl ein, du siehst sofort den passenden Plan und den fairen Preis.
+            Vom Solo-Tarif bis zum Unternehmen.
           </p>
-          <div className="mt-8 flex justify-center"><BillingToggle value={cadence} onChange={setCadence} /></div>
+          <Konfigurator nutzer={nutzer} setNutzer={setNutzer} tools={tools} setTools={setTools} cadence={cadence} setCadence={setCadence} />
         </Reveal>
       </div>
     </section>
@@ -172,48 +244,50 @@ function TrialNote() {
 
 type Cell = boolean | string;
 
-const VERGLEICH: { gruppe: string; zeilen: { label: string; werte: [Cell, Cell, Cell] }[] }[] = [
+const VERGLEICH: { gruppe: string; zeilen: { label: string; werte: [Cell, Cell, Cell, Cell] }[] }[] = [
   { gruppe: "Erfassung", zeilen: [
-    { label: "Abo-Limit", werte: [`bis ${PLAEN.free.aboLimit}`, "unbegrenzt", "unbegrenzt"] },
-    { label: "Manuelles Anlegen", werte: [true, true, true] },
-    { label: "Kontoauszug-Import", werte: [true, true, true] },
-    { label: "Beleg-Postfach", werte: [false, true, true] },
-    { label: "Mailbox- und Workspace-Discovery", werte: [false, true, true] },
+    { label: "Tools inklusive", werte: [`bis ${FREE_ABO_LIMIT}`, `${PLANS.pro.inklTools}+`, `${PLANS.agentur.inklTools}+`, "unbegrenzt"] },
+    { label: "Manuelles Anlegen", werte: [true, true, true, true] },
+    { label: "Kontoauszug-Import", werte: [true, true, true, true] },
+    { label: "Beleg-Postfach", werte: [false, true, true, true] },
+    { label: "Mailbox- und Workspace-Discovery", werte: [false, true, true, true] },
   ]},
   { gruppe: "Überblick & Wächter", zeilen: [
-    { label: "Dashboard und Übersicht", werte: [true, true, true] },
-    { label: "Fristen-Wächter", werte: ["Basis", "Voll", "Voll"] },
-    { label: "Budget & Forecast", werte: [false, true, true] },
-    { label: "Benachrichtigungen", werte: ["Basis", "Voll", "Voll"] },
+    { label: "Dashboard und Übersicht", werte: [true, true, true, true] },
+    { label: "Fristen-Wächter", werte: ["Basis", "Voll", "Voll", "Voll"] },
+    { label: "Budget & Forecast", werte: [false, true, true, true] },
+    { label: "Benachrichtigungen", werte: ["Basis", "Voll", "Voll", "Voll"] },
   ]},
   { gruppe: "Intelligenz", zeilen: [
-    { label: "Benchmark", werte: ["Teaser", "Voll", "Voll"] },
-    { label: "Sparvorschläge", werte: [false, true, true] },
-    { label: "Deals und Gutscheine", werte: [false, true, true] },
-    { label: "AI-Credit-Tracker", werte: [false, true, true] },
+    { label: "Benchmark", werte: ["Teaser", "Voll", "Voll", "Voll"] },
+    { label: "Sparvorschläge", werte: [false, true, true, true] },
+    { label: "Deals und Gutscheine", werte: [false, true, true, true] },
+    { label: "AI-Credit-Tracker", werte: [false, true, true, true] },
   ]},
   { gruppe: "Dokumente & Steuer", zeilen: [
-    { label: "Rechnungsarchiv", werte: [false, true, true] },
-    { label: "Vertragsarchiv", werte: [false, true, true] },
-    { label: "Steuer-Export (DATEV/CSV)", werte: [false, true, true] },
+    { label: "Rechnungsarchiv", werte: [false, true, true, true] },
+    { label: "Vertragsarchiv", werte: [false, true, true, true] },
+    { label: "Steuer-Export (DATEV/CSV)", werte: [false, true, true, true] },
   ]},
-  { gruppe: "Agentur", zeilen: [
-    { label: "Kosten pro Kunde", werte: [false, false, true] },
-    { label: "Weiterverrechnungs-Reports", werte: [false, false, true] },
-    { label: "Team & Rollen", werte: [false, false, true] },
-    { label: "Seats-Verwaltung", werte: [false, false, true] },
-    { label: "Freigabe-Workflow", werte: [false, false, true] },
-    { label: "Mehrere Gesellschaften", werte: [false, false, true] },
+  { gruppe: "Agentur & Team", zeilen: [
+    { label: "Kosten pro Kunde", werte: [false, false, true, true] },
+    { label: "Weiterverrechnungs-Reports", werte: [false, false, true, true] },
+    { label: "Team & Rollen", werte: [false, false, true, true] },
+    { label: "Seats-Verwaltung", werte: [false, false, true, true] },
+    { label: "Freigabe-Workflow", werte: [false, false, true, true] },
+    { label: "Mehrere Gesellschaften", werte: [false, false, true, true] },
   ]},
-  { gruppe: "Nutzer", zeilen: [
-    { label: "Inklusive Nutzer", werte: [`${PLAEN.free.nutzer}`, `${PLAEN.pro.nutzer}`, String(PLAEN.agentur.nutzer)] },
+  { gruppe: "Unternehmen", zeilen: [
+    { label: "SSO und Sicherheits-Review", werte: [false, false, false, true] },
+    { label: "Priorisierter Support", werte: [false, false, false, true] },
+    { label: "Persönliches Onboarding", werte: [false, false, false, true] },
   ]},
 ];
 
 function CellRender({ value }: { value: Cell }) {
   if (value === true) return <Check className="mx-auto size-4 text-success" />;
   if (value === false) return <Minus className="mx-auto size-4 text-muted-foreground/50" />;
-  return <span className="text-sm font-medium tabular">{value}</span>;
+  return <span className="text-sm font-medium tabular-nums">{value}</span>;
 }
 
 function Vergleich() {
@@ -226,18 +300,18 @@ function Vergleich() {
             <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Alles auf einen Blick.</h2>
             <p className="mt-3 text-muted-foreground">
               Der Agentur-Layer (Kosten pro Kunde, Weiterverrechnung, Team, Seats, Freigaben) ist die
-              klare Schwelle zwischen Pro und Agentur.
+              Schwelle zwischen Pro und Agentur. Unternehmen ergänzt SSO, Support und Onboarding.
             </p>
           </div>
         </Reveal>
         <Reveal>
           <div className="mt-10 overflow-hidden rounded-3xl border border-border bg-card">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-sm">
+              <table className="w-full min-w-[760px] text-sm">
                 <thead className="sticky top-0 z-10 bg-secondary/80 backdrop-blur">
                   <tr>
                     <th className="px-5 py-4 text-left font-semibold">Funktion</th>
-                    {(["Free", "Pro", "Agentur"] as const).map((n, i) => (
+                    {(["Free", "Pro", "Agentur", "Unternehmen"] as const).map((n, i) => (
                       <th key={n} className={cn("px-5 py-4 text-center font-semibold", i === 1 && "text-primary")}>{n}</th>
                     ))}
                   </tr>
@@ -246,7 +320,7 @@ function Vergleich() {
                   {VERGLEICH.map((grp) => (
                     <Fragment key={grp.gruppe}>
                       <tr className="bg-secondary/40">
-                        <td colSpan={4} className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{grp.gruppe}</td>
+                        <td colSpan={5} className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{grp.gruppe}</td>
                       </tr>
                       {grp.zeilen.map((z) => (
                         <tr key={z.label} className="border-t border-border/60">
@@ -292,13 +366,12 @@ function Trust() {
 }
 
 const FAQS = [
-  { q: "Ist Free wirklich dauerhaft kostenlos?", a: `Ja. Free bleibt für immer 0 €, mit bis zu ${PLAEN.free.aboLimit} Abos und den wichtigsten Funktionen zum Überblick. Keine versteckten Kosten.` },
-  { q: "Was passiert nach dem 14-Tage-Test?", a: "Nach 14 Tagen wählst du Pro oder Agentur. Wenn du nichts auswählst, läuft dein Konto automatisch im Free-Plan weiter. Wir buchen niemals ohne deine Zustimmung ab." },
-  { q: "Kann ich jederzeit wechseln oder kündigen?", a: "Ja. Upgrade, Downgrade und Kündigung sind jederzeit zum Ende des laufenden Abrechnungszeitraums möglich, direkt in deinen Einstellungen." },
-  { q: "Wie funktioniert der Benchmark und sind meine Daten sicher?", a: "Benchmarks basieren auf anonymisierten Aggregat-Daten aus dem Toolfolio-Netzwerk. Niemand sieht deine Beträge einzeln. Du kannst die Teilnahme jederzeit deaktivieren." },
-  { q: "Was unterscheidet Pro von Agentur?", a: "Pro ist der volle Tracker für eine Person. Agentur ergänzt alles, was du für Teams brauchst: Kosten pro Kunde, Weiterverrechnung, Team & Rollen, Seats und Freigaben." },
-  { q: "Gibt es einen Jahresrabatt?", a: `Ja, bei jährlicher Abrechnung sparst du rund ${PLAEN.jahresRabattProzent} %. Den Rabatt siehst du oben im Toggle.` },
-  { q: "Brauche ich für den Test eine Kreditkarte?", a: "Nein. Der 14-Tage-Test startet ohne Zahlungsmittel. Du gibst nur dann Zahlungsdaten an, wenn du am Ende des Tests auf Pro oder Agentur bleibst." },
+  { q: "Wie wird der Preis berechnet?", a: "Jeder Plan hat einen Basispreis mit inklusiven Nutzern und Tools. Brauchst du mehr, kommt ein fairer Aufpreis je weiterem Nutzer und je zusätzlichem Tool-Block dazu. Den genauen Betrag siehst du oben sofort über die Slider." },
+  { q: "Ist Free wirklich dauerhaft kostenlos?", a: `Ja. Free bleibt für immer 0 €, mit bis zu ${FREE_ABO_LIMIT} Tools und den wichtigsten Funktionen zum Überblick. Keine versteckten Kosten.` },
+  { q: "Was passiert nach dem 14-Tage-Test?", a: "Nach 14 Tagen wählst du deinen Plan. Wenn du nichts auswählst, läuft dein Konto automatisch im Free-Plan weiter. Wir buchen niemals ohne deine Zustimmung ab." },
+  { q: "Kann ich Nutzer und Tools später ändern?", a: "Ja. Du kannst dein Team und deine Tool-Zahl jederzeit anpassen, die Abrechnung passt sich zum nächsten Zeitraum an." },
+  { q: "Was unterscheidet Agentur von Unternehmen?", a: "Agentur bringt den vollen Team- und Weiterverrechnungs-Layer. Unternehmen ergänzt unbegrenzte Tools, SSO, Sicherheits-Review, priorisierten Support und persönliches Onboarding." },
+  { q: "Gibt es einen Jahresrabatt?", a: `Ja, bei jährlicher Abrechnung sparst du rund ${Math.round(YEARLY_DISCOUNT * 100)} %. Den Rabatt siehst du oben im Konfigurator.` },
 ];
 
 function FAQ() {
@@ -358,13 +431,15 @@ function FinalCTA() {
 }
 
 export function PricingPage() {
-  const [cadence, setCadence] = useState<Cadence>("jahr");
+  const [cadence, setCadence] = useState<Abrechnung>("jahr");
+  const [nutzer, setNutzer] = useState(3);
+  const [tools, setTools] = useState(40);
   return (
     <>
-      <Hero cadence={cadence} setCadence={setCadence} />
-      <section className="pb-6 pt-4">
+      <Hero nutzer={nutzer} setNutzer={setNutzer} tools={tools} setTools={setTools} cadence={cadence} setCadence={setCadence} />
+      <section className="pb-6 pt-2">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <PlanCards cadence={cadence} />
+          <PlanCards nutzer={nutzer} tools={tools} cadence={cadence} />
         </div>
       </section>
       <TrialNote />

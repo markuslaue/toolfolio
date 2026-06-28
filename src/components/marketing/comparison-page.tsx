@@ -30,7 +30,7 @@ import { PLANS } from "@/lib/constants";
 export type ComparisonSlug = "excel" | "sastrify" | "cledara" | "spendesk" | "pleo" | "zluri" | "torii";
 
 // Startpreis des guenstigsten bezahlten Tarifs, zentral aus den Tarifkonstanten.
-const STARTPREIS = `ab ${PLANS.pro.monthlyEur} €/Monat`;
+const STARTPREIS = `ab ${PLANS.pro.basis.monat} €/Monat`;
 
 type Row = { feature: string; toolfolio: string | boolean; alt: string | boolean };
 type Group = { label: string; rows: Row[] };

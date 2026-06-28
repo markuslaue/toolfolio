@@ -863,9 +863,9 @@ function Trust() {
 function PricingTeaser() {
   // Preise zentral aus src/lib/constants.ts (einzige Quelle der Wahrheit).
   const plans = [
-    { name: PLANS.free.name, price: "0 €", sub: "für immer", note: `Bis ${FREE_ABO_LIMIT} Abos, manuelles Erfassen, Fristen-Erinnerungen.`, featured: false },
-    { name: PLANS.pro.name, price: fmtEUR(PLANS.pro.monthlyEur), sub: "pro Monat", note: "Unbegrenzte Abos, Import, Benchmark, Sparvorschläge.", featured: true },
-    { name: PLANS.agentur.name, price: fmtEUR(PLANS.agentur.monthlyEur), sub: "pro Monat", note: "Kosten pro Kunde, Team & Rollen, mehrere Gesellschaften.", featured: false },
+    { name: PLANS.free.name, price: "0 €", sub: "für immer", note: `Bis ${FREE_ABO_LIMIT} Tools, manuelles Erfassen, Fristen-Erinnerungen.`, featured: false },
+    { name: PLANS.pro.name, price: `ab ${fmtEUR(PLANS.pro.basis.monat)}`, sub: "pro Monat", note: "Unbegrenzte Erfassungswege, Import, Benchmark, Sparvorschläge.", featured: true },
+    { name: PLANS.agentur.name, price: `ab ${fmtEUR(PLANS.agentur.basis.monat)}`, sub: "pro Monat", note: "Kosten pro Kunde, Team & Rollen, mehrere Gesellschaften.", featured: false },
   ];
   return (
     <section className="py-20 sm:py-28">
