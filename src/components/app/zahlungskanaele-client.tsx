@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, CreditCard, Landmark, Wallet, MoreHorizontal, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WennSchreibbar } from "@/components/app/read-only-context";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -174,9 +175,11 @@ export function ZahlungskanaeleClient({ kanaele }: { kanaele: Zahlungskanal[] })
             Verwalte deine Zahlungsmittel als Referenz, ohne sensible Daten zu hinterlegen.
           </p>
         </div>
-        <Button onClick={neu} className="gap-1.5">
-          <Plus className="size-4" /> Kanal hinzufügen
-        </Button>
+        <WennSchreibbar>
+          <Button onClick={neu} className="gap-1.5">
+            <Plus className="size-4" /> Kanal hinzufügen
+          </Button>
+        </WennSchreibbar>
       </div>
 
       <div className="flex items-start gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
@@ -194,9 +197,11 @@ export function ZahlungskanaeleClient({ kanaele }: { kanaele: Zahlungskanal[] })
           <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
             Lege einen Kanal an, um Abos einer Zahlungsquelle zuzuordnen.
           </p>
-          <Button onClick={neu} className="mt-5 gap-2">
-            <Plus className="size-4" /> Kanal hinzufügen
-          </Button>
+          <WennSchreibbar>
+            <Button onClick={neu} className="mt-5 gap-2">
+              <Plus className="size-4" /> Kanal hinzufügen
+            </Button>
+          </WennSchreibbar>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

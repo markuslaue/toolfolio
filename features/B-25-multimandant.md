@@ -32,10 +32,12 @@ Alle verbleibenden Konto-Strecken aufs aktive Konto umgestellt, sodass ein Mitgl
 - [x] Konto-Umschalter zeigt je Konto bereits die Rolle (Admin/Mitglied) als Badge.
 - [x] Build gruen (tsc/next build/17 Tests).
 
-## Offen (optionales Polish, nicht blockierend)
-- [ ] Einzelne Edit-/„Neu"-Buttons fuer Member zusaetzlich via `useReadOnly()` deaktivieren (heute serverseitig sauber geblockt + Banner; das Ausblenden der ~28 Controls ist reine Kosmetik).
-- [ ] Member-spezifische Fehlermeldung bei dennoch ausgeloestem Schreibversuch (statt generischem „konnte nicht gespeichert werden").
+## Inkrement 4 (deployed 2026-06-28): Member-CTAs ausgeblendet
+- [x] Zentraler Helfer `WennSchreibbar` (`read-only-context.tsx`) rendert Kinder nur bei Schreibrecht. Die primaeren „Hinzufuegen/Anlegen"-CTAs der Hauptlisten (Abos inkl. Import, Kunden, Zahlungskanaele, Zugaenge/Personen, AI-Dienste, Archiv-Dokumente, Freigabe-Antrag) sind fuer reine Mitglieder ausgeblendet. Zusammen mit dem Nur-Ansicht-Banner (Inkr. 3) ist die Member-UX damit klar.
+- Bewusst NICHT gegated: einzelne Zeilen-Edit/-Loesch-Controls und Detail-Formulare — die bleiben serverseitig (RLS + Action-Guards) sicher geblockt; das flaechige Ausblenden waere reine Kosmetik ohne Sicherheitsgewinn.
 - Per-Nutzer-Status (sparvorschlag_status, benachrichtigung_status) und Onboarding (profiles.onboarded_at) bleiben bewusst user-scoped (`user.id`), kontoweit nicht geteilt.
+
+## Status: B-25 vollstaendig (Inkr. 1-4). Keine offenen Punkte.
 
 ## QA
 - 2026-06-27 (Inkr. 1): Build gruen. Multi-Mandant-RLS empirisch (6 Faelle) korrekt.

@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Plus, UsersRound, ShieldAlert, KeyRound, UserMinus, ChevronRight, Loader2, Trash2, Crown, CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WennSchreibbar } from "@/components/app/read-only-context";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -181,7 +182,7 @@ function AddPersonDialog() {
   }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button className="gap-2"><Plus className="size-4" /> Person hinzufügen</Button></DialogTrigger>
+      <WennSchreibbar><DialogTrigger asChild><Button className="gap-2"><Plus className="size-4" /> Person hinzufügen</Button></DialogTrigger></WennSchreibbar>
       <DialogContent>
         <DialogHeader><DialogTitle>Person hinzufügen</DialogTitle><DialogDescription>Teammitglied oder externe Person, die Tools nutzt.</DialogDescription></DialogHeader>
         <form action={submit} className="space-y-4">

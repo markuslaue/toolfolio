@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { WennSchreibbar } from "@/components/app/read-only-context";
 import { cn } from "@/lib/utils";
 import { formatEur as euro } from "@/lib/constants";
 import { INTERVALL_LABEL } from "@/lib/abos";
@@ -171,7 +172,7 @@ function AntragDialog({ personen, kategorien }: { personen: string[]; kategorien
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button className="gap-2"><Plus className="size-4" /> Antrag stellen</Button></DialogTrigger>
+      <WennSchreibbar><DialogTrigger asChild><Button className="gap-2"><Plus className="size-4" /> Antrag stellen</Button></DialogTrigger></WennSchreibbar>
       <DialogContent>
         <DialogHeader><DialogTitle>Anschaffung beantragen</DialogTitle><DialogDescription>Neues Tool zur Freigabe vorschlagen.</DialogDescription></DialogHeader>
         <form action={submit} className="space-y-4">

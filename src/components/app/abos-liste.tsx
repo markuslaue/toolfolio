@@ -54,6 +54,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatEur } from "@/lib/constants";
 import { AboFormPanel } from "@/components/app/abo-form-panel";
+import { WennSchreibbar } from "@/components/app/read-only-context";
 import {
   KATEGORIEN,
   INTERVALLE,
@@ -369,16 +370,18 @@ export function AbosListe({
             <span className="font-medium text-foreground">{formatEur(monatsBilanz)}</span> pro Monat
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="outline" className="gap-1.5">
-            <Link href="/app/abos/import">
-              <FileUp className="size-4" /> Importieren
-            </Link>
-          </Button>
-          <Button onClick={neu} className="gap-1.5">
-            <Plus className="size-4" /> Abo hinzufügen
-          </Button>
-        </div>
+        <WennSchreibbar>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" className="gap-1.5">
+              <Link href="/app/abos/import">
+                <FileUp className="size-4" /> Importieren
+              </Link>
+            </Button>
+            <Button onClick={neu} className="gap-1.5">
+              <Plus className="size-4" /> Abo hinzufügen
+            </Button>
+          </div>
+        </WennSchreibbar>
       </div>
 
       {abos.length === 0 ? (
@@ -390,9 +393,11 @@ export function AbosListe({
           <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
             Lege dein erstes Abo an, um Kosten, Fristen und Abbuchungen im Blick zu behalten.
           </p>
-          <Button onClick={neu} className="mt-5 gap-2">
-            <Plus className="size-4" /> Abo hinzufügen
-          </Button>
+          <WennSchreibbar>
+            <Button onClick={neu} className="mt-5 gap-2">
+              <Plus className="size-4" /> Abo hinzufügen
+            </Button>
+          </WennSchreibbar>
         </div>
       ) : (
         <>

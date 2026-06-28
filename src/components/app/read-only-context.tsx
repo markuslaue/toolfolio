@@ -18,3 +18,12 @@ export function ReadOnlyProvider({ readOnly, children }: { readOnly: boolean; ch
 export function useReadOnly(): boolean {
   return useContext(ReadOnlyContext);
 }
+
+/**
+ * Rendert die Kinder nur, wenn das aktive Konto beschreibbar ist (Owner/Admin).
+ * Fuer reine Mitglieder (Nur-Ansicht) werden Erstellen-/Bearbeiten-CTAs ausgeblendet.
+ * Die eigentliche Durchsetzung bleibt serverseitig (RLS); das ist reine UI-Klarheit.
+ */
+export function WennSchreibbar({ children }: { children: React.ReactNode }) {
+  return useReadOnly() ? null : <>{children}</>;
+}

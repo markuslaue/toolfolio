@@ -7,6 +7,7 @@ import {
   Download, Trash2, Plus, Loader2, ChevronDown, ChevronUp, Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WennSchreibbar } from "@/components/app/read-only-context";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -222,7 +223,7 @@ function UploadDialog({ abos }: { abos: AboRef[] }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button className="gap-2"><Plus className="size-4" /> Dokument hinzufügen</Button></DialogTrigger>
+      <WennSchreibbar><DialogTrigger asChild><Button className="gap-2"><Plus className="size-4" /> Dokument hinzufügen</Button></DialogTrigger></WennSchreibbar>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Dokument hinzufügen</DialogTitle>

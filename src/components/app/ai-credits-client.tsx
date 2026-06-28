@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Bot, Plus, AlertTriangle, TrendingUp, TrendingDown, Loader2, Trash2, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WennSchreibbar } from "@/components/app/read-only-context";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -202,7 +203,7 @@ function AddServiceDialog() {
   }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button className="gap-2"><Plus className="size-4" /> Dienst hinzufügen</Button></DialogTrigger>
+      <WennSchreibbar><DialogTrigger asChild><Button className="gap-2"><Plus className="size-4" /> Dienst hinzufügen</Button></DialogTrigger></WennSchreibbar>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>KI-Dienst hinzufügen</DialogTitle>

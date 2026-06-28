@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, Users, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WennSchreibbar } from "@/components/app/read-only-context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,9 +71,11 @@ export function KundenClient({ kunden }: { kunden: KundeMitStats[] }) {
             Ordne Abos Kunden zu und behalte weiterverrechenbare Kosten im Blick.
           </p>
         </div>
-        <Button onClick={neu} className="gap-1.5">
-          <Plus className="size-4" /> Kunde hinzufügen
-        </Button>
+        <WennSchreibbar>
+          <Button onClick={neu} className="gap-1.5">
+            <Plus className="size-4" /> Kunde hinzufügen
+          </Button>
+        </WennSchreibbar>
       </div>
 
       {kunden.length === 0 ? (
@@ -84,9 +87,11 @@ export function KundenClient({ kunden }: { kunden: KundeMitStats[] }) {
           <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
             Lege einen Kunden an, um Abos zuzuordnen und Weiterverrechnung zu pflegen.
           </p>
-          <Button onClick={neu} className="mt-5 gap-2">
-            <Plus className="size-4" /> Kunde hinzufügen
-          </Button>
+          <WennSchreibbar>
+            <Button onClick={neu} className="mt-5 gap-2">
+              <Plus className="size-4" /> Kunde hinzufügen
+            </Button>
+          </WennSchreibbar>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
