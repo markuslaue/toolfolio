@@ -24,6 +24,10 @@ export interface Treffer {
   kategorie: string;
   konfidenz: Konfidenz;
   anzahl: number;
+  /** Wahrscheinlich noch aktiv (zuletzt im erwarteten Rhythmus abgebucht). */
+  aktiv: boolean;
+  /** Optionaler Analyse-Hinweis (z. B. "vermutlich beendet", "unregelmaessig"). */
+  hinweis?: string;
   /** Alle zugrunde liegenden Buchungen mit vollem Original-Text (Belegnummern etc.). */
   referenzen: Referenz[];
 }
@@ -470,6 +474,42 @@ function klassifiziereTool(text: string, anzahl: number, betrag: number): ToolKl
   return "kein_tool";
 }
 
+function vorMonatenText(tage: number): string {
+  if (tage >= 330) {
+    const jahre = Math.max(1, Math.round(tage / 365));
+    return jahre === 1 ? "vor über einem Jahr" : `vor über ${jahre} Jahren`;
+  }
+  if (tage >= 50) return `vor ${Math.round(tage / 30)} Monaten`;
+  if (tage >= 14) return `vor ${Math.round(tage / 7)} Wochen`;
+  return tage <= 1 ? "vor Kurzem" : `vor ${tage} Tagen`;
+}
+
+/**
+ * Rhythmus-Analyse einer Buchungsgruppe: ist sie noch aktiv (zuletzt im
+ * erwarteten Abstand abgebucht) und sind die Abstaende regelmaessig?
+ * Eine Abbuchung, die z. B. 2025 lief und seit Monaten nicht mehr kam, gilt
+ * als beendet, nicht als laufendes Monatsabo.
+ */
+function analysiereRhythmus(daten: string[], intervall: Intervall): { aktiv: boolean; regelmaessig: boolean; letzteVorTagen: number } {
+  const ts = daten.map((d) => new Date(d).getTime()).filter((t) => isFinite(t)).sort((a, b) => a - b);
+  const jetzt = Date.now();
+  const letzteTs = ts.length ? ts[ts.length - 1] : jetzt;
+  const letzteVorTagen = Math.max(0, Math.round((jetzt - letzteTs) / 86_400_000));
+
+  const gaps: number[] = [];
+  for (let i = 1; i < ts.length; i++) gaps.push((ts[i] - ts[i - 1]) / 86_400_000);
+  const mean = gaps.length ? gaps.reduce((a, b) => a + b, 0) / gaps.length : 0;
+  const cv = mean > 0 ? Math.sqrt(gaps.reduce((s, x) => s + (x - mean) ** 2, 0) / gaps.length) / mean : 0;
+  const regelmaessig = gaps.length === 0 || cv <= 0.5;
+
+  // Erwarteter Abstand je Intervall plus Toleranz: laeuft die naechste Abbuchung
+  // deutlich ueber der Faelligkeit aus, gilt das Abo als beendet.
+  const erwartet = intervall === "jaehrlich" ? 365 : intervall === "quartalsweise" ? 92 : 31;
+  const toleranz = Math.max(75, Math.round(erwartet * 1.6));
+  const aktiv = letzteVorTagen <= toleranz;
+  return { aktiv, regelmaessig, letzteVorTagen };
+}
+
 /**
  * Erkennt aus den Buchungen wiederkehrende Software-Abos. Beruecksichtigt nur
  * Belastungen (negative Betraege) und filtert Nicht-Software algorithmisch heraus
@@ -510,10 +550,20 @@ export function erkenneAbos(buchungen: Buchung[], existingTools: string[]): Tref
     // ausser es ist bereits ein erfasstes Tool (Dublette).
     if (!dublette && klasse === "kein_tool") continue;
 
+    // Rhythmus: noch aktiv? Abstaende regelmaessig?
+    const { aktiv, regelmaessig, letzteVorTagen } = analysiereRhythmus(daten, intervall);
+
     let konfidenz: Konfidenz;
     if (dublette) konfidenz = "dublette";
-    else if (klasse === "tool") konfidenz = "hoch";
+    // Hohe Konfidenz nur, wenn es ein Tool ist UND noch laeuft UND regelmaessig
+    // mehrfach abgebucht wurde. Sonst zur Pruefung (mittel).
+    else if (klasse === "tool" && aktiv && regelmaessig && anzahl >= 2) konfidenz = "hoch";
     else konfidenz = "mittel";
+
+    let hinweis: string | undefined;
+    if (!aktiv) hinweis = `Letzte Abbuchung ${vorMonatenText(letzteVorTagen)}, vermutlich beendet`;
+    else if (anzahl === 1) hinweis = "Bisher nur einmal abgebucht, Intervall noch unsicher";
+    else if (!regelmaessig) hinweis = "Unregelmäßige Abstände, Intervall bitte prüfen";
 
     const referenzen: Referenz[] = g.rows
       .map((r) => ({ datum: r.datum, betrag: r.betrag, text: r.text.trim() }))
@@ -532,6 +582,8 @@ export function erkenneAbos(buchungen: Buchung[], existingTools: string[]): Tref
       kategorie,
       konfidenz,
       anzahl,
+      aktiv,
+      hinweis,
       referenzen,
     });
   }

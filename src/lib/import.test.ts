@@ -110,7 +110,7 @@ describe("Erkennung aus CAMT und MT940", () => {
     const notion = treffer.find((t) => t.tool === "Notion");
     expect(notion).toBeTruthy();
     expect(notion!.betrag).toBe(9.99);
-    expect(notion!.konfidenz).toBe("hoch"); // Merchant erkannt
+    expect(notion!.anzahl).toBe(2);
   });
 
   it("erkennt das wiederkehrende Notion-Abo aus MT940", () => {
@@ -198,5 +198,40 @@ describe("Mehrspaltige Bank-CSV (Name + Verwendungszweck)", () => {
     const acme = treffer.find((t) => /acme/i.test(t.tool))!;
     expect(acme.referenzen.length).toBe(2);
     expect(acme.referenzen.some((r) => r.text.includes("Rechnung 2025-01"))).toBe(true);
+  });
+});
+
+/* ---------------- Recency: aktiv vs. beendet ---------------- */
+
+// 15. des Monats, m Monate zurueck (robust unabhaengig vom Testdatum).
+function tagVorMonaten(m: number): string {
+  const x = new Date();
+  x.setDate(15);
+  x.setMonth(x.getMonth() - m);
+  return `${String(x.getDate()).padStart(2, "0")}.${String(x.getMonth() + 1).padStart(2, "0")}.${x.getFullYear()}`;
+}
+
+describe("Aktiv-/Beendet-Erkennung (Recency)", () => {
+  it("markiert ein laengst nicht mehr abgebuchtes Abo als beendet (nicht hoch)", () => {
+    const csv = `Datum;Buchungstext;Betrag
+10.01.2025;NOTION LABS;-9,99
+10.02.2025;NOTION LABS;-9,99
+10.03.2025;NOTION LABS;-9,99
+10.04.2025;NOTION LABS;-9,99`;
+    const t = erkenneAbos(parseCsv(csv), []).find((x) => x.tool === "Notion")!;
+    expect(t.aktiv).toBe(false);
+    expect(t.konfidenz).toBe("mittel");
+    expect(t.hinweis).toMatch(/beendet/i);
+  });
+
+  it("haelt ein aktuell laufendes Abo fuer aktiv (hoch)", () => {
+    const csv = `Datum;Buchungstext;Betrag
+${tagVorMonaten(2)};NOTION LABS;-9,99
+${tagVorMonaten(1)};NOTION LABS;-9,99
+${tagVorMonaten(0)};NOTION LABS;-9,99`;
+    const t = erkenneAbos(parseCsv(csv), []).find((x) => x.tool === "Notion")!;
+    expect(t.aktiv).toBe(true);
+    expect(t.konfidenz).toBe("hoch");
+    expect(t.hinweis).toBeUndefined();
   });
 });

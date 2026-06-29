@@ -14,6 +14,7 @@ import {
   Sparkles,
   ArrowRight,
   CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,7 +94,8 @@ export function ImportFlow({
       return;
     }
     setDatei({ name: namen.length === 1 ? namen[0] : `${namen.length} Dateien`, size: gesamtGroesse });
-    setRows(treffer.map((t) => ({ ...t, include: t.konfidenz !== "dublette" })));
+    // Beendete (inaktive) Treffer nicht vorauswaehlen, ebenso Dubletten.
+    setRows(treffer.map((t) => ({ ...t, include: t.konfidenz !== "dublette" && t.aktiv })));
     setAnalyseSub(0);
     setStep(2);
   }
@@ -128,9 +130,10 @@ export function ImportFlow({
       kosten: r.betrag,
       waehrung: "EUR",
       intervall: r.intervall,
-      naechste_abbuchung: r.naechsteAbbuchung,
+      naechste_abbuchung: r.aktiv ? r.naechsteAbbuchung : null,
       zahlungskanal: kanal || null,
-      status: "aktiv",
+      // Beendete Abbuchungen als gekuendigt anlegen, nicht als aktives Abo.
+      status: r.aktiv ? "aktiv" : "gekuendigt",
       mit_verzeichnis: false,
     }));
     const res = await bulkCreateAbos(inputs);
@@ -274,9 +277,16 @@ export function ImportFlow({
                           <span className="grid size-9 shrink-0 place-items-center rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: KATEGORIE_FARBEN[r.kategorie] ?? r.farbe }}>{r.initial}</span>
                           <Input value={r.tool} onChange={(e) => patch(r.id, { tool: e.target.value })} className="h-9" />
                         </label>
-                        <div className="min-w-0 flex-1 truncate text-xs text-muted-foreground" title={r.buchungstext}>
-                          {r.buchungstext}
-                          {r.anzahl > 1 && <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5">{r.anzahl}×</span>}
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-xs text-muted-foreground" title={r.buchungstext}>
+                            {r.buchungstext}
+                            {r.anzahl > 1 && <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5">{r.anzahl}×</span>}
+                          </div>
+                          {r.hinweis && (
+                            <div className={cn("mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium", r.aktiv ? "bg-warning/15 text-warning" : "bg-coral/15 text-coral")}>
+                              <AlertTriangle className="size-3" /> {r.hinweis}
+                            </div>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           <Select value={r.kategorie} onValueChange={(v) => patch(r.id, { kategorie: v })}>
