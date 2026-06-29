@@ -4,6 +4,13 @@ import { KATEGORIE_FARBEN, type Intervall } from "@/lib/abos";
 
 export type Konfidenz = "hoch" | "mittel" | "dublette";
 
+/** Eine einzelne Original-Buchung aus dem Import (volle Referenz). */
+export interface Referenz {
+  datum: string; // YYYY-MM-DD
+  betrag: number; // negativ = Belastung
+  text: string; // vollstaendiger Verwendungszweck / Beleg
+}
+
 export interface Treffer {
   id: string;
   tool: string;
@@ -17,6 +24,8 @@ export interface Treffer {
   kategorie: string;
   konfidenz: Konfidenz;
   anzahl: number;
+  /** Alle zugrunde liegenden Buchungen mit vollem Original-Text (Belegnummern etc.). */
+  referenzen: Referenz[];
 }
 
 type Buchung = { datum: string; text: string; betrag: number };
@@ -471,6 +480,10 @@ export function erkenneAbos(buchungen: Buchung[], existingTools: string[]): Tref
     else if (klasse === "tool") konfidenz = "hoch";
     else konfidenz = "mittel";
 
+    const referenzen: Referenz[] = g.rows
+      .map((r) => ({ datum: r.datum, betrag: r.betrag, text: r.text.trim() }))
+      .sort((a, b) => (a.datum < b.datum ? 1 : a.datum > b.datum ? -1 : 0));
+
     treffer.push({
       id: `tr-${n++}`,
       tool: g.name,
@@ -484,6 +497,7 @@ export function erkenneAbos(buchungen: Buchung[], existingTools: string[]): Tref
       kategorie,
       konfidenz,
       anzahl,
+      referenzen,
     });
   }
 

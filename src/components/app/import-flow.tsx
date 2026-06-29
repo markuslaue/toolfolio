@@ -46,6 +46,13 @@ const GRUPPEN: { key: Konfidenz; titel: string; sub: string; stil: string }[] = 
 
 const STEPS = ["Hochladen", "Analyse", "Prüfen", "Fertig"];
 
+/** YYYY-MM-DD -> DD.MM.YYYY (fuer die Referenzliste). */
+function fmtImportDatum(iso: string): string {
+  if (!iso) return "ohne Datum";
+  const [y, m, d] = iso.split("-");
+  return d ? `${d}.${m}.${y}` : iso;
+}
+
 export function ImportFlow({
   kanalOptionen,
   existingTools,
@@ -253,31 +260,53 @@ export function ImportFlow({
                 </div>
                 <ul className="divide-y">
                   {items.map((r) => (
-                    <li key={r.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-                      <label className="flex items-center gap-3 sm:w-56">
-                        <input type="checkbox" checked={r.include} onChange={(e) => patch(r.id, { include: e.target.checked })} className="size-4 shrink-0 rounded border-border accent-primary" />
-                        <span className="grid size-9 shrink-0 place-items-center rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: KATEGORIE_FARBEN[r.kategorie] ?? r.farbe }}>{r.initial}</span>
-                        <Input value={r.tool} onChange={(e) => patch(r.id, { tool: e.target.value })} className="h-9" />
-                      </label>
-                      <div className="min-w-0 flex-1 truncate text-xs text-muted-foreground" title={r.buchungstext}>
-                        {r.buchungstext}
-                        {r.anzahl > 1 && <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5">{r.anzahl}×</span>}
+                    <li key={r.id} className="flex flex-col gap-3 p-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        <label className="flex items-center gap-3 sm:w-56">
+                          <input type="checkbox" checked={r.include} onChange={(e) => patch(r.id, { include: e.target.checked })} className="size-4 shrink-0 rounded border-border accent-primary" />
+                          <span className="grid size-9 shrink-0 place-items-center rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: KATEGORIE_FARBEN[r.kategorie] ?? r.farbe }}>{r.initial}</span>
+                          <Input value={r.tool} onChange={(e) => patch(r.id, { tool: e.target.value })} className="h-9" />
+                        </label>
+                        <div className="min-w-0 flex-1 truncate text-xs text-muted-foreground" title={r.buchungstext}>
+                          {r.buchungstext}
+                          {r.anzahl > 1 && <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5">{r.anzahl}×</span>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Select value={r.kategorie} onValueChange={(v) => patch(r.id, { kategorie: v })}>
+                            <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
+                            <SelectContent>{KATEGORIEN.map((k) => (<SelectItem key={k} value={k}>{k}</SelectItem>))}</SelectContent>
+                          </Select>
+                          <Select value={r.intervall} onValueChange={(v) => patch(r.id, { intervall: v as Intervall })}>
+                            <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
+                            <SelectContent>{INTERVALLE.map((iv) => (<SelectItem key={iv} value={iv}>{INTERVALL_LABEL[iv]}</SelectItem>))}</SelectContent>
+                          </Select>
+                          <Input
+                            value={String(r.betrag).replace(".", ",")}
+                            onChange={(e) => { const n = Number(e.target.value.replace(/\./g, "").replace(",", ".")); patch(r.id, { betrag: isFinite(n) ? n : r.betrag }); }}
+                            className="h-9 w-24 text-right tabular-nums"
+                          />
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Select value={r.kategorie} onValueChange={(v) => patch(r.id, { kategorie: v })}>
-                          <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
-                          <SelectContent>{KATEGORIEN.map((k) => (<SelectItem key={k} value={k}>{k}</SelectItem>))}</SelectContent>
-                        </Select>
-                        <Select value={r.intervall} onValueChange={(v) => patch(r.id, { intervall: v as Intervall })}>
-                          <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
-                          <SelectContent>{INTERVALLE.map((iv) => (<SelectItem key={iv} value={iv}>{INTERVALL_LABEL[iv]}</SelectItem>))}</SelectContent>
-                        </Select>
-                        <Input
-                          value={String(r.betrag).replace(".", ",")}
-                          onChange={(e) => { const n = Number(e.target.value.replace(/\./g, "").replace(",", ".")); patch(r.id, { betrag: isFinite(n) ? n : r.betrag }); }}
-                          className="h-9 w-24 text-right tabular-nums"
-                        />
-                      </div>
+
+                      {r.referenzen.length > 0 && (
+                        <details className="rounded-lg border border-border/60 bg-secondary/30 px-3 py-2 text-xs sm:ml-[15rem]">
+                          <summary className="flex cursor-pointer select-none items-center gap-1.5 text-muted-foreground">
+                            <FileText className="size-3.5" />
+                            {r.referenzen.length} {r.referenzen.length === 1 ? "Buchung" : "Buchungen"} mit allen Referenzen
+                          </summary>
+                          <ul className="mt-2 space-y-1.5">
+                            {r.referenzen.map((ref, i) => (
+                              <li key={i} className="flex items-start justify-between gap-3 border-t border-border/40 pt-1.5 first:border-0 first:pt-0">
+                                <div className="min-w-0">
+                                  <div className="tabular-nums text-muted-foreground">{fmtImportDatum(ref.datum)}</div>
+                                  <div className="break-words text-foreground/80">{ref.text || "(kein Verwendungszweck)"}</div>
+                                </div>
+                                <div className="shrink-0 font-medium tabular-nums">{formatEur(Math.abs(ref.betrag))}</div>
+                              </li>
+                            ))}
+                          </ul>
+                        </details>
+                      )}
                     </li>
                   ))}
                 </ul>

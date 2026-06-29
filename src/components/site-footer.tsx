@@ -1,5 +1,6 @@
 import { Globe2 } from "lucide-react";
 import { ConsentSettingsButton } from "@/components/consent/consent-settings-button";
+import { ToolfolioIcon } from "@/components/brand";
 
 const cols: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -63,9 +64,7 @@ export function SiteFooter() {
         <div className="grid gap-10 lg:grid-cols-[1.4fr_repeat(6,1fr)]">
           <div>
             <div className="flex items-center gap-2">
-              <span className="grid size-9 place-items-center rounded-xl bg-primary font-display text-lg font-bold text-primary-foreground">
-                T
-              </span>
+              <ToolfolioIcon className="size-9" />
               <span className="font-display text-xl font-semibold">Toolfolio</span>
             </div>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">

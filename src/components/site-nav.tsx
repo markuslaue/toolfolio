@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ToolfolioIcon } from "@/components/brand";
 
 const links: Array<{
   label: string;
@@ -61,9 +62,7 @@ export function SiteNav() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className={cn("flex items-center justify-between transition-all", scrolled ? "h-14" : "h-20")}>
           <Link href="/" className="flex items-center gap-2">
-            <span className="grid size-9 place-items-center rounded-xl bg-primary font-display text-lg font-bold text-primary-foreground">
-              T
-            </span>
+            <ToolfolioIcon className="size-9" />
             <span className="font-display text-xl font-semibold tracking-tight">Toolfolio</span>
           </Link>
 
