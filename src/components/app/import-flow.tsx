@@ -33,7 +33,7 @@ import {
   KATEGORIE_FARBEN,
   type Intervall,
 } from "@/lib/abos";
-import { parseKontoauszug, erkenneAbos, type Treffer, type Konfidenz } from "@/lib/import";
+import { parseKontoauszug, erkenneAbos, type Treffer, type Konfidenz, type Buchung } from "@/lib/import";
 import { bulkCreateAbos, type AboInput } from "@/app/app/abos/actions";
 
 type Row = Treffer & { include: boolean };
@@ -72,20 +72,27 @@ export function ImportFlow({
   const [angelegt, setAngelegt] = useState(0);
 
   async function handleFile(files: FileList | null) {
-    const f = files?.[0];
-    if (!f) return;
-    const text = await f.text();
-    const { buchungen } = parseKontoauszug(f.name, text);
-    if (buchungen.length === 0) {
-      toast.error("Dieses Format konnten wir nicht lesen. Unterstützt werden CSV, CAMT.053 (XML) und MT940.");
+    if (!files || files.length === 0) return;
+    const alle: Buchung[] = [];
+    let gesamtGroesse = 0;
+    const namen: string[] = [];
+    for (const f of Array.from(files)) {
+      const text = await f.text();
+      const { buchungen } = parseKontoauszug(f.name, text);
+      alle.push(...buchungen);
+      gesamtGroesse += f.size;
+      namen.push(f.name);
+    }
+    if (alle.length === 0) {
+      toast.error("Diese Datei(en) konnten wir nicht lesen. Unterstützt werden CSV, CAMT.053 (XML) und MT940.");
       return;
     }
-    const treffer = erkenneAbos(buchungen, existingTools);
+    const treffer = erkenneAbos(alle, existingTools);
     if (treffer.length === 0) {
-      toast.error("Keine wiederkehrenden Abbuchungen gefunden.");
+      toast.error("Keine wiederkehrenden Software-Abbuchungen gefunden.");
       return;
     }
-    setDatei({ name: f.name, size: f.size });
+    setDatei({ name: namen.length === 1 ? namen[0] : `${namen.length} Dateien`, size: gesamtGroesse });
     setRows(treffer.map((t) => ({ ...t, include: t.konfidenz !== "dublette" })));
     setAnalyseSub(0);
     setStep(2);
@@ -177,10 +184,10 @@ export function ImportFlow({
               onClick={() => fileRef.current?.click()}
               className={cn("cursor-pointer rounded-[20px] border-2 border-dashed p-10 text-center transition-colors", dragOver ? "border-primary bg-primary/5" : "border-primary/40 bg-background hover:bg-primary/[0.03]")}
             >
-              <input ref={fileRef} type="file" className="hidden" accept=".csv,.txt,.xml,.sta,.940,.mt940" onChange={(e) => handleFile(e.target.files)} />
+              <input ref={fileRef} type="file" multiple className="hidden" accept=".csv,.txt,.xml,.sta,.940,.mt940" onChange={(e) => handleFile(e.target.files)} />
               <div className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary"><Upload className="size-7" /></div>
-              <div className="font-display text-lg font-semibold">Zieh deinen Kontoauszug hierher oder wähle eine Datei.</div>
-              <div className="mt-1 text-sm text-muted-foreground">Unterstützt: CSV, CAMT.053 (XML) und MT940 (Export aus deinem Online-Banking)</div>
+              <div className="font-display text-lg font-semibold">Zieh deine Kontoauszüge hierher oder wähle Dateien.</div>
+              <div className="mt-1 text-sm text-muted-foreground">Mehrere Dateien möglich. Unterstützt: CSV, CAMT.053 (XML) und MT940 (Export aus deinem Online-Banking)</div>
             </div>
 
             {datei && (

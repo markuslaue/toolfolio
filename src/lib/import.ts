@@ -28,7 +28,7 @@ export interface Treffer {
   referenzen: Referenz[];
 }
 
-type Buchung = { datum: string; text: string; betrag: number };
+export type Buchung = { datum: string; text: string; betrag: number };
 
 /* ---------------- Merchant-Woerterbuch ---------------- */
 
@@ -127,7 +127,10 @@ function parseDatum(roh: string): string | null {
 
 const SPALTEN = {
   datum: ["buchungstag", "buchungsdatum", "datum", "valuta", "wertstellung", "date", "booking date"],
-  text: ["verwendungszweck", "buchungstext", "beguenstigter", "begünstigter", "empfaenger", "empfänger", "auftraggeber", "name", "beschreibung", "description", "payee", "umsatztext"],
+  // Name des Beguenstigten/Auftraggebers ZUERST (das ist der eigentliche Anbieter).
+  name: ["beguenstigter", "begünstigter", "beguenstigter/zahlungspflichtiger", "empfaenger", "empfänger", "auftraggeber", "zahlungsempfaenger", "zahlungspflichtiger", "zahlungsbeteiligter", "name"],
+  // Verwendungszweck/Beschreibung (oft nur Beleg-/Referenznummern).
+  zweck: ["verwendungszweck", "buchungstext", "beschreibung", "description", "umsatztext", "vwz", "payee"],
   betrag: ["betrag", "umsatz", "amount", "soll", "value"],
 };
 
@@ -140,24 +143,47 @@ function findeSpalte(header: string[], kandidaten: string[]): number {
   return -1;
 }
 
+/** ALLE Spalten, deren Header zu einem Kandidaten passt (in Header-Reihenfolge). */
+function findeSpalten(header: string[], kandidaten: string[]): number[] {
+  const norm = header.map((h) => h.toLowerCase());
+  const out: number[] = [];
+  for (let i = 0; i < norm.length; i++) {
+    if (kandidaten.some((k) => norm[i].includes(k))) out.push(i);
+  }
+  return out;
+}
+
 export function parseCsv(text: string): Buchung[] {
   const zeilen = text.split(/\r?\n/).filter((z) => z.trim().length > 0);
   if (zeilen.length < 2) return [];
   const sep = trennzeichen(zeilen[0]);
   const header = splitCsvZeile(zeilen[0], sep);
   const iDatum = findeSpalte(header, SPALTEN.datum);
-  const iText = findeSpalte(header, SPALTEN.text);
   const iBetrag = findeSpalte(header, SPALTEN.betrag);
-  if (iText < 0 || iBetrag < 0) return [];
+  // Beguenstigten-Spalten zuerst, dann Verwendungszweck: so geht der Anbietername
+  // (z. B. "IHK ...") nicht verloren, auch wenn der Zweck nur eine Beleg-Nr. enthaelt.
+  // Eigene Konto-/Bank-Spalten ausschliessen (das ist nicht der Anbieter).
+  const eigeneSpalte = (h: string) => /konto|iban|bic|\bbank|waehrung|währung|currency/i.test(h);
+  const nameCols = findeSpalten(header, SPALTEN.name).filter((c) => !eigeneSpalte(header[c]));
+  const zweckCols = findeSpalten(header, SPALTEN.zweck).filter((c) => !nameCols.includes(c));
+  const textCols = [...nameCols, ...zweckCols];
+  if (textCols.length === 0 || iBetrag < 0) return [];
+  const maxCol = Math.max(iBetrag, ...textCols);
 
   const out: Buchung[] = [];
   for (let r = 1; r < zeilen.length; r++) {
     const f = splitCsvZeile(zeilen[r], sep);
-    if (f.length <= Math.max(iText, iBetrag)) continue;
+    if (f.length <= maxCol) continue;
     const betrag = parseBetrag(f[iBetrag]);
     if (!isFinite(betrag)) continue;
     const datum = iDatum >= 0 ? parseDatum(f[iDatum]) : null;
-    out.push({ datum: datum ?? "", text: f[iText] || "", betrag });
+    // Alle Textspalten zusammenfuehren (dedupliziert), Name vorn.
+    const teile: string[] = [];
+    for (const c of textCols) {
+      const v = (f[c] ?? "").trim();
+      if (v && !teile.includes(v)) teile.push(v);
+    }
+    out.push({ datum: datum ?? "", text: teile.join(" "), betrag });
   }
   return out;
 }
@@ -314,21 +340,30 @@ function erkenneMerchant(text: string): Eintrag | null {
   return null;
 }
 
+// Rausch-Tokens aus Bankbuchungen (Referenzen, Belege, Buchungsarten, Rechtsformen, Stopwoerter).
+const NAME_RAUSCHEN =
+  /\b(BELEG-?NR|BELEGNR|BELEG|END-?TO-?END-?REF|ENDTOEND|MANDATSREF|MANDATSREFERENZ|MANDAT|GLAEUBIGER-?ID|GLAEUBIGERID|CRED|EREF|KREF|MREF|SVWZ|ABWA|ABWE|REFERENZ|REF|RECHNUNGSNR|RECHNUNG|KUNDENNR|VERTRAGSNR|SEPA|LASTSCHRIFT|FOLGELASTSCHRIFT|BASISLASTSCHRIFT|DAUERAUFTRAG|UEBERWEISUNG|GUTSCHRIFT|KARTENZAHLUNG|POS|INC|LLC|LTD|GMBH|UG|MBH|AG|KG|OHG|PBC|SL|SA|BV|CORP|SUBSCRIPTION|MONATLICH|JAEHRLICH|BILLING|PAYMENT|ZU|UND|DER|DIE|DAS|DEN|VOM|VON|FUER|AM|IM)\b/g;
+
 function saubererName(text: string): string {
-  let t = text
-    .replace(/PAYPAL\s*\*?/gi, "")
-    .replace(/STRIPE\s*\*?/gi, "")
-    .replace(/PADDLE\.NET\s*\*?/gi, "")
-    .replace(/SQ\s*\*?/gi, "")
-    .replace(/\bDD\b/gi, "")
-    .replace(/\d+/g, " ")
-    .replace(/[^A-Za-zÀ-ÿ .]/g, " ")
-    .replace(/\b(INC|LLC|LTD|GMBH|PBC|SL|SA|BV|CORP|CO|SUBSCRIPTION|MONATLICH|BILLING|PAYMENT|COM|NET)\b/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  const teile = t.split(" ").slice(0, 2);
-  t = teile.join(" ");
-  return t ? t.replace(/\b\w/g, (c) => c.toUpperCase()) : "Unbekannt";
+  let t = " " + text.toUpperCase() + " ";
+  // IBAN und BIC entfernen (vor der Ziffern-Bereinigung).
+  t = t.replace(/\b[A-Z]{2}\d{2}[A-Z0-9]{8,30}\b/g, " "); // IBAN
+  t = t.replace(/\b[A-Z]{6}[A-Z0-9]{2,5}\b/g, " "); // BIC
+  // Zahlungsdienstleister-Praefixe inkl. nachfolgendem Stern-Token.
+  t = t.replace(/\b(PAYPAL|STRIPE|PADDLE|FASTSPRING|SQ|FS)\s*\*?\s*/g, " ");
+  // Referenz-/Beleg-Schluesselwoerter samt direkt folgendem Wert (Nummer/Code).
+  t = t.replace(/\b(BELEG-?NR|END-?TO-?END-?REF|ENDTOEND|MANDATSREF|GLAEUBIGER-?ID|EREF|KREF|MREF|SVWZ|REFERENZ|REF|RECHNUNGSNR|KUNDENNR|VERTRAGSNR)\b[.:#]?\s*\S*/g, " ");
+  // Restliche Sonderzeichen und Ziffern zu Leerzeichen.
+  t = t.replace(/[^A-ZÀ-Ü ]/g, " ");
+  // Verbleibende Rausch-/Stopwoerter entfernen.
+  t = t.replace(NAME_RAUSCHEN, " ").replace(/\s+/g, " ").trim();
+
+  const teile = t.split(" ").filter((w) => w.length >= 2).slice(0, 3);
+  if (teile.length === 0) return "Unbekannt";
+  // Title-Case, bekannte Kuerzel (IHK, SaaS-Akronyme) gross lassen.
+  return teile
+    .map((w) => (w.length <= 4 && !/[AEIOUÄÖÜ]/.test(w.slice(1)) ? w : w.charAt(0) + w.slice(1).toLowerCase()))
+    .join(" ");
 }
 
 function naechstesDatum(iso: string, intervall: Intervall): string {
@@ -386,7 +421,7 @@ const KEIN_TOOL: string[] = [
   // Energie / Telco / Rundfunk (eher kein SaaS)
   "STADTWERKE", "STROM", "GASAG", "E.ON", "ENBW", "VATTENFALL", "RUNDFUNK", "RUNDFUNKBEITRAG", "GEZ",
   // Spenden / Beitraege / Kammern
-  "SPENDE", "MITGLIEDSBEITRAG", "GEWERKSCHAFT", "IHK ", "HANDWERKSKAMMER", "KIRCHENSTEUER",
+  "SPENDE", "MITGLIEDSBEITRAG", "GEWERKSCHAFT", "IHK ", "HANDELSKAMMER", "HANDWERKSKAMMER", "KAMMERBEITRAG", "KIRCHENSTEUER",
 ];
 
 // SaaS-/Tool-Signale im Buchungstext.

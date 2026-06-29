@@ -166,3 +166,37 @@ describe("Software-Klassifikation im Import", () => {
     expect(treffer.length).toBe(3);
   });
 });
+
+/* ---------------- Mehrspaltige CSV: Beguenstigter-Name nicht verlieren ---------------- */
+
+const MEHRSPALTIG = `Buchungstag;Beguenstigter/Zahlungspflichtiger;Verwendungszweck;Betrag
+15.01.2025;NOTION LABS INC;Beleg-Nr. 12345;-9,99
+20.01.2025;IHK Industrie- und Handelskammer zu Leipzig;Beleg-Nr. 905160627 End-to-End-Ref.: CCB.336.UE.POS00353399;-250,00
+10.01.2025;Acme Cloud GmbH;Rechnung 2025-01 Lizenz;-29,00
+10.02.2025;Acme Cloud GmbH;Rechnung 2025-02 Lizenz;-29,00`;
+
+describe("Mehrspaltige Bank-CSV (Name + Verwendungszweck)", () => {
+  const treffer = erkenneAbos(parseCsv(MEHRSPALTIG), []);
+  const namen = treffer.map((t) => t.tool).join(" | ");
+
+  it("liest den Anbieternamen aus der Beguenstigten-Spalte, nicht nur die Beleg-Nr.", () => {
+    expect(treffer.find((t) => t.tool === "Notion")).toBeTruthy();
+    expect(namen).not.toMatch(/beleg|905160627|12345/i);
+  });
+
+  it("filtert die IHK (Kammerbeitrag) als Nicht-Software heraus", () => {
+    expect(namen).not.toMatch(/ihk|handelskammer/i);
+  });
+
+  it("erkennt ein wiederkehrendes Tool mit SaaS-Signal (Cloud/Lizenz)", () => {
+    const acme = treffer.find((t) => /acme/i.test(t.tool));
+    expect(acme).toBeTruthy();
+    expect(acme!.tool.toLowerCase()).toContain("cloud");
+  });
+
+  it("haengt alle Original-Referenzen je Treffer an", () => {
+    const acme = treffer.find((t) => /acme/i.test(t.tool))!;
+    expect(acme.referenzen.length).toBe(2);
+    expect(acme.referenzen.some((r) => r.text.includes("Rechnung 2025-01"))).toBe(true);
+  });
+});
