@@ -235,3 +235,23 @@ ${tagVorMonaten(0)};NOTION LABS;-9,99`;
     expect(t.hinweis).toBeUndefined();
   });
 });
+
+/* ---------------- Jaehrliche Abos (Ahrefs) ueber zwei Jahre ---------------- */
+
+describe("Jaehrliche Abrechnung", () => {
+  it("schaetzt eine einzelne grosse Abbuchung als jaehrlich (nicht monatlich)", () => {
+    const csv = `Datum;Verwendungszweck;Betrag\n${tagVorMonaten(1)};AHREFS PTE LTD;-199,00`;
+    const t = erkenneAbos(parseCsv(csv), []).find((x) => x.tool === "Ahrefs")!;
+    expect(t.intervall).toBe("jaehrlich");
+    expect(t.hinweis).toMatch(/gesch/i);
+  });
+
+  it("erkennt zwei Abbuchungen ~12 Monate auseinander als jaehrlich und aktiv", () => {
+    const csv = `Datum;Verwendungszweck;Betrag\n${tagVorMonaten(13)};AHREFS PTE LTD;-199,00\n${tagVorMonaten(1)};AHREFS PTE LTD;-199,00`;
+    const t = erkenneAbos(parseCsv(csv), []).find((x) => x.tool === "Ahrefs")!;
+    expect(t.intervall).toBe("jaehrlich");
+    expect(t.aktiv).toBe(true);
+    expect(t.konfidenz).toBe("hoch");
+    expect(t.anzahl).toBe(2);
+  });
+});

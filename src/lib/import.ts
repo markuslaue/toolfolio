@@ -1,6 +1,6 @@
 /** B-06: Kontoauszug-Import. Echtes CSV-Parsing + Erkennung wiederkehrender Abos. */
 
-import { KATEGORIE_FARBEN, type Intervall } from "@/lib/abos";
+import { KATEGORIE_FARBEN, INTERVALL_LABEL, type Intervall } from "@/lib/abos";
 
 export type Konfidenz = "hoch" | "mittel" | "dublette";
 
@@ -403,6 +403,26 @@ function intervallAus(gap: number | null): Intervall {
   return "monatlich";
 }
 
+const JAHR_RE = /(JAEHRLICH|JÄHRLICH|JAHRES|ANNUAL|YEARLY|PER\s?YEAR|\/\s?JAHR|\/\s?YR|\bP\.?A\.?\b)/;
+const QUARTAL_RE = /(QUARTAL|QUARTALSWEISE|QUARTERLY|VIERTELJ)/;
+const MONAT_RE = /(MONATLICH|MONTHLY|PER\s?MONTH|\/\s?MONAT|\/\s?MO\b)/;
+
+/**
+ * Bestimmt das Abrechnungsintervall. Bei mehreren Buchungen aus den Abstaenden
+ * (so wird z. B. Ahrefs ueber zwei Jahre korrekt als jaehrlich erkannt). Bei nur
+ * einer Buchung im Zeitraum aus Text-Signalen, sonst aus dem Betrag geschaetzt
+ * (groessere Einzelbetraege sind eher Jahres- als Monatszahlungen).
+ */
+function bestimmeIntervall(daten: string[], betrag: number, text: string): Intervall {
+  const gap = medianGapTage(daten);
+  if (gap != null) return intervallAus(gap);
+  const t = text.toUpperCase();
+  if (JAHR_RE.test(t)) return "jaehrlich";
+  if (QUARTAL_RE.test(t)) return "quartalsweise";
+  if (MONAT_RE.test(t)) return "monatlich";
+  return betrag >= 150 ? "jaehrlich" : "monatlich";
+}
+
 /* ---------------- Klassifikation: ist das ueberhaupt Software? ---------------- */
 
 // Klare NICHT-Software (Miete, Gehalt, Steuern, Versicherung, Einzelhandel, Tanken,
@@ -537,13 +557,13 @@ export function erkenneAbos(buchungen: Buchung[], existingTools: string[]): Tref
     const maxBetrag = betraege[betraege.length - 1] ?? betrag;
     const daten = g.rows.map((r) => r.datum).filter(Boolean).sort();
     const letzte = daten[daten.length - 1] ?? new Date().toISOString().slice(0, 10);
-    const intervall = intervallAus(medianGapTage(daten));
     const kategorie = g.merchant?.kategorie ?? "Produktivität";
     const anzahl = g.rows.length;
 
     const dublette = vorhanden.has(g.name.toLowerCase());
-    // Klassifikation: bekannter Anbieter gilt sofort als Tool, sonst algorithmisch.
+    // Klassifikation und Intervall auf dem vollen Buchungstext.
     const volltext = g.rows.map((r) => r.text).join(" ");
+    const intervall = bestimmeIntervall(daten, betrag, volltext);
     const klasse: ToolKlasse = g.merchant ? "tool" : klassifiziereTool(volltext, anzahl, maxBetrag);
 
     // Klar artfremde Posten (Miete, Gehalt, Einkauf ...) gar nicht vorschlagen,
@@ -562,7 +582,7 @@ export function erkenneAbos(buchungen: Buchung[], existingTools: string[]): Tref
 
     let hinweis: string | undefined;
     if (!aktiv) hinweis = `Letzte Abbuchung ${vorMonatenText(letzteVorTagen)}, vermutlich beendet`;
-    else if (anzahl === 1) hinweis = "Bisher nur einmal abgebucht, Intervall noch unsicher";
+    else if (anzahl === 1) hinweis = `Nur eine Abbuchung im Zeitraum, Intervall (${INTERVALL_LABEL[intervall].toLowerCase()}) geschätzt, bitte prüfen`;
     else if (!regelmaessig) hinweis = "Unregelmäßige Abstände, Intervall bitte prüfen";
 
     const referenzen: Referenz[] = g.rows

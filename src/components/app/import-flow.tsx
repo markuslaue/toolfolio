@@ -224,7 +224,7 @@ export function ImportFlow({
             </div>
             <div className="rounded-2xl border bg-card p-5">
               <div className="flex items-center gap-2 text-sm font-semibold"><Sparkles className="size-4 text-primary" /> Tipp</div>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Lade am besten die letzten 12 Monate hoch, damit auch jährliche Abos sicher erkannt werden.</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Lade am besten die <strong>letzten 24 Monate</strong> hoch, gern als mehrere Dateien. Jährlich abgerechnete Tools (z. B. Ahrefs) tauchen nur einmal pro Jahr auf, erst über zwei Jahre erkennen wir sie sicher als jährliches Abo.</p>
             </div>
           </aside>
         </div>
