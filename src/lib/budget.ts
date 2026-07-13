@@ -11,12 +11,14 @@ export type MonatDaten = {
   fix: number;
   variabel: number;
   kategorien: Record<string, number>;
+  kunden: Record<string, number>;
 };
 
 export type BudgetDaten = {
   fixMonat: number;
   varProjektion: number;
   kategorienFix: Record<string, number>;
+  kundenFix: Record<string, number>;
   monate: MonatDaten[]; // 12 Monate (5 zurueck, aktuell, 6 voraus)
   forecastJahr: number; // naechste 12 Monate vorwaerts
 };
@@ -39,13 +41,17 @@ function fenster(heute: Date): { jahr: number; monat: number; ist: boolean }[] {
 export function berechneBudget(abos: Abo[], spend: AiSpendRow[], heute = new Date()): BudgetDaten {
   const aktiv = abos.filter((a) => a.status === "aktiv" || a.status === "Trial");
 
-  // Fixe Monatskosten je Kategorie (wiederkehrend, normalisiert).
+  // Fixe Monatskosten je Kategorie und je Kunde (wiederkehrend, normalisiert).
   const kategorienFix: Record<string, number> = {};
+  const kundenFix: Record<string, number> = {};
+  const OHNE_KUNDE = "ohne Kunde";
   let fixMonat = 0;
   for (const a of aktiv) {
     const m = monatlich(a.kosten, a.intervall);
     fixMonat += m;
     kategorienFix[a.kategorie] = (kategorienFix[a.kategorie] ?? 0) + m;
+    const k = a.kunde || OHNE_KUNDE;
+    kundenFix[k] = (kundenFix[k] ?? 0) + m;
   }
   fixMonat = Math.round(fixMonat * 100) / 100;
 
@@ -59,10 +65,25 @@ export function berechneBudget(abos: Abo[], spend: AiSpendRow[], heute = new Dat
     const aiIst = aiByMonth.get(`${f.jahr}-${f.monat}`) ?? 0;
     const variabel = f.ist ? aiIst : varProjektion;
     const kategorien: Record<string, number> = { ...kategorienFix };
-    if (variabel > 0) kategorien["AI"] = (kategorien["AI"] ?? 0) + variabel;
-    return { jahr: f.jahr, monat: f.monat, label: MONATE_KURZ[f.monat - 1], ist: f.ist, fix: fixMonat, variabel: Math.round(variabel * 100) / 100, kategorien };
+    const kunden: Record<string, number> = { ...kundenFix };
+    // Variable KI-Kosten haengen an Diensten, nicht an Kunden. Sie bekommen
+    // eine eigene Kategorie und laufen beim Kunden unter "ohne Kunde".
+    if (variabel > 0) {
+      kategorien["AI"] = (kategorien["AI"] ?? 0) + variabel;
+      kunden[OHNE_KUNDE] = (kunden[OHNE_KUNDE] ?? 0) + variabel;
+    }
+    return {
+      jahr: f.jahr,
+      monat: f.monat,
+      label: MONATE_KURZ[f.monat - 1],
+      ist: f.ist,
+      fix: fixMonat,
+      variabel: Math.round(variabel * 100) / 100,
+      kategorien,
+      kunden,
+    };
   });
 
   const forecastJahr = Math.round((fixMonat + varProjektion) * 12 * 100) / 100;
-  return { fixMonat, varProjektion, kategorienFix, monate, forecastJahr };
+  return { fixMonat, varProjektion, kategorienFix, kundenFix, monate, forecastJahr };
 }
