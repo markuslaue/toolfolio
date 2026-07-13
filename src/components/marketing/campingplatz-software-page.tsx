@@ -446,68 +446,120 @@ export function CampingplatzSoftwarePage() {
           </div>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((t, i) => (
-            <Reveal key={t.slug} delay={i * 25}>
-              <a
-                href={`/verzeichnis/${clusterSlug}/${categorySlug}/tool/${t.slug}`}
-                className="group relative flex flex-col h-full rounded-3xl border border-border bg-card p-5 hover:shadow-lift hover:-translate-y-0.5 hover:border-foreground/20 transition-all"
-              >
-                <div className="absolute top-4 right-4 grid size-7 place-items-center rounded-lg bg-foreground/[0.04] text-[11px] font-mono font-bold tabular-nums text-foreground/50 group-hover:bg-foreground group-hover:text-[color:var(--paper)] transition-colors">
-                  {String(t.rank).padStart(2, "0")}
-                </div>
-
-                <div className="flex items-start gap-3 pr-10">
-                  <span
-                    className="grid size-11 place-items-center rounded-2xl font-display text-[13px] font-bold shrink-0 tracking-wide"
-                    style={{ background: `${accent}18`, color: accent }}
+        <div className="rounded-3xl border border-border bg-card/40 backdrop-blur overflow-hidden divide-y divide-border">
+          {filtered.map((t, i) => {
+            const detailHref = `/verzeichnis/${clusterSlug}/${categorySlug}/tool/${t.slug}`;
+            return (
+              <Reveal key={t.slug} delay={i * 20}>
+                <article className="group relative bg-card hover:bg-foreground/[0.015] transition-colors">
+                  {/* Rank accent bar */}
+                  <div
+                    className="absolute left-0 top-0 bottom-0 w-1 opacity-70 group-hover:opacity-100 transition-opacity"
+                    style={{ background: accent }}
                     aria-hidden
-                  >
-                    {t.initials}
-                  </span>
-                  <div className="min-w-0">
-                    <div className="font-display text-lg font-semibold truncate">{t.name}</div>
-                    <div className="text-[11px] text-foreground/55 truncate">{t.vendor}</div>
-                  </div>
-                </div>
+                  />
+                  <div className="grid lg:grid-cols-[minmax(260px,1.1fr)_minmax(0,2fr)_minmax(200px,1fr)_auto] gap-5 lg:gap-8 items-stretch p-5 sm:p-6 pl-6 sm:pl-7">
+                    {/* Column 1: Identity */}
+                    <div className="flex items-start gap-4 min-w-0">
+                      <div className="flex flex-col items-center gap-1.5 shrink-0">
+                        <span
+                          className="grid size-14 place-items-center rounded-2xl font-display text-base font-bold tracking-wide"
+                          style={{ background: `${accent}18`, color: accent }}
+                          aria-hidden
+                        >
+                          {t.initials}
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-md bg-foreground/[0.05] px-1.5 py-0.5 text-[10px] font-mono font-bold tabular-nums text-foreground/60">
+                          #{String(t.rank).padStart(2, "0")}
+                        </span>
+                      </div>
+                      <div className="min-w-0 pt-0.5">
+                        <a
+                          href={detailHref}
+                          className="font-display text-xl font-semibold leading-tight hover:text-primary transition-colors block truncate"
+                        >
+                          {t.name}
+                        </a>
+                        <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-foreground/55">
+                          <Building2 className="size-3 shrink-0" />
+                          <span className="truncate">{t.vendor}</span>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          <span className="inline-flex items-center gap-1 rounded-md border border-border bg-background/60 px-1.5 py-0.5 text-[10px] font-medium text-foreground/60">
+                            <Tent className="size-2.5" /> Campingplatz
+                          </span>
+                          <span className="inline-flex items-center gap-1 rounded-md border border-border bg-background/60 px-1.5 py-0.5 text-[10px] font-medium text-foreground/60">
+                            Cloud
+                          </span>
+                        </div>
+                      </div>
+                    </div>
 
-                <p className="mt-3 text-[13px] text-foreground/70 leading-relaxed line-clamp-3">{t.desc}</p>
+                    {/* Column 2: Description + features */}
+                    <div className="min-w-0 lg:border-l lg:border-border/70 lg:pl-6 xl:pl-8">
+                      <p className="text-[13.5px] leading-relaxed text-foreground/75 line-clamp-3">
+                        {t.desc}
+                      </p>
+                      <div className="mt-3">
+                        <div className="text-[10px] font-semibold uppercase tracking-widest text-foreground/45 mb-1.5">
+                          Kernfunktionen
+                        </div>
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                          {t.features.map((f) => (
+                            <li key={f} className="flex items-start gap-1.5 text-[12.5px] text-foreground/75">
+                              <span
+                                className="mt-1.5 size-1.5 shrink-0 rounded-full"
+                                style={{ background: accent }}
+                                aria-hidden
+                              />
+                              <span className="truncate">{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
 
-                <ul className="mt-3 space-y-1">
-                  {t.features.slice(0, 3).map((f) => (
-                    <li key={f} className="flex items-start gap-1.5 text-[12px] text-foreground/70">
-                      <Circle className="mt-1.5 size-1 shrink-0 fill-current text-foreground/40" />
-                      <span className="line-clamp-1">{f}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-auto pt-4 mt-4 flex items-end justify-between gap-2 border-t border-border/60">
-                  <div className="min-w-0">
-                    {t.price ? (
-                      <>
-                        <div className="text-[10px] font-semibold uppercase tracking-widest text-foreground/50">Preis</div>
-                        <div className="text-sm font-semibold tabular-nums">{t.price}</div>
+                    {/* Column 3: Meta / price */}
+                    <div className="lg:border-l lg:border-border/70 lg:pl-6 flex flex-col gap-2.5 justify-center">
+                      <div>
+                        <div className="text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Preis</div>
+                        {t.price ? (
+                          <div className="mt-0.5 font-display text-lg font-semibold tabular-nums">{t.price}</div>
+                        ) : (
+                          <div className="mt-0.5 text-sm font-semibold text-foreground/70">Auf Anfrage</div>
+                        )}
                         {t.priceNote && (
-                          <a
-                            href="#preise"
-                            className="inline-flex items-center gap-1 text-[11px] text-foreground/50 hover:text-foreground"
-                          >
+                          <a href="#preise" className="inline-flex items-center gap-1 text-[11px] text-foreground/50 hover:text-foreground">
                             {t.priceNote} <ArrowUpRight className="size-3" />
                           </a>
                         )}
-                      </>
-                    ) : (
-                      <div className="text-[11px] text-foreground/50">Preis auf Anfrage</div>
-                    )}
+                      </div>
+                      <div className="flex flex-col gap-1 text-[11.5px] text-foreground/65">
+                        <div className="flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-foreground/50" /> Verifizierter Eintrag</div>
+                        <div className="flex items-center gap-1.5"><MapPin className="size-3.5 text-foreground/50" /> DACH-tauglich</div>
+                      </div>
+                    </div>
+
+                    {/* Column 4: Action */}
+                    <div className="flex lg:flex-col items-stretch justify-end gap-2 lg:min-w-[150px]">
+                      <a
+                        href={detailHref}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-foreground text-[color:var(--paper)] px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
+                      >
+                        Details <ArrowRight className="size-4" />
+                      </a>
+                      <a
+                        href="#preise"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-background/60 px-4 py-2.5 text-sm font-medium text-foreground/80 hover:border-foreground/30 hover:text-foreground transition-colors"
+                      >
+                        Preise
+                      </a>
+                    </div>
                   </div>
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-foreground/50 group-hover:text-primary transition-colors">
-                    Details <ArrowRight className="size-3.5" />
-                  </span>
-                </div>
-              </a>
-            </Reveal>
-          ))}
+                </article>
+              </Reveal>
+            );
+          })}
         </div>
       </section>
 
