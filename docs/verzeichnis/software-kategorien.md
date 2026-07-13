@@ -72,3 +72,36 @@ Die **Rubrik-Spalte der Quelle ist mojibake-behaftet** (UTF-8 doppelt kodiert, z
 - [ ] Dubletten/Slug-Kollisionen pruefen (sollten 0 sein, Slug ist eindeutig).
 - [ ] In `dir_collection` seeden (Status `entwurf`).
 - [ ] Cluster/L1/L2-Geruest anlegen und Collections zuordnen (redaktionell, schrittweise).
+
+---
+
+## 9. Datenassets im Repo (Stand 2026-07-13)
+
+| Datei | Inhalt | Status |
+|-------|--------|--------|
+| `omr-kategorien.csv` | **436 Rubriken aus dem OMR-Crawl** (slug, rubrik_quelle, typ) | **committet, vollstaendig** |
+| `software-kategorien-1315.md` | Die zusammengefuehrte Liste OMR + Capterra (1315) | **FEHLT NOCH** |
+
+**Warum die 1315 fehlen:** Sie wurden per Chat geschickt und dabei am Zeichenlimit abgeschnitten
+(Abbruch mitten in PRIO 1). PRIO 2 und PRIO 3 sind nie angekommen. Ein Import aus diesem
+Fragment haette rund 700 Kategorien still verschluckt. Die Liste muss als **Datei** ins Repo,
+nicht ueber den Chat.
+
+### Spalte `typ` in `omr-kategorien.csv`
+
+Toolfolio ist ein **Software**-Verzeichnis. Nicht jede OMR-Rubrik ist Software:
+
+- `software` (377): echte Tool-Kategorien, werden Collections.
+- `dienstleister` (24): Agenturen, Beratungen, Steuerberater. **Keine Software**, gehoeren
+  nicht ins Verzeichnis (man abonniert sie nicht, man trackt ihre Kosten nicht als Abo).
+- `breit` (35): sehr breite Sammelbegriffe (AI, SEO, Design, Payment ...). Taugen als
+  **Cluster oder Hauptkategorie (L1/L2)**, nicht als Collection (L3) mit Suchintention.
+
+Die Klassifikation ist eine Spalte, keine stille Loeschung: sie bleibt pruefbar und
+korrigierbar. Grenzfaelle bewusst als `breit` markiert (z. B. `zahlungsdienstleister`).
+
+### Offene Entscheidung: Anzeigenamen
+
+356 der 377 OMR-Software-Rubriken tragen **englische** Anzeigenamen (aus dem Slug abgeleitet).
+Toolfolio ist deutschsprachig (Leitplanke 3). Die Anzeigenamen muessen also uebersetzt werden.
+Der **Slug bleibt unveraendert** (SEO-Intent, nach Live nie aendern).
