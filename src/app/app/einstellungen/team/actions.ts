@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email";
 import { teamEinladung } from "@/lib/email-templates";
+import { hatMindestens, type PlanId } from "@/lib/constants";
 
 export type TeamState = { ok?: boolean; error?: string; info?: string };
 
@@ -37,8 +38,9 @@ export async function inviteMember(_prev: TeamState, formData: FormData): Promis
   if (parsed.data.email === user.email?.toLowerCase()) return { error: "Du kannst dich nicht selbst einladen." };
 
   // Plan-Gating: Team-Einladungen sind im Agentur-Plan enthalten.
-  const { data: planRow } = await supabase.from("profiles").select("plan").eq("id", user.id).maybeSingle();
-  if (planRow?.plan !== "agentur")
+  // Inhaber-/Superadmin-Konten (is_staff) umgehen jedes Plan-Gate.
+  const { data: planRow } = await supabase.from("profiles").select("plan, is_staff").eq("id", user.id).maybeSingle();
+  if (!hatMindestens((planRow?.plan as PlanId) ?? "free", Boolean(planRow?.is_staff), "agentur"))
     return { error: "Team-Einladungen sind im Agentur-Plan enthalten. Wechsle unter Plan & Abrechnung." };
 
   const token = randomBytes(24).toString("hex");
