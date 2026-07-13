@@ -64,6 +64,7 @@ export type Produkt = {
   preis_hinweis: string | null;
   preis_stand: string | null;
   preis_quelle_url: string | null;
+  status: "entwurf" | "ki_ungeprueft" | "redaktionell_geprueft" | "veroeffentlicht";
 };
 
 export type ProduktInZone = Produkt & { zone: Zone; position: number; gesponsert_bis: string | null };

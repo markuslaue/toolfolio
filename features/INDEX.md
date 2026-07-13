@@ -167,3 +167,5 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 
 ### Naechste freie IDs
 B-32, M-19, V-16, A-08, INFRA-2. (E, S, R sind abgeschlossen.)
+
+| AD-03 | Autorenseiten (E-E-A-T): Vita, Belege, schema.org Person | P2 | AD-01 | **Geparkt** (Infrastruktur steht, Autorenseite ist bewusst auf 404, weil die Biografie fehlt. Markus liefert Werdegang, Belege, LinkedIn. Erst dann `freigegeben: true` in src/lib/autoren.ts) |
