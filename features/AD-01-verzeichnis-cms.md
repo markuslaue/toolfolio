@@ -65,3 +65,67 @@ Internes Redaktions-CMS, mit dem ausschliesslich der Admin das oeffentliche, SEO
 ## Offene Punkte fuer den Bau (kein Blocker)
 - [ ] Weitere Redakteure: deren Profil per Service-Role auf is_staff=true setzen (kein UI noetig fuers MVP).
 - [ ] Moderations-Workflow + Anti-Abuse fuer offene Bewertungen final ausgestalten (Status, Rate-Limit, Captcha/Mail-Bestaetigung).
+
+---
+
+## Entscheidungen (2026-07-13, von Markus)
+
+### Roll-out: Cluster fuer Cluster, nicht nach Prio
+Die Struktur wird **einmal komplett** angelegt (alle 25 Cluster, alle 1292 Software-Collections,
+Status `entwurf`). Oeffentlich sichtbar wird nur, was auf `veroeffentlicht` steht. Ein Cluster
+geht dann **vollstaendig** live (alle Prios darin), danach der naechste.
+
+**Warum nicht nach Prio 1/2/3 ausrollen:** Sonst waere jeder Bereich ueberall halbfertig.
+PRIO 2 enthaelt starke Rubriken ohne "Software" im Namen (`crm-systeme`, `seo-tools`,
+`kassensysteme`, `ki-bild-generatoren`), die man nicht ein Jahr liegen lassen will.
+
+**Pilot-Cluster: "Design & Kreativ" (45 Collections).** Klein genug, um die Pipeline einmal
+end-to-end zu erproben, und OMMM kennt die Tools aus dem Alltag, erkennt KI-Unsinn also sofort.
+
+### Produkt-Discovery: vier Quellen, in dieser Reihenfolge
+
+1. **Eigene Tracker-Daten (der unfaire Vorteil).** Der Kontoauszug-Import (B-06) mit
+   Software-Klassifikator zeigt echte Tools, fuer die echtes Geld fliesst. Anonymisiert
+   aggregierbar. Ein Tool in vielen Kontoauszuegen gehoert ins Verzeichnis; ein Tool, das
+   Capterra listet, aber nie jemand bezahlt, eher nicht. Das hat kein Wettbewerber.
+2. **DataForSEO SERP-API (B-24, Credentials liegen bereits verschluesselt).** Je Collection
+   `"beste [Rubrik]"` / `"[Rubrik] Vergleich"` abfragen und sehen, welche Anbieter im
+   deutschen Markt tatsaechlich ranken. Lizenzierte, bezahlte Quelle. Liefert nebenbei das
+   Suchvolumen je Rubrik = Priorisierung, welcher Cluster sich lohnt. **Freigegeben 2026-07-13.**
+3. **Die Anbieter selbst (Primaerquelle).** Fakten von der Herstellerseite: Preisseite,
+   Features, Impressum. Immer mit `preis_quelle_url` + `preis_stand`.
+4. **Erst am Ende: Luecken-Abgleich** gegen OMR/Capterra. Faellt ein relevantes Tool auf,
+   wird **das Tool** geprueft und ein **eigener** Eintrag geschrieben.
+
+### Kein Scraping von OMR oder Capterra
+Deren Produktdatenbanken werden **nicht** uebernommen. Gruende, beide bindend:
+- **Recht:** Datenbankherstellerrecht (§ 87b UrhG) schuetzt die systematische Uebernahme
+  wesentlicher Teile. Genau das waere "alle Tools aus Kategorie X". Beschreibungen und
+  Bewertungen sind zusaetzlich urheberrechtlich geschuetzt; die AGB beider Seiten verbieten
+  Scraping ohnehin.
+- **Strategie:** Eine schlechtere Kopie von Capterra hat keinen Grund zu ranken.
+
+Einzelne **Tatsachen** ("es gibt ein Tool namens Ahrefs, das ist ein SEO-Tool") sind frei.
+Der Unterschied ist: **Abgleich am Ende, nicht Quelle am Anfang.**
+
+### Content-Pipeline (nutzt die vorhandenen Status-Felder)
+
+| Stufe | Was passiert | Wer |
+|---|---|---|
+| `entwurf` | Collection existiert, Produkt-Kandidat erfasst (Name, URL) | Import + DataForSEO |
+| `ki_ungeprueft` | KI schreibt aus den **Primaerquellen**: Kurzbeschreibung, Features, Pro/Contra. Deutsch, Du-Form. | KI |
+| `redaktionell_geprueft` | Mensch liest gegen, korrigiert, ergaenzt Einschaetzung | Redaktion |
+| `veroeffentlicht` | geht live | Redaktion |
+
+**Hart:** `ki_ungeprueft` ist NIEMALS oeffentlich. Sonst stehen tausende halluzinierte
+Feature-Listen im Index und die Marke ist verbrannt. Serverseitig durchsetzen (RLS), nicht im UI.
+
+### Preis-Zustaende (Leitplanke 5)
+- Listenpreis vom Anbieter = `preis_hinweis` + Quelle + Datum, **immer als unverifiziert gekennzeichnet**.
+- **Verifizierter** Preis kommt ausschliesslich aus den anonymisierten Abrechnungsdaten mit
+  Mindestschwelle (B-16). Das ist das Alleinstellungsmerkmal: "Der Anbieter sagt 99 EUR.
+  Agenturen wie du zahlen im Median 118 EUR." Nicht verwaessern.
+
+### Mengengeruest (realistisch)
+1292 Collections x 10-20 Produkte = **13.000 bis 26.000 Produkteintraege**. Deshalb ist
+"Cluster fuer Cluster" nicht nur SEO-Hygiene, sondern die einzige machbare Reihenfolge.
