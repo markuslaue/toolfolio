@@ -9,6 +9,7 @@ import {
   CreditCard,
   Users as UsersIcon,
   ShieldAlert,
+  Plug,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ const items: Item[] = [
   { label: "Profil", href: "/app/einstellungen", icon: User },
   { label: "Unternehmen", href: "/app/einstellungen/unternehmen", icon: Building },
   { label: "Benachrichtigungen", href: "/app/einstellungen/benachrichtigungen", icon: Bell },
+  { label: "Integrationen", href: "/app/einstellungen/integrationen", icon: Plug },
   { label: "Plan & Abrechnung", href: "/app/einstellungen/plan", icon: CreditCard },
   { label: "Team & Rollen", href: "/app/einstellungen/team", icon: UsersIcon },
   { label: "Daten & Datenschutz", href: "/app/einstellungen/daten", icon: ShieldAlert },
