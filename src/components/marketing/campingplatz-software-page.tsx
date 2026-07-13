@@ -526,7 +526,7 @@ export function CampingplatzSoftwarePage() {
                             <li key={f} className="flex items-start gap-1.5 text-[12.5px] text-foreground/75">
                               <span
                                 className="mt-1.5 size-1.5 shrink-0 rounded-full"
-                                style={{ background: accent }}
+                                style={{ background: tone }}
                                 aria-hidden
                               />
                               <span className="truncate">{f}</span>
