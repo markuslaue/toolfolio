@@ -7,7 +7,11 @@ const heute = new Date("2026-06-26T12:00:00Z");
 
 const frist: Frist = {
   key: "abo1:kuendigung:2026-07-05", quelle: "abo", quelle_id: "abo1", art: "kuendigung",
-  datum: "2026-07-05", titel: "Adobe CC", konsequenz: "Sonst Verlängerung.",
+  datum: "2026-07-05", titel: "Adobe CC", farbe: "#6C5CE7",
+  kunde: null,
+  jahreswert: 0,
+  erinnerung: true,
+  konsequenz: "Sonst Verlängerung.",
 };
 const vorschlag: Vorschlag = {
   key: "intervall:abo2", typ: "intervall", titel: "Figma jährlich statt monatlich", ersparnisJahr: 36,

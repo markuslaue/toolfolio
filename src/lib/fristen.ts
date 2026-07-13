@@ -1,10 +1,10 @@
 /** B-12: Fristen werden aus Abos und Zahlungskanaelen abgeleitet. */
 
 import { formatEur } from "@/lib/constants";
-import { monatlich, INTERVALL_LABEL, type Abo, type Intervall, type FristEinheit } from "@/lib/abos";
+import { monatlich, INTERVALL_LABEL, KATEGORIE_FARBEN, type Abo, type Intervall, type FristEinheit } from "@/lib/abos";
 import { kanalLabel, type Zahlungskanal } from "@/lib/zahlungskanaele";
 
-export type FristArt = "trial" | "kuendigung" | "karte";
+export type FristArt = "trial" | "kuendigung" | "verlaengerung" | "karte";
 export type Dringlichkeit = "ueberfaellig" | "sehrbald" | "bald" | "weiter";
 
 export interface Frist {
@@ -15,11 +15,20 @@ export interface Frist {
   datum: string; // YYYY-MM-DD
   titel: string;
   konsequenz: string;
+  /** Farbe des Tools bzw. des Kanals, fuer die Kachel. */
+  farbe: string;
+  /** Kunde, dem das Abo zugeordnet ist. */
+  kunde: string | null;
+  /** Was jaehrlich dranhaengt, wenn nichts passiert. */
+  jahreswert: number;
+  /** Ist am Abo eine Erinnerung aktiviert? */
+  erinnerung: boolean;
 }
 
 export const ART_LABEL: Record<FristArt, string> = {
   trial: "Trial-Ende",
   kuendigung: "Kündigungsfrist",
+  verlaengerung: "Vertragsverlängerung",
   karte: "Karte läuft ab",
 };
 
@@ -103,19 +112,37 @@ function kartenDatum(jahr: number, monat: number): string {
 export function deriveFristen(abos: Abo[], kanaele: Zahlungskanal[]): Frist[] {
   const out: Frist[] = [];
 
+  // Jahreswert je Zahlungskanal, damit die Karten-Frist sagen kann, was daran haengt.
+  const jahrProKanal = new Map<string, { summe: number; anzahl: number }>();
+  for (const a of abos) {
+    if (a.status === "archiviert" || a.status === "gekuendigt" || !a.zahlungskanal) continue;
+    const cur = jahrProKanal.get(a.zahlungskanal) ?? { summe: 0, anzahl: 0 };
+    cur.summe += monatlich(a.kosten, a.intervall) * 12;
+    cur.anzahl += 1;
+    jahrProKanal.set(a.zahlungskanal, cur);
+  }
+
   for (const a of abos) {
     if (a.status === "archiviert" || a.status === "gekuendigt") continue;
     const mtl = formatEur(monatlich(a.kosten, a.intervall));
     const proIntervall = `${formatEur(a.kosten)} / ${INTERVALL_LABEL[a.intervall as Intervall] ?? a.intervall}`;
+    const jahreswert = Math.round(monatlich(a.kosten, a.intervall) * 12 * 100) / 100;
+    const basis = {
+      quelle: "abo" as const,
+      quelle_id: a.id,
+      titel: a.tool,
+      farbe: a.farbe ?? KATEGORIE_FARBEN[a.kategorie] ?? "#6C5CE7",
+      kunde: a.kunde,
+      jahreswert,
+      erinnerung: a.erinnerung,
+    };
 
     if (a.trial_endet) {
       out.push({
+        ...basis,
         key: `${a.id}:trial:${a.trial_endet}`,
-        quelle: "abo",
-        quelle_id: a.id,
         art: "trial",
         datum: a.trial_endet,
-        titel: a.tool,
         konsequenz: `Trial endet, danach kostenpflichtig (${proIntervall}, ${mtl} pro Monat).`,
       });
     }
@@ -132,13 +159,21 @@ export function deriveFristen(abos: Abo[], kanaele: Zahlungskanal[]): Frist[] {
           ? `Nächste Periode ab ${verlaengerung} (${proIntervall}, ${mtl} pro Monat). Letzter Kündigungstermin.`
           : `Letzter Kündigungstermin (${mtl} pro Monat).`;
       out.push({
+        ...basis,
         key: `${a.id}:kuendigung:${deadline}`,
-        quelle: "abo",
-        quelle_id: a.id,
         art: "kuendigung",
         datum: deadline,
-        titel: a.tool,
         konsequenz,
+      });
+    } else if (a.auto_verlaengerung && a.naechste_abbuchung) {
+      // Ohne hinterlegte Kuendigungsfrist wissen wir nicht, bis wann kuendbar ist.
+      // Der Verlaengerungstermin selbst ist aber bekannt und gehoert auf die Uhr.
+      out.push({
+        ...basis,
+        key: `${a.id}:verlaengerung:${a.naechste_abbuchung}`,
+        art: "verlaengerung",
+        datum: a.naechste_abbuchung,
+        konsequenz: `Verlängert sich automatisch (${proIntervall}, ${formatEur(jahreswert)} pro Jahr). Es ist keine Kündigungsfrist hinterlegt.`,
       });
     }
   }
@@ -147,6 +182,7 @@ export function deriveFristen(abos: Abo[], kanaele: Zahlungskanal[]): Frist[] {
     if (!k.aktiv) continue;
     if (k.typ === "kreditkarte" && k.ablauf_monat && k.ablauf_jahr) {
       const datum = kartenDatum(k.ablauf_jahr, k.ablauf_monat);
+      const haengtDran = jahrProKanal.get(kanalLabel(k)) ?? { summe: 0, anzahl: 0 };
       out.push({
         key: `${k.id}:karte:${datum}`,
         quelle: "kanal",
@@ -154,7 +190,14 @@ export function deriveFristen(abos: Abo[], kanaele: Zahlungskanal[]): Frist[] {
         art: "karte",
         datum,
         titel: kanalLabel(k),
-        konsequenz: "Zahlungsmittel läuft ab, Abbuchungen könnten fehlschlagen.",
+        farbe: "#1F1D2B",
+        kunde: null,
+        jahreswert: Math.round(haengtDran.summe * 100) / 100,
+        erinnerung: true,
+        konsequenz:
+          haengtDran.anzahl > 0
+            ? `Karte läuft ab, betrifft ${haengtDran.anzahl} ${haengtDran.anzahl === 1 ? "Abo" : "Abos"} mit zusammen ${formatEur(haengtDran.summe)} Jahreswert.`
+            : "Zahlungsmittel läuft ab, Abbuchungen könnten fehlschlagen.",
       });
     }
   }

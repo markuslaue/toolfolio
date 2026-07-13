@@ -10,9 +10,11 @@ export type FristResult = { ok?: boolean; error?: string };
 const schema = z.object({
   quelle: z.enum(["abo", "kanal"]),
   quelle_id: z.string().uuid(),
-  art: z.enum(["trial", "kuendigung", "karte"]),
+  art: z.enum(["trial", "kuendigung", "verlaengerung", "karte"]),
   datum: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  status: z.enum(["erledigt", "ignoriert"]).default("erledigt"),
+  // "behalten" = bewusste Entscheidung, das Abo laufen zu lassen. Bewusst nicht
+  // dasselbe wie "erledigt", damit man es spaeter unterscheiden kann.
+  status: z.enum(["erledigt", "ignoriert", "behalten"]).default("erledigt"),
 });
 
 async function userOrError() {
