@@ -16,7 +16,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
   const { data } = await supabase
     .from("profiles")
-    .select("plan, subscription_status, plan_intervall, current_period_end, cancel_at_period_end, stripe_customer_id")
+    .select("plan, subscription_status, plan_intervall, current_period_end, cancel_at_period_end, stripe_customer_id, is_staff")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -27,6 +27,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
     current_period_end: data?.current_period_end ?? null,
     cancel_at_period_end: data?.cancel_at_period_end ?? false,
     hat_kunde: Boolean(data?.stripe_customer_id),
+    // Inhaber-/Superadmin-Konto: voller Umfang, dauerhaft kostenlos, keine Abrechnung.
+    superadmin: Boolean(data?.is_staff),
   };
 
   return <PlanClient billing={billing} status={status} />;

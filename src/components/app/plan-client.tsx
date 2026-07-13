@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Check, Sparkles, Building2, UserCheck, Landmark, Users, Wrench, ArrowRight, Loader2, CreditCard } from "lucide-react";
+import { Check, Sparkles, Building2, UserCheck, Landmark, Users, Wrench, ArrowRight, Loader2, CreditCard, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -20,6 +20,8 @@ export type Billing = {
   current_period_end: string | null;
   cancel_at_period_end: boolean;
   hat_kunde: boolean;
+  /** Inhaber-/Superadmin-Konto: voller Umfang, lifetime kostenlos, keine Abrechnung. */
+  superadmin?: boolean;
 };
 
 type Cadence = "monat" | "jahr";
@@ -92,6 +94,42 @@ export function PlanClient({ billing, status }: { billing: Billing; status?: str
   }
 
   const order: PlanId[] = ["free", "pro", "agentur", "unternehmen"];
+
+  // Inhaber-/Superadmin-Konto: voller Funktionsumfang, dauerhaft kostenlos.
+  // Keine Tarifauswahl, kein Checkout, keine Zahlungsanbindung.
+  if (billing.superadmin) {
+    return (
+      <div className="space-y-6">
+        <section className="rounded-[20px] border border-primary/30 bg-primary/5 p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="size-5 text-primary" />
+            <h2 className="font-display text-lg font-semibold">Superadmin (Inhaber)</h2>
+          </div>
+          <p className="mt-2 text-sm text-foreground/80">
+            Dieses Konto gehört den Betreibern von Toolfolio. Es hat den <strong>vollen Funktionsumfang</strong>
+            {" "}(inklusive Team &amp; Rollen, Mandanten und allen Agentur-Funktionen) und ist{" "}
+            <strong>dauerhaft kostenlos</strong>.
+          </p>
+          <ul className="mt-4 space-y-2 text-sm">
+            {[
+              "Alle Funktionen ohne Limit",
+              "Keine Abrechnung, kein Zahlungsmittel hinterlegt",
+              "Keine Laufzeit, keine Kündigung nötig",
+            ].map((f) => (
+              <li key={f} className="flex items-start gap-2">
+                <Check className="mt-0.5 size-4 shrink-0 text-success" />
+                <span className="text-muted-foreground">{f}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <p className="text-center text-xs text-muted-foreground">
+          Superadmin-Konten werden nicht über Stripe geführt. Es entstehen keine Kosten.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

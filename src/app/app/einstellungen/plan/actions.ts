@@ -62,9 +62,15 @@ export async function createCheckout(
 
   const { data: profil } = await supabase
     .from("profiles")
-    .select("stripe_customer_id")
+    .select("stripe_customer_id, is_staff")
     .eq("id", user.id)
     .maybeSingle();
+
+  // Inhaber-/Superadmin-Konten sind dauerhaft kostenlos und haben bewusst KEINE
+  // Zahlungsanbindung. Serverseitig hart abweisen, nicht nur im UI ausblenden.
+  if (profil?.is_staff) {
+    return { error: "Superadmin-Konten haben bereits vollen Zugriff und benötigen keinen Plan." };
+  }
 
   const customer = await ensureCustomer(user.id, user.email, profil?.stripe_customer_id ?? null);
 

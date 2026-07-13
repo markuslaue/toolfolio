@@ -139,6 +139,31 @@ export function empfohleneStufe(nutzer: number, tools: number): PlanId {
   return "unternehmen";
 }
 
+/* ---------------- Zugriff / Inhaber-Konto (Superadmin) ---------------- */
+
+const PLAN_RANG: Record<PlanId, number> = { free: 0, pro: 1, agentur: 2, unternehmen: 3 };
+
+/**
+ * Hat das Konto mindestens den geforderten Funktionsumfang?
+ *
+ * **Inhaber-/Superadmin-Konten** (`profiles.is_staff = true`) sind die Konten der
+ * Toolfolio-Betreiber: voller Funktionsumfang, **dauerhaft kostenlos, ohne jede
+ * Zahlungsanbindung**. Sie umgehen daher jedes Plan-Gate. Das Flag ist per
+ * Trigger geschuetzt und kann nur per Service-Role gesetzt werden.
+ *
+ * Alle Plan-Gates in der App MUESSEN ueber diese Funktion laufen, damit ein
+ * neues Gate den Inhaber-Status nicht versehentlich aussperrt.
+ */
+export function hatMindestens(plan: PlanId, isStaff: boolean, benoetigt: PlanId): boolean {
+  if (isStaff) return true;
+  return PLAN_RANG[plan] >= PLAN_RANG[benoetigt];
+}
+
+/** Anzeige-Label des Kontos (Inhaber-Konto statt Tarifname). */
+export function kontoLabel(plan: PlanId, isStaff: boolean): string {
+  return isStaff ? "Superadmin (Inhaber)" : PLANS[plan].name;
+}
+
 /** Betrag im deutschen Format, z. B. 1.249,00 EUR */
 export function formatEur(value: number): string {
   return new Intl.NumberFormat("de-DE", {
