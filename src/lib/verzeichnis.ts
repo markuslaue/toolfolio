@@ -39,6 +39,9 @@ export type Collection = {
   prio: number;
   fokus_keyword: string | null;
   intro_md: string | null;
+  content_md: string | null;
+  content_status: "fehlt" | "ki_ungeprueft" | "geprueft";
+  content_woerter: number | null;
 };
 
 export type Produkt = {

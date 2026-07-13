@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Megaphone, ListOrdered, Users } from "lucide-react";
 import { Breadcrumb } from "@/components/verzeichnis/breadcrumb";
 import { ProduktKarte } from "@/components/verzeichnis/produkt-karte";
+import { ContentPiece } from "@/components/verzeichnis/content-piece";
 import { getCollection, alleCollectionPfade, bewertungenFuer, organischerScore, type Zone, type ProduktInZone, type Bewertung } from "@/lib/verzeichnis";
 
 export const revalidate = 600;
@@ -22,9 +23,9 @@ export async function generateMetadata({ params }: { params: Promise<{ collectio
 }
 
 const ZONEN: { zone: Zone; titel: string; sub: string; icon: typeof Megaphone; stil: string }[] = [
-  { zone: "gesponsert", titel: "Gesponsert", sub: "Bezahlte Platzierung, als solche gekennzeichnet. Rang und Bewertungen sind davon unberuehrt.", icon: Megaphone, stil: "text-coral" },
-  { zone: "organisch", titel: "Organisch", sub: "Serverseitig sortiert nach Vollstaendigkeit und verifizierten Bewertungen, nicht kaeuflich.", icon: ListOrdered, stil: "text-primary" },
-  { zone: "community", titel: "Community", sub: "Von der Community vorgeschlagen, noch nicht redaktionell geprueft.", icon: Users, stil: "text-muted-foreground" },
+  { zone: "gesponsert", titel: "Gesponsert", sub: "Bezahlte Platzierung, immer als solche gekennzeichnet. Rang und Bewertungen bleiben davon unberührt.", icon: Megaphone, stil: "text-coral" },
+  { zone: "organisch", titel: "Organisch", sub: "Serverseitig sortiert nach Vollständigkeit und verifizierten Bewertungen, nicht käuflich.", icon: ListOrdered, stil: "text-primary" },
+  { zone: "community", titel: "Community", sub: "Von der Community vorgeschlagen, noch nicht redaktionell geprüft.", icon: Users, stil: "text-muted-foreground" },
 ];
 
 export default async function CollectionSeite({ params }: { params: Promise<{ cluster: string; collection: string }> }) {
@@ -92,9 +93,15 @@ export default async function CollectionSeite({ params }: { params: Promise<{ cl
         })}
       </div>
 
+      {/* Das SEO-Content-Piece steht bewusst UNTER den Produkten: Wer sucht, will
+          zuerst Tools sehen. Der Text macht die URL fuer das Keyword relevant. */}
+      {data.collection.content_md && (
+        <ContentPiece md={data.collection.content_md} titel={`Alles über ${data.collection.name}`} />
+      )}
+
       <p className="mt-12 rounded-2xl border border-border bg-secondary/40 p-4 text-xs text-muted-foreground">
-        Hinweis: Kaeuflich ist ausschliesslich die Sichtbarkeit in der gesponserten Zone, immer gekennzeichnet. Organische Reihenfolge,
-        Bewertungen und verifizierte Daten sind nie kaeuflich und werden serverseitig unabhaengig berechnet. Preisangaben tragen Stand und Quelle.
+        Hinweis: Käuflich ist ausschließlich die Sichtbarkeit in der gesponserten Zone, immer gekennzeichnet. Die organische Reihenfolge,
+        die Bewertungen und die verifizierten Daten sind nie käuflich und werden serverseitig unabhängig berechnet. Preisangaben tragen Stand und Quelle.
       </p>
     </div>
   );
