@@ -81,6 +81,9 @@ const tools: Tool[] = [
       "Online-Buchungssystem",
       "Digitale Gästemappe mit Online-Checkin und Checkout",
     ],
+    rating: 4.4,
+    reviews: 87,
+    toolfolioUsers: 254,
   },
   {
     rank: 3,
