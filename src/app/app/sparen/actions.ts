@@ -42,6 +42,7 @@ export async function setVorschlagStatus(snap: SparSnapshot, status: "umgesetzt"
   );
   if (error) return { error: "Konnte nicht gespeichert werden." };
   revalidatePath("/app/sparen");
+  revalidatePath("/app"); // Spar-Fortschritt und Sparkarten im Dashboard
   return { ok: true };
 }
 
@@ -55,5 +56,6 @@ export async function resetVorschlag(key: string): Promise<SparResult> {
   const { error } = await supabase.from("sparvorschlag_status").delete().eq("user_id", user.id).eq("vorschlag_key", key);
   if (error) return { error: "Konnte nicht zurückgesetzt werden." };
   revalidatePath("/app/sparen");
+  revalidatePath("/app"); // Spar-Fortschritt und Sparkarten im Dashboard
   return { ok: true };
 }
