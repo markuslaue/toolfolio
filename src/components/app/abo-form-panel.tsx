@@ -46,6 +46,22 @@ import {
   type Abo,
 } from "@/lib/abos";
 import { createAbo, updateAbo, deleteAbo, type AboInput } from "@/app/app/abos/actions";
+import { minusFrist } from "@/lib/fristen";
+import type { FristEinheit } from "@/lib/abos";
+
+/** B-32: uebliche Kuendigungsfristen als Schnellauswahl. */
+const FRIST_PRESETS: { label: string; wert: number; einheit: FristEinheit }[] = [
+  { label: "14 Tage", wert: 14, einheit: "Tage" },
+  { label: "1 Monat", wert: 1, einheit: "Monate" },
+  { label: "3 Monate", wert: 3, einheit: "Monate" },
+  { label: "6 Monate", wert: 6, einheit: "Monate" },
+];
+
+/** YYYY-MM-DD -> DD.MM.YYYY */
+function deutschesDatum(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return d ? `${d}.${m}.${y}` : iso;
+}
 
 type FormData = {
   tool: string;
@@ -205,6 +221,18 @@ export function AboFormPanel({
   const [busy, setBusy] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  // B-32: Kuendigungsdeadline live vorschauen. Stichtag hat Vorrang, sonst
+  // Verlaengerungstermin (naechste Abbuchung) minus Kuendigungsfrist.
+  const deadlineVorschau: { deadline: string; verlaengerung: string | null } | null = (() => {
+    if (data.letzter_kuendigungstermin) return { deadline: data.letzter_kuendigungstermin, verlaengerung: null };
+    const wert = Number(data.frist_wert);
+    if (!data.frist_wert || !isFinite(wert) || !data.naechste_abbuchung) return null;
+    return {
+      deadline: minusFrist(data.naechste_abbuchung, wert, data.frist_einheit as FristEinheit),
+      verlaengerung: data.naechste_abbuchung,
+    };
+  })();
 
   function set<K extends keyof FormData>(key: K, value: FormData[K]) {
     setData((d) => ({ ...d, [key]: value }));
@@ -554,13 +582,13 @@ export function AboFormPanel({
               />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Kündigungsfrist">
+              <Field label="Kündigungsfrist (vor Verlängerung)">
                 <div className="flex gap-2">
                   <Input
                     value={data.frist_wert}
                     onChange={(e) => set("frist_wert", e.target.value.replace(/\D/g, ""))}
                     inputMode="numeric"
-                    placeholder="14"
+                    placeholder="3"
                     className="w-20 tabular-nums"
                   />
                   <Select
@@ -579,20 +607,49 @@ export function AboFormPanel({
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {FRIST_PRESETS.map((p) => (
+                    <button
+                      key={p.label}
+                      type="button"
+                      onClick={() => { set("frist_wert", String(p.wert)); set("frist_einheit", p.einheit); }}
+                      className="rounded-full border border-border bg-background px-2.5 py-1 text-xs font-medium hover:bg-accent"
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
               </Field>
-              <Field label="Letzter Kündigungstermin">
+              <Field label="Abweichender Stichtag (optional)">
                 <Input
                   type="date"
                   value={data.letzter_kuendigungstermin}
                   onChange={(e) => set("letzter_kuendigungstermin", e.target.value)}
                 />
+                <div className="mt-1 text-xs text-muted-foreground">
+                  Nur nötig, wenn der Vertrag einen festen Termin vorgibt. Er hat dann Vorrang vor der Frist.
+                </div>
               </Field>
             </div>
+
+            {deadlineVorschau && (
+              <div className="rounded-xl border border-primary/25 bg-primary/5 p-3 text-sm">
+                <div className="font-medium">
+                  Kündigen bis <span className="tabular-nums">{deutschesDatum(deadlineVorschau.deadline)}</span>
+                </div>
+                {deadlineVorschau.verlaengerung && (
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {data.auto_verlaengerung ? "Verlängert sich automatisch am" : "Nächste Periode beginnt am"}{" "}
+                    <span className="tabular-nums">{deutschesDatum(deadlineVorschau.verlaengerung)}</span>. Wir erinnern dich rechtzeitig vorher per E-Mail.
+                  </div>
+                )}
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <div className="text-sm">
                 <div className="font-medium">Vor Frist erinnern</div>
                 <div className="text-xs text-muted-foreground">
-                  Grundlage für den Fristen-Wächter (folgt).
+                  Der Fristen-Wächter meldet sich rechtzeitig vor der Kündigungsdeadline per E-Mail.
                 </div>
               </div>
               <Switch

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email";
 import { fristenDigest, type MailFrist } from "@/lib/email-templates";
+import { kuendigungsDeadline } from "@/lib/fristen";
+import type { Abo } from "@/lib/abos";
 
 export const dynamic = "force-dynamic";
 
@@ -15,15 +17,13 @@ function tageBis(iso: string): number {
   return Math.round((a.getTime() - h.getTime()) / 86_400_000);
 }
 
-type AboRow = {
-  id: string;
-  user_id: string;
-  tool: string;
-  status: string;
-  auto_verlaengerung: boolean;
-  letzter_kuendigungstermin: string | null;
-  trial_endet: string | null;
-};
+/** YYYY-MM-DD -> DD.MM.YYYY */
+function deutsch(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return d ? `${d}.${m}.${y}` : iso;
+}
+
+type AboRow = Abo & { user_id: string };
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get("x-cron-secret") ?? new URL(req.url).searchParams.get("secret");
@@ -34,20 +34,13 @@ export async function POST(req: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://toolfolio.de";
   const supabase = createAdminClient();
 
-  const heute = new Date();
-  const grenze = new Date(heute);
-  grenze.setDate(grenze.getDate() + MAX_VORLAUF);
-  const heuteIso = heute.toISOString().slice(0, 10);
-  const grenzeIso = grenze.toISOString().slice(0, 10);
-
-  // Abos mit anstehender Kuendigungs- oder Trial-Frist im Fenster.
+  // B-32: Die Kuendigungsdeadline kann berechnet sein (Frist-Vorlauf statt
+  // Stichtag), deshalb NICHT mehr per SQL auf letzter_kuendigungstermin filtern,
+  // sondern alle lebenden Abos laden und die Deadline in JS ableiten.
   const { data: abos, error } = await supabase
     .from("abos")
-    .select("id, user_id, tool, status, auto_verlaengerung, letzter_kuendigungstermin, trial_endet")
-    .not("status", "in", "(archiviert,gekuendigt)")
-    .or(
-      `and(letzter_kuendigungstermin.gte.${heuteIso},letzter_kuendigungstermin.lte.${grenzeIso}),and(trial_endet.gte.${heuteIso},trial_endet.lte.${grenzeIso})`,
-    );
+    .select("*")
+    .not("status", "in", "(archiviert,gekuendigt)");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Pro Nutzer die Frist-Eintraege bauen.
@@ -61,7 +54,17 @@ export async function POST(req: NextRequest) {
       list.push({ tool: a.tool, art, datum, tage: t, konsequenz, ref: `abo-${a.id}:${art}:${datum}` });
       proNutzer.set(a.user_id, list);
     };
-    add(a.letzter_kuendigungstermin, "kuendigung", a.auto_verlaengerung ? "Sonst automatische Verlängerung." : "Letzter Kündigungstermin.");
+
+    const deadline = kuendigungsDeadline(a);
+    const verlaengerung = a.naechste_abbuchung && !a.letzter_kuendigungstermin ? deutsch(a.naechste_abbuchung) : null;
+    const kuendKonsequenz = a.auto_verlaengerung
+      ? verlaengerung
+        ? `Verlängert sich am ${verlaengerung} automatisch. Brauchst du es noch?`
+        : "Sonst automatische Verlängerung."
+      : verlaengerung
+        ? `Nächste Periode ab ${verlaengerung}. Letzter Kündigungstermin.`
+        : "Letzter Kündigungstermin.";
+    add(deadline, "kuendigung", kuendKonsequenz);
     add(a.trial_endet, "trial", "Danach wird das Abo kostenpflichtig.");
   }
 
