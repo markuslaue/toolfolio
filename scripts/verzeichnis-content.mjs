@@ -45,6 +45,17 @@ SPRACHE UND TON
 - Kein Marketing-Geschwafel, keine Floskeln wie "in der heutigen schnelllebigen Zeit".
   Schreib wie ein Fachredakteur, der die Branche kennt und Klartext redet.
 
+PERSPEKTIVE: DU SCHREIBST ALS FACHAUTOR
+- Der Text erscheint unter dem Namen von Markus Laue, Gruender von Toolfolio (Software-
+  Kostenmanagement fuer Agenturen und Freelancer, OMMM GmbH Leipzig).
+- Schreib aus der Haltung von jemandem, der diese Software-Kategorien beruflich beurteilt:
+  Er sieht taeglich, was Betriebe wirklich zahlen, wo sie Geld verbrennen und welche
+  Versprechen der Anbieter im Alltag nicht halten.
+- Das heisst konkret: klare Einschaetzungen statt Aufzaehlungen. Sag, worauf es ANKOMMT und
+  was Marketing-Geraeusch ist. Nenn die Fehler, die in der Praxis wirklich passieren.
+- Keine falsche Bescheidenheit ("es kommt darauf an"), aber auch keine Behauptungen ohne
+  Grundlage. Wo etwas vom Betrieb abhaengt, sag WOVON genau.
+
 FAKTENGRENZE (das ist die wichtigste Regel)
 - Nenne KEINE konkreten Produkte, Anbieter, Marken oder Firmennamen.
 - Nenne KEINE konkreten Preise einzelner Produkte.
@@ -71,8 +82,19 @@ Gib NUR ein JSON-Objekt zurueck, ohne Markdown-Codefence, mit genau diesen Felde
   "meta_title": "...",
   "meta_description": "...",
   "intro": "Zwei bis drei Saetze, stehen OBEN ueber den Produkten. Kein H2.",
+  "experten_zitat": "...",
   "content_md": "Das grosse Content-Piece in Markdown, beginnend mit '## ...'"
 }
+
+ZUM FELD experten_zitat
+- Drei bis fuenf Saetze, ICH-Form, so wie Markus Laue es selbst sagen wuerde.
+- Es erscheint als Kasten mitten im Text: "Das sagt unser Experte zu <Kategorie>",
+  mit seinem Foto und seinem Namen darunter.
+- Es soll die EINE Sache sagen, die man in dieser Kategorie am haeufigsten falsch macht,
+  und was er stattdessen empfiehlt. Konkret, mit Kante, keine Binsenweisheit.
+- Es darf sich auf Toolfolios Blickwinkel stuetzen (er sieht echte Abrechnungsdaten),
+  aber KEINE konkreten Zahlen erfinden.
+- Auch hier: keine Produktnamen, keine Anbieter, keine Preise einzelner Tools.
 `.trim();
 
 function prompt(name, cluster) {
@@ -108,12 +130,17 @@ function pruefe(o, name) {
     f.push(`Meta-Description ${o.meta_description?.length} Zeichen (Soll: 140 bis 155)`);
   const w = woerter(o.content_md ?? "");
   if (w < 950) f.push(`nur ${w} Woerter (Soll: mindestens 1000)`);
+  const z = o.experten_zitat ?? "";
+  if (z.split(/\s+/).filter(Boolean).length < 30) f.push("Experten-Zitat fehlt oder ist zu kurz");
+  if (/[–—]/.test(z) || /\s-\s/.test(z)) f.push("Experten-Zitat enthaelt Gedankenstriche");
+  if (/\bSie\b/.test(z)) f.push("Experten-Zitat siezt");
   // Gedankenstriche in jeder Form
   if (/[–—]/.test(o.content_md) || /\s-\s/.test(o.content_md)) f.push("enthaelt Gedankenstriche");
   // ASCII-Umlaute im deutschen Text
-  if (/\b(fuer|ueber|koennen|muessen|waehrend|zusaetzlich|naechste|groesse|loesung)\b/i.test(o.content_md))
-    f.push("enthaelt ASCII-Umlaute (ae/oe/ue) statt echter Umlaute");
-  if (/\bSie\b/.test(o.content_md)) f.push("siezt an mindestens einer Stelle");
+  const ascii = o.content_md.match(/\b(fuer|ueber|koennen|muessen|waehrend|zusaetzlich|naechste|groesse|loesung|oesterreich|maessig)\b/gi);
+  if (ascii) f.push(`ASCII-Umlaute: ${[...new Set(ascii)].join(", ")}`);
+  const sie = o.content_md.match(/[^.!?]*\bSie\b[^.!?]*/g);
+  if (sie) f.push(`siezt: "${sie[0].trim().slice(0, 70)}..."`);
   if (!o.content_md?.startsWith("##")) f.push("beginnt nicht mit einer H2");
   return f;
 }
@@ -167,6 +194,8 @@ for (const [i, c] of offen.entries()) {
           meta_description: o.meta_description,
           intro_md: o.intro,
           content_md: o.content_md,
+          experten_zitat: o.experten_zitat,
+          autor_slug: "markus-laue",
           content_status: "ki_ungeprueft",
           content_woerter: w,
           content_erzeugt_am: new Date().toISOString(),

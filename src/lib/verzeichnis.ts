@@ -42,6 +42,8 @@ export type Collection = {
   content_md: string | null;
   content_status: "fehlt" | "ki_ungeprueft" | "geprueft";
   content_woerter: number | null;
+  experten_zitat: string | null;
+  autor_slug: string | null;
 };
 
 export type Produkt = {

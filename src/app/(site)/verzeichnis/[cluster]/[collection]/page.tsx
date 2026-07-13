@@ -4,6 +4,8 @@ import { Megaphone, ListOrdered, Users } from "lucide-react";
 import { Breadcrumb } from "@/components/verzeichnis/breadcrumb";
 import { ProduktKarte } from "@/components/verzeichnis/produkt-karte";
 import { ContentPiece } from "@/components/verzeichnis/content-piece";
+import { ExpertenZitat, AutorBox } from "@/components/verzeichnis/experte";
+import { getAutor, STANDARD_AUTOR } from "@/lib/autoren";
 import { getCollection, alleCollectionPfade, bewertungenFuer, organischerScore, type Zone, type ProduktInZone, type Bewertung } from "@/lib/verzeichnis";
 
 export const revalidate = 600;
@@ -34,6 +36,7 @@ export default async function CollectionSeite({ params }: { params: Promise<{ cl
   if (!data) notFound();
 
   const bew = await bewertungenFuer(data.produkte.map((p) => p.id));
+  const autor = getAutor(data.collection.autor_slug ?? STANDARD_AUTOR);
 
   function inZone(zone: Zone): ProduktInZone[] {
     const list = data!.produkte.filter((p) => p.zone === zone);
@@ -96,7 +99,18 @@ export default async function CollectionSeite({ params }: { params: Promise<{ cl
       {/* Das SEO-Content-Piece steht bewusst UNTER den Produkten: Wer sucht, will
           zuerst Tools sehen. Der Text macht die URL fuer das Keyword relevant. */}
       {data.collection.content_md && (
-        <ContentPiece md={data.collection.content_md} titel={`Alles über ${data.collection.name}`} />
+        <>
+          <ContentPiece
+            md={data.collection.content_md}
+            titel={`Alles über ${data.collection.name}`}
+            experte={
+              autor && data.collection.experten_zitat
+                ? { autor, zitat: data.collection.experten_zitat, thema: data.collection.name }
+                : undefined
+            }
+          />
+          {autor && <AutorBox autor={autor} />}
+        </>
       )}
 
       <p className="mt-12 rounded-2xl border border-border bg-secondary/40 p-4 text-xs text-muted-foreground">

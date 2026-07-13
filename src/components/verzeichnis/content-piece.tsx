@@ -6,6 +6,8 @@
  * und Fettung. Alles andere wird als Text ausgegeben, nicht als HTML, deshalb
  * gibt es hier auch kein dangerouslySetInnerHTML.
  */
+import { ExpertenZitat } from "@/components/verzeichnis/experte";
+import type { Autor } from "@/lib/autoren";
 
 type Block =
   | { typ: "h2"; text: string; id: string }
@@ -17,7 +19,10 @@ type Block =
 function anker(text: string): string {
   return text
     .toLowerCase()
-    .replaceAll("ä", "ae").replaceAll("ö", "oe").replaceAll("ü", "ue").replaceAll("ß", "ss")
+    .replaceAll("ä", "ae")
+    .replaceAll("ö", "oe")
+    .replaceAll("ü", "ue")
+    .replaceAll("ß", "ss")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 }
@@ -71,9 +76,60 @@ function fett(text: string): React.ReactNode[] {
   );
 }
 
-export function ContentPiece({ md, titel }: { md: string; titel?: string }) {
+function Absatz({ b }: { b: Block }) {
+  if (b.typ === "h2")
+    return (
+      <h2 id={b.id} className="mt-10 scroll-mt-24 font-display text-2xl font-semibold tracking-tight first:mt-0">
+        {b.text}
+      </h2>
+    );
+  if (b.typ === "h3")
+    return (
+      <h3 id={b.id} className="mt-6 scroll-mt-24 font-display text-lg font-semibold">
+        {b.text}
+      </h3>
+    );
+  if (b.typ === "ul")
+    return (
+      <ul className="mt-3 list-disc space-y-1.5 pl-5 text-muted-foreground">
+        {b.punkte.map((p, j) => (
+          <li key={j}>{fett(p)}</li>
+        ))}
+      </ul>
+    );
+  return <p className="mt-4 leading-relaxed text-muted-foreground">{fett(b.text)}</p>;
+}
+
+export function ContentPiece({
+  md,
+  titel,
+  experte,
+}: {
+  md: string;
+  titel?: string;
+  /** Statement des Fachautors, wird mitten in den Text gesetzt. */
+  experte?: { autor: Autor; zitat: string; thema: string };
+}) {
   const blocks = parse(md);
   const h2 = blocks.filter((b): b is Extract<Block, { typ: "h2" }> => b.typ === "h2");
+
+  /* Das Zitat kommt vor die DRITTE H2: Der Leser hat dann genug Kontext, um es
+     einzuordnen, ist aber noch lange nicht am Ende. Gibt es weniger als drei
+     Abschnitte, haengt es hinten dran. */
+  let gesehen = 0;
+  let zitatVor = -1;
+  for (const [i, b] of blocks.entries()) {
+    if (b.typ !== "h2") continue;
+    gesehen += 1;
+    if (gesehen === 3) {
+      zitatVor = i;
+      break;
+    }
+  }
+
+  const zitat = experte ? (
+    <ExpertenZitat autor={experte.autor} zitat={experte.zitat} thema={experte.thema} />
+  ) : null;
 
   return (
     <section className="mt-16 border-t pt-10">
@@ -96,37 +152,13 @@ export function ContentPiece({ md, titel }: { md: string; titel?: string }) {
       )}
 
       <div className="max-w-3xl">
-        {blocks.map((b, i) => {
-          if (b.typ === "h2")
-            return (
-              <h2
-                key={i}
-                id={b.id}
-                className="mt-10 scroll-mt-24 font-display text-2xl font-semibold tracking-tight first:mt-0"
-              >
-                {b.text}
-              </h2>
-            );
-          if (b.typ === "h3")
-            return (
-              <h3 key={i} id={b.id} className="mt-6 scroll-mt-24 font-display text-lg font-semibold">
-                {b.text}
-              </h3>
-            );
-          if (b.typ === "ul")
-            return (
-              <ul key={i} className="mt-3 list-disc space-y-1.5 pl-5 text-muted-foreground">
-                {b.punkte.map((p, j) => (
-                  <li key={j}>{fett(p)}</li>
-                ))}
-              </ul>
-            );
-          return (
-            <p key={i} className="mt-4 leading-relaxed text-muted-foreground">
-              {fett(b.text)}
-            </p>
-          );
-        })}
+        {blocks.map((b, i) => (
+          <div key={i} className="contents">
+            {i === zitatVor && zitat}
+            <Absatz b={b} />
+          </div>
+        ))}
+        {zitatVor === -1 && zitat}
       </div>
     </section>
   );

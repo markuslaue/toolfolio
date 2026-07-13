@@ -13,6 +13,8 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { ContentPiece } from "@/components/verzeichnis/content-piece";
+import { ExpertenZitat, AutorBox } from "@/components/verzeichnis/experte";
+import { getAutor, STANDARD_AUTOR } from "@/lib/autoren";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -43,12 +45,13 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
   const admin = createAdminClient();
   const { data } = await admin
     .from("dir_collection")
-    .select("name, slug, h1, meta_title, meta_description, intro_md, content_md, content_status, content_woerter, status, dir_cluster(name, slug)")
+    .select("name, slug, h1, meta_title, meta_description, intro_md, content_md, content_status, content_woerter, experten_zitat, autor_slug, status, dir_cluster(name, slug)")
     .eq("slug", collection)
     .maybeSingle();
   if (!data) notFound();
 
   const cluster = data.dir_cluster as unknown as { name: string; slug: string } | null;
+  const autor = getAutor(data.autor_slug ?? STANDARD_AUTOR);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
@@ -92,7 +95,18 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
       </div>
 
       {data.content_md ? (
-        <ContentPiece md={data.content_md} titel={`Alles über ${data.name}`} />
+        <>
+          <ContentPiece
+            md={data.content_md}
+            titel={`Alles über ${data.name}`}
+            experte={
+              autor && data.experten_zitat
+                ? { autor, zitat: data.experten_zitat, thema: data.name }
+                : undefined
+            }
+          />
+          {autor && <AutorBox autor={autor} />}
+        </>
       ) : (
         <p className="mt-16 border-t pt-10 text-sm text-muted-foreground">Für diese Collection gibt es noch keinen Text.</p>
       )}
