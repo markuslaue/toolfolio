@@ -72,6 +72,22 @@ export async function updateKunde(id: string, input: KundeInput): Promise<KundeR
   return { ok: true, id };
 }
 
+/** Kunde archivieren: bleibt erhalten, faellt aber aus den aktiven Auswertungen. */
+export async function archiveKunde(id: string): Promise<KundeResult> {
+  if (!id) return { error: "Unbekannter Kunde." };
+  const { supabase, user, account } = await userOrError();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
+
+  const { error } = await supabase
+    .from("kunden")
+    .update({ status: "archiviert" })
+    .eq("id", id)
+    .eq("user_id", account);
+  if (error) return { error: "Archivieren hat nicht geklappt. Bitte versuche es erneut." };
+  revalidatePath("/app/kunden");
+  return { ok: true, id };
+}
+
 export async function deleteKunde(id: string): Promise<KundeResult> {
   if (!id) return { error: "Unbekannter Kunde." };
   const { supabase, user, account } = await userOrError();
