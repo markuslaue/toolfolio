@@ -42,14 +42,19 @@ export function KundenClient({ kunden }: { kunden: KundeMitStats[] }) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [aktiv, setAktiv] = useState<KundeMitStats | null>(null);
+  const [dialogSeq, setDialogSeq] = useState(0);
   const [loeschId, setLoeschId] = useState<string | null>(null);
 
+  // Zaehler erzwingt bei jedem Oeffnen einen frischen Mount des Dialogs, damit
+  // keine Werte des zuvor angelegten/bearbeiteten Kunden stehen bleiben.
   function neu() {
     setAktiv(null);
+    setDialogSeq((s) => s + 1);
     setDialogOpen(true);
   }
   function bearbeiten(k: KundeMitStats) {
     setAktiv(k);
+    setDialogSeq((s) => s + 1);
     setDialogOpen(true);
   }
 
@@ -167,7 +172,7 @@ export function KundenClient({ kunden }: { kunden: KundeMitStats[] }) {
       )}
 
       <KundeDialog
-        key={aktiv?.id ?? "neu"}
+        key={`${aktiv?.id ?? "neu"}-${dialogSeq}`}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         kunde={aktiv}

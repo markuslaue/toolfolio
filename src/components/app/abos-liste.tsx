@@ -193,8 +193,9 @@ export function AbosListe({
 
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [sortKey, setSortKey] = useState<SortKey>("naechste_abbuchung");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  // Standard: nach Name absteigend sortiert.
+  const [sortKey, setSortKey] = useState<SortKey>("tool");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [group, setGroup] = useState<GroupKey>("keine");
   const [view, setView] = useState<"tabelle" | "karten">("tabelle");
   const [density, setDensity] = useState<"komfort" | "kompakt">("komfort");
@@ -208,6 +209,7 @@ export function AbosListe({
   const [nurFrist, setNurFrist] = useState(false);
 
   const [panelOpen, setPanelOpen] = useState(false);
+  const [panelSeq, setPanelSeq] = useState(0);
   const [aktiv, setAktiv] = useState<Abo | null>(null);
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -242,19 +244,17 @@ export function AbosListe({
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
+    const richtung = sortDir === "asc" ? 1 : -1;
     arr.sort((a, b) => {
-      let av: string | number = "";
-      let bv: string | number = "";
       if (sortKey === "kosten") {
-        av = monatlich(a.kosten, a.intervall);
-        bv = monatlich(b.kosten, b.intervall);
-      } else {
-        av = (a[sortKey] as string | null) ?? "";
-        bv = (b[sortKey] as string | null) ?? "";
+        const av = monatlich(a.kosten, a.intervall);
+        const bv = monatlich(b.kosten, b.intervall);
+        return (av - bv) * richtung;
       }
-      if (av < bv) return sortDir === "asc" ? -1 : 1;
-      if (av > bv) return sortDir === "asc" ? 1 : -1;
-      return 0;
+      // Text: deutsche Sortierung (Umlaute korrekt einsortiert).
+      const av = (a[sortKey] as string | null) ?? "";
+      const bv = (b[sortKey] as string | null) ?? "";
+      return av.localeCompare(bv, "de", { sensitivity: "base" }) * richtung;
     });
     return arr;
   }, [filtered, sortKey, sortDir]);
@@ -315,6 +315,9 @@ export function AbosListe({
 
   function neu() {
     setAktiv(null);
+    // Zaehler hochsetzen, damit das Panel frisch montiert wird und KEINE Werte
+    // des zuletzt angelegten Abos stehen bleiben (sonst Duplikat-Gefahr).
+    setPanelSeq((s) => s + 1);
     setPanelOpen(true);
   }
   function oeffnen(a: Abo) {
@@ -661,7 +664,7 @@ export function AbosListe({
       )}
 
       <AboFormPanel
-        key={aktiv?.id ?? "neu"}
+        key={`${aktiv?.id ?? "neu"}-${panelSeq}`}
         open={panelOpen}
         onOpenChange={setPanelOpen}
         abo={aktiv}
