@@ -15,6 +15,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.111.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.95.0",
     "class-variance-authority": "^0.7.1",
