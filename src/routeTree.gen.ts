@@ -79,6 +79,7 @@ import { Route as AnbieterPortalBuilderRouteImport } from './routes/anbieter-por
 import { Route as AnbieterPortalAbrechnungRouteImport } from './routes/anbieter-portal.abrechnung'
 import { Route as AbosAboIdRouteImport } from './routes/abos.$aboId'
 import { Route as VerzeichnisClusterIndexRouteImport } from './routes/verzeichnis.$cluster.index'
+import { Route as VerzeichnisGastroHotelFreizeitCampingplatzSoftwareRouteImport } from './routes/verzeichnis.gastro-hotel-freizeit.campingplatz-software'
 import { Route as VerzeichnisClusterCategoryRouteImport } from './routes/verzeichnis.$cluster.$category'
 
 const ZahlungskanaeleRoute = ZahlungskanaeleRouteImport.update({
@@ -440,6 +441,12 @@ const VerzeichnisClusterIndexRoute = VerzeichnisClusterIndexRouteImport.update({
   path: '/verzeichnis/$cluster/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerzeichnisGastroHotelFreizeitCampingplatzSoftwareRoute =
+  VerzeichnisGastroHotelFreizeitCampingplatzSoftwareRouteImport.update({
+    id: '/verzeichnis/gastro-hotel-freizeit/campingplatz-software',
+    path: '/verzeichnis/gastro-hotel-freizeit/campingplatz-software',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const VerzeichnisClusterCategoryRoute =
   VerzeichnisClusterCategoryRouteImport.update({
     id: '/verzeichnis/$cluster/$category',
@@ -518,6 +525,7 @@ export interface FileRoutesByFullPath {
   '/kunden/': typeof KundenIndexRoute
   '/verzeichnis/': typeof VerzeichnisIndexRoute
   '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRoute
+  '/verzeichnis/gastro-hotel-freizeit/campingplatz-software': typeof VerzeichnisGastroHotelFreizeitCampingplatzSoftwareRoute
   '/verzeichnis/$cluster/': typeof VerzeichnisClusterIndexRoute
 }
 export interface FileRoutesByTo {
@@ -589,6 +597,7 @@ export interface FileRoutesByTo {
   '/kunden': typeof KundenIndexRoute
   '/verzeichnis': typeof VerzeichnisIndexRoute
   '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRoute
+  '/verzeichnis/gastro-hotel-freizeit/campingplatz-software': typeof VerzeichnisGastroHotelFreizeitCampingplatzSoftwareRoute
   '/verzeichnis/$cluster': typeof VerzeichnisClusterIndexRoute
 }
 export interface FileRoutesById {
@@ -663,6 +672,7 @@ export interface FileRoutesById {
   '/kunden/': typeof KundenIndexRoute
   '/verzeichnis/': typeof VerzeichnisIndexRoute
   '/verzeichnis/$cluster/$category': typeof VerzeichnisClusterCategoryRoute
+  '/verzeichnis/gastro-hotel-freizeit/campingplatz-software': typeof VerzeichnisGastroHotelFreizeitCampingplatzSoftwareRoute
   '/verzeichnis/$cluster/': typeof VerzeichnisClusterIndexRoute
 }
 export interface FileRouteTypes {
@@ -738,6 +748,7 @@ export interface FileRouteTypes {
     | '/kunden/'
     | '/verzeichnis/'
     | '/verzeichnis/$cluster/$category'
+    | '/verzeichnis/gastro-hotel-freizeit/campingplatz-software'
     | '/verzeichnis/$cluster/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -809,6 +820,7 @@ export interface FileRouteTypes {
     | '/kunden'
     | '/verzeichnis'
     | '/verzeichnis/$cluster/$category'
+    | '/verzeichnis/gastro-hotel-freizeit/campingplatz-software'
     | '/verzeichnis/$cluster'
   id:
     | '__root__'
@@ -882,6 +894,7 @@ export interface FileRouteTypes {
     | '/kunden/'
     | '/verzeichnis/'
     | '/verzeichnis/$cluster/$category'
+    | '/verzeichnis/gastro-hotel-freizeit/campingplatz-software'
     | '/verzeichnis/$cluster/'
   fileRoutesById: FileRoutesById
 }
@@ -948,6 +961,7 @@ export interface RootRouteChildren {
   KundenIndexRoute: typeof KundenIndexRoute
   VerzeichnisIndexRoute: typeof VerzeichnisIndexRoute
   VerzeichnisClusterCategoryRoute: typeof VerzeichnisClusterCategoryRoute
+  VerzeichnisGastroHotelFreizeitCampingplatzSoftwareRoute: typeof VerzeichnisGastroHotelFreizeitCampingplatzSoftwareRoute
   VerzeichnisClusterIndexRoute: typeof VerzeichnisClusterIndexRoute
 }
 
@@ -1443,6 +1457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerzeichnisClusterIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verzeichnis/gastro-hotel-freizeit/campingplatz-software': {
+      id: '/verzeichnis/gastro-hotel-freizeit/campingplatz-software'
+      path: '/verzeichnis/gastro-hotel-freizeit/campingplatz-software'
+      fullPath: '/verzeichnis/gastro-hotel-freizeit/campingplatz-software'
+      preLoaderRoute: typeof VerzeichnisGastroHotelFreizeitCampingplatzSoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verzeichnis/$cluster/$category': {
       id: '/verzeichnis/$cluster/$category'
       path: '/verzeichnis/$cluster/$category'
@@ -1552,6 +1573,8 @@ const rootRouteChildren: RootRouteChildren = {
   KundenIndexRoute: KundenIndexRoute,
   VerzeichnisIndexRoute: VerzeichnisIndexRoute,
   VerzeichnisClusterCategoryRoute: VerzeichnisClusterCategoryRoute,
+  VerzeichnisGastroHotelFreizeitCampingplatzSoftwareRoute:
+    VerzeichnisGastroHotelFreizeitCampingplatzSoftwareRoute,
   VerzeichnisClusterIndexRoute: VerzeichnisClusterIndexRoute,
 }
 export const routeTree = rootRouteImport
