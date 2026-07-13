@@ -37,6 +37,9 @@ type Tool = {
   features: string[];
   price?: string;
   priceNote?: string;
+  rating: number; // 0..5
+  reviews: number;
+  toolfolioUsers: number;
 };
 
 const clusterSlug = "gastro-hotel-freizeit";
