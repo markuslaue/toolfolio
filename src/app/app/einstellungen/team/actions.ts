@@ -2,6 +2,7 @@
 
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -133,5 +134,24 @@ export async function acceptInvite(token: string): Promise<{ ok?: boolean; error
   if (insErr) return { error: "Beitritt fehlgeschlagen. Bitte versuche es erneut." };
 
   await admin.from("team_invites").update({ accepted_at: new Date().toISOString() }).eq("id", invite.id);
+
+  // Wer einem bestehenden Konto beitritt, muss KEIN Onboarding durchlaufen:
+  // das Konto ist bereits eingerichtet. Sonst landet er im leeren Wizard.
+  const { data: eigenes } = await admin.from("profiles").select("onboarded_at").eq("id", user.id).maybeSingle();
+  if (!eigenes?.onboarded_at) {
+    await admin.from("profiles").update({ onboarded_at: new Date().toISOString() }).eq("id", user.id);
+  }
+
+  // Direkt in das beigetretene Konto wechseln. Ohne das landet der Eingeladene
+  // in seinem eigenen (leeren) Konto und wundert sich, dass keine Abos da sind.
+  const store = await cookies();
+  store.set("tf_account", invite.account_owner, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+
+  revalidatePath("/app", "layout");
   return { ok: true };
 }
