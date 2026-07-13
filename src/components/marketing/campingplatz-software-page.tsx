@@ -16,6 +16,7 @@ import {
   Quote,
   Search,
   ShieldCheck,
+  Star,
   Sparkles,
   Tent,
   TrendingUp,
@@ -37,6 +38,9 @@ type Tool = {
   features: string[];
   price?: string;
   priceNote?: string;
+  rating: number; // 0..5
+  reviews: number;
+  toolfolioUsers: number;
 };
 
 const clusterSlug = "gastro-hotel-freizeit";
@@ -60,6 +64,9 @@ const tools: Tool[] = [
       "KI-gestützte Gästekommunikation",
       "Automatisierung von Betriebsabläufen",
     ],
+    rating: 4.6,
+    reviews: 128,
+    toolfolioUsers: 342,
   },
   {
     rank: 2,
@@ -75,6 +82,9 @@ const tools: Tool[] = [
       "Online-Buchungssystem",
       "Digitale Gästemappe mit Online-Checkin und Checkout",
     ],
+    rating: 4.4,
+    reviews: 87,
+    toolfolioUsers: 254,
   },
   {
     rank: 3,
@@ -85,6 +95,9 @@ const tools: Tool[] = [
     desc:
       "Modulare Software zur Verwaltung von Campingplätzen. Deckt Standardfunktionen der Platzverwaltung ab und lässt sich über Erweiterungsmodule und Schnittstellen individuell anpassen.",
     features: ["Schrankensteuerung", "Dauercamper-Verwaltung", "Self-Service Gästeportal", "Zutrittssysteme"],
+    rating: 4.7,
+    reviews: 214,
+    toolfolioUsers: 489,
   },
   {
     rank: 4,
@@ -95,6 +108,9 @@ const tools: Tool[] = [
     desc:
       "Modulare Verwaltungssoftware für Campingplätze und Freizeitanlagen. Unterstützt bei der Betriebsverwaltung und digitalisiert Buchungsprozesse der Gäste.",
     features: ["Modularer Aufbau", "Onlinebuchung", "Dauercampermodul", "Mehrplatzmodul"],
+    rating: 4.2,
+    reviews: 63,
+    toolfolioUsers: 178,
   },
   {
     rank: 5,
@@ -110,6 +126,9 @@ const tools: Tool[] = [
       "Selbstbedienung und Gäste-App",
       "Dynamische Preisgestaltung",
     ],
+    rating: 4.3,
+    reviews: 94,
+    toolfolioUsers: 213,
   },
   {
     rank: 6,
@@ -125,6 +144,9 @@ const tools: Tool[] = [
       "Gästemanager von Anfrage bis Reservierung",
       "Grafischer und tabellarischer Belegungsplan",
     ],
+    rating: 4.1,
+    reviews: 52,
+    toolfolioUsers: 141,
   },
   {
     rank: 7,
@@ -141,6 +163,9 @@ const tools: Tool[] = [
     ],
     price: "Listenpreis",
     priceNote: "Stand 13.07.2026",
+    rating: 4.5,
+    reviews: 108,
+    toolfolioUsers: 297,
   },
   {
     rank: 8,
@@ -156,6 +181,9 @@ const tools: Tool[] = [
       "GoBD-konforme Rechnungen und DATEV-Export",
       "Channel Manager für Portale",
     ],
+    rating: 3.9,
+    reviews: 41,
+    toolfolioUsers: 96,
   },
 ];
 
@@ -537,11 +565,51 @@ export function CampingplatzSoftwarePage() {
                     </div>
 
                     {/* Column 3: Meta / price */}
-                    <div className="lg:border-l lg:border-border/70 lg:pl-6 flex flex-col gap-2.5 justify-center">
+                    <div className="lg:border-l lg:border-border/70 lg:pl-6 flex flex-col gap-3 justify-center">
+                      {/* Rating */}
+                      <div>
+                        <div className="text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Bewertung</div>
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <div className="flex items-center" aria-label={`${t.rating.toFixed(1)} von 5`}>
+                            {[0, 1, 2, 3, 4].map((idx) => {
+                              const fill = Math.max(0, Math.min(1, t.rating - idx));
+                              return (
+                                <span key={idx} className="relative inline-block size-3.5">
+                                  <Star className="absolute inset-0 size-3.5 text-foreground/15" strokeWidth={2} />
+                                  <span className="absolute inset-0 overflow-hidden" style={{ width: `${fill * 100}%` }}>
+                                    <Star className="size-3.5 fill-amber-400 text-amber-400" strokeWidth={2} />
+                                  </span>
+                                </span>
+                              );
+                            })}
+                          </div>
+                          <span className="font-display text-sm font-semibold tabular-nums">{t.rating.toFixed(1)}</span>
+                          <span className="text-[11px] text-foreground/50">({t.reviews})</span>
+                        </div>
+                      </div>
+
+                      {/* Toolfolio users */}
+                      <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-background/50 px-2.5 py-2">
+                        <span
+                          className="grid size-8 place-items-center rounded-lg shrink-0"
+                          style={{ background: `${tone}18`, color: tone }}
+                          aria-hidden
+                        >
+                          <Users className="size-4" />
+                        </span>
+                        <div className="min-w-0">
+                          <div className="font-display text-sm font-semibold tabular-nums leading-tight">
+                            {t.toolfolioUsers.toLocaleString("de-DE")}
+                          </div>
+                          <div className="text-[10.5px] text-foreground/55 leading-tight">Toolfolio-Nutzer</div>
+                        </div>
+                      </div>
+
+                      {/* Price */}
                       <div>
                         <div className="text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Preis</div>
                         {t.price ? (
-                          <div className="mt-0.5 font-display text-lg font-semibold tabular-nums">{t.price}</div>
+                          <div className="mt-0.5 font-display text-base font-semibold tabular-nums">{t.price}</div>
                         ) : (
                           <div className="mt-0.5 text-sm font-semibold text-foreground/70">Auf Anfrage</div>
                         )}
@@ -550,10 +618,6 @@ export function CampingplatzSoftwarePage() {
                             {t.priceNote} <ArrowUpRight className="size-3" />
                           </a>
                         )}
-                      </div>
-                      <div className="flex flex-col gap-1 text-[11.5px] text-foreground/65">
-                        <div className="flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-foreground/50" /> Verifizierter Eintrag</div>
-                        <div className="flex items-center gap-1.5"><MapPin className="size-3.5 text-foreground/50" /> DACH-tauglich</div>
                       </div>
                     </div>
 
