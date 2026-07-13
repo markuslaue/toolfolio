@@ -913,29 +913,41 @@ function AnstehendeAbbuchungen({ anstehend }: { anstehend: Anstehend[] }) {
 
 /* ------------------------------ Sparvorschläge ---------------------------- */
 
+const KONFETTI_FARBEN = ["#FF7A66", "#12B76A", "#6C5CE7", "#F5A623", "#3B82F6"];
+
+/**
+ * Konfetti-Schnipsel, bewusst OHNE Zufall: Math.random waehrend des Renders ist
+ * unrein (React 19 verbietet es), und ein gleichmaessiger Faecher sieht sowieso
+ * ruhiger aus. Die leichte Unregelmaessigkeit kommt aus dem Sinus.
+ */
+const KONFETTI = Array.from({ length: 14 }, (_, i) => {
+  const t = i / 13; // 0..1
+  return {
+    tx: (t - 0.5) * 220,
+    ty: -80 - Math.abs(Math.sin(t * Math.PI)) * 120,
+    dauer: 800 + ((i * 97) % 400),
+    verzug: (i * 37) % 150,
+    farbe: KONFETTI_FARBEN[i % KONFETTI_FARBEN.length],
+  };
+});
+
 function Confetti() {
-  const pieces = Array.from({ length: 14 });
-  const colors = ["#FF7A66", "#12B76A", "#6C5CE7", "#F5A623", "#3B82F6"];
+  const pieces = KONFETTI;
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {pieces.map((_, i) => {
-        const tx = (Math.random() - 0.5) * 220;
-        const ty = -80 - Math.random() * 120;
-        const color = colors[i % colors.length];
-        return (
-          <span
-            key={i}
-            className="absolute left-1/2 top-1/2 size-2 rounded-sm"
-            style={{
-              background: color,
-              ["--tx" as never]: `${tx}px`,
-              ["--ty" as never]: `${ty}px`,
-              animation: `confetti-pop ${800 + Math.random() * 400}ms ease-out forwards`,
-              animationDelay: `${Math.random() * 150}ms`,
-            }}
-          />
-        );
-      })}
+      {pieces.map((p, i) => (
+        <span
+          key={i}
+          className="absolute left-1/2 top-1/2 size-2 rounded-sm"
+          style={{
+            background: p.farbe,
+            ["--tx" as never]: `${p.tx}px`,
+            ["--ty" as never]: `${p.ty}px`,
+            animation: `confetti-pop ${p.dauer}ms ease-out forwards`,
+            animationDelay: `${p.verzug}ms`,
+          }}
+        />
+      ))}
     </div>
   );
 }
