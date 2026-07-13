@@ -446,25 +446,42 @@ export function CampingplatzSoftwarePage() {
           </div>
         </Reveal>
 
-        <div className="rounded-3xl border border-border bg-card/40 backdrop-blur overflow-hidden divide-y divide-border">
+        <div className="flex flex-col gap-4">
           {filtered.map((t, i) => {
             const detailHref = `/verzeichnis/${clusterSlug}/${categorySlug}/tool/${t.slug}`;
+            const palette = [
+              "#12B76A", // green
+              "#2563EB", // blue
+              "#F59E0B", // amber
+              "#EC4899", // pink
+              "#8B5CF6", // violet
+              "#06B6D4", // cyan
+              "#EF4444", // red
+              "#0EA5E9", // sky
+            ];
+            const tone = palette[(t.rank - 1) % palette.length];
             return (
               <Reveal key={t.slug} delay={i * 20}>
-                <article className="group relative bg-card hover:bg-foreground/[0.015] transition-colors">
+                <article className="group relative rounded-3xl border border-border bg-card overflow-hidden shadow-soft hover:shadow-lift hover:-translate-y-0.5 hover:border-foreground/20 transition-all">
                   {/* Rank accent bar */}
                   <div
-                    className="absolute left-0 top-0 bottom-0 w-1 opacity-70 group-hover:opacity-100 transition-opacity"
-                    style={{ background: accent }}
+                    className="absolute left-0 top-0 bottom-0 w-1.5 opacity-80 group-hover:opacity-100 transition-opacity"
+                    style={{ background: tone }}
                     aria-hidden
                   />
-                  <div className="grid lg:grid-cols-[minmax(260px,1.1fr)_minmax(0,2fr)_minmax(200px,1fr)_auto] gap-5 lg:gap-8 items-stretch p-5 sm:p-6 pl-6 sm:pl-7">
+                  {/* Soft tint wash */}
+                  <div
+                    className="absolute inset-0 opacity-[0.035] pointer-events-none"
+                    style={{ background: `radial-gradient(120% 80% at 0% 0%, ${tone} 0%, transparent 55%)` }}
+                    aria-hidden
+                  />
+                  <div className="relative grid lg:grid-cols-[minmax(260px,1.1fr)_minmax(0,2fr)_minmax(200px,1fr)_auto] gap-5 lg:gap-8 items-stretch p-5 sm:p-6 pl-6 sm:pl-7">
                     {/* Column 1: Identity */}
                     <div className="flex items-start gap-4 min-w-0">
                       <div className="flex flex-col items-center gap-1.5 shrink-0">
                         <span
-                          className="grid size-14 place-items-center rounded-2xl font-display text-base font-bold tracking-wide"
-                          style={{ background: `${accent}18`, color: accent }}
+                          className="grid size-14 place-items-center rounded-2xl font-display text-base font-bold tracking-wide ring-1"
+                          style={{ background: `${tone}18`, color: tone, boxShadow: `inset 0 0 0 1px ${tone}25` }}
                           aria-hidden
                         >
                           {t.initials}
@@ -509,7 +526,7 @@ export function CampingplatzSoftwarePage() {
                             <li key={f} className="flex items-start gap-1.5 text-[12.5px] text-foreground/75">
                               <span
                                 className="mt-1.5 size-1.5 shrink-0 rounded-full"
-                                style={{ background: accent }}
+                                style={{ background: tone }}
                                 aria-hidden
                               />
                               <span className="truncate">{f}</span>
