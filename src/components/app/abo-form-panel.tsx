@@ -195,10 +195,16 @@ function Section({
   );
 }
 
+/** Vorbelegung fuer ein NEUES Abo, z. B. aus dem Verzeichnis heraus. */
+export type AboVorbelegung = Partial<
+  Pick<FormData, "tool" | "anbieter" | "kategorie" | "betrag" | "intervall" | "waehrung" | "mit_verzeichnis" | "notizen">
+>;
+
 export function AboFormPanel({
   open,
   onOpenChange,
   abo,
+  vorbelegung,
   onSaved,
   onDeleted,
   kanalOptionen = [],
@@ -207,6 +213,8 @@ export function AboFormPanel({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   abo?: Abo | null;
+  /** Startwerte fuer ein neues Abo. Wird ignoriert, wenn `abo` gesetzt ist. */
+  vorbelegung?: AboVorbelegung;
   onSaved?: () => void;
   onDeleted?: () => void;
   kanalOptionen?: string[];
@@ -214,7 +222,7 @@ export function AboFormPanel({
 }) {
   const router = useRouter();
   const bearbeiten = !!abo;
-  const [data, setData] = useState<FormData>(abo ? ausAbo(abo) : leer());
+  const [data, setData] = useState<FormData>(abo ? ausAbo(abo) : { ...leer(), ...vorbelegung });
   const [dirty, setDirty] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [tagInput, setTagInput] = useState("");
