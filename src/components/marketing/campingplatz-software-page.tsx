@@ -63,6 +63,9 @@ const tools: Tool[] = [
       "KI-gestützte Gästekommunikation",
       "Automatisierung von Betriebsabläufen",
     ],
+    rating: 4.6,
+    reviews: 128,
+    toolfolioUsers: 342,
   },
   {
     rank: 2,
