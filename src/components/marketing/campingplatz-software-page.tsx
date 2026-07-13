@@ -94,6 +94,9 @@ const tools: Tool[] = [
     desc:
       "Modulare Software zur Verwaltung von Campingplätzen. Deckt Standardfunktionen der Platzverwaltung ab und lässt sich über Erweiterungsmodule und Schnittstellen individuell anpassen.",
     features: ["Schrankensteuerung", "Dauercamper-Verwaltung", "Self-Service Gästeportal", "Zutrittssysteme"],
+    rating: 4.7,
+    reviews: 214,
+    toolfolioUsers: 489,
   },
   {
     rank: 4,
@@ -104,6 +107,9 @@ const tools: Tool[] = [
     desc:
       "Modulare Verwaltungssoftware für Campingplätze und Freizeitanlagen. Unterstützt bei der Betriebsverwaltung und digitalisiert Buchungsprozesse der Gäste.",
     features: ["Modularer Aufbau", "Onlinebuchung", "Dauercampermodul", "Mehrplatzmodul"],
+    rating: 4.2,
+    reviews: 63,
+    toolfolioUsers: 178,
   },
   {
     rank: 5,
@@ -119,6 +125,9 @@ const tools: Tool[] = [
       "Selbstbedienung und Gäste-App",
       "Dynamische Preisgestaltung",
     ],
+    rating: 4.3,
+    reviews: 94,
+    toolfolioUsers: 213,
   },
   {
     rank: 6,
@@ -134,6 +143,9 @@ const tools: Tool[] = [
       "Gästemanager von Anfrage bis Reservierung",
       "Grafischer und tabellarischer Belegungsplan",
     ],
+    rating: 4.1,
+    reviews: 52,
+    toolfolioUsers: 141,
   },
   {
     rank: 7,
@@ -150,6 +162,9 @@ const tools: Tool[] = [
     ],
     price: "Listenpreis",
     priceNote: "Stand 13.07.2026",
+    rating: 4.5,
+    reviews: 108,
+    toolfolioUsers: 297,
   },
   {
     rank: 8,
@@ -165,6 +180,9 @@ const tools: Tool[] = [
       "GoBD-konforme Rechnungen und DATEV-Export",
       "Channel Manager für Portale",
     ],
+    rating: 3.9,
+    reviews: 41,
+    toolfolioUsers: 96,
   },
 ];
 
