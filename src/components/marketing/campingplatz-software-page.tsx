@@ -16,6 +16,7 @@ import {
   Quote,
   Search,
   ShieldCheck,
+  Star,
   Sparkles,
   Tent,
   TrendingUp,
