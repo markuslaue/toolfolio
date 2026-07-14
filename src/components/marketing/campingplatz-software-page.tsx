@@ -438,6 +438,17 @@ export function CampingplatzSoftwarePage() {
         </div>
       </section>
 
+      {/* Software-Finder (eingebettet, entfaltet sich beim Start) */}
+      <section id="finder" className="scroll-mt-32 mx-auto max-w-7xl px-4 sm:px-6 pt-10">
+        <Reveal>
+          <CollectionFinder
+            config={campingplatzFinderConfig}
+            autoStart={finderOpen}
+            onExit={() => setFinderOpen(false)}
+          />
+        </Reveal>
+      </section>
+
       {/* Sticky Sub-Nav */}
       <div className="sticky top-16 z-30 border-y border-border/70 bg-[color:var(--paper)]/85 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -454,13 +465,19 @@ export function CampingplatzSoftwarePage() {
                 {a.label}
               </a>
             ))}
-            <div className="ml-auto hidden md:flex items-center gap-2 text-xs text-foreground/50">
-              <ShieldCheck className="size-3.5" style={{ color: accent }} />
-              Serverseitig sortiert · nicht käuflich
-            </div>
+            <button
+              type="button"
+              onClick={openFinder}
+              className="ml-auto shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-soft transition hover:opacity-90"
+              style={{ background: "#6C5CE7" }}
+            >
+              <Sparkles className="size-3.5" />
+              Passende Software finden
+            </button>
           </div>
         </div>
       </div>
+
 
       {/* Premium Featured Slot (Anzeige) — freigestellt, klar als Werbung markiert */}
       <section id="premium" className="scroll-mt-32 mx-auto max-w-7xl px-4 sm:px-6 pt-10">
