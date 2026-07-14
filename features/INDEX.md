@@ -169,3 +169,6 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 B-32, M-19, V-16, A-08, INFRA-2. (E, S, R sind abgeschlossen.)
 
 | AD-03 | Autorenseiten (E-E-A-T): Vita, Belege, schema.org Person | P2 | AD-01 | **Geparkt** (Infrastruktur steht, Autorenseite ist bewusst auf 404, weil die Biografie fehlt. Markus liefert Werdegang, Belege, LinkedIn. Erst dann `freigegeben: true` in src/lib/autoren.ts) |
+| A-06 | Launch-Service (Anbieter schreibt Interessenten einer Kategorie an) | P2 | V-04, A-01 | **Fundament gebaut** (Speicherung + Einwilligung + Datenschutz), Versand offen |
+| A-07 | Affiliate- und Partnerprogramme (Provision teilen: Rabatt an den Kunden) | P2 | AD-01 | Roadmap |
+| B-33 | Verhandlungs-Assistent (Entwurf plus Freigabe, im Auftrag des Nutzers) | P2 | B-16, B-32 | Roadmap |
