@@ -46,7 +46,7 @@ export default async function RedaktionPage() {
       <h1 className="font-display text-3xl font-semibold tracking-tight">Redaktion</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         {gesamt.collections} Kategorien in {zeilen.length} Clustern · {gesamt.live} live · {gesamt.produkte} Produkte
-        zugeordnet · {gesamt.finderLive} Finder live
+        zugeordnet · {gesamt.finderLive} Lead-Formulare live
       </p>
 
       <div className="mt-8 overflow-hidden rounded-2xl border bg-card">
@@ -95,7 +95,7 @@ export default async function RedaktionPage() {
                     </div>
                     <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                       <Search className="size-3" />
-                      {c.finder_live} von {c.collections} Findern live
+                      {c.finder_live} von {c.collections} Lead-Formularen live
                       {Number(c.finder_pruef) > 0 && ` · ${c.finder_pruef} in Prüfung`}
                     </span>
                   </div>

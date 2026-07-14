@@ -60,6 +60,7 @@ export default async function ClusterRedaktion({
   const zaehler = {
     alle: alle.length,
     ohneText: alle.filter((x) => x.content_status === "fehlt").length,
+    seiteLive: alle.filter((x) => x.status === "veroeffentlicht").length,
     todo: alle.filter((x) => x.finder_status === "todo").length,
     in_review: alle.filter((x) => x.finder_status === "in_review").length,
     live: alle.filter((x) => x.finder_status === "live").length,
@@ -84,16 +85,22 @@ export default async function ClusterRedaktion({
       </nav>
       <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">{c.name}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        {zaehler.alle} Kategorien, alphabetisch · {zaehler.ohneText} noch unbearbeitet · {zaehler.live} Finder live
+        {zaehler.alle} Kategorien, alphabetisch · {zaehler.seiteLive} Seiten live ·{" "}
+        {zaehler.live} Lead-Formulare live
+      </p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Zwei verschiedene Dinge: eine <strong>Seite</strong> ist live, wenn du sie veröffentlicht hast. Ein{" "}
+        <strong>Lead-Formular</strong> ist live, wenn du den kategoriespezifischen Fragensatz freigegeben hast. Ohne
+        ihn zeigt die Seite nur die generischen Grundfragen.
       </p>
 
       <div className="mt-5 flex flex-wrap gap-1.5">
         {(
           [
             ["alle", `Alle (${zaehler.alle})`],
-            ["todo", `Finder offen (${zaehler.todo})`],
-            ["in_review", `In Prüfung (${zaehler.in_review})`],
-            ["live", `Finder live (${zaehler.live})`],
+            ["todo", `Formular offen (${zaehler.todo})`],
+            ["in_review", `Formular in Prüfung (${zaehler.in_review})`],
+            ["live", `Formular live (${zaehler.live})`],
           ] as const
         ).map(([wert, label]) => {
           const aktiv = (filter ?? "alle") === wert;
@@ -144,7 +151,7 @@ export default async function ClusterRedaktion({
                       </span>
                       <span>{n} Produkte</span>
                       <span className={`rounded-full px-1.5 py-0.5 font-medium ${FINDER_STATUS_STIL[x.finder_status]}`}>
-                        Finder: {FINDER_STATUS_LABEL[x.finder_status]}
+                        Lead-Formular: {FINDER_STATUS_LABEL[x.finder_status]}
                       </span>
                       {x.status === "veroeffentlicht" && <span className="font-medium text-success">live</span>}
                     </div>
