@@ -413,8 +413,10 @@ export function CollectionSeite({
 
   return (
     <div className="min-h-screen">
-      {/* Brotkrumen */}
-      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+      {/* Brotkrumen.
+          Das pb ist nicht Kosmetik: ohne es stoesst die Oberkante des Hero-Bildes
+          direkt an die Zeile, und der Pfad sieht aus, als klebte er am Bild. */}
+      <div className="mx-auto max-w-7xl px-4 pb-7 pt-6 sm:px-6 sm:pb-9">
         <nav aria-label="Brotkrumen" className="text-xs text-foreground/55 sm:text-sm">
           <ol className="flex flex-wrap items-center gap-1.5">
             <li>
