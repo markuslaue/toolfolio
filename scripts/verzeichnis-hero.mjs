@@ -28,9 +28,10 @@ const MODELL = "gpt-image-1";
 const GROESSE = "1536x1024";
 const STANDARD_LIMIT = 25;
 
-const key = process.env.OPENAI_API_KEY;
+// Beide Schreibweisen: in der Server-Env steht OPEN_AI_API_KEY.
+const key = process.env.OPENAI_API_KEY ?? process.env.OPEN_AI_API_KEY;
 if (!key) {
-  console.error("Kein OPENAI_API_KEY gefunden.");
+  console.error("Kein OpenAI-Schluessel gefunden (OPENAI_API_KEY oder OPEN_AI_API_KEY).");
   console.error("Ohne Bild-Schluessel kann nichts erzeugt werden. Der Hero faellt dann auf den");
   console.error("Farbverlauf zurueck, die Seiten funktionieren also trotzdem.");
   process.exit(1);

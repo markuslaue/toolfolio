@@ -29,8 +29,19 @@ export type HeroErgebnis =
   | { ok: true; url: string; prompt: string }
   | { ok: false; fehler: string };
 
+/**
+ * Der Schluessel.
+ *
+ * Beide Schreibweisen sind zugelassen. Nicht aus Bequemlichkeit: in der Server-Env
+ * steht OPEN_AI_API_KEY, und ein Deploy, der an einem Unterstrich scheitert, ist die
+ * duemmste Art, eine Nacht zu verlieren.
+ */
+function bildKey(): string | undefined {
+  return process.env.OPENAI_API_KEY ?? process.env.OPEN_AI_API_KEY;
+}
+
 export function bildApiVerfuegbar(): boolean {
-  return Boolean(process.env.OPENAI_API_KEY);
+  return Boolean(bildKey());
 }
 
 /**
@@ -74,11 +85,11 @@ export async function erzeugeHero(
   collectionName: string,
   clusterName: string,
 ): Promise<HeroErgebnis> {
-  const key = process.env.OPENAI_API_KEY;
+  const key = bildKey();
   if (!key) {
     return {
       ok: false,
-      fehler: "Kein OPENAI_API_KEY in der Server-Umgebung. Ohne Schlüssel können wir keine Bilder erzeugen.",
+      fehler: "Kein OpenAI-Schlüssel in der Server-Umgebung. Ohne ihn können wir keine Bilder erzeugen.",
     };
   }
 
