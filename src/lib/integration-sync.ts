@@ -39,7 +39,28 @@ export async function syncIntegration(i: IntegrationRow): Promise<{ ok: boolean;
     return { ok: false, fehler };
   }
 
-  // Zuwachs seit dem letzten Sync in den laufenden Monat buchen.
+  const kurs = Number(i.kurs ?? 1);
+
+  /* Fall A: Der Anbieter liefert DATIERTE Monatswerte (OpenAI, Anthropic).
+     Dann schreiben wir sie exakt, statt einen Zuwachs zu buchen. Das ist nicht nur
+     genauer, es behebt auch einen echten Fehler des Zuwachs-Modells: der Zuwachs
+     landet immer im LAUFENDEN Monat, also faellt der Verbrauch der letzten Junitage
+     in den Juli, wenn der Abgleich am 1. um 3 Uhr laeuft.
+
+     Wir ueberschreiben hier bewusst: der Anbieter ist die Wahrheit ueber seine
+     eigenen Kosten, nicht unser letzter Stand. */
+  if (verbrauch.monate && verbrauch.monate.length > 0 && i.ai_service_id) {
+    for (const m of verbrauch.monate) {
+      const betragEur = Math.round(m.betrag * kurs * 100) / 100;
+      await admin.from("ai_spend").upsert(
+        { user_id: i.user_id, service_id: i.ai_service_id, jahr: m.jahr, monat: m.monat, betrag: betragEur },
+        { onConflict: "service_id,jahr,monat" },
+      );
+    }
+  }
+
+  // Fall B: Der Anbieter kennt nur einen Gesamtstand (DataForSEO).
+  // Dann buchen wir den Zuwachs seit dem letzten Sync in den laufenden Monat.
   if (verbrauch.kumuliertAusgegeben !== null && i.ai_service_id) {
     const vorher = Number(i.kumuliert_ausgegeben ?? 0);
     const zuwachs = Math.max(0, verbrauch.kumuliertAusgegeben - vorher);

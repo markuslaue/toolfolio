@@ -172,6 +172,7 @@ B-32, M-19, V-16, A-08, INFRA-2. (E, S, R sind abgeschlossen.)
 | A-06 | Launch-Service (Anbieter schreibt Interessenten einer Kategorie an) | P2 | V-04, A-01 | **Fundament gebaut** (Speicherung + Einwilligung + Datenschutz), Versand offen |
 | A-07 | Affiliate- und Partnerprogramme (Provision teilen: Rabatt an den Kunden) | P2 | AD-01 | Roadmap |
 | B-33 | Verhandlungs-Assistent (Entwurf plus Freigabe, im Auftrag des Nutzers) | P2 | B-16, B-32 | Roadmap |
+| B-34 | KI-Anbieter live anschliessen (OpenAI, Anthropic: echte Tageskosten) | P1 | B-24, B-13 | In Progress (gebaut, Test gegen echten Admin-Key offen) |
 
 ---
 

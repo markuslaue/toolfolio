@@ -112,15 +112,37 @@ export async function verbinden(_prev: IntegrationResult, formData: FormData): P
     .upsert({ integration_id: integration.id, ciphertext: v.ciphertext, iv: v.iv, tag: v.tag }, { onConflict: "integration_id" });
   if (sErr) return { error: "Zugangsdaten konnten nicht sicher gespeichert werden." };
 
+  /* Liefert der Anbieter datierte Monatswerte (OpenAI, Anthropic), schreiben wir sie
+     SOFORT. Sonst starrt der Nutzer bis zum naechsten naechtlichen Abgleich auf eine
+     leere Kurve und denkt, die Verbindung sei kaputt. */
+  if (verbrauch.monate && verbrauch.monate.length > 0) {
+    for (const m of verbrauch.monate) {
+      await admin.from("ai_spend").upsert(
+        {
+          user_id: account,
+          service_id: serviceId,
+          jahr: m.jahr,
+          monat: m.monat,
+          betrag: Math.round(m.betrag * kurs * 100) / 100,
+        },
+        { onConflict: "service_id,jahr,monat" },
+      );
+    }
+  }
+
   revalidatePath("/app/einstellungen/integrationen");
   revalidatePath("/app/ai-credits");
-  return {
-    ok: true,
-    hinweis:
-      verbrauch.guthaben !== null
-        ? `Verbunden. Aktuelles Guthaben: ${verbrauch.guthaben.toFixed(2).replace(".", ",")}.`
-        : "Verbunden.",
-  };
+
+  let hinweis = "Verbunden.";
+  if (verbrauch.guthaben !== null) {
+    hinweis = `Verbunden. Aktuelles Guthaben: ${verbrauch.guthaben.toFixed(2).replace(".", ",")}.`;
+  } else if (verbrauch.monate && verbrauch.monate.length > 0) {
+    const n = verbrauch.monate.length;
+    hinweis = `Verbunden. ${n} ${n === 1 ? "Monat" : "Monate"} echte Kosten übernommen.`;
+  } else if (verbrauch.monate) {
+    hinweis = "Verbunden. Für die letzten zwölf Monate meldet der Anbieter keine Kosten.";
+  }
+  return { ok: true, hinweis };
 }
 
 function maskiere(login: string): string {

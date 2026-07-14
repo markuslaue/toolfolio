@@ -10,7 +10,7 @@ export type UsageCapability = "full" | "partial" | "spend_only";
 
 export type AuthTyp = "basic" | "apikey";
 
-export type ProviderId = "dataforseo";
+export type ProviderId = "dataforseo" | "openai" | "anthropic";
 
 export interface AiProvider {
   id: ProviderId;
@@ -58,6 +58,48 @@ export const PROVIDERS: AiProvider[] = [
     warnung:
       "DataForSEO bietet nur Basic Auth (Login + Passwort), kein Token. Wir speichern die Zugangsdaten verschlüsselt, geben sie nie aus und nutzen ausschliesslich lesende Endpunkte.",
   },
+  {
+    id: "openai",
+    name: "OpenAI",
+    farbe: "#10A37F",
+    beschreibung:
+      "Liest die tatsächlichen Kosten deiner Organisation pro Tag. Damit siehst du den Verbrauch live, statt ihn aus der Monatsrechnung zu schätzen.",
+    capability: "spend_only",
+    authTyp: "apikey",
+    waehrung: "USD",
+    felder: [
+      {
+        key: "admin_key",
+        label: "Admin-API-Key",
+        typ: "password",
+        placeholder: "sk-admin-...",
+      },
+    ],
+    keyUrl: "https://platform.openai.com/settings/organization/admin-keys",
+    warnung:
+      "Es muss ein Admin-Key sein (beginnt mit sk-admin-), kein normaler API-Key: nur der darf die Kosten-Endpunkte lesen. Er kann keine Anfragen an Modelle stellen und kostet dich also nichts. Wir speichern ihn verschlüsselt, geben ihn nie aus und lesen ausschliesslich Kosten.",
+  },
+  {
+    id: "anthropic",
+    name: "Anthropic (Claude)",
+    farbe: "#CC785C",
+    beschreibung:
+      "Liest den Kostenbericht deiner Organisation pro Tag. Verbrauch live statt geschätzt.",
+    capability: "spend_only",
+    authTyp: "apikey",
+    waehrung: "USD",
+    felder: [
+      {
+        key: "admin_key",
+        label: "Admin-API-Key",
+        typ: "password",
+        placeholder: "sk-ant-admin...",
+      },
+    ],
+    keyUrl: "https://console.anthropic.com/settings/admin-keys",
+    warnung:
+      "Es muss ein Admin-Key sein (beginnt mit sk-ant-admin), kein normaler API-Key: nur der darf den Kostenbericht lesen. Er kann keine Anfragen an Modelle stellen. Wir speichern ihn verschlüsselt, geben ihn nie aus und lesen ausschliesslich Kosten.",
+  },
 ];
 
 export function provider(id: string): AiProvider | undefined {
@@ -66,8 +108,18 @@ export function provider(id: string): AiProvider | undefined {
 
 /** Was ein Sync vom Anbieter zurueckbringt. */
 export type Verbrauch = {
-  /** Restguthaben in EUR/USD laut Anbieter. */
+  /** Restguthaben in EUR/USD laut Anbieter. Postpaid-Anbieter liefern null. */
   guthaben: number | null;
   /** Insgesamt verbrauchter Betrag seit Kontoeroeffnung (kumuliert). */
   kumuliertAusgegeben: number | null;
+  /**
+   * EXAKTE Monatswerte, wenn der Anbieter datierte Tageswerte liefert
+   * (OpenAI, Anthropic). Betrag in der Waehrung des Anbieters.
+   *
+   * Warum das besser ist als der kumulierte Zuwachs: Der Zuwachs seit dem letzten
+   * Abgleich landet immer im LAUFENDEN Monat. Laeuft der Abgleich am 1. um 3 Uhr,
+   * faellt der Verbrauch der letzten Tage des Vormonats faelschlich in den neuen.
+   * Wer datierte Werte liefert, bekommt deshalb exakte Monatszahlen geschrieben.
+   */
+  monate?: { jahr: number; monat: number; betrag: number }[];
 };

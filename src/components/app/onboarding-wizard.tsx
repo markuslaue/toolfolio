@@ -594,17 +594,13 @@ function Schritt3({
 /**
  * AI-Services.
  *
- * EHRLICHKEIT: Die Vorlage zeigt hier fuenf KI-Anbieter (OpenAI, Anthropic, Gemini,
- * Perplexity, xAI) mit funktionierenden Verbinden-Knoepfen. Anschliessbar ist bei uns
- * bisher nur, was in PROVIDERS steht. Fuer den Rest waere ein Knopf, der nichts tut,
- * eine Luege. Deshalb steht dort, was stimmt: in Vorbereitung.
- * Der Live-Anschluss der KI-Anbieter ist als B-34 im Plan.
+ * Anschliessbar ist genau das, was in PROVIDERS steht (B-34: OpenAI und Anthropic
+ * lesen echte Tageskosten, DataForSEO das Restguthaben). Fuer alles andere waere ein
+ * Verbinden-Knopf, der nichts tut, eine Luege. Deshalb steht dort, was stimmt.
  */
 const GEPLANT = [
-  { name: "OpenAI", farbe: "#10a37f", initial: "O" },
-  { name: "Anthropic (Claude)", farbe: "#cc785c", initial: "C" },
-  { name: "Google Gemini", farbe: "#4285f4", initial: "G" },
-  { name: "Perplexity", farbe: "#20808d", initial: "P" },
+  { name: "Google Gemini", farbe: "#4285F4", initial: "G" },
+  { name: "Perplexity", farbe: "#20808D", initial: "P" },
 ];
 
 function SchrittAi() {
