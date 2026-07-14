@@ -50,7 +50,7 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
   const { data } = await admin
     .from("dir_collection")
     .select(
-      "id, name, slug, h1, intro_md, content_md, content_status, content_woerter, experten_zitat, autor_slug, status, content_erzeugt_am, dir_cluster(name, slug)",
+      "id, name, slug, h1, intro_md, content_md, content_status, content_woerter, experten_zitat, autor_slug, status, content_erzeugt_am, hero_url, hero_autor, hero_autor_url, hero_quelle, hero_quelle_url, dir_cluster(name, slug)",
     )
     .eq("slug", collection)
     .maybeSingle();
@@ -128,6 +128,17 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
           content_md: data.content_md,
           experten_zitat: data.experten_zitat,
           aktualisiert,
+          // Ohne Quellenangabe wird das Bild NICHT ausgespielt. Lizenznachweis ist Pflicht.
+          hero:
+            data.hero_url && data.hero_quelle
+              ? {
+                  url: data.hero_url,
+                  autor: data.hero_autor,
+                  autorUrl: data.hero_autor_url,
+                  quelle: data.hero_quelle,
+                  quelleUrl: data.hero_quelle_url,
+                }
+              : null,
         }}
         cluster={cluster}
         produkte={produkte}

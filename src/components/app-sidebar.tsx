@@ -20,6 +20,7 @@ import {
   Armchair,
   ClipboardCheck,
   Settings,
+  ShieldCheck,
 } from "lucide-react";
 import { ToolfolioLogo } from "@/components/brand";
 import { cn } from "@/lib/utils";
@@ -44,7 +45,7 @@ const items = [
   { href: "/app/einstellungen", label: "Einstellungen", icon: Settings },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ istStaff = false }: { istStaff?: boolean }) {
   const pathname = usePathname();
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r bg-card md:flex">
@@ -76,6 +77,26 @@ export function AppSidebar() {
             </Link>
           );
         })}
+
+        {/* Admin-Backend. Nur fuer Inhaber-/Redaktionskonten (is_staff), und bewusst
+            abgesetzt: das ist eine andere Welt als der Tracker. */}
+        {istStaff && (
+          <>
+            <div className="my-3 border-t" />
+            <Link
+              href="/admin"
+              className={cn(
+                "flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition-colors",
+                pathname.startsWith("/admin")
+                  ? "bg-foreground text-background"
+                  : "text-foreground/70 hover:bg-muted hover:text-foreground",
+              )}
+            >
+              <ShieldCheck className="size-4" />
+              Admin-Dashboard
+            </Link>
+          </>
+        )}
       </nav>
       <div className="border-t p-4 text-xs text-muted-foreground">
         Free Plan

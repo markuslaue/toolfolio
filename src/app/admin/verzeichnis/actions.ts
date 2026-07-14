@@ -20,7 +20,7 @@ export async function setProduktStatus(produktId: string, status: string, collec
   const { error } = await w.admin.from("dir_produkt").update({ status: parsed.data }).eq("id", produktId);
   if (error) return { error: "Status konnte nicht gesetzt werden." };
 
-  revalidatePath(`/redaktion/collection/${collectionSlug}`);
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
 
@@ -40,7 +40,7 @@ export async function setProduktStatusViele(
   const { error } = await w.admin.from("dir_produkt").update({ status: parsed.data }).in("id", produktIds);
   if (error) return { error: "Status konnte nicht gesetzt werden." };
 
-  revalidatePath(`/redaktion/collection/${collectionSlug}`);
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
 
@@ -60,7 +60,7 @@ export async function entferneAusCollection(
     .eq("collection_id", collectionId);
   if (error) return { error: "Zuordnung konnte nicht entfernt werden." };
 
-  revalidatePath(`/redaktion/collection/${collectionSlug}`);
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
 
@@ -85,7 +85,7 @@ export async function korrigiereProdukt(
     .eq("id", produktId);
   if (error) return { error: "Konnte nicht gespeichert werden." };
 
-  revalidatePath(`/redaktion/collection/${collectionSlug}`);
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
 
@@ -109,7 +109,7 @@ export async function setZone(
     .eq("collection_id", collectionId);
   if (error) return { error: "Zone konnte nicht gesetzt werden." };
 
-  revalidatePath(`/redaktion/collection/${collectionSlug}`);
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
 
@@ -126,7 +126,7 @@ export async function gibContentFrei(collectionId: string, collectionSlug: strin
     .eq("id", collectionId);
   if (error) return { error: "Freigabe fehlgeschlagen." };
 
-  revalidatePath(`/redaktion/collection/${collectionSlug}`);
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
 
@@ -151,7 +151,7 @@ export async function veroeffentliche(collectionId: string, collectionSlug: stri
     };
   }
 
-  revalidatePath(`/redaktion/collection/${collectionSlug}`);
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   revalidatePath("/verzeichnis", "layout");
   return { ok: true };
 }
@@ -164,7 +164,7 @@ export async function zurueckInEntwurf(collectionId: string, collectionSlug: str
   const { error } = await w.admin.from("dir_collection").update({ status: "entwurf" }).eq("id", collectionId);
   if (error) return { error: "Konnte nicht zurückgenommen werden." };
 
-  revalidatePath(`/redaktion/collection/${collectionSlug}`);
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   revalidatePath("/verzeichnis", "layout");
   return { ok: true };
 }

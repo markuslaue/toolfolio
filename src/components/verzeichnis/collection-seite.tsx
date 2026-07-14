@@ -27,6 +27,7 @@ import {
   Users,
 } from "lucide-react";
 import { ExpertenZitat, AutorBox } from "@/components/verzeichnis/experte";
+import { HeroHintergrund, type HeroBild } from "@/components/verzeichnis/hero-hintergrund";
 import { produktInitialen, type ProduktInZone, type Bewertung, type Zone } from "@/lib/verzeichnis";
 import type { Autor } from "@/lib/autoren";
 
@@ -40,6 +41,7 @@ export type CollectionDaten = {
   content_md: string | null;
   experten_zitat: string | null;
   aktualisiert: string | null;
+  hero: HeroBild | null;
 };
 
 export type ClusterDaten = { name: string; slug: string };
@@ -423,15 +425,9 @@ export function CollectionSeite({
         </nav>
       </div>
 
-      {/* Kopf */}
+      {/* Kopf. Das Hintergrundbild sitzt zwischen Brotkrumen und Sprungnavigation. */}
       <section className="relative overflow-hidden">
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10"
-          style={{
-            background: `radial-gradient(58% 55% at 12% 10%, ${akzent}22, transparent 65%), radial-gradient(45% 45% at 95% 5%, #6C5CE714, transparent 60%)`,
-          }}
-        />
+        <HeroHintergrund bild={collection.hero} akzent={akzent} />
         <div className="mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-6 sm:pb-16 sm:pt-12">
           <div className="grid items-end gap-10 lg:grid-cols-[1.35fr_1fr] lg:gap-14">
             <div>
@@ -479,7 +475,7 @@ export function CollectionSeite({
             </div>
 
             {/* Snapshot: NUR was wir wirklich wissen. */}
-            <div className="relative rounded-3xl border bg-card p-5 shadow-lift sm:p-6">
+            <div className="relative rounded-3xl border bg-card/95 p-5 shadow-lift backdrop-blur-sm sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-foreground/50">
                   <Info className="size-3.5" style={{ color: akzent }} /> Was wir wissen

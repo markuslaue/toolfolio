@@ -18,7 +18,7 @@ type Coll = {
 
 export default async function ClusterRedaktion({ params }: { params: Promise<{ cluster: string }> }) {
   const { cluster } = await params;
-  const { admin } = await redaktionOderRaus(`/redaktion/${cluster}`);
+  const { admin } = await redaktionOderRaus(`/admin/verzeichnis/${cluster}`);
 
   const { data: c } = await admin.from("dir_cluster").select("id, name, slug").eq("slug", cluster).maybeSingle();
   if (!c) notFound();
@@ -44,7 +44,7 @@ export default async function ClusterRedaktion({ params }: { params: Promise<{ c
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <nav className="text-sm text-muted-foreground">
-        <Link href="/redaktion" className="hover:text-foreground">
+        <Link href="/admin/verzeichnis" className="hover:text-foreground">
           Redaktion
         </Link>
       </nav>
@@ -58,7 +58,7 @@ export default async function ClusterRedaktion({ params }: { params: Promise<{ c
             return (
               <li key={x.id}>
                 <Link
-                  href={`/redaktion/collection/${x.slug}`}
+                  href={`/admin/verzeichnis/collection/${x.slug}`}
                   className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/40"
                 >
                   <span className="w-8 shrink-0 text-xs font-mono text-muted-foreground">P{x.prio}</span>

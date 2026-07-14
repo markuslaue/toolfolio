@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Kuratierung", robots: { index: false
 
 export default async function KuratierungsSeite({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { admin } = await redaktionOderRaus(`/redaktion/collection/${slug}`);
+  const { admin } = await redaktionOderRaus(`/admin/verzeichnis/collection/${slug}`);
 
   const { data } = await admin
     .from("dir_collection")

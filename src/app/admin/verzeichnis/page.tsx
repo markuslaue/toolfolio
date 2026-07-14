@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Redaktion", robots: { index: false, 
 type ClusterRow = { id: string; name: string; slug: string; farbe: string; status: string };
 
 export default async function RedaktionPage() {
-  const { admin } = await redaktionOderRaus("/redaktion");
+  const { admin } = await redaktionOderRaus("/admin/verzeichnis");
 
   const [{ data: cluster }, { data: collections }, { data: zuordnungen }] = await Promise.all([
     admin.from("dir_cluster").select("id, name, slug, farbe, status").order("name"),
@@ -53,7 +53,7 @@ export default async function RedaktionPage() {
           {zeilen.map((c) => (
             <li key={c.id}>
               <Link
-                href={`/redaktion/${c.slug}`}
+                href={`/admin/verzeichnis/${c.slug}`}
                 className="flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-muted/40"
               >
                 <span className="size-3 shrink-0 rounded-full" style={{ background: c.farbe }} />

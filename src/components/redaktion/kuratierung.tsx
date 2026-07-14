@@ -31,7 +31,7 @@ import {
   gibContentFrei,
   veroeffentliche,
   zurueckInEntwurf,
-} from "@/app/(site)/redaktion/actions";
+} from "@/app/admin/verzeichnis/actions";
 
 export type CmsProdukt = {
   id: string;
@@ -130,11 +130,11 @@ export function Kuratierung({ collection, produkte }: { collection: CmsCollectio
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       {/* Kopf */}
       <nav className="text-sm text-muted-foreground">
-        <Link href="/redaktion" className="hover:text-foreground">
+        <Link href="/admin/verzeichnis" className="hover:text-foreground">
           Redaktion
         </Link>
         {" · "}
-        <Link href={`/redaktion/${collection.cluster.slug}`} className="hover:text-foreground">
+        <Link href={`/admin/verzeichnis/${collection.cluster.slug}`} className="hover:text-foreground">
           {collection.cluster.name}
         </Link>
       </nav>
