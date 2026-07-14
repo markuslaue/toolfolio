@@ -140,6 +140,24 @@ export async function veroeffentliche(collectionId: string, collectionSlug: stri
   const w = await redaktionOderFehler();
   if (!w.ok) return { error: w.error };
 
+  /* DEN HUB MITNEHMEN.
+     Eine veroeffentlichte Kategorie unter einem Cluster im Entwurf ist ein Widerspruch:
+     die RLS blendet den Cluster fuer anonyme Besucher aus, die Seite findet ihren
+     eigenen Hub nicht mehr und stuerzt ab. Genau das ist passiert. Wer eine Kategorie
+     freigibt, gibt damit zwangslaeufig auch ihren Hub frei. */
+  const { data: coll } = await w.admin
+    .from("dir_collection")
+    .select("cluster_id")
+    .eq("id", collectionId)
+    .maybeSingle();
+  if (coll?.cluster_id) {
+    await w.admin
+      .from("dir_cluster")
+      .update({ status: "veroeffentlicht" })
+      .eq("id", coll.cluster_id)
+      .eq("status", "entwurf");
+  }
+
   const { error } = await w.admin
     .from("dir_collection")
     .update({ status: "veroeffentlicht" })

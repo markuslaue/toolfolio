@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Kuratierung, type CmsProdukt, type CmsCollection } from "@/components/redaktion/kuratierung";
+import { LaufKarte } from "@/components/redaktion/lauf-karte";
 import { redaktionOderRaus } from "@/lib/redaktion";
 import type { ProduktStatus } from "@/lib/redaktion-status";
 
@@ -53,5 +54,27 @@ export default async function KuratierungsSeite({ params }: { params: Promise<{ 
     cluster: (data.dir_cluster as unknown as { name: string; slug: string }) ?? { name: "Verzeichnis", slug: "" },
   };
 
-  return <Kuratierung collection={collection} produkte={produkte} />;
+  /* Der letzte Lauf dieser Kategorie. Laeuft er noch, nimmt die Karte den Faden auf
+     und liest weiter mit: ein Reload darf einen laufenden Lauf nicht "verlieren". */
+  const { data: lauf } = await admin
+    .from("dir_lauf")
+    .select("id, status, phase, protokoll, ergebnis, beendet_am")
+    .eq("collection_id", data.id)
+    .order("gestartet_am", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return (
+    <>
+      <div className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">
+        <LaufKarte
+          collectionId={collection.id}
+          collectionName={collection.name}
+          produkteVorhanden={produkte.length}
+          letzterLauf={(lauf as never) ?? null}
+        />
+      </div>
+      <Kuratierung collection={collection} produkte={produkte} />
+    </>
+  );
 }

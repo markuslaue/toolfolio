@@ -182,6 +182,12 @@ export async function getCollection(slug: string): Promise<{ collection: Collect
   const produkte: ProduktInZone[] = ((cp ?? []) as unknown as { zone: Zone; position: number; gesponsert_bis: string | null; tags: string[] | null; dir_produkt: Produkt }[])
     .filter((r) => r.dir_produkt)
     .map((r) => ({ ...r.dir_produkt, zone: r.zone, position: r.position, gesponsert_bis: r.gesponsert_bis, tags: r.tags ?? [] }));
+  /* Kein Cluster? Dann steht er im Entwurf und die RLS blendet ihn fuer anonyme
+     Besucher aus. Frueher lief das in einen Absturz (cluster.slug auf null). Eine
+     Kategorie ohne sichtbaren Hub ist unvollstaendig, also gibt es sie fuer den
+     Besucher gar nicht: notFound statt 500. */
+  if (!cluster) return null;
+
   return { collection: co, cluster: cluster as Cluster, produkte };
 }
 

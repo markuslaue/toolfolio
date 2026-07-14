@@ -27,7 +27,10 @@ export async function redaktionOderRaus(weiter?: string) {
 }
 
 /** Dieselbe Pruefung fuer Server-Actions. Wirft, statt umzuleiten. */
-export async function redaktionOderFehler(): Promise<{ ok: true; admin: ReturnType<typeof createAdminClient> } | { ok: false; error: string }> {
+export async function redaktionOderFehler(): Promise<
+  | { ok: true; admin: ReturnType<typeof createAdminClient>; user: { id: string } }
+  | { ok: false; error: string }
+> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -37,7 +40,8 @@ export async function redaktionOderFehler(): Promise<{ ok: true; admin: ReturnTy
   const { data: profil } = await supabase.from("profiles").select("is_staff").eq("id", user.id).maybeSingle();
   if (!profil?.is_staff) return { ok: false, error: "Dafür brauchst du ein Redaktionskonto." };
 
-  return { ok: true, admin: createAdminClient() };
+  // Der Nutzer wird mitgegeben: ein Lauf muss protokollieren, WER ihn gestartet hat.
+  return { ok: true, admin: createAdminClient(), user: { id: user.id } };
 }
 
 export { PRODUKT_STATUS, PRODUKT_STATUS_LABEL, PRODUKT_STATUS_STIL, type ProduktStatus } from "@/lib/redaktion-status";

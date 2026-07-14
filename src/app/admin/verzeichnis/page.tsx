@@ -5,71 +5,40 @@ import { redaktionOderRaus } from "@/lib/redaktion";
 
 export const metadata: Metadata = { title: "Redaktion", robots: { index: false, follow: false } };
 
-type ClusterRow = { id: string; name: string; slug: string; farbe: string; status: string };
+/**
+ * Eine Zeile der Sicht dir_cluster_stats.
+ *
+ * Diese Seite stellte frueher 183 Abfragen: je Cluster fuenf Zaehlungen, dann alle
+ * Collection-IDs geladen und die Produkte mit einem Filter ueber bis zu 1000 UUIDs
+ * gezaehlt. Das war nicht langsam, weil das Verzeichnis gross ist, sondern weil die
+ * Arbeit im Anwendungscode statt in der Datenbank gemacht wurde. Jetzt: eine Abfrage.
+ */
+type ClusterStat = {
+  id: string;
+  name: string;
+  slug: string;
+  farbe: string;
+  status: string;
+  collections: number;
+  live: number;
+  mit_text: number;
+  text_ungeprueft: number;
+  finder_live: number;
+  finder_pruef: number;
+  produkte: number;
+};
 
 export default async function RedaktionPage() {
   const { admin } = await redaktionOderRaus("/admin/verzeichnis");
 
-  const { data: cluster } = await admin.from("dir_cluster").select("id, name, slug, farbe, status").order("name");
-
-  /* Achtung: Supabase deckelt ein select ohne Grenze STILL bei 1000 Zeilen, und das
-     Verzeichnis hat 1292 Kategorien. Deshalb je Cluster zaehlen statt alles laden.
-     Ein "select id, cluster_id" haette hier 292 Kategorien verschluckt, ohne Fehler. */
-  const zeilen = await Promise.all(
-    ((cluster as ClusterRow[]) ?? []).map(async (c) => {
-      const [gesamtZ, liveZ, ohneTextZ, finderLiveZ, finderPruefZ, collIds] = await Promise.all([
-        admin.from("dir_collection").select("*", { count: "exact", head: true }).eq("cluster_id", c.id),
-        admin
-          .from("dir_collection")
-          .select("*", { count: "exact", head: true })
-          .eq("cluster_id", c.id)
-          .eq("status", "veroeffentlicht"),
-        admin
-          .from("dir_collection")
-          .select("*", { count: "exact", head: true })
-          .eq("cluster_id", c.id)
-          .eq("content_status", "fehlt"),
-        // Der Finder-Fortschritt ist die eigentliche Steuerung des Rollouts:
-        // jede Kategorie braucht einen eigenen Fragensatz, und wir arbeiten Hub fuer Hub.
-        admin
-          .from("dir_collection")
-          .select("*", { count: "exact", head: true })
-          .eq("cluster_id", c.id)
-          .eq("finder_status", "live"),
-        admin
-          .from("dir_collection")
-          .select("*", { count: "exact", head: true })
-          .eq("cluster_id", c.id)
-          .eq("finder_status", "in_review"),
-        admin.from("dir_collection").select("id").eq("cluster_id", c.id).limit(1000),
-      ]);
-
-      const ids = ((collIds.data as { id: string }[]) ?? []).map((x) => x.id);
-      const { count: produkte } = ids.length
-        ? await admin
-            .from("dir_collection_produkt")
-            .select("*", { count: "exact", head: true })
-            .in("collection_id", ids)
-        : { count: 0 };
-
-      const anzahl = gesamtZ.count ?? 0;
-      return {
-        ...c,
-        collections: anzahl,
-        live: liveZ.count ?? 0,
-        mitText: anzahl - (ohneTextZ.count ?? 0),
-        produkte: produkte ?? 0,
-        finderLive: finderLiveZ.count ?? 0,
-        finderPruef: finderPruefZ.count ?? 0,
-      };
-    }),
-  );
+  const { data } = await admin.from("dir_cluster_stats").select("*").order("name");
+  const zeilen = (data as ClusterStat[]) ?? [];
 
   const gesamt = {
-    collections: zeilen.reduce((s, z) => s + z.collections, 0),
-    live: zeilen.reduce((s, z) => s + z.live, 0),
-    produkte: zeilen.reduce((s, z) => s + z.produkte, 0),
-    finderLive: zeilen.reduce((s, z) => s + z.finderLive, 0),
+    collections: zeilen.reduce((s, z) => s + Number(z.collections), 0),
+    live: zeilen.reduce((s, z) => s + Number(z.live), 0),
+    produkte: zeilen.reduce((s, z) => s + Number(z.produkte), 0),
+    finderLive: zeilen.reduce((s, z) => s + Number(z.finder_live), 0),
   };
 
   return (
@@ -90,16 +59,26 @@ export default async function RedaktionPage() {
               >
                 <span className="size-3 shrink-0 rounded-full" style={{ background: c.farbe }} />
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium">{c.name}</div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium">{c.name}</span>
+                    {c.status === "veroeffentlicht" && (
+                      <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800">
+                        Hub live
+                      </span>
+                    )}
+                  </div>
                   <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
                     <span>{c.collections} Kategorien</span>
                     <span className="inline-flex items-center gap-1">
-                      <FileText className="size-3" /> {c.mitText} mit Text
+                      <FileText className="size-3" /> {c.mit_text} mit Text
+                      {Number(c.text_ungeprueft) > 0 && (
+                        <span className="text-warning">({c.text_ungeprueft} ungeprüft)</span>
+                      )}
                     </span>
                     <span className="inline-flex items-center gap-1">
                       <Package className="size-3" /> {c.produkte} Produkte
                     </span>
-                    {c.live > 0 && <span className="font-medium text-success">{c.live} live</span>}
+                    {Number(c.live) > 0 && <span className="font-medium text-success">{c.live} live</span>}
                   </div>
 
                   {/* Finder-Fortschritt: die Steuerung des Rollouts. Jede Kategorie
@@ -109,13 +88,15 @@ export default async function RedaktionPage() {
                     <div className="h-1 w-24 overflow-hidden rounded-full bg-secondary">
                       <div
                         className="h-full rounded-full bg-emerald-500"
-                        style={{ width: `${c.collections ? (c.finderLive / c.collections) * 100 : 0}%` }}
+                        style={{
+                          width: `${Number(c.collections) ? (Number(c.finder_live) / Number(c.collections)) * 100 : 0}%`,
+                        }}
                       />
                     </div>
                     <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                       <Search className="size-3" />
-                      {c.finderLive} von {c.collections} Findern live
-                      {c.finderPruef > 0 && ` · ${c.finderPruef} in Prüfung`}
+                      {c.finder_live} von {c.collections} Findern live
+                      {Number(c.finder_pruef) > 0 && ` · ${c.finder_pruef} in Prüfung`}
                     </span>
                   </div>
                 </div>
