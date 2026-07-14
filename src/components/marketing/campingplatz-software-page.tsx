@@ -485,13 +485,6 @@ export function CampingplatzSoftwarePage() {
                 "radial-gradient(120% 90% at 0% 0%, rgba(245,166,35,0.10), transparent 55%), radial-gradient(90% 80% at 100% 100%, rgba(108,92,231,0.08), transparent 60%)",
             }}
           >
-            {/* Ecken-Streifen "Anzeige" */}
-            <div
-              aria-hidden
-              className="absolute -right-14 top-6 rotate-45 bg-[#F5A623] text-[10px] font-black uppercase tracking-widest text-[#1F1D2B] px-16 py-1 shadow-soft"
-            >
-              Anzeige
-            </div>
 
             <div className="grid lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,1fr)] gap-0">
               {/* Content */}
