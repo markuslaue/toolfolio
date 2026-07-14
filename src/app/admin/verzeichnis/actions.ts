@@ -170,6 +170,23 @@ export async function veroeffentliche(collectionId: string, collectionSlug: stri
     };
   }
 
+  /* Den oeffentlichen Cache GEZIELT verwerfen.
+     revalidatePath("/verzeichnis", "layout") sieht so aus, als raeume es alles auf,
+     trifft die vorgerenderte Collection-Seite aber nicht zuverlaessig. Die Route ist
+     ISR mit 600 Sekunden, und wenn der alte Stand ein 404 war (weil der Hub noch im
+     Entwurf stand), bleibt die frisch freigegebene Seite bis zu zehn Minuten lang eine
+     404. Genau das ist passiert. Deshalb hier der konkrete Pfad. */
+  const { data: pfad } = await w.admin
+    .from("dir_collection")
+    .select("slug, dir_cluster(slug)")
+    .eq("id", collectionId)
+    .maybeSingle();
+  const clusterSlug = (pfad?.dir_cluster as unknown as { slug: string } | null)?.slug;
+  if (clusterSlug && pfad?.slug) {
+    revalidatePath(`/verzeichnis/${clusterSlug}/${pfad.slug}`);
+    revalidatePath(`/verzeichnis/${clusterSlug}`);
+  }
+
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   revalidatePath("/verzeichnis", "layout");
   return { ok: true };
