@@ -191,9 +191,13 @@ for (const kw of keywords) {
       console.log(`${treffer.length} Treffer, ${echte.length} Anbieterseiten`);
       for (const t of echte) {
         const d = domain(t.url);
+        const abfrage = `${kw}|${loc.land}`;
         const vorhanden = kandidaten.get(d);
         if (vorhanden) {
-          vorhanden.treffer += 1;
+          // Eine Domain kann in EINER SERP mit mehreren Unterseiten stehen. Die zaehlen
+          // wir nicht mehrfach: relevant ist, in wie vielen ABFRAGEN sie auftaucht.
+          vorhanden.abfragen.add(abfrage);
+          vorhanden.treffer = vorhanden.abfragen.size;
           vorhanden.bestePos = Math.min(vorhanden.bestePos, t.pos);
           if (t.quelle === "anzeige") vorhanden.wirbt = true;
         } else {
@@ -202,6 +206,7 @@ for (const kw of keywords) {
             name: nameAus(t.titel, t.url),
             url: `https://${d}`,
             titel: t.titel,
+            abfragen: new Set([abfrage]),
             treffer: 1,
             bestePos: t.pos,
             wirbt: t.quelle === "anzeige",
@@ -216,7 +221,30 @@ for (const kw of keywords) {
 console.log(`\n  davon aus bezahlten Anzeigen: ${anzeigen}`);
 
 // Sortierung: wer fuer mehrere Keywords rankt, ist relevanter. Danach die Position.
-const liste = [...kandidaten.values()].sort((a, b) => b.treffer - a.treffer || a.bestePos - b.bestePos);
+const alleKandidaten = [...kandidaten.values()].sort((a, b) => b.treffer - a.treffer || a.bestePos - b.bestePos);
+
+/**
+ * Vorfilter. Bei Tiefe 100 x 24 Abfragen kommen hunderte Domains zurueck, das meiste
+ * davon ist Rauschen (Campingplaetze selbst, Foren, Blogs, Vermieter). Wer nur fuer
+ * EINE von 24 Abfragen rankt, ist fast nie ein Anbieter dieser Kategorie.
+ *
+ * Wer eine Anzeige schaltet, kommt IMMER durch: dafuer gibt man kein Geld aus, wenn
+ * man das Produkt nicht verkauft.
+ *
+ * Der Filter spart hunderte Seitenabrufe und KI-Aufrufe. Was er wegwirft, wird
+ * gezaehlt und ausgewiesen, damit man sieht, was man nicht sieht.
+ */
+const MIN_TREFFER = 2;
+const liste = alleKandidaten.filter((k) => k.wirbt || k.treffer >= MIN_TREFFER);
+const verworfenVorab = alleKandidaten.length - liste.length;
+
+const verteilung = {};
+for (const k of alleKandidaten) verteilung[k.treffer] = (verteilung[k.treffer] ?? 0) + 1;
+console.log(`\n  Verteilung (von ${keywords.length * LOCATIONS.length} Abfragen insgesamt):`);
+for (const [t, n] of Object.entries(verteilung).sort((a, b) => Number(b[0]) - Number(a[0]))) {
+  console.log(`    in ${String(t).padStart(2)} Abfragen: ${String(n).padStart(3)} Domains`);
+}
+console.log(`\n  Vorfilter (mindestens ${MIN_TREFFER} Abfragen oder Anzeige): ${liste.length} bleiben, ${verworfenVorab} verworfen.`);
 
 console.log(`\n${liste.length} Kandidaten:\n`);
 console.log("  TREFFER  POS  ANZEIGE  DOMAIN");
