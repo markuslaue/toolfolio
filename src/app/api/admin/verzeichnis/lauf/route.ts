@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { redaktionOderFehler } from "@/lib/redaktion";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { fuehreLaufAus } from "@/lib/verzeichnis-pipeline";
 
 /**
@@ -34,6 +35,42 @@ export async function GET() {
   });
 }
 
+
+/**
+ * Laeuft dort wirklich noch etwas?
+ *
+ * Ein Lauf ist ein Hintergrundprozess im Container. Jeder Deploy startet den Container
+ * neu und toetet ihn mittendrin. Der Datensatz steht dann fuer immer auf 'laeuft' und
+ * blockiert die Kategorie: eine Leiche, die die Tuer versperrt.
+ *
+ * Ein Prozess kann luegen, ein fehlender Herzschlag nicht. Wer sich zwei Minuten nicht
+ * gemeldet hat, ist tot, und wir raeumen ihn weg statt den Nutzer auszusperren.
+ */
+const TOT_NACH_MS = 2 * 60 * 1000;
+
+async function blockiertEinLauf(
+  admin: ReturnType<typeof createAdminClient>,
+  collectionId: string,
+): Promise<string | null> {
+  const { data } = await admin
+    .from("dir_lauf")
+    .select("id, zuletzt_aktiv")
+    .eq("collection_id", collectionId)
+    .eq("status", "laeuft")
+    .maybeSingle();
+  if (!data) return null;
+
+  const still = Date.now() - new Date(data.zuletzt_aktiv as string).getTime();
+  if (still > TOT_NACH_MS) {
+    await admin
+      .from("dir_lauf")
+      .update({ status: "abgebrochen", beendet_am: new Date().toISOString() })
+      .eq("id", data.id);
+    return null; // Der Weg ist frei.
+  }
+  return data.id as string;
+}
+
 export async function POST(req: Request) {
   const w = await redaktionOderFehler();
   if (!w.ok) return NextResponse.json({ error: w.error }, { status: 403 });
@@ -49,14 +86,12 @@ export async function POST(req: Request) {
   /* Kein zweiter Lauf, solange einer laeuft. Zwei parallele Discoveries auf dieselbe
      Kategorie wuerden dieselben Produkte doppelt anlegen und sich gegenseitig die
      Texte ueberschreiben. */
-  const { data: laeuft } = await w.admin
-    .from("dir_lauf")
-    .select("id")
-    .eq("collection_id", collectionId)
-    .eq("status", "laeuft")
-    .maybeSingle();
-  if (laeuft) {
-    return NextResponse.json({ error: "Für diese Kategorie läuft bereits ein Lauf.", laufId: laeuft.id }, { status: 409 });
+  const blockiert = await blockiertEinLauf(w.admin, collectionId);
+  if (blockiert) {
+    return NextResponse.json(
+      { error: "Für diese Kategorie läuft gerade ein Lauf.", laufId: blockiert },
+      { status: 409 },
+    );
   }
 
   const { data: lauf, error } = await w.admin

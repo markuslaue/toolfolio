@@ -69,7 +69,11 @@ class Protokoll {
     this.zeilen.push({ zeit: new Date().toISOString(), art, text });
     await this.admin
       .from("dir_lauf")
-      .update({ protokoll: this.zeilen, ...(phase ? { phase } : {}) })
+      .update({
+        protokoll: this.zeilen,
+        zuletzt_aktiv: new Date().toISOString(), // Herzschlag
+        ...(phase ? { phase } : {}),
+      })
       .eq("id", this.laufId);
   }
 
@@ -77,7 +81,10 @@ class Protokoll {
   async fortschritt(phase: Phase, label: string, aktuell?: number, gesamt?: number) {
     await this.admin
       .from("dir_lauf")
-      .update({ fortschritt: { phase, label, aktuell: aktuell ?? null, gesamt: gesamt ?? null } })
+      .update({
+        fortschritt: { phase, label, aktuell: aktuell ?? null, gesamt: gesamt ?? null },
+        zuletzt_aktiv: new Date().toISOString(), // Herzschlag
+      })
       .eq("id", this.laufId);
   }
 }
