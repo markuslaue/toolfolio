@@ -254,7 +254,16 @@ function FeatureCard({
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export function CampingplatzSoftwarePage() {
-  const [query, setQuery] = useState("");
+  const [query] = useState("");
+  const [finderOpen, setFinderOpen] = useState(false);
+
+  const openFinder = () => {
+    setFinderOpen(true);
+    // Sicherstellen, dass zur Finder-Sektion gescrollt wird (auch bei bereits offen).
+    requestAnimationFrame(() => {
+      document.getElementById("finder")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
