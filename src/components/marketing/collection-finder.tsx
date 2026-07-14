@@ -311,7 +311,7 @@ export function CollectionFinder({
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [qualify, setQualify] = useState<{ rolle?: string; horizont?: string; situation?: string; budget?: string }>({});
-  const [contact, setContact] = useState({ betrieb: "", ansprechpartner: "", email: "", telefon: "" });
+  const [contact, setContact] = useState({ vorname: "", nachname: "", email: "" });
   const [consentA, setConsentA] = useState(false);
   const [consentB, setConsentB] = useState(false);
   const [submitted, setSubmitted] = useState(false);
