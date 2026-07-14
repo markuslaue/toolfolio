@@ -57,9 +57,12 @@ function fmtImportDatum(iso: string): string {
 export function ImportFlow({
   kanalOptionen,
   existingTools,
+  onFertig,
 }: {
   kanalOptionen: string[];
   existingTools: string[];
+  /** Im Onboarding gesetzt: dann fuehrt der Abschluss weiter im Wizard, statt wegzunavigieren. */
+  onFertig?: (angelegt: number) => void;
 }) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -354,8 +357,14 @@ export function ImportFlow({
           <h2 className="mt-4 font-display text-xl font-semibold">{angelegt} {angelegt === 1 ? "Abo" : "Abos"} angelegt</h2>
           <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">Deine importierten Abos sind jetzt im Tracker. Prüfe Fristen und Zuordnung in der Liste.</p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild className="gap-2"><Link href="/app/abos">Zu meinen Abos <ArrowRight className="size-4" /></Link></Button>
-            <Button asChild variant="outline"><Link href="/app">Zum Dashboard</Link></Button>
+            {onFertig ? (
+              <Button className="gap-2" onClick={() => onFertig(angelegt)}>Weiter <ArrowRight className="size-4" /></Button>
+            ) : (
+              <>
+                <Button asChild className="gap-2"><Link href="/app/abos">Zu meinen Abos <ArrowRight className="size-4" /></Link></Button>
+                <Button asChild variant="outline"><Link href="/app">Zum Dashboard</Link></Button>
+              </>
+            )}
           </div>
         </div>
       )}
