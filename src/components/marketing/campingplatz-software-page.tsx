@@ -304,7 +304,7 @@ export function CampingplatzSoftwarePage() {
       </div>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative isolate overflow-hidden">
         {/* Foto-Hintergrund (kategoriegebunden) */}
         <div
           aria-hidden
