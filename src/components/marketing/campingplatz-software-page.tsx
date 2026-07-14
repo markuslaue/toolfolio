@@ -450,11 +450,7 @@ export function CampingplatzSoftwarePage() {
       {/* Premium Featured Slot (Anzeige) — freigestellt, klar als Werbung markiert */}
       <section id="premium" className="scroll-mt-32 mx-auto max-w-7xl px-4 sm:px-6 pt-10">
         <Reveal>
-          <div className="flex items-center justify-between gap-3 mb-3">
-            <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-foreground/50">
-              <Sparkles className="size-3.5" style={{ color: "#F5A623" }} />
-              Zone 00 · Premium-Platzierung
-            </div>
+          <div className="flex items-center justify-end gap-3 mb-3">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-[#F5A623]/40 bg-[#F5A623]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-[#8a5d0e]">
               Anzeige
             </span>
