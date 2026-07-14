@@ -317,7 +317,7 @@ export function CampingplatzSoftwarePage() {
           className="absolute inset-0 -z-10"
           style={{
             background:
-              `linear-gradient(180deg, color-mix(in oklab, var(--paper) 78%, transparent) 0%, color-mix(in oklab, var(--paper) 88%, transparent) 55%, var(--paper) 100%), ` +
+              `linear-gradient(180deg, color-mix(in oklab, var(--paper) 55%, transparent) 0%, color-mix(in oklab, var(--paper) 75%, transparent) 60%, var(--paper) 100%), ` +
               `radial-gradient(58% 55% at 12% 10%, ${accent}22, transparent 65%), ` +
               `radial-gradient(45% 45% at 95% 5%, #6C5CE714, transparent 60%)`,
           }}
