@@ -58,7 +58,7 @@ export default async function KuratierungsSeite({ params }: { params: Promise<{ 
      und liest weiter mit: ein Reload darf einen laufenden Lauf nicht "verlieren". */
   const { data: lauf } = await admin
     .from("dir_lauf")
-    .select("id, status, phase, protokoll, ergebnis, beendet_am")
+    .select("id, status, phase, fortschritt, protokoll, ergebnis, beendet_am")
     .eq("collection_id", data.id)
     .order("gestartet_am", { ascending: false })
     .limit(1)

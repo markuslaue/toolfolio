@@ -46,7 +46,18 @@ const KEIN_PRODUKT = [
 type Art = "info" | "ok" | "warnung" | "fehler";
 type Zeile = { zeit: string; art: Art; text: string };
 
-/** Das Protokoll. Es ist das eigentliche Produkt dieses Laufs, nicht Beiwerk. */
+/**
+ * Protokoll UND Fortschritt.
+ *
+ * Zwei verschiedene Dinge, bewusst getrennt gefuehrt:
+ *   protokoll   waechst nur, sagt WAS passiert ist. Zum Nachlesen und Beurteilen.
+ *   fortschritt wird ueberschrieben, sagt WIE WEIT wir sind. Zum Zuschauen.
+ *
+ * Wer 161 Domains pruefen laesst, will nicht Protokollzeilen zaehlen, sondern
+ * "47 von 161" lesen.
+ */
+export type Phase = "suchen" | "pruefen" | "text" | "bild" | "anbieterdaten";
+
 class Protokoll {
   private zeilen: Zeile[] = [];
   constructor(
@@ -59,6 +70,14 @@ class Protokoll {
     await this.admin
       .from("dir_lauf")
       .update({ protokoll: this.zeilen, ...(phase ? { phase } : {}) })
+      .eq("id", this.laufId);
+  }
+
+  /** Nur der Fortschritt, ohne Protokollzeile. Darf oft aufgerufen werden. */
+  async fortschritt(phase: Phase, label: string, aktuell?: number, gesamt?: number) {
+    await this.admin
+      .from("dir_lauf")
+      .update({ fortschritt: { phase, label, aktuell: aktuell ?? null, gesamt: gesamt ?? null } })
       .eq("id", this.laufId);
   }
 }
@@ -197,6 +216,7 @@ export async function fuehreLaufAus(laufId: string, collectionId: string, opt: L
     /* ----------------------------------------------------------- 3) Bild */
     if (opt.bild) {
       await log.schreib("info", "Phase 3: Hintergrundbild erzeugen", "Bild");
+      await log.fortschritt("bild", "Hintergrundbild erzeugen");
       const res = await erzeugeHero(coll.id as string, coll.slug as string, coll.name as string, clusterName);
       if (res.ok) {
         await log.schreib("ok", "Bild erzeugt und gespeichert.");
@@ -263,7 +283,9 @@ async function discovery(
     `${kategorie} Test`,
     `${kategorie} Preise`,
   ];
-  await log.schreib("info", `${keywords.length} Suchbegriffe × ${LOCATIONS.length} Länder = ${keywords.length * LOCATIONS.length} Abfragen`);
+  const abfragenGesamt = keywords.length * LOCATIONS.length;
+  await log.schreib("info", `${keywords.length} Suchbegriffe × ${LOCATIONS.length} Länder = ${abfragenGesamt} Abfragen`);
+  await log.fortschritt("suchen", "Suchergebnisse in DE, AT und CH abfragen", 0, abfragenGesamt);
 
   type Kandidat = {
     domain: string;
@@ -276,6 +298,7 @@ async function discovery(
   };
   const kandidaten = new Map<string, Kandidat>();
   let anzeigen = 0;
+  let abfragenFertig = 0;
 
   for (const kw of keywords) {
     for (const loc of LOCATIONS) {
@@ -328,6 +351,13 @@ async function discovery(
       } catch (e) {
         await log.schreib("warnung", `${loc.land} "${kw}" fehlgeschlagen: ${e instanceof Error ? e.message : "?"}`);
       }
+      abfragenFertig++;
+      await log.fortschritt(
+        "suchen",
+        `Suchergebnisse abfragen (${kandidaten.size} Domains gefunden)`,
+        abfragenFertig,
+        abfragenGesamt,
+      );
     }
   }
 
@@ -349,8 +379,18 @@ async function discovery(
   const ki = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   let angelegt = 0;
   let verworfen = 0;
+  let geprueft = 0;
+
+  await log.fortschritt("pruefen", `${liste.length} Herstellerseiten einzeln besuchen und auswerten`, 0, liste.length);
 
   for (const k of liste) {
+    geprueft++;
+    await log.fortschritt(
+      "pruefen",
+      `${k.domain} wird gelesen (${angelegt} Produkte bisher)`,
+      geprueft,
+      liste.length,
+    );
     const text = await holeSeite(k.url);
     if (!text || text.length < 200) {
       await log.schreib("warnung", `${k.domain}: Seite nicht erreichbar, verworfen.`);
@@ -485,6 +525,7 @@ async function content(
   name: string,
   fokus: string | null,
 ) {
+  await log.fortschritt("text", "Guide, FAQ, Experten-Zitat und Meta schreiben");
   const ki = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   const antwort = await ki.messages.create({
@@ -635,12 +676,16 @@ export async function anreichereProdukte(
       .filter((p) => p && p.website_url);
 
     await log.schreib("info", `Phase: Anbieterdaten für ${produkte.length} Produkte`, "Anbieterdaten");
+    await log.fortschritt("anbieterdaten", `${produkte.length} Anbieter: Preis- und Funktionsseiten lesen`, 0, produkte.length);
 
     const ki = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     let fertig = 0;
     let leer = 0;
 
+    let n = 0;
     for (const p of produkte) {
+      n++;
+      await log.fortschritt("anbieterdaten", `${p.name}: Unterseiten lesen`, n, produkte.length);
       /* Mehrere Unterseiten laden, nicht nur die Startseite. Preise stehen fast nie
          auf der Startseite, und Funktionslisten auch nicht. Was 404 gibt, faellt weg. */
       const seiten: { url: string; text: string }[] = [];

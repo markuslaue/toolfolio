@@ -9,7 +9,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params;
   const { data } = await w.admin
     .from("dir_lauf")
-    .select("id, status, phase, protokoll, ergebnis, gestartet_am, beendet_am")
+    .select("id, status, phase, fortschritt, protokoll, ergebnis, gestartet_am, beendet_am")
     .eq("id", id)
     .maybeSingle();
   if (!data) return NextResponse.json({ error: "Lauf nicht gefunden." }, { status: 404 });

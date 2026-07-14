@@ -19,14 +19,29 @@ import { cn } from "@/lib/utils";
  */
 
 type Zeile = { zeit: string; art: "info" | "ok" | "warnung" | "fehler"; text: string };
+
+type PhaseId = "suchen" | "pruefen" | "text" | "bild" | "anbieterdaten";
+type Fortschritt = { phase: PhaseId; label: string; aktuell: number | null; gesamt: number | null };
+
 type Lauf = {
   id: string;
   status: "laeuft" | "fertig" | "fehler" | "abgebrochen";
   phase: string | null;
+  fortschritt: Fortschritt | null;
   protokoll: Zeile[];
   ergebnis: Record<string, unknown> | null;
   beendet_am: string | null;
 };
+
+/* Die Phasen eines vollen Laufs, in der Reihenfolge, in der sie kommen.
+   "anbieterdaten" ist bewusst NICHT dabei: das ist ein eigener Lauf mit einer
+   einzigen Phase, und ihn in diese Leiste zu pressen wuerde nur verwirren. */
+const PHASEN: { id: PhaseId; kurz: string; lang: string }[] = [
+  { id: "suchen", kurz: "Suchen", lang: "Suchergebnisse in DE, AT und CH abfragen" },
+  { id: "pruefen", kurz: "Prüfen", lang: "Herstellerseiten einzeln besuchen und auswerten" },
+  { id: "text", kurz: "Text", lang: "Guide, FAQ, Zitat und Meta schreiben" },
+  { id: "bild", kurz: "Bild", lang: "Hintergrundbild erzeugen" },
+];
 
 const ART_STIL: Record<Zeile["art"], string> = {
   info: "text-muted-foreground",
@@ -118,7 +133,15 @@ export function LaufKarte({
         toast.error(json.error ?? "Start fehlgeschlagen.");
         return;
       }
-      setLauf({ id: json.laufId, status: "laeuft", phase: "Start", protokoll: [], ergebnis: null, beendet_am: null });
+      setLauf({
+        id: json.laufId,
+        status: "laeuft",
+        phase: "Start",
+        fortschritt: null,
+        protokoll: [],
+        ergebnis: null,
+        beendet_am: null,
+      });
       setOffen(true);
     } finally {
       setStart(false);
@@ -192,6 +215,8 @@ export function LaufKarte({
         </div>
       </div>
 
+      {lauf && lauf.status === "laeuft" && lauf.fortschritt && <Statusleiste f={lauf.fortschritt} />}
+
       {(kiFehlt || bildFehlt) && (
         <div className="border-t border-warning/40 bg-warning/10 px-4 py-3 text-sm">
           <div className="flex items-start gap-2">
@@ -264,6 +289,103 @@ export function LaufKarte({
         <p className="border-t px-4 py-2.5 text-xs text-muted-foreground">
           Noch kein Lauf für {collectionName}.
         </p>
+      )}
+    </div>
+  );
+}
+
+
+/* ------------------------------------------------------------- Statusleiste */
+
+/**
+ * Wo stehen wir gerade, und wie lange noch.
+ *
+ * Das Protokoll darunter sagt, WAS passiert ist. Diese Leiste sagt, WIE WEIT wir sind.
+ * Beides zusammen ist der Unterschied zwischen "da tut sich was" und "noch 114 von 161
+ * Domains, dauert also noch ein paar Minuten".
+ */
+function Statusleiste({ f }: { f: Fortschritt }) {
+  // Ein Lauf ohne Discovery beginnt bei "text". Die Leiste zeigt dann trotzdem alle
+  // Phasen, markiert die uebersprungenen aber nicht faelschlich als erledigt.
+  const idx = PHASEN.findIndex((p) => p.id === f.phase);
+  const anteil = f.gesamt && f.gesamt > 0 ? Math.min(1, (f.aktuell ?? 0) / f.gesamt) : null;
+
+  // Anbieterdaten ist ein eigener Lauf: eine Phase, keine Leiste mit vier Schritten.
+  if (f.phase === "anbieterdaten") {
+    return (
+      <div className="border-t bg-muted/20 px-4 py-3">
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <span className="font-medium">Anbieterdaten holen</span>
+          {f.gesamt && (
+            <span className="tabular-nums text-muted-foreground">
+              {f.aktuell} von {f.gesamt}
+            </span>
+          )}
+        </div>
+        <p className="mt-0.5 truncate text-xs text-muted-foreground">{f.label}</p>
+        {anteil !== null && (
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${anteil * 100}%` }} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="border-t bg-muted/20 px-4 py-3">
+      <div className="flex items-center gap-1.5">
+        {PHASEN.map((p, i) => {
+          const fertig = idx > i;
+          const aktiv = idx === i;
+          return (
+            <div key={p.id} className="flex min-w-0 flex-1 items-center gap-1.5">
+              <div
+                className={cn(
+                  "grid size-6 shrink-0 place-items-center rounded-full text-[10px] font-bold transition-colors",
+                  fertig && "bg-emerald-500 text-white",
+                  aktiv && "bg-primary text-primary-foreground ring-4 ring-primary/15",
+                  !fertig && !aktiv && "bg-secondary text-muted-foreground",
+                )}
+              >
+                {fertig ? <Check className="size-3" /> : i + 1}
+              </div>
+              <span
+                className={cn(
+                  "hidden truncate text-xs sm:inline",
+                  aktiv ? "font-semibold text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {p.kurz}
+              </span>
+              {i < PHASEN.length - 1 && <div className="h-px flex-1 bg-border" />}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <p className="min-w-0 flex-1 truncate text-sm">{f.label}</p>
+        {f.gesamt ? (
+          <span className="shrink-0 text-sm font-medium tabular-nums text-muted-foreground">
+            {f.aktuell} von {f.gesamt}
+          </span>
+        ) : (
+          <span className="shrink-0 text-sm text-muted-foreground">läuft ...</span>
+        )}
+      </div>
+
+      {/* Der Balken NUR, wenn wir wirklich zaehlen koennen. Beim Schreiben des Textes
+          wissen wir nicht, wie weit das Modell ist, und ein Balken, der eine Zahl
+          vortaeuscht, die es nicht gibt, ist schlimmer als kein Balken. */}
+      {anteil !== null ? (
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
+          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${anteil * 100}%` }} />
+        </div>
+      ) : (
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
+          <div className="h-full w-1/3 animate-pulse rounded-full bg-primary/50" />
+        </div>
       )}
     </div>
   );
