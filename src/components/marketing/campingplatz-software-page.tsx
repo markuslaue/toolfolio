@@ -465,6 +465,138 @@ export function CampingplatzSoftwarePage() {
         </div>
       </div>
 
+      {/* Premium Featured Slot (Anzeige) — freigestellt, klar als Werbung markiert */}
+      <section id="premium" className="scroll-mt-32 mx-auto max-w-7xl px-4 sm:px-6 pt-10">
+        <Reveal>
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-foreground/50">
+              <Sparkles className="size-3.5" style={{ color: "#F5A623" }} />
+              Zone 00 · Premium-Platzierung
+            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#F5A623]/40 bg-[#F5A623]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-[#8a5d0e]">
+              Anzeige
+            </span>
+          </div>
+
+          <article
+            className="relative overflow-hidden rounded-3xl border border-[#F5A623]/40 bg-card shadow-lift"
+            style={{
+              backgroundImage:
+                "radial-gradient(120% 90% at 0% 0%, rgba(245,166,35,0.10), transparent 55%), radial-gradient(90% 80% at 100% 100%, rgba(108,92,231,0.08), transparent 60%)",
+            }}
+          >
+            {/* Ecken-Streifen "Anzeige" */}
+            <div
+              aria-hidden
+              className="absolute -right-14 top-6 rotate-45 bg-[#F5A623] text-[10px] font-black uppercase tracking-widest text-[#1F1D2B] px-16 py-1 shadow-soft"
+            >
+              Anzeige
+            </div>
+
+            <div className="grid lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,1fr)] gap-0">
+              {/* Content */}
+              <div className="p-6 sm:p-8 lg:p-10">
+                <div className="flex items-center gap-3">
+                  <span
+                    className="grid size-14 place-items-center rounded-2xl font-display text-lg font-bold text-white shadow-soft"
+                    style={{ background: "linear-gradient(135deg, #12B76A, #059669)" }}
+                    aria-hidden
+                  >
+                    EV
+                  </span>
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-widest text-foreground/50">
+                      eviivo · Premium Partner
+                    </div>
+                    <h3 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+                      eviivo Suite
+                    </h3>
+                  </div>
+                </div>
+
+                <p className="mt-5 text-base text-foreground/75 leading-relaxed max-w-xl">
+                  All-in-One Plattform für Campingplätze, Ferienunterkünfte und Hotels: Buchungen, Kanäle,
+                  Gästekommunikation und Zahlungen bündeln — mit KI-Assistenz und Direktbuchungsmaschine.
+                </p>
+
+                <ul className="mt-5 grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-foreground/80">
+                  {[
+                    "Channel Manager (Booking, ACSI, Camping.info)",
+                    "Direktbuchungsmaschine + Website Builder",
+                    "KI-gestützte Gästekommunikation",
+                    "Automatisierte Betriebsabläufe & Reports",
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-2">
+                      <span className="mt-1.5 size-1.5 rounded-full bg-[color:var(--success)] shrink-0" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-7 flex flex-wrap items-center gap-3">
+                  <a
+                    href="#"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-foreground text-[color:var(--paper)] px-4 py-2.5 text-sm font-semibold hover:opacity-90"
+                  >
+                    Zum Anbieter <ArrowUpRight className="size-4" />
+                  </a>
+                  <a
+                    href="#"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background/60 px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-background"
+                  >
+                    Details ansehen <ArrowRight className="size-4" />
+                  </a>
+                  <span className="inline-flex items-center gap-1.5 text-xs text-foreground/55">
+                    <ShieldCheck className="size-3.5" style={{ color: accent }} />
+                    Verifiziertes Profil · DACH-Support
+                  </span>
+                </div>
+              </div>
+
+              {/* Meta Panel */}
+              <aside className="border-t lg:border-t-0 lg:border-l border-border bg-background/40 p-6 sm:p-8 lg:p-10 flex flex-col gap-5">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-foreground/50">
+                    Bewertung
+                  </div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <div className="flex" aria-hidden>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} className="size-4 fill-amber-400 text-amber-400" />
+                      ))}
+                    </div>
+                    <span className="font-display text-lg font-semibold">4.6</span>
+                    <span className="text-xs text-foreground/55">(128 Reviews)</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-foreground/50">
+                    Toolfolio-Nutzer
+                  </div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <Users className="size-4 text-foreground/60" />
+                    <span className="font-display text-lg font-semibold tabular-nums">342</span>
+                    <span className="text-xs text-foreground/55">verwenden dieses Tool</span>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-border bg-card p-4">
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-foreground/50">
+                    Warum hier?
+                  </div>
+                  <p className="mt-1.5 text-xs text-foreground/70 leading-relaxed">
+                    Dieser Platz ist eine <span className="font-semibold text-foreground">bezahlte Anzeige</span>{" "}
+                    und beeinflusst nicht das organische Ranking unten. Anbieter buchen Premium-Platzierungen
+                    transparent im Toolfolio-Anbieterportal.
+                  </p>
+                </div>
+              </aside>
+            </div>
+          </article>
+        </Reveal>
+      </section>
+
       {/* Tool ranking */}
       <section id="ranking" className="scroll-mt-32 mx-auto max-w-7xl px-4 sm:px-6 pt-12 pb-16">
         <Reveal>
