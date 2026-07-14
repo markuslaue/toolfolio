@@ -82,7 +82,7 @@ export type Produkt = {
   status: "entwurf" | "ki_ungeprueft" | "redaktionell_geprueft" | "veroeffentlicht";
 };
 
-export type ProduktInZone = Produkt & { zone: Zone; position: number; gesponsert_bis: string | null; tags: string[] };
+export type ProduktInZone = Produkt & { zone: Zone; position: number; gesponsert_bis: string | null; tags: string[]; rabatt: number | null };
 
 export type Review = {
   id: string;
@@ -177,11 +177,19 @@ export async function getCollection(slug: string): Promise<{ collection: Collect
   const co = collection as Collection;
   const [{ data: cluster }, { data: cp }] = await Promise.all([
     sb.from("dir_cluster").select("*").eq("id", co.cluster_id).maybeSingle(),
-    sb.from("dir_collection_produkt").select("zone, position, gesponsert_bis, tags, dir_produkt(*)").eq("collection_id", co.id),
+    sb.from("dir_collection_produkt").select("zone, position, gesponsert_bis, tags, rabatt_prozent, dir_produkt(*)").eq("collection_id", co.id),
   ]);
-  const produkte: ProduktInZone[] = ((cp ?? []) as unknown as { zone: Zone; position: number; gesponsert_bis: string | null; tags: string[] | null; dir_produkt: Produkt }[])
+  const produkte: ProduktInZone[] = ((cp ?? []) as unknown as { zone: Zone; position: number; gesponsert_bis: string | null; tags: string[] | null; rabatt_prozent: number | null; dir_produkt: Produkt }[])
     .filter((r) => r.dir_produkt)
-    .map((r) => ({ ...r.dir_produkt, zone: r.zone, position: r.position, gesponsert_bis: r.gesponsert_bis, tags: r.tags ?? [] }));
+    .map((r) => ({
+      ...r.dir_produkt,
+      zone: r.zone,
+      position: r.position,
+      gesponsert_bis: r.gesponsert_bis,
+      tags: r.tags ?? [],
+      // Nur wenn wirklich vereinbart. Kein Standardwert: siehe Migration 20260714270000.
+      rabatt: r.rabatt_prozent != null ? Number(r.rabatt_prozent) : null,
+    }));
   /* Kein Cluster? Dann steht er im Entwurf und die RLS blendet ihn fuer anonyme
      Besucher aus. Frueher lief das in einen Absturz (cluster.slug auf null). Eine
      Kategorie ohne sichtbaren Hub ist unvollstaendig, also gibt es sie fuer den

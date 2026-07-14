@@ -120,6 +120,14 @@ export type Kandidat = {
   farbe: string;
   kurzbeschreibung: string | null;
   tags: string[];
+  /**
+   * Rabatt, den der Nutzer ueber Toolfolio bekommt, in Prozent.
+   *
+   * NUR gesetzt, wenn er wirklich vereinbart ist. Wer "inklusive 5 % Rabatt" liest,
+   * erwartet 5 % weniger auf der Rechnung. Ein Standardwert waere hier eine Falschangabe
+   * und im Zweifel eine Leistung, die wir selbst bezahlen muessten.
+   */
+  rabatt?: number | null;
 };
 
 export type Treffer = {

@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Sparkles, ChevronLeft, ChevronRight, Check, ShieldCheck, Loader2, Search, X, Megaphone } from "lucide-react";
+import { Sparkles, ChevronLeft, ChevronRight, Check, ShieldCheck, Loader2, Search, X, Megaphone, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +34,7 @@ export function Finder({
   /** false = generischer Basis-Finder, weil fuer diese Kategorie noch kein Fragensatz existiert. */
   individuell: boolean;
   /** Der gesponserte Anbieter der Kategorie. Er bekommt JEDE Anfrage, und das sagen wir. */
-  gesponsert?: string | null;
+  gesponsert?: { id: string; name: string; rabatt: number | null } | null;
 }) {
   const [offen, setOffen] = useState(false);
 
@@ -134,7 +134,9 @@ export function Finder({
           />
         )}
 
-        {istErgebnis && <ErgebnisSchritt treffer={treffer} guete={guete} kandidaten={kandidaten} />}
+        {istErgebnis && (
+          <ErgebnisSchritt treffer={treffer} guete={guete} kandidaten={kandidaten} gesponsert={gesponsert ?? null} />
+        )}
 
         {istKontakt && (
           <KontaktSchritt
@@ -224,12 +226,22 @@ function FrageSchritt({
 /* ----------------------------------------------------------------- Ergebnis */
 
 function ErgebnisSchritt({
-  treffer, guete, kandidaten,
+  treffer, guete, kandidaten, gesponsert,
 }: {
   treffer: Treffer[];
   guete: Guete;
   kandidaten: Kandidat[];
+  gesponsert: { id: string; name: string; rabatt: number | null } | null;
 }) {
+  /* Der Anzeigenkunde erscheint IMMER, auch wenn er fachlich nicht getroffen hat.
+     Das ist erlaubt und sogar der Kern des Geschaeftsmodells: kaeuflich ist die
+     SICHTBARKEIT. Was nicht kaeuflich ist, ist der Rang und die Empfehlung. Deshalb
+     steht er in einem EIGENEN Block, klar als Anzeige gekennzeichnet, und NICHT in
+     der Trefferliste. Er wird nicht als Treffer ausgegeben, er drueckt keinen Treffer
+     weg, und er bekommt kein "passt am besten". */
+  const gesponsertKandidat = kandidaten.find((k) => k.id === gesponsert?.id) ?? null;
+  const gesponsertSchonGetroffen = treffer.some((t) => t.kandidat.id === gesponsert?.id);
+  const zeigeAnzeige = gesponsert && !gesponsertSchonGetroffen;
   /* WIR HABEN ZU DIESEN TOOLS NOCH KEINE ANGABEN.
      Das ist keine Aussage ueber die Tools, sondern eine Luecke in UNSEREN Daten, und der
      Nutzer muss den Unterschied erfahren. "Da passt nichts" waere eine Beleidigung der
@@ -284,6 +296,35 @@ function ErgebnisSchritt({
         </p>
       )}
 
+      {zeigeAnzeige && (
+        <div className="mt-5 rounded-2xl border-2 border-dashed border-border bg-secondary/30 p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Anzeige</span>
+          </div>
+          <div className="flex items-start gap-3">
+            <span
+              className="grid size-10 shrink-0 place-items-center rounded-xl font-display font-bold text-white"
+              style={{ background: gesponsertKandidat?.farbe ?? "#6C5CE7" }}
+            >
+              {gesponsert.name[0]}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-semibold">{gesponsert.name}</span>
+                <Rabatt prozent={gesponsert.rabatt} />
+              </div>
+              {gesponsertKandidat?.kurzbeschreibung && (
+                <p className="mt-1 text-sm text-muted-foreground">{gesponsertKandidat.kurzbeschreibung}</p>
+              )}
+              <p className="mt-2 text-xs text-muted-foreground">
+                Dieser Anbieter zahlt für seine Sichtbarkeit. Er steht deshalb hier, nicht weil er besser zu deinen
+                Antworten passt. Ob er passt, entscheidest du. Deine Anfrage geht auf jeden Fall auch an ihn.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mt-5 space-y-3">
         {treffer.map((t, i) => (
           <div key={t.kandidat.id} className="rounded-2xl border border-border p-4">
@@ -298,10 +339,11 @@ function ErgebnisSchritt({
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-semibold">{t.kandidat.name}</span>
                   {i === 0 && guete === "gut" && (
-                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                       passt am besten
                     </span>
                   )}
+                  <Rabatt prozent={t.kandidat.rabatt} />
                 </div>
                 {t.kandidat.kurzbeschreibung && (
                   <p className="mt-1 text-sm text-muted-foreground">{t.kandidat.kurzbeschreibung}</p>
@@ -364,7 +406,7 @@ function KontaktSchritt({
   collectionName: string;
   treffer: Treffer[];
   antworten: Record<string, string[]>;
-  gesponsert: string | null;
+  gesponsert: { id: string; name: string; rabatt: number | null } | null;
   onFertig: () => void;
 }) {
   const [busy, startT] = useTransition();
@@ -422,33 +464,36 @@ function KontaktSchritt({
           Vertrauensbruch, den wir dem Rest der Branche vorwerfen. */}
       <div className="mt-3 rounded-xl border border-border bg-secondary/40 p-3 text-sm">
         <div className="font-medium">Deine Anfrage geht an:</div>
-        <ul className="mt-2 space-y-1">
+        <ul className="mt-2 space-y-1.5">
           {treffer.map((t) => (
-            <li key={t.kandidat.id} className="flex items-center gap-2">
+            <li key={t.kandidat.id} className="flex flex-wrap items-center gap-2">
               <Check className="size-3.5 shrink-0 text-emerald-600" />
-              <span>{t.kandidat.name}</span>
-              <span className="text-xs text-muted-foreground">passt zu deinen Antworten</span>
+              <span className="font-medium">{t.kandidat.name}</span>
+              <Rabatt prozent={t.kandidat.rabatt} />
             </li>
           ))}
-          {gesponsert && !treffer.some((t) => t.kandidat.name === gesponsert) && (
-            <li className="flex items-center gap-2">
-              <Megaphone className="size-3.5 shrink-0 text-coral" />
-              <span>{gesponsert}</span>
-              <span className="rounded-full bg-coral/15 px-1.5 py-0.5 text-[10px] font-semibold text-coral">
+
+          {/* Der Anzeigenkunde. Er bekommt jede Anfrage, weil er dafuer bezahlt, und er
+              steht hier auch dann, wenn er fachlich nicht getroffen hat.
+              Das "Anzeige"-Etikett BLEIBT. Es wegzulassen waere Schleichwerbung
+              (§ 5a UWG) und ein Bruch der Goldenen Regel aus CLAUDE.md, die nicht ohne
+              Grund ganz oben steht. Gruener Haken statt Megafon, wie gewuenscht, aber
+              gekennzeichnet bleibt gekennzeichnet. */}
+          {gesponsert && !treffer.some((t) => t.kandidat.id === gesponsert.id) && (
+            <li className="flex flex-wrap items-center gap-2">
+              <Check className="size-3.5 shrink-0 text-emerald-600" />
+              <span className="font-medium">{gesponsert.name}</span>
+              <Rabatt prozent={gesponsert.rabatt} />
+              <span className="rounded-full bg-foreground/[0.06] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Anzeige
               </span>
             </li>
           )}
+
           {treffer.length === 0 && !gesponsert && (
             <li className="text-muted-foreground">die passenden Anbieter dieser Kategorie</li>
           )}
         </ul>
-        {gesponsert && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            Der als Anzeige gekennzeichnete Anbieter bezahlt dafür, deine Anfrage zu bekommen. Auf die Empfehlung
-            oben hat das keinen Einfluss: die richtet sich nur nach deinen Antworten.
-          </p>
-        )}
       </div>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -510,5 +555,33 @@ function KontaktSchritt({
         {busy && <Loader2 className="size-4 animate-spin" />} Anfrage abschicken
       </Button>
     </form>
+  );
+}
+
+
+/* --------------------------------------------------------------------- Rabatt */
+
+/**
+ * Der Toolfolio-Rabatt.
+ *
+ * DAS BESONDERE DARAN, und es ist der Grund, warum es das ueberhaupt gibt: Toolfolio
+ * bekommt vom Anbieter eine Vermittlungsprovision und gibt die HAELFTE davon an dich
+ * weiter. Bei jedem anderen Vergleichsportal verschwindet die Provision still in der
+ * Tasche des Portals, und du zahlst den vollen Preis, waehrend du glaubst, neutral
+ * beraten worden zu sein.
+ *
+ * ER ERSCHEINT NUR, WENN ER WIRKLICH VEREINBART IST. Kein Standardwert, keine Anzeige
+ * ohne Eintrag in der Datenbank. Wer "inklusive 5 % Rabatt" liest, erwartet 5 % weniger
+ * auf seiner Rechnung. Steht das da, ohne dass eine Vereinbarung existiert, ist es eine
+ * Falschangabe und im Zweifel eine Leistung, die wir selbst bezahlen muessten.
+ */
+function Rabatt({ prozent }: { prozent?: number | null }) {
+  if (prozent == null || prozent <= 0) return null;
+  const text = Number.isInteger(prozent) ? String(prozent) : prozent.toString().replace(".", ",");
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">
+      <Gift className="size-3" />
+      inklusive {text} % exklusiver Toolfolio-Rabatt
+    </span>
   );
 }

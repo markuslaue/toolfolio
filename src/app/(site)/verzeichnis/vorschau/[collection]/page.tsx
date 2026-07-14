@@ -68,14 +68,14 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
 
   const { data: cp } = await admin
     .from("dir_collection_produkt")
-    .select("zone, position, gesponsert_bis, tags, dir_produkt(*)")
+    .select("zone, position, gesponsert_bis, tags, rabatt_prozent, dir_produkt(*)")
     .eq("collection_id", data.id);
 
   const produkte: ProduktInZone[] = (
-    (cp ?? []) as unknown as { zone: Zone; position: number; gesponsert_bis: string | null; tags: string[] | null; dir_produkt: Produkt }[]
+    (cp ?? []) as unknown as { zone: Zone; position: number; gesponsert_bis: string | null; tags: string[] | null; rabatt_prozent: number | null; dir_produkt: Produkt }[]
   )
     .filter((r) => r.dir_produkt)
-    .map((r) => ({ ...r.dir_produkt, zone: r.zone, position: r.position, gesponsert_bis: r.gesponsert_bis, tags: r.tags ?? [] }))
+    .map((r) => ({ ...r.dir_produkt, zone: r.zone, position: r.position, gesponsert_bis: r.gesponsert_bis, tags: r.tags ?? [], rabatt: r.rabatt_prozent != null ? Number(r.rabatt_prozent) : null }))
     .sort((a, b) => a.position - b.position);
 
   const bewertungen = await bewertungenFuer(produkte.map((p) => p.id));
@@ -116,7 +116,7 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
   const finderConfig = data.finder_config as FinderConfig | null;
   const istIndividuell = data.finder_status === "live" && !!finderConfig?.categoryQuestions?.length;
   const faq = ((data.faq ?? []) as FaqEintrag[]) ?? [];
-  const gesponsert = produkte.find((p) => p.zone === "gesponsert")?.name ?? null;
+  const gesponsertProdukt = produkte.find((p) => p.zone === "gesponsert") ?? null;
 
   const kandidaten: Kandidat[] = produkte.map((p) => ({
     id: p.id,
@@ -125,6 +125,7 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
     farbe: p.farbe,
     kurzbeschreibung: p.kurzbeschreibung,
     tags: p.tags,
+    rabatt: p.rabatt,
   }));
 
   return (
@@ -158,7 +159,7 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
               headline={finderConfig?.introHeadline ?? `Finde die passende ${data.name}`}
               ctaLabel={finderConfig?.ctaLabel ?? "Passende Software finden"}
               individuell={istIndividuell}
-              gesponsert={gesponsert}
+              gesponsert={gesponsertProdukt ? { id: gesponsertProdukt.id, name: gesponsertProdukt.name, rabatt: gesponsertProdukt.rabatt } : null}
             />
           ) : undefined
         }
