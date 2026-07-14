@@ -50,7 +50,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | B-12 | Fristen-Waechter / Kalender (deutscher USP) | P1 | B-04 | Approved & Deployed In-App (PRJ-08); E-Mail offen |
 | B-13 | AI-Credits / variable Kosten - Detail | P1 | B-04 | Approved & Deployed |
 | B-14 | Beleg-Postfach (eigene Inbox-Adresse, Parsing, Review) | P1 | B-03 | Roadmap |
-| B-15 | Verzeichnis (App-Kontext, intern) | P1 | B-05, V-01 | Roadmap |
+| B-15 | Verzeichnis (App-Kontext, intern) | P1 | B-05, V-01 | Approved & Deployed (Verzeichnis im Tracker, /app/verzeichnis) |
 | B-16 | Benchmark-Ansicht (aus Aggregat-Ebene) | P1 | F-G2 (Aggregat) | Roadmap |
 | B-17 | Berichte / Weiterverrechnungs-Report | P1 | B-09 | Approved & Deployed |
 | B-18 | DATEV- / Steuer-Export (Reverse-Charge) | P1 | B-03 | Approved & Deployed |
@@ -59,7 +59,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | B-21 | Seats- / Lizenzverwaltung | P2 | B-22 | Approved & Deployed |
 | B-22 | Team / Wer-nutzt-was (Offboarding) | P2 | B-30 | Approved & Deployed |
 | B-23 | Anschaffungs-Freigabe-Workflow | P2 | B-05 | Approved & Deployed |
-| B-24 | Integrationen (Google Workspace, Bank, KI-APIs) | P2 | INFRA-1 | Roadmap |
+| B-24 | Integrationen (Google Workspace, Bank, KI-APIs) | P2 | INFRA-1 | Approved & Deployed (DataForSEO, verschluesselte Credentials) |
 | B-25 | Mehrere Gesellschaften / Mandanten | P2 | INFRA-1 | Approved & Deployed |
 | B-26 | Einstellungen - Profil (etabliert Settings-Huelle) | P0 | S-01 | Approved & Deployed (PRJ-06) |
 | B-27 | Einstellungen - Unternehmen | P0 | B-26 | Approved & Deployed (PRJ-06) |
@@ -67,7 +67,7 @@ Alle Features, die Auth, Datenhaltung, RLS oder Mandanten brauchen, haengen von 
 | B-29 | Einstellungen - Plan & Abrechnung (Stripe) | P0 | B-26 | Approved & Deployed |
 | B-30 | Einstellungen - Team & Rollen | P1 | B-26 | Approved & Deployed |
 | B-31 | Einstellungen - Daten & Datenschutz | P1 | B-26 | Approved & Deployed (PRJ-06) |
-| B-32 | Kuendigungsfrist als Vorlauf (statt Stichtag) + fruehe Erinnerung | P1 | B-05, B-12 | Approved & Deployed |
+| B-32 | Kuendigungsfrist als Vorlauf (statt Stichtag) + fruehe Erinnerung | P1 | B-05, B-12 | Approved & Deployed (Kuendigungsfrist als Vorlauf) |
 
 ## Marketing (M)
 
@@ -172,3 +172,30 @@ B-32, M-19, V-16, A-08, INFRA-2. (E, S, R sind abgeschlossen.)
 | A-06 | Launch-Service (Anbieter schreibt Interessenten einer Kategorie an) | P2 | V-04, A-01 | **Fundament gebaut** (Speicherung + Einwilligung + Datenschutz), Versand offen |
 | A-07 | Affiliate- und Partnerprogramme (Provision teilen: Rabatt an den Kunden) | P2 | AD-01 | Roadmap |
 | B-33 | Verhandlungs-Assistent (Entwurf plus Freigabe, im Auftrag des Nutzers) | P2 | B-16, B-32 | Roadmap |
+
+---
+
+## Reihenfolge (Stand 2026-07-14, entschieden mit Markus)
+
+Nicht neu planen, **Fronten schliessen**. Halbfertige Arbeit ist die teuerste Sorte.
+
+**1. Tracker fertig** (laeuft)
+Zwoelf Screens sind vereinfachte Eigenkonstruktionen statt 1:1-Ports der Lovable-Vorlagen.
+Toolfolio wird taeglich operativ genutzt, das ist also Schuld mit taeglichen Zinsen.
+Reihenfolge nach Abstand zur Vorlage:
+Zugaenge (37 %), Onboarding (25 %), Archiv (29 %), AI-Credits (32 %),
+Benachrichtigungen (40 %), Abo-Detail (41 %), Import (42 %), Steuer (43 %),
+Zahlungskanaele (44 %), Sparvorschlaege (45 %), Abo-Liste (66 %), Abo-Formular (73 %).
+Danach die drei nie gebauten: Beleg-Postfach (B-14), Benchmark (B-16), Gesellschaften.
+
+**2. Verzeichnis: EIN Cluster komplett live**
+"Gastro, Hotel & Freizeit" bis zum Ende: 44 Produkte kuratieren, 32 weitere Kategorien mit
+Content und Discovery, Hero-Bilder, veroeffentlichen. Ein fertiger Cluster beweist die
+Pipeline. 26 halbe Cluster beweisen nichts.
+
+**3. Betrieb scharf schalten**
+Vier Crons aktivieren, Stripe von Test auf Live, Anthropic-Key rotieren.
+
+**4. Anbieter-Portal und Launch-Service**
+Setzt ein gefuelltes Verzeichnis voraus: einen Launch-Service kann man erst verkaufen, wenn
+Menschen eingewilligt haben, und das koennen sie erst, wenn Seiten live sind.
