@@ -25,6 +25,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Nav, Footer, Reveal } from "./marketing-home";
+import heroBg from "@/assets/campingplatz-hero-bg.jpg";
 
 // ─── Content model ────────────────────────────────────────────────────────────
 
