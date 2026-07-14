@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Kuratierung, type CmsProdukt, type CmsCollection } from "@/components/redaktion/kuratierung";
 import { LaufKarte } from "@/components/redaktion/lauf-karte";
+import { FinderKarte, type FinderEntwurf } from "@/components/redaktion/finder-karte";
+import type { FinderStatus } from "@/lib/finder";
 import { redaktionOderRaus } from "@/lib/redaktion";
 import type { ProduktStatus } from "@/lib/redaktion-status";
 
@@ -13,14 +15,14 @@ export default async function KuratierungsSeite({ params }: { params: Promise<{ 
 
   const { data } = await admin
     .from("dir_collection")
-    .select("id, name, slug, status, content_status, content_woerter, hero_url, dir_cluster(name, slug)")
+    .select("id, name, slug, status, content_status, content_woerter, hero_url, finder_config, finder_status, dir_cluster(name, slug)")
     .eq("slug", slug)
     .maybeSingle();
   if (!data) notFound();
 
   const { data: cp } = await admin
     .from("dir_collection_produkt")
-    .select("zone, position, dir_produkt(id, name, slug, anbieter, website_url, kurzbeschreibung, preis_hinweis, status)")
+    .select("zone, position, tags, dir_produkt(id, name, slug, anbieter, website_url, kurzbeschreibung, preis_hinweis, status)")
     .eq("collection_id", data.id)
     .order("position");
 
@@ -56,6 +58,14 @@ export default async function KuratierungsSeite({ params }: { params: Promise<{ 
 
   /* Der letzte Lauf dieser Kategorie. Laeuft er noch, nimmt die Karte den Faden auf
      und liest weiter mit: ein Reload darf einen laufenden Lauf nicht "verlieren". */
+  /* Wer ist der Anzeigenkunde, und wie viele Produkte haben ueberhaupt Faehigkeiten
+     hinterlegt? Beides braucht die Redaktion, BEVOR sie ein Lead-Formular freigibt:
+     ohne Tags matcht der Finder nichts, und ohne Anzeigenkunde geht der Lead nur an die
+     fachlich passenden. */
+  const zeilen = (cp ?? []) as unknown as { zone: string; tags: string[] | null; dir_produkt: { name: string } | null }[];
+  const gesponserterName = zeilen.find((r) => r.zone === "gesponsert")?.dir_produkt?.name ?? null;
+  const mitTags = zeilen.filter((r) => (r.tags?.length ?? 0) > 0).length;
+
   const { data: lauf } = await admin
     .from("dir_lauf")
     .select("id, status, phase, fortschritt, protokoll, ergebnis, beendet_am")
@@ -72,6 +82,16 @@ export default async function KuratierungsSeite({ params }: { params: Promise<{ 
           collectionName={collection.name}
           produkteVorhanden={produkte.length}
           letzterLauf={(lauf as never) ?? null}
+        />
+
+        <FinderKarte
+          collectionId={collection.id}
+          collectionSlug={collection.slug}
+          status={(data.finder_status as FinderStatus) ?? "todo"}
+          entwurf={(data.finder_config as FinderEntwurf | null) ?? null}
+          gesponsert={gesponserterName}
+          produkteMitTags={mitTags}
+          produkteGesamt={produkte.length}
         />
       </div>
       <Kuratierung collection={collection} produkte={produkte} />

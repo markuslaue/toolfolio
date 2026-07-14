@@ -95,6 +95,9 @@ export default async function CollectionRoute({
     tags: p.tags,
   }));
 
+  // Der Anzeigenkunde. Er bekommt jede Anfrage, und der Finder sagt es dem Nutzer.
+  const gesponsert = sortiert.find((p) => p.zone === "gesponsert")?.name ?? null;
+
   const faq = (data.collection.faq ?? []) as FaqEintrag[];
   const freigegeben = data.collection.content_status === "geprueft";
 
@@ -162,6 +165,7 @@ export default async function CollectionRoute({
               headline={config?.introHeadline ?? `Finde die passende ${data.collection.name}`}
               ctaLabel={config?.ctaLabel ?? "Passende Software finden"}
               individuell={individuell}
+              gesponsert={gesponsert}
             />
           ) : undefined
         }

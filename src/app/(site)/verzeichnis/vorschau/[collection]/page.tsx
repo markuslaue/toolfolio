@@ -116,6 +116,8 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
   const finderConfig = data.finder_config as FinderConfig | null;
   const istIndividuell = data.finder_status === "live" && !!finderConfig?.categoryQuestions?.length;
   const faq = ((data.faq ?? []) as FaqEintrag[]) ?? [];
+  const gesponsert = produkte.find((p) => p.zone === "gesponsert")?.name ?? null;
+
   const kandidaten: Kandidat[] = produkte.map((p) => ({
     id: p.id,
     name: p.name,
@@ -156,6 +158,7 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
               headline={finderConfig?.introHeadline ?? `Finde die passende ${data.name}`}
               ctaLabel={finderConfig?.ctaLabel ?? "Passende Software finden"}
               individuell={istIndividuell}
+              gesponsert={gesponsert}
             />
           ) : undefined
         }

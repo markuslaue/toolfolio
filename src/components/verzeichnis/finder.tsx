@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Sparkles, ChevronLeft, ChevronRight, Check, ShieldCheck, Loader2, Search, X } from "lucide-react";
+import { Sparkles, ChevronLeft, ChevronRight, Check, ShieldCheck, Loader2, Search, X, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,7 @@ export function Finder({
   headline,
   ctaLabel,
   individuell,
+  gesponsert,
 }: {
   collectionId: string;
   collectionName: string;
@@ -32,6 +33,8 @@ export function Finder({
   ctaLabel: string;
   /** false = generischer Basis-Finder, weil fuer diese Kategorie noch kein Fragensatz existiert. */
   individuell: boolean;
+  /** Der gesponserte Anbieter der Kategorie. Er bekommt JEDE Anfrage, und das sagen wir. */
+  gesponsert?: string | null;
 }) {
   const [offen, setOffen] = useState(false);
 
@@ -139,6 +142,7 @@ export function Finder({
             collectionName={collectionName}
             treffer={treffer}
             antworten={antworten}
+            gesponsert={gesponsert ?? null}
             onFertig={zuruecksetzen}
           />
         )}
@@ -324,12 +328,13 @@ function ErgebnisSchritt({
 /* ------------------------------------------------------------------ Kontakt */
 
 function KontaktSchritt({
-  collectionId, collectionName, treffer, antworten, onFertig,
+  collectionId, collectionName, treffer, antworten, gesponsert, onFertig,
 }: {
   collectionId: string;
   collectionName: string;
   treffer: Treffer[];
   antworten: Record<string, string[]>;
+  gesponsert: string | null;
   onFertig: () => void;
 }) {
   const [busy, startT] = useTransition();
@@ -379,11 +384,42 @@ function KontaktSchritt({
   return (
     <form action={absenden}>
       <h3 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">Wohin dürfen die Angebote?</h3>
-      <p className="mt-1.5 text-sm text-muted-foreground">
-        {treffer.length > 0
-          ? `Wir fragen für dich bei ${treffer.map((t) => t.kandidat.name).join(", ")} an.`
-          : "Wir fragen für dich bei den passenden Anbietern dieser Kategorie an."}
-      </p>
+
+      {/* WER DEN LEAD BEKOMMT, im Klartext, VOR dem Absenden.
+          Der gesponserte Anbieter bekommt jede Anfrage, weil er dafuer bezahlt. Das
+          verschweigen wir nicht, wir schreiben es hin und kennzeichnen es als Anzeige.
+          Einen Lead still an einen Zahler weiterzureichen waere genau der
+          Vertrauensbruch, den wir dem Rest der Branche vorwerfen. */}
+      <div className="mt-3 rounded-xl border border-border bg-secondary/40 p-3 text-sm">
+        <div className="font-medium">Deine Anfrage geht an:</div>
+        <ul className="mt-2 space-y-1">
+          {treffer.map((t) => (
+            <li key={t.kandidat.id} className="flex items-center gap-2">
+              <Check className="size-3.5 shrink-0 text-emerald-600" />
+              <span>{t.kandidat.name}</span>
+              <span className="text-xs text-muted-foreground">passt zu deinen Antworten</span>
+            </li>
+          ))}
+          {gesponsert && !treffer.some((t) => t.kandidat.name === gesponsert) && (
+            <li className="flex items-center gap-2">
+              <Megaphone className="size-3.5 shrink-0 text-coral" />
+              <span>{gesponsert}</span>
+              <span className="rounded-full bg-coral/15 px-1.5 py-0.5 text-[10px] font-semibold text-coral">
+                Anzeige
+              </span>
+            </li>
+          )}
+          {treffer.length === 0 && !gesponsert && (
+            <li className="text-muted-foreground">die passenden Anbieter dieser Kategorie</li>
+          )}
+        </ul>
+        {gesponsert && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Der als Anzeige gekennzeichnete Anbieter bezahlt dafür, deine Anfrage zu bekommen. Auf die Empfehlung
+            oben hat das keinen Einfluss: die richtet sich nur nach deinen Antworten.
+          </p>
+        )}
+      </div>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
