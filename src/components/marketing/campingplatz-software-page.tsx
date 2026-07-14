@@ -438,16 +438,6 @@ export function CampingplatzSoftwarePage() {
         </div>
       </section>
 
-      {/* Software-Finder (eingebettet, entfaltet sich beim Start) */}
-      <section id="finder" className="scroll-mt-32 mx-auto max-w-7xl px-4 sm:px-6 pt-10">
-        <Reveal>
-          <CollectionFinder
-            config={campingplatzFinderConfig}
-            autoStart={finderOpen}
-            onExit={() => setFinderOpen(false)}
-          />
-        </Reveal>
-      </section>
 
       {/* Sticky Sub-Nav */}
       <div className="sticky top-16 z-30 border-y border-border/70 bg-[color:var(--paper)]/85 backdrop-blur">
