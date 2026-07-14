@@ -923,7 +923,7 @@ function DoneStep({ email, onReset }: { email: string; onReset: () => void }) {
       <p className="mt-2 text-foreground/70 max-w-md mx-auto">
         Bitte bestätige die E-Mail, die wir dir gerade an{" "}
         <span className="font-semibold text-foreground">{email || "deine Adresse"}</span> geschickt haben.
-        Danach leiten wir deine Anfrage an die passenden Anbieter weiter.
+        Danach schicken wir dir deine persönliche, algorithmisch berechnete Software-Empfehlung.
       </p>
       <button
         type="button"
