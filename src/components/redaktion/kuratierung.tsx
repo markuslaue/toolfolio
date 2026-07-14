@@ -152,6 +152,21 @@ export function Kuratierung({ collection, produkte }: { collection: CmsCollectio
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {/* Der Link auf die ECHTE Seite, und zwar nur, wenn es sie wirklich gibt.
+              Wer gerade veroeffentlicht hat, will genau das sehen. Ihn danach suchen zu
+              lassen (der Pfad ist /verzeichnis/<cluster>/<slug>, den tippt niemand von
+              Hand richtig) ist eine unnoetige Huerde. */}
+          {collection.status === "veroeffentlicht" && (
+            <Button asChild variant="outline" className="gap-1.5">
+              <a
+                href={`/verzeichnis/${collection.cluster.slug}/${collection.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ExternalLink className="size-4" /> Live ansehen
+              </a>
+            </Button>
+          )}
           <Button asChild variant="outline" className="gap-1.5">
             <Link href={`/verzeichnis/vorschau/${collection.slug}`}>
               <Eye className="size-4" /> Vorschau
@@ -170,7 +185,12 @@ export function Kuratierung({ collection, produkte }: { collection: CmsCollectio
             <Button
               className="gap-1.5"
               disabled={pending}
-              onClick={() => lauf(() => veroeffentliche(collection.id, collection.slug), "Collection ist live.")}
+              onClick={() =>
+                lauf(
+                  () => veroeffentliche(collection.id, collection.slug),
+                  `Live unter /verzeichnis/${collection.cluster.slug}/${collection.slug}`,
+                )
+              }
             >
               <Globe className="size-4" /> Veröffentlichen
             </Button>

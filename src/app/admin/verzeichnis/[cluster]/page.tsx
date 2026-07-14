@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, Check, AlertTriangle, Minus } from "lucide-react";
+import { ArrowRight, Check, AlertTriangle, Minus, ExternalLink } from "lucide-react";
 import { redaktionOderRaus } from "@/lib/redaktion";
 import { FINDER_STATUS_LABEL, FINDER_STATUS_STIL } from "@/lib/finder";
 
@@ -116,10 +116,10 @@ export default async function ClusterRedaktion({
           {colls.map((x) => {
             const n = produkte.get(x.id) ?? 0;
             return (
-              <li key={x.id}>
+              <li key={x.id} className="flex items-center transition-colors hover:bg-muted/40">
                 <Link
                   href={`/admin/verzeichnis/collection/${x.slug}`}
-                  className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/40"
+                  className="flex min-w-0 flex-1 items-center gap-4 px-4 py-3"
                 >
                   <span className="w-8 shrink-0 text-xs font-mono text-muted-foreground">P{x.prio}</span>
                   <div className="min-w-0 flex-1">
@@ -151,6 +151,20 @@ export default async function ClusterRedaktion({
                   </div>
                   <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
                 </Link>
+
+                {/* Der Live-Link steht NEBEN der Zeile, nicht darin: ein Link im Link ist
+                    ungueltiges HTML und der Klick landet unvorhersehbar. */}
+                {x.status === "veroeffentlicht" && (
+                  <a
+                    href={`/verzeichnis/${cluster}/${x.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Die veröffentlichte Seite ansehen"
+                    className="mr-3 shrink-0 rounded-lg p-2 text-muted-foreground hover:bg-background hover:text-foreground"
+                  >
+                    <ExternalLink className="size-4" />
+                  </a>
+                )}
               </li>
             );
           })}
