@@ -378,33 +378,20 @@ export function CampingplatzSoftwarePage() {
 
               <Reveal delay={200}>
                 <div className="mt-7 max-w-2xl">
-                  <div className="relative group">
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-focus-within:opacity-100 transition-opacity"
-                      style={{ background: `linear-gradient(135deg, ${accent}, #6C5CE7)`, filter: "blur(14px)" }}
-                    />
-                    <div className="relative flex items-center gap-2 rounded-2xl border border-border bg-card pl-4 pr-2 py-2 shadow-lift">
-                      <Search className="size-5 text-foreground/50 shrink-0" />
-                      <input
-                        type="search"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Im Vergleich suchen · z. B. Dauercamper, Channel Manager, GoBD"
-                        className="w-full bg-transparent py-2.5 text-base focus:outline-none placeholder:text-foreground/45"
-                        aria-label="Campingplatz Software durchsuchen"
-                      />
-                      <kbd className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-border bg-background px-2 py-1 text-[10px] font-semibold text-foreground/50">
-                        <Command className="size-3" /> K
-                      </kbd>
-                      <a
-                        href="#ranking"
-                        className="inline-flex items-center gap-1 rounded-xl bg-foreground text-[color:var(--paper)] px-3.5 py-2 text-sm font-semibold hover:opacity-90"
-                      >
-                        Vergleichen <ArrowRight className="size-4" />
-                      </a>
-                    </div>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={openFinder}
+                    className="group inline-flex items-center gap-2.5 rounded-2xl px-5 py-3.5 text-[15px] sm:text-base font-semibold text-white shadow-lift transition hover:opacity-95"
+                    style={{ background: "#6C5CE7" }}
+                  >
+                    <Sparkles className="size-4" />
+                    In 6 Fragen zur passenden Campingplatz-Software
+                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                  <p className="mt-3 text-sm text-foreground/60">
+                    Kostenlos, unverbindlich und in unter zwei Minuten. Wir stellen dir echte Fragen zur
+                    Software, keine Werbung.
+                  </p>
                 </div>
               </Reveal>
             </div>
