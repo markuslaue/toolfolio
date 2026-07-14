@@ -182,7 +182,11 @@ export const campingplatzFinderConfig: CollectionFinderConfig = {
       detailHref: "#ranking",
     },
   ],
+  sponsoredProductId: "eviivo-suite",
+  sponsoredReason:
+    "eviivo hat für diese Kategorie den Premium-Platz gebucht und wird deshalb hier als Anzeige angezeigt.",
 };
+
 
 // ─── Scoring (regelbasiert, gemockt) ──────────────────────────────────────────
 
