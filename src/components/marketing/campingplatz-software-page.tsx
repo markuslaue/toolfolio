@@ -594,6 +594,18 @@ export function CampingplatzSoftwarePage() {
         </Reveal>
       </section>
 
+      {/* Software-Finder (eingebettet, entfaltet sich beim Start) */}
+      <section id="finder" className="scroll-mt-32 mx-auto max-w-7xl px-4 sm:px-6 pt-10">
+        <Reveal>
+          <CollectionFinder
+            config={campingplatzFinderConfig}
+            autoStart={finderOpen}
+            onExit={() => setFinderOpen(false)}
+          />
+        </Reveal>
+      </section>
+
+
       {/* Tool ranking */}
       <section id="ranking" className="scroll-mt-32 mx-auto max-w-7xl px-4 sm:px-6 pt-12 pb-16">
         <Reveal>
