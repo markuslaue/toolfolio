@@ -78,16 +78,111 @@ export async function unassignTool(zugangId: string): Promise<ZugangResult> {
   return { ok: true };
 }
 
-/** Verantwortliche Person (Owner) fuer ein Tool setzen (oder loesen). */
-export async function setOwner(aboId: string, zugangId: string | null): Promise<ZugangResult> {
+/**
+ * Verantwortliche Person (Owner) fuer ein Tool setzen (oder loesen).
+ *
+ * Der Owner haengt am ABO, nicht am Zugang: verantwortlich fuer Verlaengerung,
+ * Nutzer und Kosten sein heisst nicht, das Tool selbst zu benutzen.
+ */
+export async function setOwner(aboId: string, personId: string | null): Promise<ZugangResult> {
   const { supabase, user, account } = await uc();
   if (!user || !account) return { error: "Bitte melde dich erneut an." };
-  // Erst alle Owner-Flags des Tools loesen, dann ggf. eines setzen.
-  await supabase.from("tool_zugang").update({ ist_owner: false }).eq("user_id", account).eq("abo_id", aboId);
-  if (zugangId) {
-    const { error } = await supabase.from("tool_zugang").update({ ist_owner: true }).eq("id", zugangId).eq("user_id", account);
-    if (error) return { error: "Owner konnte nicht gesetzt werden." };
-  }
+  const { error } = await supabase
+    .from("abos")
+    .update({ owner_person_id: personId })
+    .eq("id", aboId)
+    .eq("user_id", account);
+  if (error) return { error: "Owner konnte nicht gesetzt werden." };
+  revalidatePath("/app/zugaenge");
+  return { ok: true };
+}
+
+/** Letzte Aktivitaet eines Zugangs pflegen. Leer heisst: wir wissen es nicht. */
+export async function setAktivitaet(zugangId: string, datum: string | null): Promise<ZugangResult> {
+  const { supabase, user, account } = await uc();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
+  if (datum && !/^\d{4}-\d{2}-\d{2}$/.test(datum)) return { error: "Ungültiges Datum." };
+  const { error } = await supabase
+    .from("tool_zugang")
+    .update({ letzte_aktivitaet: datum })
+    .eq("id", zugangId)
+    .eq("user_id", account);
+  if (error) return { error: "Aktivität konnte nicht gespeichert werden." };
+  revalidatePath("/app/zugaenge");
+  return { ok: true };
+}
+
+/**
+ * Offboarding abschliessen.
+ *
+ * Entzieht die abgehakten Zugaenge, setzt die Person auf ausgeschieden und legt
+ * einen NACHWEIS an. Der Nachweis ist der eigentliche Punkt: ein Toast beweist
+ * niemandem, dass Jonas' Adobe-Zugang am 31.01. entzogen wurde.
+ *
+ * Toolfolio entzieht nichts beim Anbieter, das kann es nicht (Vermittler-Prinzip).
+ * Es fuehrt die Liste und haelt fest, was der Mensch erledigt hat.
+ */
+export async function offboardingAbschliessen(
+  personId: string,
+  entzogeneZugaenge: string[],
+  plaetzeZurueck: string[],
+): Promise<ZugangResult> {
+  const { supabase, user, account } = await uc();
+  if (!user || !account) return { error: "Bitte melde dich erneut an." };
+  if (entzogeneZugaenge.length === 0) return { error: "Hake mindestens einen Zugang ab." };
+
+  const { data: person } = await supabase
+    .from("personen")
+    .select("id, name")
+    .eq("id", personId)
+    .eq("user_id", account)
+    .maybeSingle();
+  if (!person) return { error: "Person nicht gefunden." };
+
+  // Die Bilanz aus der DATENBANK rechnen, nicht aus dem, was der Client behauptet.
+  const { data: zugaenge } = await supabase
+    .from("tool_zugang")
+    .select("id, platz_kosten, abos ( tool )")
+    .eq("user_id", account)
+    .eq("person_id", personId)
+    .in("id", entzogeneZugaenge);
+
+  if (!zugaenge || zugaenge.length === 0) return { error: "Keine passenden Zugänge gefunden." };
+
+  const zurueck = new Set(plaetzeZurueck);
+  const ersparnis = zugaenge
+    .filter((z) => zurueck.has(z.id))
+    .reduce((s, z) => s + Number(z.platz_kosten ?? 0), 0);
+  const tools = zugaenge
+    .map((z) => (z.abos as unknown as { tool: string } | null)?.tool)
+    .filter((t): t is string => Boolean(t));
+
+  const { error: protokollFehler } = await supabase.from("offboarding").insert({
+    user_id: account,
+    person_id: person.id,
+    person_name: person.name,
+    zugaenge_entzogen: zugaenge.length,
+    plaetze_zurueck: zugaenge.filter((z) => zurueck.has(z.id)).length,
+    ersparnis_monatlich: ersparnis,
+    tools,
+  });
+  if (protokollFehler) return { error: "Das Offboarding konnte nicht protokolliert werden." };
+
+  // Erst nach dem Nachweis loeschen. Andersherum stuende im schlimmsten Fall
+  // ein geloeschter Zugang ohne Beleg da.
+  await supabase
+    .from("tool_zugang")
+    .delete()
+    .eq("user_id", account)
+    .eq("person_id", personId)
+    .in("id", zugaenge.map((z) => z.id));
+
+  await supabase
+    .from("personen")
+    .update({ status: "ausgeschieden" })
+    .eq("id", personId)
+    .eq("user_id", account);
+
   revalidatePath("/app/zugaenge");
   return { ok: true };
 }
