@@ -38,25 +38,36 @@ function Kachel({
 export default async function AdminDashboard() {
   const { admin } = await redaktionOderRaus("/admin");
 
-  const [cluster, collections, produkte, zuordnungen, nutzer, abos] = await Promise.all([
-    admin.from("dir_cluster").select("id", { count: "exact", head: true }),
-    admin.from("dir_collection").select("status, content_status"),
-    admin.from("dir_produkt").select("status"),
-    admin.from("dir_collection_produkt").select("collection_id", { count: "exact", head: true }),
-    admin.from("profiles").select("id", { count: "exact", head: true }),
-    admin.from("abos").select("id", { count: "exact", head: true }),
-  ]);
+  /* Achtung: Supabase deckelt ein select ohne Grenze STILL bei 1000 Zeilen.
+     Das Verzeichnis hat 1292 Kategorien. Deshalb wird hier gezaehlt, nicht geladen:
+     ein "select status" haette 292 Kategorien verschluckt, ohne einen Fehler zu werfen. */
+  const zaehle = (tabelle: string, filter?: [string, string]) => {
+    let q = admin.from(tabelle).select("*", { count: "exact", head: true });
+    if (filter) q = q.eq(filter[0], filter[1]);
+    return q;
+  };
 
-  type Coll = { status: string; content_status: string };
-  type Prod = { status: string };
-  const colls = (collections.data as Coll[]) ?? [];
-  const prods = (produkte.data as Prod[]) ?? [];
+  const [cluster, collGesamt, collLive, collOhneText, collTextOffen, prodGesamt, prodLive, prodOffen, zuordnungen, nutzer, abos] =
+    await Promise.all([
+      zaehle("dir_cluster"),
+      zaehle("dir_collection"),
+      zaehle("dir_collection", ["status", "veroeffentlicht"]),
+      zaehle("dir_collection", ["content_status", "fehlt"]),
+      zaehle("dir_collection", ["content_status", "ki_ungeprueft"]),
+      zaehle("dir_produkt"),
+      zaehle("dir_produkt", ["status", "veroeffentlicht"]),
+      zaehle("dir_produkt", ["status", "ki_ungeprueft"]),
+      zaehle("dir_collection_produkt"),
+      zaehle("profiles"),
+      zaehle("abos"),
+    ]);
 
-  const live = colls.filter((c) => c.status === "veroeffentlicht").length;
-  const mitText = colls.filter((c) => c.content_status !== "fehlt").length;
-  const textOffen = colls.filter((c) => c.content_status === "ki_ungeprueft").length;
-  const produkteOffen = prods.filter((p) => p.status === "ki_ungeprueft").length;
-  const produkteLive = prods.filter((p) => p.status === "veroeffentlicht").length;
+  const collAnzahl = collGesamt.count ?? 0;
+  const live = collLive.count ?? 0;
+  const mitText = collAnzahl - (collOhneText.count ?? 0);
+  const textOffen = collTextOffen.count ?? 0;
+  const produkteLive = prodLive.count ?? 0;
+  const produkteOffen = prodOffen.count ?? 0;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
@@ -68,15 +79,15 @@ export default async function AdminDashboard() {
         <Kachel label="Cluster" wert={String(cluster.count ?? 0)} icon={BookOpen} />
         <Kachel
           label="Kategorien"
-          wert={String(colls.length)}
+          wert={String(collAnzahl)}
           hint={live > 0 ? `${live} live` : "noch keine live"}
           icon={FileText}
           ton={live > 0 ? "gut" : undefined}
         />
-        <Kachel label="Mit Text" wert={`${mitText} / ${colls.length}`} icon={FileText} />
+        <Kachel label="Mit Text" wert={`${mitText} / ${collAnzahl}`} icon={FileText} />
         <Kachel
           label="Produkte"
-          wert={String(prods.length)}
+          wert={String(prodGesamt.count ?? 0)}
           hint={`${produkteLive} veröffentlicht, ${zuordnungen.count ?? 0} Zuordnungen`}
           icon={Package}
         />

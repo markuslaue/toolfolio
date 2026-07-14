@@ -87,16 +87,40 @@ function initialen(name: string): string {
 export { initialen as produktInitialen };
 
 /** Hub: veroeffentlichte Cluster inkl. ihrer Collections (fuer die Startseite). */
-export async function getHub(): Promise<{ cluster: Cluster; collections: Collection[] }[]> {
+/** Wie viele Kategorien der Hub je Cluster anreisst, bevor er auf den Cluster verweist. */
+export const HUB_VORSCHAU = 8;
+
+export type HubCluster = { cluster: Cluster; collections: Collection[]; gesamt: number };
+
+/**
+ * Der Hub: alle Cluster mit einer Vorschau ihrer Kategorien.
+ *
+ * WICHTIG: hier wird NICHT die ganze Tabelle geladen. Supabase deckelt ein
+ * select ohne Grenze still bei 1000 Zeilen, und das Verzeichnis hat 1292
+ * Kategorien. Ein "select *" haette also stillschweigend Kategorien
+ * verschluckt, ohne dass irgendwo ein Fehler auftaucht.
+ *
+ * Deshalb: Zaehlung per count(), Inhalt nur als Ausschnitt.
+ */
+export async function getHub(): Promise<HubCluster[]> {
   const sb = createPublicClient();
-  const [{ data: cluster }, { data: collections }] = await Promise.all([
-    sb.from("dir_cluster").select("*").order("position"),
-    sb.from("dir_collection").select("*").order("position"),
-  ]);
-  return (cluster ?? []).map((c) => ({
-    cluster: c as Cluster,
-    collections: ((collections ?? []) as Collection[]).filter((co) => co.cluster_id === (c as Cluster).id),
-  }));
+  const { data: cluster } = await sb.from("dir_cluster").select("*").order("position").order("name");
+
+  return await Promise.all(
+    ((cluster ?? []) as Cluster[]).map(async (c) => {
+      const [{ data: coll }, { count }] = await Promise.all([
+        sb
+          .from("dir_collection")
+          .select("*")
+          .eq("cluster_id", c.id)
+          .order("prio")
+          .order("name")
+          .limit(HUB_VORSCHAU),
+        sb.from("dir_collection").select("*", { count: "exact", head: true }).eq("cluster_id", c.id),
+      ]);
+      return { cluster: c, collections: (coll ?? []) as Collection[], gesamt: count ?? 0 };
+    }),
+  );
 }
 
 export async function alleClusterSlugs(): Promise<string[]> {
@@ -109,7 +133,15 @@ export async function getCluster(slug: string): Promise<{ cluster: Cluster; coll
   const sb = createPublicClient();
   const { data: cluster } = await sb.from("dir_cluster").select("*").eq("slug", slug).maybeSingle();
   if (!cluster) return null;
-  const { data: collections } = await sb.from("dir_collection").select("*").eq("cluster_id", (cluster as Cluster).id).order("position");
+  // Bewusst nach Prioritaet und Name, nicht nach position: die Kategorien kommen
+  // aus dem Taxonomie-Import, ihre position ist die Importreihenfolge, nicht Redaktion.
+  const { data: collections } = await sb
+    .from("dir_collection")
+    .select("*")
+    .eq("cluster_id", (cluster as Cluster).id)
+    .order("prio")
+    .order("name")
+    .limit(500);
   return { cluster: cluster as Cluster, collections: (collections ?? []) as Collection[] };
 }
 

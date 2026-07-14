@@ -10,34 +10,51 @@ type ClusterRow = { id: string; name: string; slug: string; farbe: string; statu
 export default async function RedaktionPage() {
   const { admin } = await redaktionOderRaus("/admin/verzeichnis");
 
-  const [{ data: cluster }, { data: collections }, { data: zuordnungen }] = await Promise.all([
-    admin.from("dir_cluster").select("id, name, slug, farbe, status").order("name"),
-    admin.from("dir_collection").select("id, cluster_id, status, content_status"),
-    admin.from("dir_collection_produkt").select("collection_id"),
-  ]);
+  const { data: cluster } = await admin.from("dir_cluster").select("id, name, slug, farbe, status").order("name");
 
-  type Coll = { id: string; cluster_id: string; status: string; content_status: string };
-  const colls = (collections as Coll[]) ?? [];
-  const produkteJeCollection = new Map<string, number>();
-  for (const z of ((zuordnungen as { collection_id: string }[]) ?? [])) {
-    produkteJeCollection.set(z.collection_id, (produkteJeCollection.get(z.collection_id) ?? 0) + 1);
-  }
+  /* Achtung: Supabase deckelt ein select ohne Grenze STILL bei 1000 Zeilen, und das
+     Verzeichnis hat 1292 Kategorien. Deshalb je Cluster zaehlen statt alles laden.
+     Ein "select id, cluster_id" haette hier 292 Kategorien verschluckt, ohne Fehler. */
+  const zeilen = await Promise.all(
+    ((cluster as ClusterRow[]) ?? []).map(async (c) => {
+      const [gesamtZ, liveZ, ohneTextZ, collIds] = await Promise.all([
+        admin.from("dir_collection").select("*", { count: "exact", head: true }).eq("cluster_id", c.id),
+        admin
+          .from("dir_collection")
+          .select("*", { count: "exact", head: true })
+          .eq("cluster_id", c.id)
+          .eq("status", "veroeffentlicht"),
+        admin
+          .from("dir_collection")
+          .select("*", { count: "exact", head: true })
+          .eq("cluster_id", c.id)
+          .eq("content_status", "fehlt"),
+        admin.from("dir_collection").select("id").eq("cluster_id", c.id).limit(1000),
+      ]);
 
-  const zeilen = ((cluster as ClusterRow[]) ?? []).map((c) => {
-    const meine = colls.filter((x) => x.cluster_id === c.id);
-    return {
-      ...c,
-      collections: meine.length,
-      live: meine.filter((x) => x.status === "veroeffentlicht").length,
-      mitText: meine.filter((x) => x.content_status !== "fehlt").length,
-      produkte: meine.reduce((s, x) => s + (produkteJeCollection.get(x.id) ?? 0), 0),
-    };
-  });
+      const ids = ((collIds.data as { id: string }[]) ?? []).map((x) => x.id);
+      const { count: produkte } = ids.length
+        ? await admin
+            .from("dir_collection_produkt")
+            .select("*", { count: "exact", head: true })
+            .in("collection_id", ids)
+        : { count: 0 };
+
+      const anzahl = gesamtZ.count ?? 0;
+      return {
+        ...c,
+        collections: anzahl,
+        live: liveZ.count ?? 0,
+        mitText: anzahl - (ohneTextZ.count ?? 0),
+        produkte: produkte ?? 0,
+      };
+    }),
+  );
 
   const gesamt = {
-    collections: colls.length,
-    live: colls.filter((c) => c.status === "veroeffentlicht").length,
-    produkte: [...produkteJeCollection.values()].reduce((s, n) => s + n, 0),
+    collections: zeilen.reduce((s, z) => s + z.collections, 0),
+    live: zeilen.reduce((s, z) => s + z.live, 0),
+    produkte: zeilen.reduce((s, z) => s + z.produkte, 0),
   };
 
   return (

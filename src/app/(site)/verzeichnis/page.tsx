@@ -56,15 +56,20 @@ export default async function VerzeichnisHub() {
       {/* Cluster + Collections */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-3">
-          {hub.map(({ cluster, collections }) => (
+          {hub.map(({ cluster, collections, gesamt }) => (
             <div key={cluster.id} className="flex flex-col rounded-3xl border border-border bg-card p-6 shadow-soft">
               <div className="flex items-center gap-3">
                 <span className="grid size-10 place-items-center rounded-xl text-white" style={{ backgroundColor: cluster.farbe }}>
                   <Layers className="size-5" />
                 </span>
-                <Link href={`/verzeichnis/${cluster.slug}`} className="font-display text-xl font-semibold hover:text-primary">
-                  {cluster.name}
-                </Link>
+                <div className="min-w-0">
+                  <Link href={`/verzeichnis/${cluster.slug}`} className="font-display text-xl font-semibold hover:text-primary">
+                    {cluster.name}
+                  </Link>
+                  <div className="text-xs text-muted-foreground">
+                    {gesamt} {gesamt === 1 ? "Kategorie" : "Kategorien"}
+                  </div>
+                </div>
               </div>
               {cluster.meta_description && <p className="mt-3 text-sm text-muted-foreground">{cluster.meta_description}</p>}
               <ul className="mt-4 space-y-1.5">
@@ -77,7 +82,15 @@ export default async function VerzeichnisHub() {
                   </li>
                 ))}
               </ul>
-              <Link href={`/verzeichnis/${cluster.slug}`} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
+              {gesamt > collections.length && (
+                <div className="mt-2 px-2 text-xs text-muted-foreground">
+                  und {gesamt - collections.length} weitere
+                </div>
+              )}
+              <Link
+                href={`/verzeichnis/${cluster.slug}`}
+                className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-primary hover:underline"
+              >
                 Alle in {cluster.name} <ArrowRight className="size-4" />
               </Link>
             </div>
