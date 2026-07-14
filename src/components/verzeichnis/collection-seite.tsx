@@ -438,10 +438,13 @@ export function CollectionSeite({
         </nav>
       </div>
 
-      {/* Kopf. Das Hintergrundbild sitzt zwischen Brotkrumen und Sprungnavigation. */}
-      <section className="relative overflow-hidden">
+      {/* Kopf. Das Hintergrundbild sitzt zwischen Brotkrumen und Sprungnavigation.
+          `isolate` ist hier nicht Deko: es erzeugt den Stapelkontext, in dem das Bild
+          auf z-0 und der Text auf z-10 liegen. Ohne ihn faellt das Bild hinter den
+          Seitenhintergrund und verschwindet. */}
+      <section className="relative isolate overflow-hidden">
         <HeroHintergrund bild={collection.hero} akzent={akzent} />
-        <div className="mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-6 sm:pb-16 sm:pt-12">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-6 sm:pb-16 sm:pt-12">
           <div className="grid items-end gap-10 lg:grid-cols-[1.35fr_1fr] lg:gap-14">
             <div>
               <div className="flex flex-wrap items-center gap-2">
