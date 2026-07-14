@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FINDER_STATUS_LABEL, FINDER_STATUS_STIL, type FinderFrage, type FinderStatus } from "@/lib/finder";
-import { gibFinderFrei, finderZurueckziehen } from "@/app/admin/verzeichnis/actions";
+import { gibFinderFrei, finderZurueckziehen, seiteNeuAufbauen } from "@/app/admin/verzeichnis/actions";
 
 /**
  * Das Lead-Formular einer Kategorie: erzeugen, lesen, freigeben.
@@ -78,6 +78,9 @@ export function FinderKarte({
         setFehler(null);
         toast.success("Entwurf fertig. Lies die Begründungen und gib frei.");
         setOffen(true);
+        /* Der Lauf hat die Datenbank direkt veraendert, an den Server-Actions vorbei.
+           Ohne diesen Aufruf bliebe die oeffentliche Seite bis zu zehn Minuten alt. */
+        await seiteNeuAufbauen(collectionSlug);
       }
       router.refresh();
     }

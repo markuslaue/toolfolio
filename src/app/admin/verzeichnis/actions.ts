@@ -305,6 +305,14 @@ export async function gibFinderFrei(collectionId: string, collectionSlug: string
     .eq("id", collectionId);
   if (error) return { error: "Freigabe fehlgeschlagen." };
 
+
+  /* DEN OEFFENTLICHEN CACHE VERWERFEN.
+     Ohne das steht das freigeschaltete Formular bis zu zehn Minuten lang nicht auf der
+     Seite, obwohl die Datenbank es laengst kennt. Genau daran ist die erste Freigabe
+     ins Leere gelaufen, und vorher schon die erste Anzeige. Jede Aktion, die etwas
+     OEFFENTLICH veraendert, muss den oeffentlichen Pfad verwerfen. Das ist keine
+     Optimierung, das ist die Definition von "veroeffentlicht". */
+  await verwerfeOeffentlich(collectionSlug);
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
@@ -327,6 +335,14 @@ export async function finderZurueckziehen(collectionId: string, collectionSlug: 
     .eq("id", collectionId);
   if (error) return { error: "Zurückziehen fehlgeschlagen." };
 
+
+  /* DEN OEFFENTLICHEN CACHE VERWERFEN.
+     Ohne das steht das freigeschaltete Formular bis zu zehn Minuten lang nicht auf der
+     Seite, obwohl die Datenbank es laengst kennt. Genau daran ist die erste Freigabe
+     ins Leere gelaufen, und vorher schon die erste Anzeige. Jede Aktion, die etwas
+     OEFFENTLICH veraendert, muss den oeffentlichen Pfad verwerfen. Das ist keine
+     Optimierung, das ist die Definition von "veroeffentlicht". */
+  await verwerfeOeffentlich(collectionSlug);
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }

@@ -7,6 +7,7 @@ import { Play, Loader2, Check, AlertTriangle, Info, X, Database, ChevronDown } f
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { seiteNeuAufbauen } from "@/app/admin/verzeichnis/actions";
 
 /**
  * Der Kategorie-Lauf im Backend.
@@ -60,11 +61,13 @@ const ART_ICON = {
 export function LaufKarte({
   collectionId,
   collectionName,
+  collectionSlug,
   produkteVorhanden,
   letzterLauf,
 }: {
   collectionId: string;
   collectionName: string;
+  collectionSlug: string;
   produkteVorhanden: number;
   letzterLauf: Lauf | null;
 }) {
@@ -102,7 +105,11 @@ export function LaufKarte({
     const neu = (await res.json()) as Lauf;
     setLauf(neu);
     if (neu.status !== "laeuft") {
-      // Der Lauf hat die Datenbank veraendert: Produktliste und Textstatus neu laden.
+      /* Der Lauf hat die Datenbank DIREKT veraendert, an den Server-Actions vorbei.
+         router.refresh() laedt nur das Backend neu. Die oeffentliche Seite ist ISR und
+         bliebe bis zu zehn Minuten alt: neuer Text, neues Bild, neue Produkte, und der
+         Besucher sieht nichts davon. */
+      if (neu.status === "fertig") await seiteNeuAufbauen(collectionSlug);
       router.refresh();
     }
   }, [lauf, router]);

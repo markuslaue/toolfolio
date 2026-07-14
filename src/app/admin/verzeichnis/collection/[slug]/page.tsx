@@ -80,6 +80,7 @@ export default async function KuratierungsSeite({ params }: { params: Promise<{ 
         <LaufKarte
           collectionId={collection.id}
           collectionName={collection.name}
+          collectionSlug={collection.slug}
           produkteVorhanden={produkte.length}
           letzterLauf={(lauf as never) ?? null}
         />
