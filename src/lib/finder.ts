@@ -187,6 +187,20 @@ export function finde(
   const wertend = gefordert.filter((g) => irgendwerHat(g.tag));
   const ungeklaert = gefordert.filter((g) => !irgendwerHat(g.tag));
 
+  /* KEIN EINZIGES KRITERIUM IST BELEGT? Dann koennen wir nichts empfehlen, und wir tun
+     auch nicht so.
+
+     HIER LAG EIN ECHTER FEHLER: Ohne unterscheidende Kriterien war `wertend` leer, jedes
+     Tool bekam den Score 1 ("erfuellt alles"), und der Finder empfahl drei Tools in
+     alphabetischer Reihenfolge, dem ersten mit dem Etikett "passt am besten". Maximale
+     Selbstsicherheit auf Basis von exakt null Daten. Genau die Sorte Empfehlung, gegen
+     die dieses Verzeichnis antritt.
+
+     Jetzt gibt es eine leere Liste zurueck, und ergebnisGuete() sagt "keine_daten". Die
+     Oberflaeche sagt dem Nutzer dann die Wahrheit: wir haben zu diesen Tools noch keine
+     belastbaren Angaben, deine Anfrage geht trotzdem raus. */
+  if (wertend.length === 0) return [];
+
   const treffer: Treffer[] = [];
 
   for (const k of kandidaten) {
@@ -243,7 +257,14 @@ export function finde(
  * pruefen konnten, sagen wir das. Den besten von drei schlechten als "Empfehlung"
  * zu verkaufen, waere genau die Sorte Vergleichsseite, die wir nicht sein wollen.
  */
-export function ergebnisGuete(treffer: Treffer[]): "gut" | "duenn" | "keins" {
+export type Guete = "gut" | "duenn" | "keins" | "keine_daten";
+
+export function ergebnisGuete(treffer: Treffer[], kandidaten: Kandidat[] = []): Guete {
+  /* Kein Tool der Kategorie hat ueberhaupt Faehigkeiten hinterlegt. Das ist keine
+     Aussage ueber die Tools, sondern eine Luecke in UNSEREN Daten, und der Nutzer
+     muss den Unterschied erfahren. "Da passt nichts" waere eine Beleidigung der
+     Anbieter fuer einen Fehler, den wir gemacht haben. */
+  if (kandidaten.length > 0 && kandidaten.every((k) => k.tags.length === 0)) return "keine_daten";
   if (treffer.length === 0) return "keins";
   if (treffer[0].score < 0.5) return "duenn";
   return "gut";

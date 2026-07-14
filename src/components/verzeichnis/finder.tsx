@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import {
   BASIS_FRAGEN, finde, ergebnisGuete,
-  type FinderFrage, type Kandidat, type Treffer,
+  type FinderFrage, type Kandidat, type Treffer, type Guete,
 } from "@/lib/finder";
 import { einwilligungText, einwilligungHinweis, anfrageHinweis } from "@/lib/einwilligung";
 import { anfrageSenden } from "@/app/(site)/verzeichnis/anfrage-actions";
@@ -56,7 +56,7 @@ export function Finder({
     () => (istErgebnis || istKontakt ? finde(antworten, kategorieFragen, kandidaten) : []),
     [antworten, kategorieFragen, kandidaten, istErgebnis, istKontakt],
   );
-  const guete = ergebnisGuete(treffer);
+  const guete = ergebnisGuete(treffer, kandidaten);
 
   function setzeAntwort(frage: FinderFrage, wert: string) {
     setAntworten((a) => {
@@ -227,9 +227,39 @@ function ErgebnisSchritt({
   treffer, guete, kandidaten,
 }: {
   treffer: Treffer[];
-  guete: "gut" | "duenn" | "keins";
+  guete: Guete;
   kandidaten: Kandidat[];
 }) {
+  /* WIR HABEN ZU DIESEN TOOLS NOCH KEINE ANGABEN.
+     Das ist keine Aussage ueber die Tools, sondern eine Luecke in UNSEREN Daten, und der
+     Nutzer muss den Unterschied erfahren. "Da passt nichts" waere eine Beleidigung der
+     Anbieter fuer einen Fehler, den wir gemacht haben. */
+  if (guete === "keine_daten") {
+    return (
+      <div>
+        <h3 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+          Empfehlen können wir hier noch nichts, und das sagen wir dir lieber.
+        </h3>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Zu den {kandidaten.length} Tools dieser Kategorie haben wir die Funktionsdaten noch nicht geprüft. Wir
+          könnten dir jetzt drei Namen nennen, aber die wären geraten, und geraten ist genau das, was wir hier nicht
+          tun.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Deine Anfrage geht trotzdem raus, mit allem, was du uns gerade erzählt hast. Die Anbieter melden sich bei
+          dir und können deine Fragen direkt beantworten.
+        </p>
+        <p className="mt-5 flex items-start gap-2 rounded-xl bg-secondary/50 p-3 text-xs text-muted-foreground">
+          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
+          <span>
+            Wir arbeiten die Kategorie gerade auf. Sobald wir die Funktionen belegt haben, bekommst du hier eine
+            begründete Empfehlung statt einer Liste.
+          </span>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h3 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">

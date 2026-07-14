@@ -199,9 +199,34 @@ export function FinderKarte({
         </span>
         <span className={cn("inline-flex items-center gap-1.5", produkteMitTags === 0 && "text-warning")}>
           {produkteMitTags === 0 ? <AlertTriangle className="size-3.5" /> : <Check className="size-3.5" />}
-          {produkteMitTags} von {produkteGesamt} Produkten haben Fähigkeiten hinterlegt
+          {produkteMitTags} von {produkteGesamt} Produkten haben belegte Fähigkeiten
         </span>
       </div>
+
+      {/* WARNUNG, wenn kein Produkt Faehigkeiten hat.
+          Ohne sie kann das Matching nichts leisten: der Nutzer bekommt KEINE Empfehlung
+          (die Oberflaeche sagt ihm das ehrlich), und der Lead geht nur an den
+          Anzeigenkunden. Das ist funktionsfaehig, aber es ist nicht das Produkt. */}
+      {produkteMitTags === 0 && produkteGesamt > 0 && (
+        <div className="border-t border-warning/40 bg-warning/10 px-4 py-3 text-sm">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+            <div>
+              <div className="font-semibold">Ohne Fähigkeiten kann nichts empfohlen werden.</div>
+              <p className="mt-0.5 max-w-3xl text-muted-foreground">
+                &bdquo;Fähigkeiten&ldquo; sind die belegten Funktionen je Tool (etwa DATEV-Export oder
+                Mehrmandantenfähigkeit). Sie entstehen beim <strong>Konzipieren</strong>: erst werden die Fragen
+                entworfen, dann ordnet die KI jedem Produkt zu, welche davon es laut seiner eigenen Seite wirklich hat.
+              </p>
+              <p className="mt-1.5 max-w-3xl text-muted-foreground">
+                Solange hier 0 steht, bekommt der Besucher <strong>keine Empfehlung</strong> (wir sagen ihm das ehrlich,
+                statt drei Namen zu raten), und seine Anfrage geht nur an den Anzeigenkunden. Konzipiere das Formular,
+                dann füllt sich das hier von selbst.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {hatEntwurf && (
         <div className="border-t">
