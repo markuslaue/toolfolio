@@ -486,7 +486,8 @@ export function CollectionFinder({
                 className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-soft"
                 style={{ background: PRIMARY_VIOLET }}
               >
-                Kostenlos Angebote anfordern <ArrowRight className="size-4" />
+                Empfehlung per E-Mail anfordern <ArrowRight className="size-4" />
+
               </button>
             )}
           </div>
