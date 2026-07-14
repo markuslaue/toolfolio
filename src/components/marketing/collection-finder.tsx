@@ -29,7 +29,10 @@ export type CollectionFinderConfig = {
   ctaLabel: string;
   categoryQuestions: FinderQuestion[];
   products: { id: string; name: string; vendor: string; initials: string; color: string; tags: string[]; detailHref: string }[];
+  sponsoredProductId?: string;
+  sponsoredReason?: string;
 };
+
 
 // ─── Konfiguration Campingplatz-Software ──────────────────────────────────────
 
@@ -179,7 +182,11 @@ export const campingplatzFinderConfig: CollectionFinderConfig = {
       detailHref: "#ranking",
     },
   ],
+  sponsoredProductId: "eviivo-suite",
+  sponsoredReason:
+    "eviivo hat für diese Kategorie den Premium-Platz gebucht und wird deshalb hier als Anzeige angezeigt.",
 };
+
 
 // ─── Scoring (regelbasiert, gemockt) ──────────────────────────────────────────
 
@@ -222,18 +229,27 @@ function reasonFor(product: { tags: string[] }, tags: string[]): string {
 
 function scoreProducts(config: CollectionFinderConfig, answers: Answers) {
   const tags = collectTags(config, answers);
-  const scored = config.products.map((p, idx) => {
+  const organicPool = config.products.filter((p) => p.id !== config.sponsoredProductId);
+  const scored = organicPool.map((p, idx) => {
     const score = tags.reduce((acc, t) => acc + (p.tags.includes(t) ? 1 : 0), 0);
     return { product: p, score, organicIdx: idx, reason: reasonFor(p, tags) };
   });
   scored.sort((a, b) => (b.score - a.score) || (a.organicIdx - b.organicIdx));
   const top = scored.filter((s) => s.score > 0).slice(0, 3);
   if (top.length < 2) {
-    // Fallback: organische Reihung, falls zu wenige Treffer
     return scored.slice(0, 2);
   }
   return top;
 }
+
+function getSponsored(config: CollectionFinderConfig, answers: Answers) {
+  if (!config.sponsoredProductId) return null;
+  const product = config.products.find((p) => p.id === config.sponsoredProductId);
+  if (!product) return null;
+  const tags = collectTags(config, answers);
+  return { product, reason: reasonFor(product, tags) };
+}
+
 
 // ─── UI-Komponenten ───────────────────────────────────────────────────────────
 
@@ -295,7 +311,7 @@ export function CollectionFinder({
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [qualify, setQualify] = useState<{ rolle?: string; horizont?: string; situation?: string; budget?: string }>({});
-  const [contact, setContact] = useState({ betrieb: "", ansprechpartner: "", email: "", telefon: "" });
+  const [contact, setContact] = useState({ vorname: "", nachname: "", email: "" });
   const [consentA, setConsentA] = useState(false);
   const [consentB, setConsentB] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -342,7 +358,7 @@ export function CollectionFinder({
     setStep(0);
     setAnswers({});
     setQualify({});
-    setContact({ betrieb: "", ansprechpartner: "", email: "", telefon: "" });
+    setContact({ vorname: "", nachname: "", email: "" });
     setConsentA(false);
     setConsentB(false);
     setSubmitted(false);
@@ -404,8 +420,12 @@ export function CollectionFinder({
 
         {/* Ergebnis */}
         {step === stepResult && (
-          <ResultStep results={results} onGoContact={() => setStep(stepContact)} />
+          <ResultStep
+            results={results}
+            sponsored={getSponsored(config, answers)}
+          />
         )}
+
 
         {/* Kontakt */}
         {step === stepContact && !submitted && (
@@ -466,7 +486,8 @@ export function CollectionFinder({
                 className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-soft"
                 style={{ background: PRIMARY_VIOLET }}
               >
-                Kostenlos Angebote anfordern <ArrowRight className="size-4" />
+                Empfehlung per E-Mail anfordern <ArrowRight className="size-4" />
+
               </button>
             )}
           </div>
@@ -597,77 +618,120 @@ function QualifyStep({
 
 function ResultStep({
   results,
-  onGoContact,
+  sponsored,
 }: {
   results: { product: CollectionFinderConfig["products"][number]; score: number; reason: string }[];
-  onGoContact: () => void;
+  sponsored: { product: CollectionFinderConfig["products"][number]; reason: string } | null;
 }) {
   return (
     <div>
       <div className="text-[11px] font-semibold uppercase tracking-widest text-foreground/50">
-        Deine Auswahl · sortiert nach Passung zu deinen Antworten
+        Deine Auswahl · algorithmisch sortiert nach Passung zu deinen Antworten
       </div>
       <h3 className="mt-2 font-display text-2xl sm:text-3xl font-semibold tracking-tight">
         Deine passenden Treffer
       </h3>
 
-      <div className="mt-6 space-y-3">
-        {results.map(({ product, reason }) => (
+      {sponsored && (
+        <div className="mt-6">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#F5A623]/40 bg-[#F5A623]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-[#8a5d0e]">
+              Anzeige
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-foreground/50">
+              Premium-Platzierung
+            </span>
+          </div>
           <article
-            key={product.id}
-            className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border border-border bg-background/60 p-4 sm:p-5"
+            className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border-2 border-[#F5A623]/50 bg-[#F5A623]/[0.04] p-4 sm:p-5"
           >
             <span
               className="grid size-14 place-items-center rounded-2xl font-display text-lg font-bold text-white shrink-0"
-              style={{ background: product.color }}
+              style={{ background: sponsored.product.color }}
               aria-hidden
             >
-              {product.initials}
+              {sponsored.product.initials}
             </span>
             <div className="flex-1 min-w-0">
               <div className="text-[11px] font-semibold uppercase tracking-widest text-foreground/50">
-                {product.vendor}
+                {sponsored.product.vendor}
               </div>
-              <div className="font-display text-lg font-semibold">{product.name}</div>
-              <div
-                className="mt-1.5 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold"
-                style={{ background: `${ACCENT_GREEN}14`, color: "#047857" }}
-              >
-                <CheckCircle2 className="size-3.5" /> {reason}
+              <div className="font-display text-lg font-semibold">{sponsored.product.name}</div>
+              <div className="mt-1.5 text-xs text-foreground/65 leading-relaxed">
+                Dieser Platz ist eine bezahlte Anzeige. Er erscheint deshalb hier oben und nicht zusätzlich in
+                der organischen Liste unten.
               </div>
             </div>
             <div className="flex sm:flex-col gap-2 sm:items-end shrink-0">
               <a
-                href={product.detailHref}
+                href={sponsored.product.detailHref}
                 className="inline-flex items-center gap-1 rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-foreground/[0.04]"
               >
                 Details ansehen <ArrowRight className="size-3.5" />
               </a>
             </div>
           </article>
-        ))}
+        </div>
+      )}
+
+      <div className="mt-6">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-foreground/60">
+            Organisch
+          </span>
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-foreground/50">
+            Rein algorithmisch, nicht käuflich
+          </span>
+        </div>
+        <div className="space-y-3">
+          {results.map(({ product, reason }) => (
+            <article
+              key={product.id}
+              className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border border-border bg-background/60 p-4 sm:p-5"
+            >
+              <span
+                className="grid size-14 place-items-center rounded-2xl font-display text-lg font-bold text-white shrink-0"
+                style={{ background: product.color }}
+                aria-hidden
+              >
+                {product.initials}
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] font-semibold uppercase tracking-widest text-foreground/50">
+                  {product.vendor}
+                </div>
+                <div className="font-display text-lg font-semibold">{product.name}</div>
+                <div
+                  className="mt-1.5 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold"
+                  style={{ background: `${ACCENT_GREEN}14`, color: "#047857" }}
+                >
+                  <CheckCircle2 className="size-3.5" /> {reason}
+                </div>
+              </div>
+              <div className="flex sm:flex-col gap-2 sm:items-end shrink-0">
+                <a
+                  href={product.detailHref}
+                  className="inline-flex items-center gap-1 rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-foreground/[0.04]"
+                >
+                  Details ansehen <ArrowRight className="size-3.5" />
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
 
       <div className="mt-5 flex items-start gap-2 rounded-2xl border border-dashed border-border bg-background/40 p-4 text-sm text-foreground/70">
         <ShieldCheck className="size-4 mt-0.5 shrink-0" style={{ color: ACCENT_GREEN }} />
         <div>
-          Diese Auswahl richtet sich nach deinen Antworten, nicht nach bezahlter Platzierung. Nur die separat
-          gekennzeichnete Premium-Zone (Zone 00, Anzeige) ist käuflich.
+          Die organische Auswahl richtet sich rein nach deinen Antworten. Nur der oben separat gekennzeichnete
+          Anzeigen-Platz ist käuflich und taucht deshalb nicht zusätzlich in der organischen Liste auf.
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <div className="text-sm text-foreground/60">
-          Willst du dir Angebote von diesen Anbietern zusenden lassen?
-        </div>
-        <button
-          type="button"
-          onClick={onGoContact}
-          className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-soft"
-          style={{ background: PRIMARY_VIOLET }}
-        >
-          Kostenlos Angebote anfordern <ArrowRight className="size-4" />
-        </button>
+      <div className="mt-6 text-sm text-foreground/60">
+        Im nächsten Schritt brauchen wir nur Vorname, Nachname und E-Mail. Auf Basis deiner Antworten
+        schicken wir dir dann per E-Mail unsere algorithmische Empfehlung, welche Tools am besten zu dir passen.
       </div>
     </div>
   );
@@ -682,15 +746,20 @@ function ContactStep({
   setConsentB,
   onSubmit,
 }: {
-  contact: { betrieb: string; ansprechpartner: string; email: string; telefon: string };
-  setContact: React.Dispatch<React.SetStateAction<{ betrieb: string; ansprechpartner: string; email: string; telefon: string }>>;
+  contact: { vorname: string; nachname: string; email: string };
+  setContact: React.Dispatch<React.SetStateAction<{ vorname: string; nachname: string; email: string }>>;
   consentA: boolean;
   setConsentA: (v: boolean) => void;
   consentB: boolean;
   setConsentB: (v: boolean) => void;
   onSubmit: () => void;
 }) {
-  const canSubmit = contact.email.trim().length > 3 && contact.email.includes("@") && consentA;
+  const canSubmit =
+    contact.vorname.trim().length > 0 &&
+    contact.nachname.trim().length > 0 &&
+    contact.email.trim().length > 3 &&
+    contact.email.includes("@") &&
+    consentA;
   return (
     <form
       onSubmit={(e) => {
@@ -699,17 +768,41 @@ function ContactStep({
       }}
     >
       <div className="text-[11px] font-semibold uppercase tracking-widest text-foreground/50">
-        Letzter Schritt · Angebote anfordern
+        Letzter Schritt · Empfehlung per E-Mail
       </div>
       <h3 className="mt-2 font-display text-xl sm:text-2xl font-semibold tracking-tight">
-        Wohin dürfen wir dir die Angebote schicken?
+        Wohin dürfen wir dir die algorithmische Empfehlung schicken?
       </h3>
+      <p className="mt-2 text-sm text-foreground/65 max-w-xl">
+        Auf Basis deiner Antworten berechnen wir, welche Tools rein algorithmisch am besten zu deinem Betrieb
+        passen, und schicken dir die Auswertung per E-Mail. Deine Daten gehen nicht ungefragt an Anbieter.
+      </p>
 
       <div className="mt-6 grid sm:grid-cols-2 gap-4">
-        <Field label="Name des Campingplatzes oder Betriebs" value={contact.betrieb} onChange={(v) => setContact((p) => ({ ...p, betrieb: v }))} placeholder="Camping Beispiel GmbH" />
-        <Field label="Ansprechpartner" value={contact.ansprechpartner} onChange={(v) => setContact((p) => ({ ...p, ansprechpartner: v }))} placeholder="Vor- und Nachname" />
-        <Field label="E-Mail" required type="email" value={contact.email} onChange={(v) => setContact((p) => ({ ...p, email: v }))} placeholder="name@betrieb.de" />
-        <Field label="Telefon (optional)" value={contact.telefon} onChange={(v) => setContact((p) => ({ ...p, telefon: v }))} placeholder="+49 …" />
+        <Field
+          label="Vorname"
+          required
+          value={contact.vorname}
+          onChange={(v) => setContact((p) => ({ ...p, vorname: v }))}
+          placeholder="Max"
+        />
+        <Field
+          label="Nachname"
+          required
+          value={contact.nachname}
+          onChange={(v) => setContact((p) => ({ ...p, nachname: v }))}
+          placeholder="Muster"
+        />
+        <div className="sm:col-span-2">
+          <Field
+            label="E-Mail"
+            required
+            type="email"
+            value={contact.email}
+            onChange={(v) => setContact((p) => ({ ...p, email: v }))}
+            placeholder="name@betrieb.de"
+          />
+        </div>
       </div>
 
       <div className="mt-6 space-y-3">
@@ -717,20 +810,20 @@ function ContactStep({
           checked={consentA}
           onChange={setConsentA}
           required
-          label="Ja, schickt mir passende Angebote und Produktvorstellungen zu Campingplatz-Software. Ich kann dem jederzeit widersprechen."
+          label="Ja, schickt mir meine persönliche Software-Empfehlung per E-Mail. Ich kann dem jederzeit widersprechen."
         />
         <ConsentBox
           checked={consentB}
           onChange={setConsentB}
-          label="Benachrichtigt mich, wenn neue oder bessere Campingplatz-Software dazukommt. (Launch-Service, jederzeit abbestellbar)"
+          label="Benachrichtigt mich, wenn neue oder bessere Software in dieser Kategorie dazukommt. (Launch-Service, jederzeit abbestellbar)"
         />
       </div>
 
       <div className="mt-4 flex items-start gap-2 text-xs text-foreground/60">
         <Info className="size-3.5 mt-0.5 shrink-0" />
         <div>
-          Wir bestätigen deine Anmeldung per E-Mail (Double-Opt-in). Deine Daten gehen nicht ungefragt an Anbieter,
-          die Ansprache läuft über Toolfolio.
+          Wir bestätigen deine Anmeldung per E-Mail (Double-Opt-in). Die Empfehlung erstellt Toolfolio
+          algorithmisch aus deinen Antworten, unabhängig von bezahlten Platzierungen.
         </div>
       </div>
 
@@ -741,12 +834,13 @@ function ContactStep({
           className="inline-flex items-center gap-1.5 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-lift disabled:cursor-not-allowed disabled:opacity-40"
           style={{ background: PRIMARY_VIOLET }}
         >
-          <Mail className="size-4" /> Anfrage absenden
+          <Mail className="size-4" /> Empfehlung anfordern
         </button>
       </div>
     </form>
   );
 }
+
 
 function Field({
   label,
@@ -829,7 +923,7 @@ function DoneStep({ email, onReset }: { email: string; onReset: () => void }) {
       <p className="mt-2 text-foreground/70 max-w-md mx-auto">
         Bitte bestätige die E-Mail, die wir dir gerade an{" "}
         <span className="font-semibold text-foreground">{email || "deine Adresse"}</span> geschickt haben.
-        Danach leiten wir deine Anfrage an die passenden Anbieter weiter.
+        Danach schicken wir dir deine persönliche, algorithmisch berechnete Software-Empfehlung.
       </p>
       <button
         type="button"
