@@ -991,13 +991,34 @@ Antworte NUR mit JSON:
     ];
     await log.schreib("info", `Tag-Vokabular aus dem Fragensatz: ${vokabular.join(", ")}`);
 
-    const tagAntwort = await ki.messages.create({
-      model: MODELL,
-      max_tokens: 4000,
-      messages: [
-        {
-          role: "user",
-          content: `Ordne jedem Produkt die Fähigkeiten zu, die es laut seiner Beschreibung wirklich hat.
+    /* IN STAPELN, nicht auf einmal.
+       HIER LAG DER FEHLER: 49 Produkte mit je einer Begruendung passen nicht in eine
+       Antwort. Sie lief ins Token-Limit und brach mitten im JSON ab, der Lauf starb,
+       nachdem er die eigentliche Arbeit schon getan hatte. Aussen sah es aus, als sei
+       gar nichts passiert.
+
+       Zwei Konsequenzen: Stapel von 10, und die Begruendung fliegt raus. Sie wurde
+       nirgends angezeigt und hat die Antwort mehr als verdoppelt. Was nicht gebraucht
+       wird, wird nicht erzeugt. */
+    const STAPEL = 10;
+    const alleTags: { id: string; name: string; tags: string[] }[] = [];
+
+    for (let i = 0; i < produkte.length; i += STAPEL) {
+      const teil = produkte.slice(i, i + STAPEL);
+      await log.fortschritt(
+        "text",
+        `Fähigkeiten zuordnen (Produkt ${i + 1} bis ${Math.min(i + STAPEL, produkte.length)})`,
+        i,
+        produkte.length,
+      );
+
+      const tagAntwort = await ki.messages.create({
+        model: MODELL,
+        max_tokens: 3000,
+        messages: [
+          {
+            role: "user",
+            content: `Ordne jedem Produkt die Fähigkeiten zu, die es laut seiner Beschreibung wirklich hat.
 
 ERLAUBTE TAGS, ausschliesslich diese:
 ${vokabular.map((t) => `- ${t}`).join("\n")}
@@ -1007,41 +1028,61 @@ schliesse nicht. Steht nichts da, gibt es kein Tag. Ein geratenes Tag ist schlim
 eine Lücke, weil damit später eine Empfehlung begründet wird, die auf nichts beruht.
 
 PRODUKTE:
-${produkte.map((p) => `
+${teil.map((p) => `
 --- ${p.name} (id: ${p.id})
 ${p.kurzbeschreibung ?? ""}
-${(p.langbeschreibung ?? "").slice(0, 500)}
+${(p.langbeschreibung ?? "").slice(0, 400)}
 Funktionen: ${(p.features ?? []).join(" | ") || "keine angegeben"}`).join("")}
 
-Antworte NUR mit JSON:
-{"produkte":[{"id":"<uuid>","name":"<name>","tags":["..."],"begruendung":"ein Satz mit Bezug auf die Beschreibung"}]}`,
-        },
-      ],
-    });
+Antworte NUR mit JSON, ohne Codefence, ohne Begründungen:
+{"produkte":[{"id":"<uuid>","tags":["..."]}]}`,
+          },
+        ],
+      });
 
-    const tagRoh = tagAntwort.content[0].type === "text" ? tagAntwort.content[0].text : "";
-    const tagJson = JSON.parse(tagRoh.slice(tagRoh.indexOf("{"), tagRoh.lastIndexOf("}") + 1));
+      const tagRoh = tagAntwort.content[0].type === "text" ? tagAntwort.content[0].text : "";
+      let teilJson: { produkte?: { id: string; tags?: string[] }[] };
+      try {
+        teilJson = JSON.parse(tagRoh.slice(tagRoh.indexOf("{"), tagRoh.lastIndexOf("}") + 1));
+      } catch {
+        /* Ein kaputter Stapel darf nicht den ganzen Lauf toeten. Die anderen 40 Produkte
+           sind ja in Ordnung. Wir sagen, welcher Stapel fehlt, statt alles wegzuwerfen. */
+        await log.schreib(
+          "warnung",
+          `Stapel ${i + 1} bis ${Math.min(i + STAPEL, produkte.length)}: Antwort unlesbar, übersprungen.`,
+        );
+        continue;
+      }
+
+      for (const p of teilJson.produkte ?? []) {
+        const name = teil.find((x) => x.id === p.id)?.name ?? "?";
+        alleTags.push({ id: p.id, name, tags: (p.tags ?? []).filter((t: string) => vokabular.includes(t)) });
+      }
+    }
+
+    if (alleTags.length === 0) {
+      throw new Error("Kein einziges Produkt konnte eingeordnet werden. Ohne Fähigkeiten kann der Finder nichts empfehlen.");
+    }
 
     let n = 0;
-    for (const p of tagJson.produkte ?? []) {
-      const erlaubt = (p.tags ?? []).filter((t: string) => vokabular.includes(t));
+    for (const p of alleTags) {
       await admin
         .from("dir_collection_produkt")
-        .update({ tags: erlaubt })
+        .update({ tags: p.tags })
         .eq("collection_id", collectionId)
         .eq("produkt_id", p.id);
       n++;
-      await log.fortschritt("text", `${p.name}: ${erlaubt.join(", ") || "nichts belegt"}`, n, produkte.length);
-      await log.schreib("ok", `${p.name}: ${erlaubt.join(", ") || "(keine Fähigkeit belegt)"}`);
+      await log.fortschritt("text", `${p.name}`, n, alleTags.length);
+      await log.schreib("ok", `${p.name}: ${p.tags.join(", ") || "(keine Fähigkeit belegt)"}`);
     }
+
+    const tagJson = { produkte: alleTags };
 
     /* Kriterien, die KEIN Tool erfuellt, sind eine Luecke in unseren Daten, kein
        Kriterium. Wir sagen es der Redaktion, statt sie es spaeter im Finder merken
        zu lassen. */
-    const belegt = new Set(
-      (tagJson.produkte ?? []).flatMap((p: { tags?: string[] }) => (p.tags ?? []).filter((t: string) => vokabular.includes(t))),
-    );
-    const tot = vokabular.filter((t) => !belegt.has(t));
+    const belegt = new Set<string>(tagJson.produkte.flatMap((p) => p.tags));
+    const tot = (vokabular as string[]).filter((t) => !belegt.has(t));
     if (tot.length) {
       await log.schreib(
         "warnung",

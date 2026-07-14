@@ -52,6 +52,10 @@ export function FinderKarte({
   const [laufId, setLaufId] = useState<string | null>(null);
   const [offen, setOffen] = useState(false);
   const [wunsch, setWunsch] = useState("");
+  /* Der letzte Fehler bleibt STEHEN. Ein Toast ist nach drei Sekunden weg, und dann
+     sieht man nur noch einen Knopf, der nichts getan hat. Genau so ist Markus hier
+     zweimal ins Leere gelaufen. */
+  const [fehler, setFehler] = useState<string | null>(null);
 
   const fragen = entwurf?.categoryQuestions ?? [];
   const hatEntwurf = fragen.length > 0;
@@ -65,10 +69,13 @@ export function FinderKarte({
     const lauf = await res.json();
     if (lauf.status !== "laeuft") {
       setLaufId(null);
-      if (lauf.status === "fehler") {
+      if (lauf.status === "fehler" || lauf.status === "abgebrochen") {
         const letzte = lauf.protokoll?.filter((z: { art: string }) => z.art === "fehler").at(-1);
-        toast.error(letzte?.text ?? "Der Entwurf ist fehlgeschlagen.");
+        const text = letzte?.text ?? "Der Entwurf ist fehlgeschlagen.";
+        setFehler(text);
+        toast.error(text);
       } else {
+        setFehler(null);
         toast.success("Entwurf fertig. Lies die Begründungen und gib frei.");
         setOffen(true);
       }
@@ -83,6 +90,7 @@ export function FinderKarte({
   }, [laufId, pruefe]);
 
   async function erzeuge(mitWunsch = false) {
+    setFehler(null);
     setStart(true);
     try {
       const res = await fetch("/api/admin/verzeichnis/finder", {
@@ -202,6 +210,18 @@ export function FinderKarte({
           {produkteMitTags} von {produkteGesamt} Produkten haben belegte Fähigkeiten
         </span>
       </div>
+
+      {fehler && (
+        <div className="border-t border-destructive/40 bg-destructive/10 px-4 py-3 text-sm">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" />
+            <div>
+              <div className="font-semibold">Der letzte Versuch ist fehlgeschlagen.</div>
+              <p className="mt-0.5 text-muted-foreground">{fehler}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* WARNUNG, wenn kein Produkt Faehigkeiten hat.
           Ohne sie kann das Matching nichts leisten: der Nutzer bekommt KEINE Empfehlung
