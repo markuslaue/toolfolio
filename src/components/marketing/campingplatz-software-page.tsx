@@ -585,7 +585,7 @@ export function CampingplatzSoftwarePage() {
         <Reveal>
           <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
             <div>
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-foreground/50">Zone 01 · Organisch</div>
+              
               <h2 className="mt-1 font-display text-3xl sm:text-4xl font-semibold tracking-tight">
                 8 Tools im Vergleich
               </h2>
