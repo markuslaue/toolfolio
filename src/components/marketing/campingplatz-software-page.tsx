@@ -305,11 +305,21 @@ export function CampingplatzSoftwarePage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
+        {/* Foto-Hintergrund (kategoriegebunden) */}
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-20 bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroBg})`, filter: "blur(6px) saturate(90%)", transform: "scale(1.06)" }}
+        />
+        {/* Wash: hebt Text und Widget lesbar hervor */}
         <div
           aria-hidden
           className="absolute inset-0 -z-10"
           style={{
-            background: `radial-gradient(58% 55% at 12% 10%, ${accent}22, transparent 65%), radial-gradient(45% 45% at 95% 5%, #6C5CE714, transparent 60%)`,
+            background:
+              `linear-gradient(180deg, color-mix(in oklab, var(--paper) 78%, transparent) 0%, color-mix(in oklab, var(--paper) 88%, transparent) 55%, var(--paper) 100%), ` +
+              `radial-gradient(58% 55% at 12% 10%, ${accent}22, transparent 65%), ` +
+              `radial-gradient(45% 45% at 95% 5%, #6C5CE714, transparent 60%)`,
           }}
         />
         <div
