@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Trash2, Loader2, Tag as TagIcon, X, BellRing, BellOff } from "lucide-react";
+import { Trash2, Loader2, BellRing, BellOff } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -75,7 +75,6 @@ type FormData = {
   zahlungskanal: string;
   kunde: string;
   status: string;
-  tags: string[];
   weiterverrechnen: boolean;
   aufschlag_prozent: string;
   abo_seit: string;
@@ -103,7 +102,6 @@ function leer(): FormData {
     zahlungskanal: "",
     kunde: "",
     status: "aktiv",
-    tags: [],
     weiterverrechnen: false,
     aufschlag_prozent: "",
     abo_seit: "",
@@ -132,7 +130,6 @@ function ausAbo(a: Abo): FormData {
     zahlungskanal: a.zahlungskanal ?? "",
     kunde: a.kunde ?? "",
     status: a.status,
-    tags: a.tags ?? [],
     weiterverrechnen: a.weiterverrechnen,
     aufschlag_prozent: a.aufschlag_prozent?.toString() ?? "",
     abo_seit: a.abo_seit ?? "",
@@ -225,7 +222,6 @@ export function AboFormPanel({
   const [data, setData] = useState<FormData>(abo ? ausAbo(abo) : { ...leer(), ...vorbelegung });
   const [dirty, setDirty] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [tagInput, setTagInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -247,17 +243,9 @@ export function AboFormPanel({
     setDirty(true);
   }
 
-  function addTag(raw: string) {
-    const v = raw.trim();
-    if (!v || data.tags.includes(v)) return;
-    set("tags", [...data.tags, v]);
-    setTagInput("");
-  }
-
   function reset(next: FormData) {
     setData(next);
     setErrors({});
-    setTagInput("");
     setDirty(false);
   }
 
@@ -281,7 +269,12 @@ export function AboFormPanel({
       zahlungskanal: data.zahlungskanal,
       kunde: data.kunde,
       status: data.status as AboInput["status"],
-      tags: data.tags,
+      /* TAGS ENTFERNT (mit Markus, 2026-07-14).
+         Sie wurden erfasst und angezeigt, sonst nichts: kein Filter, keine Auswertung,
+         kein Bericht. Ein Feld, das nichts tut, kostet den Nutzer bei jedem Anlegen eine
+         Entscheidung und gibt nichts zurueck. Bestehende Tags bleiben in der Datenbank
+         unangetastet, sie werden nur nicht mehr abgefragt. */
+      tags: [],
       weiterverrechnen: data.weiterverrechnen,
       aufschlag_prozent: data.aufschlag_prozent === "" ? null : Number(data.aufschlag_prozent),
       abo_seit: data.abo_seit,
@@ -514,41 +507,6 @@ export function AboFormPanel({
                 </Select>
               </Field>
             </div>
-            <Field label="Tags">
-              <div className="flex flex-wrap items-center gap-2 rounded-md border border-input bg-transparent px-3 py-2">
-                {data.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground"
-                  >
-                    <TagIcon className="size-3" />
-                    {t}
-                    <button
-                      type="button"
-                      onClick={() => set("tags", data.tags.filter((x) => x !== t))}
-                      aria-label={`${t} entfernen`}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <X className="size-3" />
-                    </button>
-                  </span>
-                ))}
-                <input
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addTag(tagInput);
-                    } else if (e.key === "Backspace" && !tagInput && data.tags.length) {
-                      set("tags", data.tags.slice(0, -1));
-                    }
-                  }}
-                  placeholder={data.tags.length ? "" : "Tag eingeben und Enter drücken"}
-                  className="min-w-[8rem] flex-1 bg-transparent text-sm outline-none"
-                />
-              </div>
-            </Field>
           </Section>
 
           {/* Weiterverrechnung */}
