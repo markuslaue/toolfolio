@@ -296,7 +296,12 @@ export function AnbieterPage() {
             <div className="mt-8 grid gap-4 lg:grid-cols-2">
               {[1, 2].map((i) => (
                 <div key={i} className="rounded-2xl border border-border bg-[color:var(--paper)] p-6">
-                  <p className="text-sm leading-relaxed text-foreground/75">[Platzhalter-Zitat eines Anbieters, das beschreibt, wie qualifiziert die Leads aus Toolfolio sind.]</p>
+                  {/* Hier stand ein Platzhalter-Zitat eines Anbieters. Es kommt zurueck,
+                      sobald ein echter Anbieter eines gibt, mit Namen und Freigabe. */}
+                  <p className="text-sm leading-relaxed text-foreground/75">
+                    Wir zeigen hier Stimmen von Anbietern, sobald es welche gibt. Erfundene stehen uns nicht zu Gesicht,
+                    wenn wir gleichzeitig verifizierte Daten versprechen.
+                  </p>
                   <div className="mt-4 flex items-center gap-3">
                     <div className="grid size-9 place-items-center rounded-full bg-primary/10 text-xs font-semibold text-primary">[X]</div>
                     <div className="text-xs">

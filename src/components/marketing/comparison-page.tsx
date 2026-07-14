@@ -400,7 +400,7 @@ export const comparisonData: Record<ComparisonSlug, ComparisonData> = {
       { title: "Mail-Forward aktivieren", body: "Ab jetzt landet jede neue Rechnung automatisch am richtigen Abo." },
     ],
     faqs: [
-      { q: "Ist Toolfolio nicht teurer als meine Excel-Tabelle?", a: "Excel ist gratis, Toolfolio startet im Free-Plan bei 0 €. Pro kostet 19 € im Monat und spart laut Mediandaten 89 bis 127 € pro Monat ein, allein durch erkannte vergessene Abos und Sparvorschläge." },
+      { q: "Ist Toolfolio nicht teurer als meine Excel-Tabelle?", a: "Excel ist gratis, Toolfolio startet im Free-Plan bei 0 €. Pro kostet 19 € im Monat. Ob es sich rechnet, entscheidet ein einziges vergessenes Abo: Wer eine ungenutzte Lizenz findet, hat den Monatsbeitrag meist schon wieder drin. Eine Durchschnittsersparnis nennen wir bewusst nicht, denn dafür haben wir noch keine belastbaren Daten." },
       { q: "Kann ich meine bestehende Tabelle importieren?", a: "Ja. CSV oder Excel hochladen, Spalten automatisch mappen, fertig. Die History bleibt erhalten." },
       { q: "Lohnt sich der Umstieg für ein kleines Team?", a: "Gerade dann. In kleinen Teams pflegt die Tabelle niemand. Toolfolio pflegt sich von selbst, das ist der Hebel." },
       { q: "Was, wenn ich später doch zurück will?", a: "Du exportierst alle Daten jederzeit als CSV. Kein Lock-in." },

@@ -102,6 +102,13 @@ export function ScreenshotFrame({
           <div className="ml-3 hidden items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-[11px] text-muted-foreground sm:flex">
             <Globe2 className="size-3" /> app.toolfolio.de{caption ? ` / ${caption}` : ""}
           </div>
+          {/* BEISPIELDATEN. Ohne dieses Label sieht der Rahmen aus wie ein echter
+              Kontostand, und die Zahlen darin ("12 % unter Benchmark", "1.840 EUR
+              gespart") sind erfunden. Ein Produktbild darf illustrieren, aber es darf
+              sich nicht als Beleg ausgeben. */}
+          <span className="ml-auto rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Beispieldaten
+          </span>
         </div>
         <div className="relative aspect-[16/10] bg-[color:var(--paper)]">
           {children ?? (
@@ -480,7 +487,7 @@ function Hero() {
             </h1>
             <p className="mt-5 max-w-xl text-lg text-muted-foreground">
               Toolfolio zeigt dir, was wirklich läuft, warnt dich vor stillen Verlängerungen und
-              macht günstigere Alternativen sichtbar. Belegt durch echte Marktpreise.
+              macht günstigere Alternativen sichtbar. Mit Preisen, die wir belegen, statt sie zu behaupten.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <a href="/registrieren" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-soft transition-all hover:bg-primary/90 hover:shadow-lift">
@@ -599,10 +606,10 @@ function Wert() {
 function Features() {
   const blocks = [
     { icon: LayoutDashboard, eyebrow: "Der vollständige Überblick", title: "Alle Abos, Kosten und Abrechnungszeiträume auf einen Blick.", desc: "Du siehst Monat und Jahr, jährlich und monatlich, alles in einer Zahl. Filter nach Kategorie, Kunde oder Karte.", Preview: PreviewDashboard, caption: "dashboard", slot: "Dashboard mit KPI-Karten und Spar-Fortschritt." },
-    { icon: FileSpreadsheet, eyebrow: "Alles drin in Minuten", title: "Drei-Wege-Erfassung. Auch das, was du vergessen hattest.", desc: "Importiere den Kontoauszug, leite Belege an dein Toolfolio-Postfach weiter oder pflege manuell. Der Importer findet auch die Abos, die du längst vergessen hast.", Preview: PreviewImport, caption: "import", slot: "Import-Review mit erkannten Buchungen." },
+    { icon: FileSpreadsheet, eyebrow: "Alles drin in Minuten", title: "Kontoauszug importieren. Auch das, was du vergessen hattest.", desc: "Lade den Kontoauszug hoch (CSV, CAMT oder MT940) oder pflege manuell. Der Importer findet auch die Abos, die du längst vergessen hast. Das Beleg-Postfach, an das du Rechnungen weiterleitest, bauen wir gerade.", Preview: PreviewImport, caption: "import", slot: "Import-Review mit erkannten Buchungen." },
     { icon: CalendarClock, eyebrow: "Nie wieder eine stille Verlängerung", title: "Der Kündigungsfristen- und Trial-Wächter warnt rechtzeitig.", desc: "Genau gegen den Schmerz von oben. Du bekommst die richtige Erinnerung zur richtigen Zeit. Verlängerungen passieren nur noch, wenn du sie willst.", Preview: PreviewFristen, caption: "fristen", slot: "Fristen-Timeline mit Restlaufzeit pro Vertrag." },
     { icon: Cpu, eyebrow: "AI-Credits unter Kontrolle", title: "Auch die variablen KI-Kosten im Griff.", desc: "OpenAI, Anthropic, ElevenLabs und mehr. Du erkennst Spikes, setzt Budgets und vermeidest, dass am Monatsende die doppelte Rechnung kommt.", Preview: PreviewAiCredits, caption: "ai-credits", slot: "AI-Credit-Verlauf mit Spike-Erkennung." },
-    { icon: BarChart3, eyebrow: "Wo du zu viel zahlst", title: "Benchmark aus echten Abrechnungsdaten.", desc: "Vergleichbare Agenturen, gleiche Leistung. Du siehst, ob dein Preis fair ist oder ob du ohne Weiteres weniger zahlen könntest.", Preview: PreviewBenchmark, caption: "benchmark", slot: "Benchmark-Vergleich Du gegen Markt-Median." },
+    { icon: BarChart3, eyebrow: "Wo du zu viel zahlst", bald: true, title: "Benchmark aus echten Abrechnungsdaten.", desc: "Vergleichbare Agenturen, gleiche Leistung. Du wirst sehen, ob dein Preis fair ist. Dafür brauchen wir genug anonymisierte Abrechnungsdaten, und die entstehen erst mit den ersten Nutzern. Wir bauen es, sobald die Datenbasis trägt.", Preview: PreviewBenchmark, caption: "benchmark", slot: "Benchmark-Vergleich Du gegen Markt-Median." },
     { icon: Sparkles, eyebrow: "Sparen mit einem Klick", title: "Sparvorschläge, Intervallwechsel und Deals.", desc: "Jährlich statt monatlich. Redundante Tools erkannt. Gutscheine eingelöst. Konkrete Maßnahmen, kein abstrakter Bericht.", Preview: PreviewSparvorschlaege, caption: "sparvorschlaege", slot: "Sparvorschläge mit Jahres-Ersparnis." },
     { icon: Users, eyebrow: "Für Agenturen", title: "Toolkosten pro Kunde. Zuordnen, weiterverrechnen, Marge sehen.", desc: "Jedes Tool kann einem Kunden zugeordnet werden. Du siehst die Kosten, den weiterverrechneten Anteil und die Marge auf einen Blick.", Preview: PreviewKunde, caption: "kunden", slot: "Kunden-Detail mit Tool-Kosten und Marge." },
   ];
@@ -625,8 +632,18 @@ function Features() {
               <div key={b.title} className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
                 <Reveal className={cn(reverse && "lg:order-2")}>
                   <div>
-                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                      <b.icon className="size-3.5" /> {b.eyebrow}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                        <b.icon className="size-3.5" /> {b.eyebrow}
+                      </div>
+                      {/* Ein Feature, das es noch nicht gibt, wird als solches gekennzeichnet.
+                          Wer sich dafuer anmeldet und es dann nicht findet, hat schon investiert,
+                          wenn er es merkt. Das ist der teuerste Weg, Vertrauen zu verlieren. */}
+                      {b.bald && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+                          in Vorbereitung
+                        </span>
+                      )}
                     </div>
                     <h3 className="mt-4 font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
                       {b.title}
@@ -782,40 +799,56 @@ function Zielgruppen() {
   );
 }
 
+/**
+ * Was Toolfolio ausmacht.
+ *
+ * HIER STANDEN FRUEHER (bis 2026-07-14):
+ *   "1.200+ Agenturen vertrauen Toolfolio"   Wirklichkeit: 2 Konten.
+ *   "5.800+ Tools im DACH-Verzeichnis"       Wirklichkeit: 88.
+ *   "Oe Ersparnis pro Jahr: 2.400 EUR"       Wirklichkeit: keine Grundlage.
+ *   Drei ausformulierte Kundenstimmen von Menschen, die es nicht gibt.
+ *
+ * Das war nicht forsches Marketing, sondern irrefuehrende Werbung (§ 5 UWG), und die
+ * Zahlen waren trivial zu widerlegen. Auf einer Seite, deren ganzes Versprechen
+ * "verifizierte Preise statt Behauptungen" lautet, ist erfundener Social Proof nicht
+ * nur riskant, er zerstoert genau das Argument, mit dem wir antreten.
+ *
+ * Ersetzt durch das, was WIRKLICH stimmt und ohne Zahl traegt. Sobald es echte Kunden
+ * gibt, kommen echte Stimmen hierhin, mit Namen, Firma und Einverstaendnis.
+ */
 function SocialProof() {
-  const stats = [
-    { label: "Agenturen vertrauen Toolfolio", value: "1.200+" },
-    { label: "Ø Ersparnis pro Jahr", value: fmtEUR(2400) },
-    { label: "Tools im DACH-Verzeichnis", value: "5.800+" },
+  const punkte = [
+    {
+      titel: "Preise, die belegt sind statt behauptet",
+      text: "Wo wir keinen verifizierten Preis haben, steht das da. Wir zeigen lieber eine Lücke als eine Zahl, die niemand prüfen kann.",
+    },
+    {
+      titel: "Gebaut für den deutschen Vertragsalltag",
+      text: "Kündigungsfristen, stille Verlängerung, Kundenzuordnung, Weiterverrechnung. Genau die Dinge, an denen internationale Tools vorbeigehen.",
+    },
+    {
+      titel: "Deine Zahlen bleiben deine Zahlen",
+      text: "In Benchmarks fließen nur Aggregate ab einer Mindestzahl an Konten. Einzelne Beträge sieht niemand, auch wir nicht.",
+    },
   ];
-  const stimmen = [
-    { text: "Endlich ein Tool, das mir den deutschen Vertragsalltag abnimmt. Die Fristen-Erinnerungen sind Gold wert.", autor: "Platzhalter, Agenturinhaber" },
-    { text: "Wir wussten nie, welcher Kunde welche Lizenz nutzt. Jetzt ist es ein Klick und die Marge stimmt wieder.", autor: "Platzhalter, Operations Lead" },
-    { text: "Der Benchmark hat uns gezeigt, dass wir bei zwei Tools deutlich überzahlen. Direkt gewechselt.", autor: "Platzhalter, Freelancerin" },
-  ];
+
   return (
     <section className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {stats.map((s) => (
-              <div key={s.label} className="rounded-2xl border border-border bg-card p-6 text-center">
-                <div className="font-display text-3xl font-semibold tabular text-primary sm:text-4xl">{s.value}</div>
-                <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
-              </div>
-            ))}
+          <div className="max-w-2xl">
+            <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              Warum Toolfolio und nicht das nächste Dashboard.
+            </h2>
           </div>
         </Reveal>
-        <div className="mt-12 grid gap-5 lg:grid-cols-3">
-          {stimmen.map((s, i) => (
-            <Reveal key={i} delay={i * 100}>
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {punkte.map((p, i) => (
+            <Reveal key={p.titel} delay={i * 100}>
               <div className="card-lift h-full rounded-3xl border border-border bg-card p-7">
                 <Quote className="size-6 text-primary/50" />
-                <p className="mt-3 text-base leading-relaxed">{s.text}</p>
-                <div className="mt-5 flex items-center gap-3 border-t border-border pt-4">
-                  <span className="grid size-9 place-items-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">PH</span>
-                  <span className="text-sm text-muted-foreground">{s.autor}</span>
-                </div>
+                <div className="mt-3 font-display text-lg font-semibold">{p.titel}</div>
+                <p className="mt-2 text-base leading-relaxed text-muted-foreground">{p.text}</p>
               </div>
             </Reveal>
           ))}

@@ -47,7 +47,10 @@ export default async function VerzeichnisHub() {
           </form>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5"><ShieldCheck className="size-4 text-success" /> Preise mit Stand & Quelle</span>
-            <span className="inline-flex items-center gap-1.5"><Star className="size-4 text-[#F5A623]" /> Verifizierte Bewertungen</span>
+            {/* Frueher stand hier "Verifizierte Bewertungen". Wir haben vier Bewertungen
+                insgesamt. Ein Vertrauens-Siegel fuer einen Bestand, den es nicht gibt, ist
+                genau die Sorte Behauptung, gegen die dieses Verzeichnis antritt. */}
+            <span className="inline-flex items-center gap-1.5"><Star className="size-4 text-[#F5A623]" /> Keine gekauften Ränge</span>
             <span className="inline-flex items-center gap-1.5"><Layers className="size-4 text-primary" /> Drei Zonen, klar getrennt</span>
           </div>
         </div>

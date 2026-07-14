@@ -59,7 +59,7 @@ const securityStandards = [
 const validationSteps = [
   { icon: FileCheck2, title: "Sicherheits-Selbstauskunft", text: "Du füllst eine verbindliche Checkliste zu den Sicherheitspunkten aus und versicherst deren Einhaltung." },
   { icon: ShieldCheck, title: "Externe Prüfung durch Toolfolio", text: "Wir prüfen TLS-Zertifikat, Erreichbarkeit, Datenschutzerklärung und Impressum, grundlegende Sicherheits-Header und die Plausibilität deiner Selbstauskunft." },
-  { icon: BadgeCheck, title: "Badge mit ehrlichem Umfang", text: "Der Badge bestätigt die extern geprüften Punkte und deine Selbstverpflichtung. Er ist ausdrücklich keine vollständige Sicherheitsgarantie oder Zertifizierung. [Diese Aussage ist anwaltlich zu prüfen.]" },
+  { icon: BadgeCheck, title: "Badge mit ehrlichem Umfang", text: "Der Badge bestätigt die extern geprüften Punkte und deine Selbstverpflichtung. Er ist ausdrücklich keine vollständige Sicherheitsgarantie oder Zertifizierung." },
 ];
 
 const listingSteps = [
@@ -73,7 +73,7 @@ const faqs = [
   { q: "Kostet das laufend etwas?", a: "Nein. Die Grund-Listung ist dauerhaft kostenlos. Der Badge kostet einmalig 49,00 €. Kein Abo, kein CPC, keine versteckten Folgekosten." },
   { q: "Bekommt ihr etwas von meinen Verkäufen?", a: "Nein. Kein Affiliate, keine Umsatzbeteiligung. Wir verdienen ausschließlich am einmaligen Badge und an Premium-Platzierungen für größere Anbieter." },
   { q: "Was genau prüft ihr bei der Sicherheit?", a: "Extern prüfbare Punkte: gültiges TLS-Zertifikat, Erreichbarkeit, Datenschutzerklärung und Impressum, grundlegende Sicherheits-Header sowie die Plausibilität deiner Selbstauskunft. Den Rest sicherst du verbindlich per Selbstauskunft zu." },
-  { q: "Was bedeutet der Badge wirklich?", a: "Der Badge bedeutet: Toolfolio hat die extern prüfbaren Punkte geprüft, und du hast verbindlich zugesichert, nach aktuellen Sicherheitsstandards zu arbeiten. Er bedeutet ausdrücklich nicht, dass Toolfolio die Sicherheit deines Tools garantiert. [Formulierung anwaltlich zu prüfen.]" },
+  { q: "Was bedeutet der Badge wirklich?", a: "Der Badge bedeutet: Toolfolio hat die extern prüfbaren Punkte geprüft, und du hast verbindlich zugesichert, nach aktuellen Sicherheitsstandards zu arbeiten. Er bedeutet ausdrücklich nicht, dass Toolfolio die Sicherheit deines Tools garantiert." },
   { q: "Was, wenn ich den Sicherheitscheck nicht bestehe?", a: "Die Listung als Community-Tool ohne Badge bleibt möglich, sofern die allgemeinen Standards erfüllt sind. Du bist also weiterhin im Verzeichnis sichtbar." },
   { q: "Beeinflusst der Badge meine Bewertungen oder das Ranking?", a: "Nein. Bewertungen, neutrale Ranglisten und verifizierte Preisdaten sind nicht käuflich. Der Badge sagt 'geprüft', nicht 'besser'." },
 ];
@@ -277,7 +277,7 @@ export function EntwicklerPage() {
         </div>
         <Reveal delay={200}>
           <div className="mt-6 rounded-3xl border border-warning/30 bg-warning/10 p-5 text-sm">
-            <strong className="font-display text-base">Was der Badge nicht ist:</strong> keine vollständige Sicherheitszertifizierung und keine Garantie. Er bestätigt die geprüften externen Punkte und deine Selbstverpflichtung. Diese Aussage steht so auch öffentlich am Badge. [Formulierung anwaltlich zu prüfen.]
+            <strong className="font-display text-base">Was der Badge nicht ist:</strong> keine vollständige Sicherheitszertifizierung und keine Garantie. Er bestätigt die geprüften externen Punkte und deine Selbstverpflichtung. Diese Aussage steht so auch öffentlich am Badge.
           </div>
         </Reveal>
       </section>

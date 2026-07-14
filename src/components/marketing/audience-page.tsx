@@ -55,7 +55,6 @@ export type AudienceData = {
   planName: string;
   planReason: string;
   planPrice: string;
-  voices: { name: string; role: string; quote: string }[];
   faqs: Faq[];
   otherAudiences: { slug: AudienceSlug; label: string; teaser: string }[];
 };
@@ -245,31 +244,6 @@ export function AudiencePage({ data }: { data: AudienceData }) {
         </Reveal>
       </section>
 
-      {/* Social Proof */}
-      <section className="bg-white py-24">
-        <div className="mx-auto max-w-7xl px-6">
-          <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#FF7A66]">Stimmen aus dem Segment</p>
-            <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight sm:text-5xl">Was {data.segmentLabel} sagen.</h2>
-            <p className="mt-2 text-sm text-[#1F1D2B]/55">Platzhalter-Zitate, werden mit echten Stimmen ersetzt.</p>
-          </Reveal>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {data.voices.map((v, i) => (
-              <Reveal key={v.name} delay={i * 80}>
-                <div className="h-full rounded-3xl border border-[#1F1D2B]/10 bg-[#FBF7F1] p-6">
-                  <Quote className="h-6 w-6 text-[#6C5CE7]" />
-                  <p className="mt-3 text-[15px] leading-relaxed text-[#1F1D2B]/85">„{v.quote}“</p>
-                  <div className="mt-5 border-t border-[#1F1D2B]/10 pt-4 text-sm">
-                    <div className="font-semibold text-[#1F1D2B]">{v.name}</div>
-                    <div className="text-[#1F1D2B]/60">{v.role}</div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* FAQ */}
       <section className="mx-auto max-w-4xl px-6 py-24">
         <Reveal>
@@ -424,15 +398,13 @@ export const audienceData: Record<AudienceSlug, AudienceData> = {
       { title: "Fristen-Wächter: keine stille Verlängerung.", body: "Bei dreißig Verträgen verpasst du Kündigungsfristen. Toolfolio warnt rechtzeitig, vor jeder Verlängerung, pro Kunde gruppiert.", bullets: ["Mehrstufige Warnungen", "Pro Kunde sortiert", "Kalender-Export"], slot: "Fristen-Übersicht", Preview: PreviewFristen, href: "/features/kuendigungsfristen-waechter" },
     ],
     outcomeBody: "Du siehst pro Kunde, wie viel Tool-Kosten reinkommen und wie viel rausgeht. Du hast eine saubere Grundlage für die Verhandlung des nächsten Retainers. Und du sparst dir das Excel am Monatsende.",
-    outcomes: [{ kpi: "+23%", label: "mehr Marge pro Kunde" }, { kpi: "189 €", label: "Sparpotenzial pro Monat (Median)" }, { kpi: "4 h", label: "weniger Excel pro Monat" }],
+    /* HIER STANDEN ERFUNDENE MEDIAN-WERTE ("189 EUR Sparpotenzial pro Monat (Median)",
+       "+23% mehr Marge pro Kunde"). Das Wort "Median" behauptet eine Auswertung ueber
+       eine Nutzerbasis, die es nicht gibt. Weg damit, bis wir wirklich messen koennen. */
+    outcomes: [],
     planName: "Agentur-Plan",
     planReason: "Der Agentur-Plan schaltet die Kunden-Zuordnung, Weiterverrechnungs-Reports und das Team-Offboarding frei. Genau das, was du brauchst, um Toolkosten in Marge zu verwandeln.",
     planPrice: "49 €",
-    voices: [
-      { name: "Pia M.", role: "Inhaberin, Designagentur", quote: "Endlich sehe ich, welcher Kunde wirklich profitabel ist. Die Marge war vorher Schätzung, jetzt ist sie Zahl." },
-      { name: "Jonas K.", role: "Geschäftsführer, Digitalagentur", quote: "Der Weiterverrechnungs-Report spart uns jeden Monat einen halben Tag. Und wir verrechnen jetzt sauber, nicht mehr nach Bauchgefühl." },
-      { name: "Lina S.", role: "Operations, Branding-Studio", quote: "Beim Offboarding sehe ich auf einen Klick, welche Tools entzogen werden müssen. Kein Loom-Account vergessen mehr." },
-    ],
     faqs: [
       { q: "Kann ich Toolkosten pro Kunde weiterverrechnen?", a: "Ja. Jedes Abo lässt sich einem Kunden zuordnen, mit Aufschlag in Prozent oder als fixer Betrag. Der Monats-Report ist sofort fertig zum Anhängen an deine Rechnung." },
       { q: "Wie funktioniert die Marge-Berechnung?", a: "Toolfolio rechnet Tool-Kosten gegen den weiterverrechneten Betrag pro Kunde. Du siehst die Marge in Euro und in Prozent, pro Kunde und insgesamt." },
@@ -470,15 +442,13 @@ export const audienceData: Record<AudienceSlug, AudienceData> = {
       { title: "Archiv: was du gekündigt hast und was du sparst.", body: "Jede Kündigung landet im Archiv. Du siehst, was du im letzten Jahr eingespart hast, schwarz auf weiß.", bullets: ["Kündigungs-Historie", "Sparsumme pro Jahr", "Wiederaufnahme jederzeit"], slot: "Archiv", Preview: PreviewArchiv, href: "/features/archiv" },
     ],
     outcomeBody: "Keine vergessenen Abos mehr, keine verpassten Fristen, kein Steuer-Stress am Quartalsende. Du arbeitest, Toolfolio kümmert sich um den Rest.",
-    outcomes: [{ kpi: "127 €", label: "Sparen pro Monat (Median)" }, { kpi: "0", label: "verpasste Fristen" }, { kpi: "5 Min.", label: "Steuer-Export statt Stunden" }],
+    /* HIER STANDEN ERFUNDENE MEDIAN-WERTE ("189 EUR Sparpotenzial pro Monat (Median)",
+       "+23% mehr Marge pro Kunde"). Das Wort "Median" behauptet eine Auswertung ueber
+       eine Nutzerbasis, die es nicht gibt. Weg damit, bis wir wirklich messen koennen. */
+    outcomes: [],
     planName: "Pro-Plan",
     planReason: "Pro schaltet AI-Credits, Steuer-Export und unbegrenzte Abos frei. Genau das, was du als Freelancer brauchst, ohne Agentur-Overhead.",
     planPrice: "19 €",
-    voices: [
-      { name: "Mara F.", role: "Freelance Designerin", quote: "Ich habe drei vergessene Abos in der ersten Woche gefunden. Toolfolio hat sich im ersten Monat bezahlt gemacht." },
-      { name: "Tim B.", role: "Freelance Entwickler", quote: "Der Steuer-Export ist Gold wert. Was vorher Stunden gedauert hat, ist jetzt ein Klick." },
-      { name: "Sophie R.", role: "Freelance Texterin", quote: "Endlich weiß ich, wann welche AI-Credits ausgehen. Kein böses Erwachen mehr mitten in einem Projekt." },
-    ],
     faqs: [
       { q: "Wie bekomme ich meine Abos in Toolfolio?", a: "Du leitest die Rechnungs-Mails an deine persönliche Toolfolio-Adresse weiter. Wir extrahieren Anbieter, Betrag und Verlängerung automatisch." },
       { q: "Funktioniert der Steuer-Export mit meiner Steuerberatung?", a: "Ja. Wir exportieren als DATEV-CSV und als generische CSV. Reverse-Charge ist korrekt gekennzeichnet." },
@@ -515,15 +485,13 @@ export const audienceData: Record<AudienceSlug, AudienceData> = {
       { title: "Archiv: das Spargedächtnis.", body: "Jede Kündigung wird festgehalten. Du siehst am Jahresende, was du wirklich eingespart hast.", bullets: ["Sparsumme pro Jahr", "Kündigungs-Historie", "Belege archiviert"], slot: "Archiv", Preview: PreviewArchiv, href: "/features/archiv" },
     ],
     outcomeBody: "Du behältst die Kontrolle, ohne ein zweites Excel zu führen. Du sparst echtes Geld, das du in dein Business stecken kannst. Und du schläfst nachts ruhiger.",
-    outcomes: [{ kpi: "89 €", label: "Sparen pro Monat (Median)" }, { kpi: "0", label: "vergessene Trials" }, { kpi: "5 Min.", label: "Setup, dann läuft es" }],
+    /* HIER STANDEN ERFUNDENE MEDIAN-WERTE ("189 EUR Sparpotenzial pro Monat (Median)",
+       "+23% mehr Marge pro Kunde"). Das Wort "Median" behauptet eine Auswertung ueber
+       eine Nutzerbasis, die es nicht gibt. Weg damit, bis wir wirklich messen koennen. */
+    outcomes: [],
     planName: "Free, dann Pro",
     planReason: "Starte komplett kostenlos. Wenn du mehr Abos verwalten oder den Steuer-Export brauchst, wechselst du in einem Klick zu Pro.",
     planPrice: "0 €",
-    voices: [
-      { name: "Anna T.", role: "Solo-Founder, Content-Studio", quote: "Drei vergessene Trials in der ersten Woche gefunden. Toolfolio hat sich sofort gelohnt." },
-      { name: "Ben W.", role: "Indie Hacker", quote: "Die Sparvorschläge waren konkret und passten. Ich zahle jetzt 40 € weniger im Monat." },
-      { name: "Klara D.", role: "Online-Coach", quote: "Ich bin endlich raus aus dem Gefühl, nicht zu wissen, wofür mein Geld weggeht." },
-    ],
     faqs: [
       { q: "Was kostet mich Free wirklich?", a: "Free ist komplett kostenlos. Bis zu 10 Abos, Übersicht, Trial-Warnungen. Kein Trick, keine Kreditkarte." },
       { q: "Wann lohnt sich Pro?", a: "Sobald du mehr als 10 Abos hast oder den Steuer-Export brauchst. Du wechselst in einem Klick." },

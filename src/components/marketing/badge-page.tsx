@@ -76,7 +76,7 @@ const lifecycle = [
 ];
 
 const faqs = [
-  { q: "Garantiert der Badge, dass ein Tool sicher ist?", a: "Nein. Der Badge bestätigt extern prüfbare Punkte und die verbindliche Selbstauskunft des Anbieters. Er ist ausdrücklich keine vollständige Sicherheitsprüfung, kein Penetrationstest und keine Zertifizierung. Bei sensiblen Entscheidungen bleibt eigene Sorgfalt nötig. [Formulierung anwaltlich zu prüfen.]" },
+  { q: "Garantiert der Badge, dass ein Tool sicher ist?", a: "Nein. Der Badge bestätigt extern prüfbare Punkte und die verbindliche Selbstauskunft des Anbieters. Er ist ausdrücklich keine vollständige Sicherheitsprüfung, kein Penetrationstest und keine Zertifizierung. Bei sensiblen Entscheidungen bleibt eigene Sorgfalt nötig." },
   { q: "Wie lange gilt der Badge?", a: "In der Regel zwölf Monate. Danach wird erneut geprüft und neu bestätigt." },
   { q: "Kann ein Badge entzogen werden?", a: "Ja. Wenn ein Tool die Standards nicht mehr erfüllt oder die Selbstauskunft falsch war, entziehen wir den Badge und kennzeichnen das im Verzeichnis." },
   { q: "Ist 'gesponsert' dasselbe wie 'verifiziert'?", a: "Nein. Sichtbarkeit ist erhältlich, der Badge nicht. Gesponserte Platzierungen sind klar gekennzeichnet und sagen nichts über Prüfung oder Qualität aus." },

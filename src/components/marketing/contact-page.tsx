@@ -25,7 +25,7 @@ const topics = [
 const channels = [
   { id: "support", icon: MessageSquare, title: "Support", text: "Für Fragen zur Bedienung, Import oder Einrichtung.", cta: "[Support-E-Mail einsetzen]" },
   { id: "vertrieb", icon: Building2, title: "Vertrieb", text: "Für Angebote, Team-Pläne, Abrechnung und Auftragsdaten.", cta: "[Vertriebs-E-Mail einsetzen]" },
-  { id: "presse", icon: Mail, title: "Presse", text: "Für Medienanfragen, Logos, Statements und Termine.", cta: "[Presse-E-Mail einsetzen]" },
+  { id: "presse", icon: Mail, title: "Presse", text: "Für Medienanfragen, Logos, Statements und Termine.", cta: "presse@toolfolio.de" },
 ];
 
 function isValidEmail(v: string) {
