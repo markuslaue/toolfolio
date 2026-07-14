@@ -316,10 +316,6 @@ function ErgebnisSchritt({
               {gesponsertKandidat?.kurzbeschreibung && (
                 <p className="mt-1 text-sm text-muted-foreground">{gesponsertKandidat.kurzbeschreibung}</p>
               )}
-              <p className="mt-2 text-xs text-muted-foreground">
-                Dieser Anbieter zahlt für seine Sichtbarkeit. Er steht deshalb hier, nicht weil er besser zu deinen
-                Antworten passt. Ob er passt, entscheidest du. Deine Anfrage geht auf jeden Fall auch an ihn.
-              </p>
             </div>
           </div>
         </div>
