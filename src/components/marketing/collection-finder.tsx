@@ -420,8 +420,12 @@ export function CollectionFinder({
 
         {/* Ergebnis */}
         {step === stepResult && (
-          <ResultStep results={results} onGoContact={() => setStep(stepContact)} />
+          <ResultStep
+            results={results}
+            sponsored={getSponsored(config, answers)}
+          />
         )}
+
 
         {/* Kontakt */}
         {step === stepContact && !submitted && (
