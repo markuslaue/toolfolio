@@ -39,12 +39,6 @@ export default async function ClusterRedaktion({
     .order("prio")
     .order("name");
 
-  /* Neu angelegte Kategorien sind das, was die Redaktion sucht: sie haben noch keinen
-     Text und keine Produkte, also ist dort Arbeit. Frueher standen sie nach Prioritaet
-     und Alphabet irgendwo auf Position 38 von 41, und Markus hat eine gerade erst
-     angelegte Kategorie schlicht nicht gefunden. Eine Liste, in der man das Neue suchen
-     muss, ist die falsche Liste. */
-
   const alle = (collections as Coll[]) ?? [];
 
   /* Filter nach Finder-Status. Als Link, nicht als Client-Komponente: die Redaktion
@@ -52,12 +46,17 @@ export default async function ClusterRedaktion({
      muss er in der URL stehen. */
   const gefiltert = filter && filter !== "alle" ? alle.filter((x) => x.finder_status === filter) : alle;
 
-  // Ohne Text = noch nichts passiert = nach oben. Der Rest behaelt Prio und Alphabet.
-  const colls = [...gefiltert].sort((a, b) => {
-    const aLeer = a.content_status === "fehlt" ? 0 : 1;
-    const bLeer = b.content_status === "fehlt" ? 0 : 1;
-    return aLeer - bLeer;
-  });
+  /* Rein alphabetisch, aufsteigend: erst Zahlen, dann A bis Z.
+     Bewusst NICHT nach Prioritaet oder Bearbeitungsstand: wer eine bestimmte Kategorie
+     sucht, sucht sie beim Namen. Wer die unbearbeiteten sucht, hat dafuer den Filter.
+     Eine Sortierung, die zwei Fragen gleichzeitig beantworten will, beantwortet keine.
+
+     localeCompare mit "de": Umlaute landen dort, wo man sie erwartet (Ö bei O, nicht
+     hinter Z). numeric: true: "3D Architekt" vor "10er Paket", nicht danach, denn eine
+     rein zeichenweise Sortierung stellt "10" vor "3". */
+  const colls = [...gefiltert].sort((a, b) =>
+    a.name.localeCompare(b.name, "de", { numeric: true, sensitivity: "base" }),
+  );
   const zaehler = {
     alle: alle.length,
     ohneText: alle.filter((x) => x.content_status === "fehlt").length,
@@ -85,7 +84,7 @@ export default async function ClusterRedaktion({
       </nav>
       <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">{c.name}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        {zaehler.alle} Kategorien · {zaehler.ohneText} noch unbearbeitet (stehen oben) · {zaehler.live} Finder live
+        {zaehler.alle} Kategorien, alphabetisch · {zaehler.ohneText} noch unbearbeitet · {zaehler.live} Finder live
       </p>
 
       <div className="mt-5 flex flex-wrap gap-1.5">
