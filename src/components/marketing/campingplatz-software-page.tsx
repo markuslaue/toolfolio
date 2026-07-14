@@ -309,7 +309,7 @@ export function CampingplatzSoftwarePage() {
         <div
           aria-hidden
           className="absolute inset-0 -z-20 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroBg})`, filter: "blur(6px) saturate(90%)", transform: "scale(1.06)" }}
+          style={{ backgroundImage: `url(${heroBg})`, filter: "blur(2px) saturate(100%)", transform: "scale(1.03)" }}
         />
         {/* Wash: hebt Text und Widget lesbar hervor */}
         <div
@@ -317,9 +317,9 @@ export function CampingplatzSoftwarePage() {
           className="absolute inset-0 -z-10"
           style={{
             background:
-              `linear-gradient(180deg, color-mix(in oklab, var(--paper) 55%, transparent) 0%, color-mix(in oklab, var(--paper) 75%, transparent) 60%, var(--paper) 100%), ` +
-              `radial-gradient(58% 55% at 12% 10%, ${accent}22, transparent 65%), ` +
-              `radial-gradient(45% 45% at 95% 5%, #6C5CE714, transparent 60%)`,
+              `linear-gradient(180deg, color-mix(in oklab, var(--paper) 35%, transparent) 0%, color-mix(in oklab, var(--paper) 60%, transparent) 60%, var(--paper) 100%), ` +
+              `radial-gradient(58% 55% at 12% 10%, ${accent}18, transparent 65%), ` +
+              `radial-gradient(45% 45% at 95% 5%, #6C5CE710, transparent 60%)`,
           }}
         />
         <div
