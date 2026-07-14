@@ -70,6 +70,32 @@ export async function anfrageSenden(input: z.input<typeof schema>): Promise<Anfr
     .filter(Boolean)
     .join("");
 
+  /* WER BEKOMMT DEN LEAD?
+     Zwei Quellen, und sie werden GETRENNT gefuehrt:
+
+       1. Der GESPONSERTE Anbieter der Kategorie. Er bekommt jeden Lead, weil er genau
+          dafuer bezahlt. Das ist kein Verstoss gegen die Goldene Regel: gekauft ist die
+          ZUSTELLUNG, nicht die Bewertung. Er bekommt keinen besseren Rang, er steht im
+          Finder-Ergebnis nur, wenn er fachlich passt, und in der Rangliste taucht er
+          ueberhaupt nicht auf.
+
+       2. Die Anbieter, die laut den ANTWORTEN des Nutzers passen. Die kommen aus dem
+          Matching und sind unabhaengig von jeder Bezahlung.
+
+     Getrennt gespeichert, damit man die bezahlte Zustellung jederzeit von der fachlichen
+     unterscheiden kann. Wer beides in einen Topf wirft, kann spaeter nicht mehr belegen,
+     dass die Empfehlung nicht gekauft war. */
+  const { data: gesponserte } = await admin
+    .from("dir_collection_produkt")
+    .select("produkt_id")
+    .eq("collection_id", d.collectionId)
+    .eq("zone", "gesponsert")
+    .order("position")
+    .limit(1);
+  const gesponsert = (gesponserte?.[0]?.produkt_id as string | undefined) ?? null;
+
+  const empfaenger = [...new Set([...(gesponsert ? [gesponsert] : []), ...d.empfohlen])];
+
   const { error: aErr } = await admin.from("dir_anfrage").insert({
     collection_id: d.collectionId,
     art: "angebot",
@@ -78,6 +104,9 @@ export async function anfrageSenden(input: z.input<typeof schema>): Promise<Anfr
     telefon: d.telefon || null,
     firma: d.firma || null,
     nachricht: nachricht || null,
+    antworten: d.antworten,
+    empfaenger,
+    empfaenger_gesponsert: gesponsert,
     status: "neu",
     quelle_url: quelle,
     ip_hash: hash,

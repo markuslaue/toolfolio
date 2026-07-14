@@ -796,3 +796,264 @@ Gib NUR ein JSON-Objekt zurück, ohne Codefence:
       .eq("id", laufId);
   }
 }
+
+/* ------------------------------------------------- 5) Lead-Formular erzeugen */
+
+/**
+ * AD-07: Den kategoriespezifischen Fragensatz erzeugen.
+ *
+ * DER AUFBAU EINES FORMULARS, und der ist ueberall gleich:
+ *   1. FACHFRAGEN     kategoriespezifisch. Sie entscheiden, welche Tools passen.
+ *   2. QUALIFIZIERUNG generisch (Groesse, Zeitrahmen, Bestand). Steckt in BASIS_FRAGEN.
+ *   3. EMPFEHLUNG     begruendet, aus dem Tag-Matching.
+ *   4. KONTAKT        Name, Firma, E-Mail, plus die zwei getrennten Einwilligungen.
+ *
+ * Erzeugt wird hier NUR Teil 1. Der Rest ist fuer alle Kategorien identisch und
+ * gehoert nicht in einen KI-Prompt: Wer den Kontaktteil pro Kategorie neu erfinden
+ * laesst, bekommt 1300 verschiedene Datenschutzhinweise, und einer davon ist falsch.
+ *
+ * JEDE FRAGE BEKOMMT EIN "warum". Nicht als Deko: Markus soll im Backend sehen, WAS
+ * abgefragt wird und WOZU, bevor er ein Formular freigibt, das Leads an zahlende
+ * Kunden verteilt. Ein Feld, dessen Zweck niemand erklaeren kann, gehoert geloescht.
+ */
+export async function erzeugeFinder(laufId: string, collectionId: string): Promise<void> {
+  const admin = createAdminClient();
+  const log = new Protokoll(laufId, admin);
+
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      await log.schreib("fehler", "In der Server-Umgebung fehlt ANTHROPIC_API_KEY.");
+      throw new Error("Fehlender ANTHROPIC_API_KEY");
+    }
+
+    const { data: coll } = await admin
+      .from("dir_collection")
+      .select("id, name, slug")
+      .eq("id", collectionId)
+      .maybeSingle();
+    if (!coll) throw new Error("Kategorie nicht gefunden.");
+
+    await log.schreib("info", `Lead-Formular für ${coll.name}`, "Lead-Formular");
+    await log.fortschritt("text", "Fragensatz entwerfen");
+
+    /* Die Produkte sind die Grundlage. Ein Fragensatz, der nach Dingen fragt, die KEIN
+       Tool der Kategorie kann, unterscheidet nichts und aergert nur. Deshalb bekommt das
+       Modell die echten Produkte samt Funktionen zu sehen. */
+    const { data: zuordnungen } = await admin
+      .from("dir_collection_produkt")
+      .select("produkt_id, dir_produkt(id, name, kurzbeschreibung, features, langbeschreibung)")
+      .eq("collection_id", collectionId);
+
+    const produkte = (zuordnungen ?? [])
+      .map((z) => z.dir_produkt as unknown as { id: string; name: string; kurzbeschreibung: string | null; features: string[]; langbeschreibung: string | null })
+      .filter((p) => p && (p.features?.length > 0 || p.langbeschreibung));
+
+    if (produkte.length < 2) {
+      throw new Error(
+        "Zu wenige Produkte mit belegten Daten. Ein Fragensatz braucht Tools, die sich wirklich unterscheiden. Lass erst die Anbieterdaten holen.",
+      );
+    }
+    await log.schreib("info", `${produkte.length} Produkte mit belegten Daten als Grundlage.`);
+
+    const ki = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    const antwort = await ki.messages.create({
+      model: MODELL,
+      max_tokens: 6000,
+      messages: [
+        {
+          role: "user",
+          content: `Du entwirfst den Fragensatz eines Auswahl-Assistenten für die Kategorie "${coll.name}".
+
+Ein Betrieb beantwortet 4 bis 6 Fachfragen und bekommt danach 2 bis 3 passende Tools
+empfohlen, mit Begründung. Deine Fragen entscheiden also, welches Tool empfohlen wird.
+
+DIE ECHTEN TOOLS DIESER KATEGORIE, mit dem, was sie laut Herstellerseite können:
+${produkte.map((p) => `
+--- ${p.name}
+${p.kurzbeschreibung ?? ""}
+Funktionen: ${(p.features ?? []).join(" | ") || "keine angegeben"}`).join("")}
+
+DIE REGELN, in dieser Reihenfolge wichtig:
+
+1. FRAG NUR NACH DINGEN, DIE UNTERSCHEIDEN. Eine Frage, die alle Tools gleich
+   beantworten, unterscheidet nichts und ärgert nur. Schau in die Funktionslisten:
+   Wo unterscheiden sich die Tools wirklich? Genau da liegen die Fragen.
+
+2. FRAG AUS SICHT DES BETRIEBS, nicht aus Sicht der Software. Nicht "Brauchst du eine
+   REST-API?", sondern "Sollen deine Rechnungen automatisch in der Buchhaltung landen?".
+   Der Nutzer kennt sein Problem, nicht unsere Feature-Namen.
+
+3. JEDE FRAGE BRAUCHT EIN "warum": ein Satz, warum diese Frage im Alltag den
+   Unterschied macht. Er wird dem Nutzer angezeigt. Wenn du das "warum" nicht
+   schreiben kannst, ist die Frage überflüssig.
+
+4. AUSSCHLUSSKRITERIEN sparsam: höchstens zwei Fragen dürfen "ausschluss": true haben.
+   Das sind Fragen, bei denen ein Tool, das es nicht kann, gar nicht erst gezeigt wird.
+   Nur wo das wirklich ein K.-o. ist (fehlende Pflichtfunktion, falsches Land).
+
+5. TAGS: Jede Antwortoption bekommt Tags. Ein Tag ist eine Fähigkeit, die ein Tool hat
+   oder nicht hat. Nutze kurze, technische Kleinschreibung mit Unterstrich
+   (z. B. "datev_export", "online_buchung", "mehrmandanten"). Antworten, die keine
+   Anforderung stellen ("Nein, brauche ich nicht"), bekommen eine LEERE Tag-Liste.
+
+6. KEINE Kontaktfragen (Name, E-Mail, Firma, Telefon), KEINE Fragen nach Budget,
+   Firmengröße oder Zeitrahmen. Die kommen aus dem festen Teil des Formulars und
+   würden hier doppelt stehen.
+
+SPRACHE: Deutsch, Du-Form, ECHTE UMLAUTE (ä ö ü ß), niemals ae/oe/ue/ss.
+Keine Gedankenstriche.
+
+Antworte NUR mit JSON:
+{
+  "introHeadline": "Finde in N Fragen die passende ${coll.name}",
+  "ctaLabel": "kurzer Knopftext, max 55 Zeichen",
+  "categoryQuestions": [
+    {
+      "id": "kurzer_schluessel",
+      "label": "Die Frage, wie ein Mensch sie stellt",
+      "warum": "Ein Satz: warum das im Alltag den Unterschied macht",
+      "type": "single",
+      "ausschluss": false,
+      "options": [
+        { "value": "kurz", "label": "Die Antwort", "tags": ["tag_eins"], "hinweis": "optionaler Zusatz, oder weglassen" }
+      ]
+    }
+  ],
+  "begruendung": "3 bis 5 Sätze an die Redaktion: warum genau diese Fragen, und was sie über die Tools unterscheiden."
+}`,
+        },
+      ],
+    });
+
+    const roh = antwort.content[0].type === "text" ? antwort.content[0].text : "";
+    const entwurf = JSON.parse(roh.slice(roh.indexOf("{"), roh.lastIndexOf("}") + 1));
+
+    /* Harte Pruefung. Ein Formular, das Leads an zahlende Kunden verteilt, darf nicht
+       aus einer Modell-Laune entstehen. */
+    const fragen = entwurf.categoryQuestions ?? [];
+    const fehler: string[] = [];
+    if (fragen.length < 3 || fragen.length > 7) fehler.push(`${fragen.length} Fragen (erlaubt: 3 bis 7)`);
+    if (fragen.some((f: { warum?: string }) => !f.warum || f.warum.length < 20)) fehler.push("eine Frage hat keine Begründung");
+    if (fragen.some((f: { options?: unknown[] }) => (f.options?.length ?? 0) < 2)) fehler.push("eine Frage hat weniger als zwei Antworten");
+    const ausschluesse = fragen.filter((f: { ausschluss?: boolean }) => f.ausschluss).length;
+    if (ausschluesse > 2) fehler.push(`${ausschluesse} Ausschlusskriterien (erlaubt: höchstens 2)`);
+
+    const alles = JSON.stringify(entwurf);
+    const suender = alles.match(ASCII_SUENDER) ?? [];
+    if (suender.length) fehler.push(`ASCII-Umlaute: ${[...new Set(suender)].slice(0, 4).join(", ")}`);
+    if (/[–—]/.test(alles)) fehler.push("enthält Gedankenstriche");
+
+    if (fehler.length) {
+      await log.schreib("fehler", `Entwurf verworfen: ${fehler.join(" · ")}`);
+      throw new Error(`Der Entwurf erfüllt die Regeln nicht: ${fehler.join(", ")}`);
+    }
+
+    /* Jetzt die Tools taggen, mit GENAU dem Vokabular, das die Fragen erzeugt haben.
+       Andersherum (erst taggen, dann fragen) haette der Fragensatz Tags erfunden, die
+       kein Tool hat, und der Finder wuerde ins Leere greifen. */
+    await log.fortschritt("text", "Tools gegen den neuen Fragensatz taggen", 0, produkte.length);
+
+    const vokabular = [
+      ...new Set(
+        fragen.flatMap((f: { options?: { tags?: string[] }[] }) => (f.options ?? []).flatMap((o) => o.tags ?? [])),
+      ),
+    ];
+    await log.schreib("info", `Tag-Vokabular aus dem Fragensatz: ${vokabular.join(", ")}`);
+
+    const tagAntwort = await ki.messages.create({
+      model: MODELL,
+      max_tokens: 4000,
+      messages: [
+        {
+          role: "user",
+          content: `Ordne jedem Produkt die Fähigkeiten zu, die es laut seiner Beschreibung wirklich hat.
+
+ERLAUBTE TAGS, ausschliesslich diese:
+${vokabular.map((t) => `- ${t}`).join("\n")}
+
+DIE ENTSCHEIDENDE REGEL: Vergib ein Tag NUR, wenn die Beschreibung es hergibt. Rate nicht,
+schliesse nicht. Steht nichts da, gibt es kein Tag. Ein geratenes Tag ist schlimmer als
+eine Lücke, weil damit später eine Empfehlung begründet wird, die auf nichts beruht.
+
+PRODUKTE:
+${produkte.map((p) => `
+--- ${p.name} (id: ${p.id})
+${p.kurzbeschreibung ?? ""}
+${(p.langbeschreibung ?? "").slice(0, 500)}
+Funktionen: ${(p.features ?? []).join(" | ") || "keine angegeben"}`).join("")}
+
+Antworte NUR mit JSON:
+{"produkte":[{"id":"<uuid>","name":"<name>","tags":["..."],"begruendung":"ein Satz mit Bezug auf die Beschreibung"}]}`,
+        },
+      ],
+    });
+
+    const tagRoh = tagAntwort.content[0].type === "text" ? tagAntwort.content[0].text : "";
+    const tagJson = JSON.parse(tagRoh.slice(tagRoh.indexOf("{"), tagRoh.lastIndexOf("}") + 1));
+
+    let n = 0;
+    for (const p of tagJson.produkte ?? []) {
+      const erlaubt = (p.tags ?? []).filter((t: string) => vokabular.includes(t));
+      await admin
+        .from("dir_collection_produkt")
+        .update({ tags: erlaubt })
+        .eq("collection_id", collectionId)
+        .eq("produkt_id", p.id);
+      n++;
+      await log.fortschritt("text", `${p.name}: ${erlaubt.join(", ") || "nichts belegt"}`, n, produkte.length);
+      await log.schreib("ok", `${p.name}: ${erlaubt.join(", ") || "(keine Fähigkeit belegt)"}`);
+    }
+
+    /* Kriterien, die KEIN Tool erfuellt, sind eine Luecke in unseren Daten, kein
+       Kriterium. Wir sagen es der Redaktion, statt sie es spaeter im Finder merken
+       zu lassen. */
+    const belegt = new Set(
+      (tagJson.produkte ?? []).flatMap((p: { tags?: string[] }) => (p.tags ?? []).filter((t: string) => vokabular.includes(t))),
+    );
+    const tot = vokabular.filter((t) => !belegt.has(t));
+    if (tot.length) {
+      await log.schreib(
+        "warnung",
+        `Diese Kriterien erfüllt kein einziges Tool: ${tot.join(", ")}. Der Finder wird sie dem Nutzer als "dazu wissen wir nichts" zeigen, statt alle Tools dafür abzuwerten.`,
+      );
+    }
+
+    await admin
+      .from("dir_collection")
+      .update({
+        finder_config: {
+          status: "in_review",
+          introHeadline: entwurf.introHeadline,
+          ctaLabel: entwurf.ctaLabel,
+          categoryQuestions: fragen,
+          begruendung: entwurf.begruendung,
+        },
+        // IN PRUEFUNG, nicht live. Ein Formular, das Leads an zahlende Kunden verteilt,
+        // geht nicht ohne menschliche Freigabe online.
+        finder_status: "in_review",
+        finder_erzeugt_am: new Date().toISOString(),
+      })
+      .eq("id", collectionId);
+
+    await log.schreib(
+      "ok",
+      `Fertig: ${fragen.length} Fragen, ${ausschluesse} Ausschlusskriterien. Status: in Prüfung. Lies die Begründungen und gib frei.`,
+      "Fertig",
+    );
+    await admin
+      .from("dir_lauf")
+      .update({
+        status: "fertig",
+        beendet_am: new Date().toISOString(),
+        ergebnis: { fragen: fragen.length, tags: vokabular.length, tote_kriterien: tot },
+      })
+      .eq("id", laufId);
+  } catch (e) {
+    await log.schreib("fehler", `Abbruch: ${e instanceof Error ? e.message : "Unbekannter Fehler"}`);
+    await admin
+      .from("dir_lauf")
+      .update({ status: "fehler", beendet_am: new Date().toISOString() })
+      .eq("id", laufId);
+  }
+}

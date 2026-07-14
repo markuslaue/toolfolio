@@ -8,6 +8,35 @@ import { erzeugeHero } from "@/lib/hero-bild";
 
 export type RedaktionResult = { ok?: boolean; error?: string };
 
+
+/**
+ * Den oeffentlichen Cache einer Kategorie verwerfen.
+ *
+ * WARUM DAS NOETIG IST: Die Collection-Route ist ISR mit 600 Sekunden. Jede Aenderung an
+ * Produkten, Zonen oder Status wirkt sich auf die oeffentliche Seite aus, aber ohne
+ * diesen Aufruf sieht der Besucher (und die Redaktion) bis zu zehn Minuten lang den
+ * alten Stand. Genau daran ist eine frisch gesetzte Anzeige unsichtbar geblieben.
+ *
+ * Der Aufruf ist billig, und die Alternative ist "warum sehe ich meine Aenderung nicht".
+ * Also wird er ueberall gemacht, wo sich oeffentlich etwas aendert.
+ */
+async function verwerfeOeffentlich(collectionSlug: string): Promise<void> {
+  const w = await redaktionOderFehler();
+  if (!w.ok) return;
+
+  const { data } = await w.admin
+    .from("dir_collection")
+    .select("slug, dir_cluster(slug)")
+    .eq("slug", collectionSlug)
+    .maybeSingle();
+
+  const clusterSlug = (data?.dir_cluster as unknown as { slug: string } | null)?.slug;
+  if (clusterSlug && data?.slug) {
+    revalidatePath(`/verzeichnis/${clusterSlug}/${data.slug}`);
+    revalidatePath(`/verzeichnis/${clusterSlug}`);
+  }
+}
+
 /* ------------------------------- Produkte -------------------------------- */
 
 /** Status eines Produkts setzen (Selektion und Deselektion). */
@@ -21,6 +50,7 @@ export async function setProduktStatus(produktId: string, status: string, collec
   const { error } = await w.admin.from("dir_produkt").update({ status: parsed.data }).eq("id", produktId);
   if (error) return { error: "Status konnte nicht gesetzt werden." };
 
+  await verwerfeOeffentlich(collectionSlug);
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
@@ -41,6 +71,7 @@ export async function setProduktStatusViele(
   const { error } = await w.admin.from("dir_produkt").update({ status: parsed.data }).in("id", produktIds);
   if (error) return { error: "Status konnte nicht gesetzt werden." };
 
+  await verwerfeOeffentlich(collectionSlug);
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
@@ -61,6 +92,7 @@ export async function entferneAusCollection(
     .eq("collection_id", collectionId);
   if (error) return { error: "Zuordnung konnte nicht entfernt werden." };
 
+  await verwerfeOeffentlich(collectionSlug);
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
@@ -86,6 +118,7 @@ export async function korrigiereProdukt(
     .eq("id", produktId);
   if (error) return { error: "Konnte nicht gespeichert werden." };
 
+  await verwerfeOeffentlich(collectionSlug);
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
@@ -110,6 +143,7 @@ export async function setZone(
     .eq("collection_id", collectionId);
   if (error) return { error: "Zone konnte nicht gesetzt werden." };
 
+  await verwerfeOeffentlich(collectionSlug);
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
@@ -231,5 +265,83 @@ export async function erzeugeHeroBild(collectionId: string, collectionSlug: stri
 
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   revalidatePath(`/verzeichnis/vorschau/${collectionSlug}`);
+  return { ok: true };
+}
+
+/* --------------------------- Lead-Formular (AD-07) ------------------------ */
+
+/**
+ * Das Lead-Formular freigeben.
+ *
+ * Erst ab hier bekommt der Nutzer den kategoriespezifischen Fragensatz zu sehen. Davor
+ * faellt die Seite auf die generischen Basisfragen zurueck, es entsteht also nie eine
+ * leere Stelle.
+ *
+ * Ein Formular, das Leads an ZAHLENDE Kunden verteilt, geht nicht ohne menschliche
+ * Freigabe online. Deshalb wird protokolliert, WER es wann freigegeben hat.
+ */
+export async function gibFinderFrei(collectionId: string, collectionSlug: string): Promise<RedaktionResult> {
+  const w = await redaktionOderFehler();
+  if (!w.ok) return { error: w.error };
+
+  const { data: coll } = await w.admin
+    .from("dir_collection")
+    .select("finder_config")
+    .eq("id", collectionId)
+    .maybeSingle();
+  const config = coll?.finder_config as { categoryQuestions?: unknown[] } | null;
+  if (!config?.categoryQuestions?.length) {
+    return { error: "Es gibt noch keinen Fragensatz. Lass ihn erst erzeugen." };
+  }
+
+  const { error } = await w.admin
+    .from("dir_collection")
+    .update({
+      finder_config: { ...config, status: "live" },
+      finder_status: "live",
+      finder_freigegeben_von: w.user.id,
+      finder_freigegeben_am: new Date().toISOString(),
+    })
+    .eq("id", collectionId);
+  if (error) return { error: "Freigabe fehlgeschlagen." };
+
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
+  return { ok: true };
+}
+
+/** Zurueck in die Pruefung. Der Fragensatz bleibt erhalten, er ist nur nicht mehr live. */
+export async function finderZurueckziehen(collectionId: string, collectionSlug: string): Promise<RedaktionResult> {
+  const w = await redaktionOderFehler();
+  if (!w.ok) return { error: w.error };
+
+  const { data: coll } = await w.admin
+    .from("dir_collection")
+    .select("finder_config")
+    .eq("id", collectionId)
+    .maybeSingle();
+  const config = (coll?.finder_config as Record<string, unknown>) ?? {};
+
+  const { error } = await w.admin
+    .from("dir_collection")
+    .update({ finder_config: { ...config, status: "in_review" }, finder_status: "in_review" })
+    .eq("id", collectionId);
+  if (error) return { error: "Zurückziehen fehlgeschlagen." };
+
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
+  return { ok: true };
+}
+
+/**
+ * Die oeffentliche Seite neu aufbauen lassen.
+ *
+ * Braucht man immer dann, wenn sich Daten AUSSERHALB des Backends geaendert haben,
+ * etwa durch ein Skript. Genau so ist die erste Anzeige unsichtbar geblieben: sie stand
+ * in der Datenbank, aber die zwischengespeicherte Seite wusste nichts davon.
+ */
+export async function seiteNeuAufbauen(collectionSlug: string): Promise<RedaktionResult> {
+  const w = await redaktionOderFehler();
+  if (!w.ok) return { error: w.error };
+  await verwerfeOeffentlich(collectionSlug);
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
