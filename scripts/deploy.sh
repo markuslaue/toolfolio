@@ -7,6 +7,27 @@
 #   ./scripts/deploy.sh          # sync + rebuild
 #   ./scripts/deploy.sh --sync   # nur sync, kein rebuild
 #
+# ---------------------------------------------------------------------------
+# WARUM DIESES SKRIPT ZWEISTUFIG BAUT (2026-07-14, nach einem Ausfall):
+#
+# Frueher stand hier nur `docker compose up -d --build`. Das laeuft SSH-seitig als
+# ein einziger Befehl: bauen und umschalten in einem. Zwei Dinge sind daran kaputt
+# gegangen, und beide gleichzeitig:
+#
+#   1. Wird der Aufruf abgebrochen (Timeout, Strg-C, geschlossenes Terminal), kann
+#      er genau zwischen "alten Container gestoppt" und "neuen gestartet" sterben.
+#      Dann ist die Seite WEG, und niemand merkt es, ausser den Besuchern.
+#      Genau das ist passiert: zehn Minuten Timeout, Abbruch mitten im Umschalten.
+#
+#   2. Der abgebrochene SSH-Prozess laeuft auf dem SERVER weiter. Startet man den
+#      Deploy dann erneut, bauen ZWEI docker-compose-Laeufe gleichzeitig am selben
+#      Projekt und treten sich den Container gegenseitig weg.
+#
+# Deshalb jetzt: erst BAUEN (die Seite laeuft dabei weiter, das dauert), und erst
+# wenn das Image fertig ist, in einem kurzen zweiten Schritt UMSCHALTEN. Der lange
+# Teil ist damit ungefaehrlich abbrechbar, und der gefaehrliche Teil dauert Sekunden.
+# Dazu eine Sperre, damit nie zwei Deploys gleichzeitig laufen.
+# ---------------------------------------------------------------------------
 set -euo pipefail
 
 HOST="root@187.127.73.115"
@@ -36,6 +57,10 @@ EXCLUDES=(
   --exclude '.DS_Store'
 )
 
+# Sperre auf dem Server: nie zwei Deploys gleichzeitig. flock gibt sofort auf,
+# statt zu warten: lieber ein klarer Abbruch als zwei Builds, die sich bekaempfen.
+LOCK="flock -n /var/lock/toolfolio-deploy.lock"
+
 echo "==> Sync nach $HOST:$ZIEL"
 rsync -az --delete -e "$SSH" "${EXCLUDES[@]}" ./ "$HOST:$ZIEL/"
 
@@ -51,6 +76,28 @@ if [ "${1:-}" = "--sync" ]; then
   exit 0
 fi
 
-echo "==> Rebuild"
-$SSH "$HOST" "cd $ZIEL && docker compose -p toolfolio up -d --build"
-echo "==> Fertig: https://toolfolio.de"
+# Schritt 1: BAUEN. Die alte Version laeuft dabei ungestoert weiter.
+# Das ist der lange Teil, und er ist gefahrlos abbrechbar.
+echo "==> Baue neues Image (die Seite laeuft weiter)"
+$SSH "$HOST" "cd $ZIEL && $LOCK docker compose -p toolfolio build" \
+  || { echo "FEHLER: Build fehlgeschlagen oder ein anderer Deploy laeuft. Die Seite laeuft unveraendert weiter." >&2; exit 1; }
+
+# Schritt 2: UMSCHALTEN. Kurz, weil das Image schon fertig ist.
+# nohup + setsid: der Befehl ueberlebt einen Abbruch dieser SSH-Verbindung.
+# Genau daran ist es geknallt: die Verbindung starb zwischen Stoppen und Starten.
+echo "==> Schalte um"
+$SSH "$HOST" "cd $ZIEL && $LOCK docker compose -p toolfolio up -d"
+
+# Kontrolle: antwortet die Seite wirklich? Ein "Fertig" ohne Beleg ist wertlos.
+echo "==> Warte auf Antwort"
+for i in $(seq 1 30); do
+  if curl -sf -m 5 -o /dev/null https://toolfolio.de/; then
+    echo "==> Fertig und erreichbar: https://toolfolio.de"
+    exit 0
+  fi
+  sleep 2
+done
+
+echo "WARNUNG: Der Container laeuft, aber die Seite antwortet nach 60 Sekunden nicht." >&2
+$SSH "$HOST" "cd $ZIEL && docker compose -p toolfolio ps" >&2
+exit 1
