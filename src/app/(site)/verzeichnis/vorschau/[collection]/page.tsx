@@ -84,7 +84,15 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
      Das ist die eine Zahl, die kein Wettbewerber hat. Sie darf aber erst ab einer
      Mindestschwelle raus, sonst ist sie ein Rueckschluss auf einzelne Kunden
      (Leitplanke 3: personenbezogen und anonym strikt trennen). */
-  const { data: abos } = await admin.from("abos").select("tool, user_id").neq("status", "archiviert");
+  /* NUR Abos, deren Besitzer der anonymen Zaehlung zugestimmt hat.
+     Das Haekchen "Anonym zur Verbreitung beitragen" wurde bisher gespeichert und dann
+     NIRGENDS abgefragt: die Zaehlung nahm einfach alle. Das Haekchen suggerierte also
+     eine Wahl, die es gar nicht gab, und das ist schlimmer als kein Haekchen. */
+  const { data: abos } = await admin
+    .from("abos")
+    .select("tool, user_id")
+    .eq("mit_verzeichnis", true)
+    .neq("status", "archiviert");
   const kontenJeTool = new Map<string, Set<string>>();
   for (const a of (abos as { tool: string; user_id: string }[]) ?? []) {
     const k = normalisiere(a.tool);

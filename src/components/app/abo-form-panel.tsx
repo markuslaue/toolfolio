@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Trash2, Loader2, Tag as TagIcon, X } from "lucide-react";
+import { Trash2, Loader2, Tag as TagIcon, X, BellRing, BellOff } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -95,7 +95,7 @@ function leer(): FormData {
     tool: "",
     anbieter: "",
     kategorie: "",
-    mit_verzeichnis: false,
+    mit_verzeichnis: true, // Standard an: siehe Erklaerung an der Checkbox.
     betrag: "",
     waehrung: "EUR",
     intervall: "monatlich",
@@ -289,7 +289,8 @@ export function AboFormPanel({
       frist_wert: data.frist_wert === "" ? null : Number(data.frist_wert),
       frist_einheit: data.frist_einheit as AboInput["frist_einheit"],
       letzter_kuendigungstermin: data.letzter_kuendigungstermin,
-      erinnerung: data.erinnerung,
+      // Abgeleitet, nicht gefragt: eine eingetragene Frist IST der Wunsch, erinnert zu werden.
+      erinnerung: data.frist_wert.trim() !== "",
       trial_endet: data.trial_endet,
       notizen: data.notizen,
       konto_email: data.konto_email,
@@ -392,11 +393,24 @@ export function AboFormPanel({
                 </Select>
               </Field>
             </div>
+            {/* Standardmaessig AN, aber abschaltbar.
+                Was es wirklich tut, stand vorher nicht da ("verbindet das Abo spaeter mit
+                dem Verzeichnis" erklaert nichts). Es geht um eine ANONYME Zaehlung: wie
+                viele Toolfolio-Konten setzen dieses Tool ein. Erst ab fuenf Konten wird
+                ueberhaupt eine Zahl gezeigt (NUTZER_SCHWELLE), darunter steht "zu wenig
+                Daten". Der Toolname verlaesst dabei niemals die Aggregat-Ebene, und
+                nichts davon ist einer Person zuzuordnen (Leitplanke 3).
+
+                An zu sein ist richtig, weil genau diese Zahl den Wert des Verzeichnisses
+                ausmacht. Abschaltbar zu sein ist Pflicht, weil es die Daten des Nutzers
+                sind und nicht unsere. */}
             <div className="flex items-center justify-between rounded-xl border bg-background/60 px-4 py-3">
               <div className="text-sm">
-                <div className="font-medium">Mit Verzeichnis verknüpfen</div>
+                <div className="font-medium">Anonym zur Verbreitung beitragen</div>
                 <div className="text-xs text-muted-foreground">
-                  Verbindet das Abo später mit dem öffentlichen Tool-Verzeichnis.
+                  Zählt mit, wie viele Toolfolio-Konten dieses Tool einsetzen. Die Zahl erscheint im Verzeichnis erst
+                  ab fünf Konten, und sie ist niemandem zuzuordnen. Dein Name, dein Preis und dein Kunde bleiben
+                  privat.
                 </div>
               </div>
               <Switch
@@ -653,18 +667,33 @@ export function AboFormPanel({
                 )}
               </div>
             )}
-            <div className="flex items-center justify-between">
-              <div className="text-sm">
-                <div className="font-medium">Vor Frist erinnern</div>
-                <div className="text-xs text-muted-foreground">
-                  Der Fristen-Wächter meldet sich rechtzeitig vor der Kündigungsdeadline per E-Mail.
+            {/* FRUEHER STAND HIER EIN SCHALTER "Vor Frist erinnern".
+                Das war Unsinn: Wer oben eine Kuendigungsfrist eintraegt, will offensichtlich
+                daran erinnert werden. Sonst haette er sie nicht eingetragen. Ein zweites
+                Haekchen dafuer ist eine Falle, die genau einmal zuschnappt, naemlich dann,
+                wenn die Frist verstreicht.
+
+                Der Fristen-Waechter folgt jetzt der Frist: Frist gesetzt = Waechter an. */}
+            {data.frist_wert.trim() !== "" ? (
+              <div className="flex items-start gap-2 rounded-xl bg-success/10 p-3 text-sm">
+                <BellRing className="mt-0.5 size-4 shrink-0 text-success" />
+                <div>
+                  <div className="font-medium">Der Fristen-Wächter ist für dieses Abo aktiv.</div>
+                  <div className="text-xs text-muted-foreground">
+                    Du bekommst rechtzeitig vor dem letzten Kündigungstermin eine E-Mail. Wenn du die Frist oben
+                    leerst, hört er auf.
+                  </div>
                 </div>
               </div>
-              <Switch
-                checked={data.erinnerung}
-                onCheckedChange={(v) => set("erinnerung", v)}
-              />
-            </div>
+            ) : (
+              <div className="flex items-start gap-2 rounded-xl bg-muted/50 p-3 text-sm text-muted-foreground">
+                <BellOff className="mt-0.5 size-4 shrink-0" />
+                <div>
+                  Ohne Kündigungsfrist kann der Fristen-Wächter nichts überwachen. Trag oben eine Frist ein, dann
+                  meldet er sich rechtzeitig.
+                </div>
+              </div>
+            )}
           </Section>
 
           {/* Notizen */}

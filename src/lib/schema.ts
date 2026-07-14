@@ -78,9 +78,13 @@ function person(autor: Autor): Knoten {
 function software(p: ProduktInZone, bewertung: Bewertung | undefined): Knoten {
   const knoten: Knoten = {
     "@type": "SoftwareApplication",
-    "@id": `${SITE}/verzeichnis/produkt/${p.slug}#software`,
+    /* FEHLER, den ich hier hatte: die URL lautete /verzeichnis/produkt/<slug>.
+       Diese Route gibt es nicht. Die Produkt-Detailseiten liegen unter /software/<slug>.
+       Das Markup verwies also auf 404-Seiten, und ein SoftwareApplication-Knoten mit
+       toter URL ist wertlos bis schaedlich. */
+    "@id": `${SITE}/software/${p.slug}#software`,
     name: p.name,
-    url: `${SITE}/verzeichnis/produkt/${p.slug}`,
+    url: `${SITE}/software/${p.slug}`,
     applicationCategory: "BusinessApplication",
     operatingSystem: p.plattformen.length > 0 ? p.plattformen.join(", ") : "Web",
   };

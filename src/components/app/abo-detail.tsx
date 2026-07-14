@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AboFormPanel } from "@/components/app/abo-form-panel";
 import { formatEur } from "@/lib/constants";
+import { kuendigungsDeadline, tageBis } from "@/lib/fristen";
 import {
   INTERVALL_LABEL,
   STATUS_LABEL,
@@ -120,6 +121,12 @@ export function AboDetail({
   const seitMonate = monateSeit(abo.abo_seit);
 
   const fristDatum = abo.letzter_kuendigungstermin ?? abo.trial_endet;
+
+  /* Der naechstmoegliche Kuendigungstermin: naechste Abbuchung minus Frist.
+     Dieselbe Funktion, auf die auch der Fristen-Waechter laeuft. Zwei Rechenwege fuer
+     dasselbe Datum wuerden frueher oder spaeter auseinanderlaufen. */
+  const deadline = kuendigungsDeadline(abo);
+  const tageBisDeadline = deadline ? tageBis(deadline) : null;
   const fristNah = (() => {
     if (!fristDatum) return false;
     const heute = new Date();
@@ -275,10 +282,37 @@ export function AboDetail({
 
           <Card titel="Kündigung & Frist" klasse={fristNah ? "border-warning/40" : undefined}>
             <Zeile label="Kündigungsfrist">
-              {abo.frist_wert != null ? `${abo.frist_wert} ${abo.frist_einheit ?? "Tage"}` : "–"}
+              {abo.frist_wert != null ? `${abo.frist_wert} ${abo.frist_einheit ?? "Tage"}` : "keine hinterlegt"}
             </Zeile>
-            <Zeile label="Letzter Kündigungstermin">
-              {fmtDate(abo.letzter_kuendigungstermin)}
+
+            {/* FRUEHER STAND HIER "Letzter Kuendigungstermin" mit einem Bindestrich, sobald
+                kein Datum von Hand eingetragen war. Ein Strich beantwortet die einzige Frage
+                nicht, die man an dieser Stelle hat: bis WANN muss ich kuendigen.
+
+                Der Termin laesst sich rechnen: naechste Abbuchung minus Frist. Genau das tut
+                kuendigungsDeadline(), und genau darauf laeuft auch der Fristen-Waechter.
+                Wir zeigen jetzt diesen Termin, statt eine Leerstelle. */}
+            <Zeile label="Nächster Kündigungstermin">
+              {deadline ? (
+                <span className={fristNah ? "font-semibold text-warning" : undefined}>
+                  {fmtDate(deadline)}
+                  {tageBisDeadline !== null && (
+                    <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                      {tageBisDeadline < 0
+                        ? "(verstrichen)"
+                        : tageBisDeadline === 0
+                          ? "(heute)"
+                          : `(in ${tageBisDeadline} ${tageBisDeadline === 1 ? "Tag" : "Tagen"})`}
+                    </span>
+                  )}
+                </span>
+              ) : (
+                <span className="text-muted-foreground">
+                  {abo.frist_wert == null
+                    ? "Trag eine Kündigungsfrist ein, dann rechnen wir ihn aus."
+                    : "Dafür fehlt die nächste Abbuchung."}
+                </span>
+              )}
             </Zeile>
             <Zeile label="Trial endet am">{fmtDate(abo.trial_endet)}</Zeile>
             <div className="mt-3 flex items-center justify-between border-t pt-3">
