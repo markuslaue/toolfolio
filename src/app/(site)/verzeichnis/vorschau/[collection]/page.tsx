@@ -151,6 +151,9 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
             />
           ) : undefined
         }
+        finderCta={
+          produkte.length > 0 ? (finderConfig?.ctaLabel ?? `Passende ${data.name} finden`) : undefined
+        }
         faq={faq.length > 0 ? <Faq eintraege={faq} thema={data.name} /> : undefined}
         collection={{
           name: data.name,

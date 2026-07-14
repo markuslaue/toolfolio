@@ -12,7 +12,7 @@ export default async function KuratierungsSeite({ params }: { params: Promise<{ 
 
   const { data } = await admin
     .from("dir_collection")
-    .select("id, name, slug, status, content_status, content_woerter, dir_cluster(name, slug)")
+    .select("id, name, slug, status, content_status, content_woerter, hero_url, dir_cluster(name, slug)")
     .eq("slug", slug)
     .maybeSingle();
   if (!data) notFound();
@@ -48,6 +48,7 @@ export default async function KuratierungsSeite({ params }: { params: Promise<{ 
     slug: data.slug,
     status: data.status as CmsCollection["status"],
     content_status: data.content_status as CmsCollection["content_status"],
+    hero_url: (data.hero_url as string | null) ?? null,
     content_woerter: data.content_woerter,
     cluster: (data.dir_cluster as unknown as { name: string; slug: string }) ?? { name: "Verzeichnis", slug: "" },
   };

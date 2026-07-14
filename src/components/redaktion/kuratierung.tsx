@@ -15,6 +15,8 @@ import {
   Search,
   Trash2,
   X,
+  Image as ImageIcon,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +32,7 @@ import {
   setZone,
   gibContentFrei,
   veroeffentliche,
+  erzeugeHeroBild,
   zurueckInEntwurf,
 } from "@/app/admin/verzeichnis/actions";
 
@@ -52,6 +55,7 @@ export type CmsCollection = {
   status: "entwurf" | "veroeffentlicht";
   content_status: "fehlt" | "ki_ungeprueft" | "geprueft";
   content_woerter: number | null;
+  hero_url: string | null;
   cluster: { name: string; slug: string };
 };
 
@@ -217,6 +221,50 @@ export function Kuratierung({ collection, produkte }: { collection: CmsCollectio
               <Check className="size-4" /> Text freigeben
             </Button>
           )}
+        </div>
+      </div>
+
+      {/* Hero-Bild */}
+      <div className="mt-4 rounded-2xl border bg-card p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-start gap-3">
+            {collection.hero_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={collection.hero_url}
+                alt=""
+                className="h-14 w-24 shrink-0 rounded-lg object-cover"
+              />
+            ) : (
+              <span className="grid h-14 w-24 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+                <ImageIcon className="size-5" />
+              </span>
+            )}
+            <div>
+              <div className="font-semibold">
+                {collection.hero_url ? "Hintergrundbild vorhanden" : "Noch kein Hintergrundbild"}
+              </div>
+              <p className="mt-0.5 max-w-xl text-sm text-muted-foreground">
+                {collection.hero_url
+                  ? "KI-erzeugt, liegt unscharf und abgedunkelt hinter der Überschrift. Auf der Seite ist es als KI-Bild gekennzeichnet."
+                  : "Ohne Bild zeigt der Seitenkopf einen Farbverlauf. Das ist kein Fehler, nur schlichter."}
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            className="gap-1.5"
+            disabled={pending}
+            onClick={() =>
+              lauf(
+                () => erzeugeHeroBild(collection.id, collection.slug),
+                collection.hero_url ? "Neues Bild erzeugt." : "Bild erzeugt.",
+              )
+            }
+          >
+            <Wand2 className="size-4" />
+            {collection.hero_url ? "Neues Bild erzeugen" : "Bild erzeugen"}
+          </Button>
         </div>
       </div>
 

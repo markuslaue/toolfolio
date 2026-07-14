@@ -132,7 +132,19 @@ export default async function CollectionRoute({
           content_md: data.collection.content_md,
           experten_zitat: data.collection.experten_zitat,
           aktualisiert: new Date(data.collection.aktualisiert_am).toLocaleDateString("de-DE"),
-          hero: null,
+          /* FEHLER, den ich hier hatte: das Bild war auf null verdrahtet, konnte also gar
+             nicht erscheinen. Ohne Quellenangabe wird es weiterhin NICHT ausgespielt:
+             bei KI-Bildern ist die Quelle "ki", und die Seite kennzeichnet es als solches. */
+          hero:
+            data.collection.hero_url && data.collection.hero_quelle
+              ? {
+                  url: data.collection.hero_url,
+                  autor: data.collection.hero_autor,
+                  autorUrl: data.collection.hero_autor_url,
+                  quelle: data.collection.hero_quelle,
+                  quelleUrl: data.collection.hero_quelle_url,
+                }
+              : null,
         }}
         cluster={{ name: data.cluster.name, slug: data.cluster.slug }}
         produkte={sortiert}
@@ -152,6 +164,11 @@ export default async function CollectionRoute({
               individuell={individuell}
             />
           ) : undefined
+        }
+        finderCta={
+          data.produkte.length > 0
+            ? (config?.ctaLabel ?? `Passende ${data.collection.name} finden`)
+            : undefined
         }
         faq={faq.length > 0 ? <Faq eintraege={faq} thema={data.collection.name} /> : undefined}
       />

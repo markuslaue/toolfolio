@@ -24,6 +24,7 @@ import {
   Info,
   Megaphone,
   ShieldCheck,
+  Sparkles,
   Star,
   Users,
 } from "lucide-react";
@@ -177,12 +178,14 @@ function ProduktZeile({
   nutzer,
 }: {
   p: ProduktInZone;
-  rang: number;
+  /** Platz in der organischen Rangliste. Die Anzeige oben hat KEINEN Rang: sie ist
+      bezahlte Sichtbarkeit, kein erreichter Platz. */
+  rang?: number;
   bewertung?: Bewertung;
   /** Wie viele Toolfolio-Konten das Tool einsetzen. null = unter der Schwelle. */
   nutzer: number | null;
 }) {
-  const ton = PALETTE[(rang - 1) % PALETTE.length];
+  const ton = PALETTE[((rang ?? 1) - 1) % PALETTE.length];
   const gesponsert = p.zone === "gesponsert";
 
   return (
@@ -381,6 +384,7 @@ export function CollectionSeite({
   autor,
   akzent = "#12B76A",
   finder,
+  finderCta,
   faq,
 }: {
   collection: CollectionDaten;
@@ -394,6 +398,8 @@ export function CollectionSeite({
   akzent?: string;
   /** Der Anfrage-Finder. Steht laut Entwurf zwischen gesponserter Zone und Tool-Liste. */
   finder?: ReactNode;
+  /** Beschriftung des Haupt-Handlungsaufrufs im Kopf. Fehlt sie, gibt es keinen Finder. */
+  finderCta?: string;
   /** Die FAQ. Steht am Ende des Guides, vor der Autorenbox. */
   faq?: ReactNode;
 }) {
@@ -463,22 +469,46 @@ export function CollectionSeite({
                 </p>
               )}
 
-              <div className="mt-7 flex flex-wrap gap-2">
-                <a
-                  href="#ranking"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-background hover:opacity-90"
-                >
-                  Zu den Tools <ArrowRight className="size-4" />
-                </a>
-                {abschnitte[0] && (
+              {/* Der Haupt-Handlungsaufruf: er fuehrt in den Finder, nicht zur Tool-Liste.
+                  Er traegt die Farbe des Clusters, damit jede Rubrik ihren eigenen Ton hat.
+                  Wer schon weiss, was er sucht, nimmt die Sprungnavigation darunter. */}
+              {finderCta && (
+                <>
+                  <div className="mt-7">
+                    <a
+                      href="#finder"
+                      className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-lift transition-opacity hover:opacity-90"
+                      style={{ background: akzent }}
+                    >
+                      <Sparkles className="size-4" />
+                      {finderCta}
+                    </a>
+                  </div>
+                  <p className="mt-3 max-w-md text-xs leading-relaxed text-foreground/55">
+                    Kostenlos, unverbindlich und in unter zwei Minuten. Wir stellen dir echte Fragen zur Software, keine
+                    Werbung.
+                  </p>
+                </>
+              )}
+
+              {!finderCta && (
+                <div className="mt-7 flex flex-wrap gap-2">
                   <a
-                    href={`#${abschnitte[0].id}`}
-                    className="inline-flex items-center gap-1.5 rounded-xl border bg-card px-4 py-2.5 text-sm font-medium hover:border-foreground/30"
+                    href="#ranking"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-background hover:opacity-90"
                   >
-                    Erst verstehen
+                    Zu den Tools <ArrowRight className="size-4" />
                   </a>
-                )}
-              </div>
+                  {abschnitte[0] && (
+                    <a
+                      href={`#${abschnitte[0].id}`}
+                      className="inline-flex items-center gap-1.5 rounded-xl border bg-card px-4 py-2.5 text-sm font-medium hover:border-foreground/30"
+                    >
+                      Erst verstehen
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Snapshot: NUR was wir wirklich wissen. */}
@@ -541,11 +571,42 @@ export function CollectionSeite({
         </div>
       )}
 
-      {/* Der Finder. Laut Entwurf zwischen gesponserter Zone und Tool-Liste:
-          wer schon weiss, was er will, scrollt daran vorbei zu den Tools. Wer
-          nicht weiss, was er will, bekommt hier Hilfe, bevor er sich durch acht
-          Karten arbeitet. */}
-      {finder && <div className="mx-auto max-w-7xl px-4 sm:px-6">{finder}</div>}
+      {/* Zone 00: die ANZEIGE.
+          Sie steht oben, aber sie steht ABGETRENNT und ist als Anzeige gekennzeichnet.
+          Sie taucht nur auf, wenn es wirklich einen gesponserten Anbieter gibt: eine
+          leere Anzeigenflaeche waere eine Aufforderung, sie zu fuellen, und genau das
+          soll das Layout nicht tun. Heute hat diese Kategorie keinen, also fehlt sie. */}
+      {jeZone("gesponsert").length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6">
+          <div className="mb-2 flex justify-end">
+            <span className="rounded-full border bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-foreground/45">
+              Anzeige
+            </span>
+          </div>
+          <div className="flex flex-col gap-4">
+            {jeZone("gesponsert").map((p) => (
+              <ProduktZeile
+                key={p.id}
+                p={p}
+                bewertung={bewertungen.get(p.id)}
+                nutzer={nutzerJeProdukt.get(p.id) ?? null}
+              />
+            ))}
+          </div>
+          <p className="mt-2 text-right text-[11px] text-foreground/45">
+            Bezahlte Platzierung. Sie beeinflusst weder die organische Reihenfolge unten noch das Ergebnis des Finders.
+          </p>
+        </section>
+      )}
+
+      {/* Der Finder. Laut Entwurf zwischen Anzeige und Tool-Liste: wer schon weiss,
+          was er will, scrollt daran vorbei. Wer nicht weiss, was er will, bekommt
+          hier Hilfe, bevor er sich durch acht Karten arbeitet. */}
+      {finder && (
+        <div id="finder" className="mx-auto max-w-7xl scroll-mt-16 px-4 sm:px-6">
+          {finder}
+        </div>
+      )}
 
       {/* Tools */}
       <section id="ranking" className="mx-auto max-w-7xl scroll-mt-16 px-4 pb-16 pt-12 sm:px-6">
@@ -564,14 +625,17 @@ export function CollectionSeite({
         </div>
 
         <div className="flex flex-col gap-4">
-          {zonen.flatMap((z) => {
+          {/* Bewusst OHNE die gesponserte Zone: die steht oben als Anzeige und wird
+              hier nicht ein zweites Mal gezeigt. Wer bezahlt, bekommt Sichtbarkeit,
+              aber keinen Platz in der Rangliste. */}
+          {(["organisch", "community"] as Zone[]).flatMap((z) => {
             const items = jeZone(z);
             if (items.length === 0) return [];
             return items.map((p, i) => (
               <ProduktZeile
                 key={p.id}
                 p={p}
-                rang={i + 1}
+                rang={z === "organisch" ? i + 1 : undefined}
                 bewertung={bewertungen.get(p.id)}
                 nutzer={nutzerJeProdukt.get(p.id) ?? null}
               />

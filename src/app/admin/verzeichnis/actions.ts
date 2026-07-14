@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redaktionOderFehler } from "@/lib/redaktion";
 import { PRODUKT_STATUS } from "@/lib/redaktion-status";
+import { erzeugeHero } from "@/lib/hero-bild";
 
 export type RedaktionResult = { ok?: boolean; error?: string };
 
@@ -166,5 +167,34 @@ export async function zurueckInEntwurf(collectionId: string, collectionSlug: str
 
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   revalidatePath("/verzeichnis", "layout");
+  return { ok: true };
+}
+
+/* --------------------------------- Hero ---------------------------------- */
+
+/**
+ * Hero-Bild neu per KI erzeugen (AD-05).
+ *
+ * Bewusst OHNE Bestaetigungsdialog, aber mit Zeitstempel im Dateinamen: das alte Bild
+ * wird nicht ueberschrieben, sondern bleibt liegen. Wer sich vertut, hat nichts
+ * zerstoert, und der CDN-Cache zeigt sofort das neue statt tagelang das alte.
+ */
+export async function erzeugeHeroBild(collectionId: string, collectionSlug: string): Promise<RedaktionResult> {
+  const w = await redaktionOderFehler();
+  if (!w.ok) return { error: w.error };
+
+  const { data } = await w.admin
+    .from("dir_collection")
+    .select("id, name, slug, dir_cluster(name)")
+    .eq("id", collectionId)
+    .maybeSingle();
+  if (!data) return { error: "Kategorie nicht gefunden." };
+
+  const cluster = (data.dir_cluster as unknown as { name: string } | null)?.name ?? "Software";
+  const res = await erzeugeHero(data.id as string, data.slug as string, data.name as string, cluster);
+  if (!res.ok) return { error: res.fehler };
+
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
+  revalidatePath(`/verzeichnis/vorschau/${collectionSlug}`);
   return { ok: true };
 }

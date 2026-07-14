@@ -53,6 +53,12 @@ export type Collection = {
   faq: FaqEintrag[];
   /** Echtes Aktualisierungsdatum. Speist dateModified im JSON-LD. */
   aktualisiert_am: string;
+  hero_url: string | null;
+  hero_autor: string | null;
+  hero_autor_url: string | null;
+  /** 'ki' bei selbst erzeugten Bildern, sonst die Bildquelle. */
+  hero_quelle: string | null;
+  hero_quelle_url: string | null;
 };
 
 export type Produkt = {

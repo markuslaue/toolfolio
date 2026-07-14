@@ -70,8 +70,19 @@ export function HeroHintergrund({ bild, akzent }: { bild: HeroBild | null; akzen
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
       </div>
 
-      {/* Bildnachweis. Klein, aber vorhanden. Ohne ihn darf das Bild nicht raus. */}
-      {(bild.autor || bild.quelle) && (
+      {/* KI-Bild: kein fremder Urheber, also kein Bildnachweis. Aber es MUSS als
+          KI-erzeugt gekennzeichnet sein. Ein fotorealistisches Bild, das kein Foto ist,
+          unkommentiert auf eine Seite zu stellen, die von Ehrlichkeit lebt, waere ein
+          kleiner Betrug an genau der Stelle, an der wir es uns am wenigsten leisten
+          koennen. Der KI-Hinweis steht deshalb VOR dem Bildnachweis-Fall. */}
+      {bild.quelle === "ki" && (
+        <div className="pointer-events-none absolute bottom-2 right-3 z-10 text-[10px] text-foreground/40">
+          Bild: KI-erzeugt
+        </div>
+      )}
+
+      {/* Bildnachweis fuer fremde Fotos. Klein, aber vorhanden. Ohne ihn darf das Bild nicht raus. */}
+      {bild.quelle !== "ki" && (bild.autor || bild.quelle) && (
         <div className="pointer-events-none absolute bottom-2 right-3 z-10 text-[10px] text-foreground/40">
           <span className="pointer-events-auto">
             Foto:{" "}
