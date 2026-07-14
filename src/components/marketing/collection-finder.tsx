@@ -358,7 +358,7 @@ export function CollectionFinder({
     setStep(0);
     setAnswers({});
     setQualify({});
-    setContact({ betrieb: "", ansprechpartner: "", email: "", telefon: "" });
+    setContact({ vorname: "", nachname: "", email: "" });
     setConsentA(false);
     setConsentB(false);
     setSubmitted(false);
