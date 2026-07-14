@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Nav, Footer, Reveal } from "./marketing-home";
 import heroBg from "@/assets/campingplatz-hero-bg.jpg";
+import { CollectionFinder, campingplatzFinderConfig } from "./collection-finder";
 
 // ─── Content model ────────────────────────────────────────────────────────────
 
