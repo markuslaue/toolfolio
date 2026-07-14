@@ -281,36 +281,23 @@ export function CampingplatzSoftwarePage() {
     <div id="top" className="min-h-screen bg-[color:var(--paper)] text-foreground">
       <Nav />
 
-      {/* Preview-Hinweisstreifen (kann entfernt werden, bleibt hier als Vorlage-Marker) */}
-      <div className="border-b border-dashed border-[#F5A623]/50 bg-[#F5A623]/10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs text-[#8a5d0e]">
-          <div className="inline-flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-md bg-[#F5A623]/25 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">
-              Vorschau
-            </span>
-            <span className="font-medium">
-              Collection: <span className="font-semibold">entwurf</span> · Von der KI geschrieben, noch nicht geprüft.
-            </span>
-          </div>
-          <div className="tabular-nums font-mono opacity-80">1282 Wörter · 8 Produkte · 8 ungeprüft</div>
-        </div>
-      </div>
-
       {/* Breadcrumb */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-6">
-        <nav aria-label="Brotkrumen" className="text-xs sm:text-sm text-foreground/55">
-          <ol className="flex items-center gap-1.5 flex-wrap">
-            <li>
-              <a href="/verzeichnis" className="hover:text-foreground">Verzeichnis</a>
-            </li>
-            <li aria-hidden><ChevronRight className="size-3.5" /></li>
-            <li>
-              <a href={`/verzeichnis/${clusterSlug}`} className="hover:text-foreground">{clusterName}</a>
-            </li>
-            <li aria-hidden><ChevronRight className="size-3.5" /></li>
-            <li className="text-foreground font-medium">{category}</li>
-          </ol>
-        </nav>
+      <div className="border-b border-border/60 bg-[color:var(--paper)]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-4">
+          <nav aria-label="Brotkrumen" className="text-xs sm:text-sm text-foreground/60">
+            <ol className="flex items-center gap-2 flex-wrap">
+              <li>
+                <a href="/verzeichnis" className="hover:text-foreground transition-colors">Verzeichnis</a>
+              </li>
+              <li aria-hidden className="text-foreground/30"><ChevronRight className="size-3.5" /></li>
+              <li>
+                <a href={`/verzeichnis/${clusterSlug}`} className="hover:text-foreground transition-colors">{clusterName}</a>
+              </li>
+              <li aria-hidden className="text-foreground/30"><ChevronRight className="size-3.5" /></li>
+              <li className="text-foreground font-medium">{category}</li>
+            </ol>
+          </nav>
+        </div>
       </div>
 
       {/* Hero */}
