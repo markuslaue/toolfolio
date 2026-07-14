@@ -23,6 +23,17 @@ const schema = z.object({
   bild: z.boolean().default(true),
 });
 
+/** Welche Werkzeuge stehen serverseitig bereit? Die Oberflaeche soll es WISSEN,
+    statt es beim Start herauszufinden. */
+export async function GET() {
+  const w = await redaktionOderFehler();
+  if (!w.ok) return NextResponse.json({ error: w.error }, { status: 403 });
+  return NextResponse.json({
+    anthropic: Boolean(process.env.ANTHROPIC_API_KEY),
+    openai: Boolean(process.env.OPENAI_API_KEY ?? process.env.OPEN_AI_API_KEY),
+  });
+}
+
 export async function POST(req: Request) {
   const w = await redaktionOderFehler();
   if (!w.ok) return NextResponse.json({ error: w.error }, { status: 403 });

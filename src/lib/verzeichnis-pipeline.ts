@@ -127,6 +127,29 @@ export type LaufOptionen = {
   bild: boolean;
 };
 
+/**
+ * Vorflug-Kontrolle.
+ *
+ * SIE IST NICHT OPTIONAL, und sie steht hier, weil das Fehlen genau einmal richtig
+ * weh getan hat: ohne ANTHROPIC_API_KEY lief eine Discovery komplett durch, verbrauchte
+ * DataForSEO-Guthaben fuer 18 SERP-Abfragen, lud hunderte Herstellerseiten und
+ * scheiterte dann bei JEDER einzelnen an derselben Meldung. Das Protokoll war voll,
+ * das Ergebnis leer, und das Geld weg.
+ *
+ * Ein Lauf, der ohne seine Werkzeuge startet, ist kein Lauf, sondern eine teure Art,
+ * nichts zu tun. Er bricht jetzt in der ersten Sekunde ab und sagt, was fehlt.
+ */
+function fehlendeSchluessel(opt: LaufOptionen): string[] {
+  const fehlt: string[] = [];
+  if ((opt.discovery || opt.content) && !process.env.ANTHROPIC_API_KEY) {
+    fehlt.push("ANTHROPIC_API_KEY (für die Prüfung der Anbieter und den Text)");
+  }
+  if (opt.bild && !process.env.OPENAI_API_KEY && !process.env.OPEN_AI_API_KEY) {
+    fehlt.push("OPENAI_API_KEY (für das Hintergrundbild)");
+  }
+  return fehlt;
+}
+
 export async function fuehreLaufAus(laufId: string, collectionId: string, opt: LaufOptionen): Promise<void> {
   const admin = createAdminClient();
   const log = new Protokoll(laufId, admin);
@@ -134,6 +157,15 @@ export async function fuehreLaufAus(laufId: string, collectionId: string, opt: L
   const ergebnis: Record<string, unknown> = {};
 
   try {
+    const fehlt = fehlendeSchluessel(opt);
+    if (fehlt.length > 0) {
+      await log.schreib(
+        "fehler",
+        `In der Server-Umgebung fehlen Zugangsdaten: ${fehlt.join(", ")}. Der Lauf startet gar nicht erst, statt Guthaben zu verbrennen.`,
+      );
+      throw new Error(`Fehlende Zugangsdaten: ${fehlt.join(", ")}`);
+    }
+
     const { data: coll } = await admin
       .from("dir_collection")
       .select("id, name, slug, fokus_keyword, dir_cluster(name)")
@@ -412,7 +444,18 @@ Gib NUR ein JSON-Objekt zurück, ohne Codefence:
       angelegt++;
       await log.schreib("ok", `${p.name} (${k.domain})${k.wirbt ? " · schaltet Anzeigen" : ""}`);
     } catch (e) {
-      await log.schreib("warnung", `${k.domain}: Prüfung fehlgeschlagen (${e instanceof Error ? e.message : "?"})`);
+      const text = e instanceof Error ? e.message : "?";
+
+      /* Ein Authentifizierungs- oder Kontingentfehler ist KEIN Problem dieses einen
+         Kandidaten, sondern des ganzen Laufs. Er wiederholt sich zwangslaeufig bei
+         jedem weiteren. Weiterzumachen hiesse, hundertmal denselben Fehler ins
+         Protokoll zu schreiben und dabei hundert Websites umsonst zu laden. */
+      if (/authentication|api key|unauthorized|401|invalid_api_key|credit balance|rate.?limit/i.test(text)) {
+        await log.schreib("fehler", `Abbruch bei ${k.domain}: ${text}`);
+        throw new Error(`Die KI-Prüfung ist nicht verfügbar: ${text}`);
+      }
+
+      await log.schreib("warnung", `${k.domain}: Prüfung fehlgeschlagen (${text})`);
       verworfen++;
     }
   }
@@ -567,6 +610,12 @@ export async function anreichereProdukte(
   const log = new Protokoll(laufId, admin);
 
   try {
+    // Auch hier: erst pruefen, dann dutzende Websites crawlen. Siehe fehlendeSchluessel().
+    if (!process.env.ANTHROPIC_API_KEY) {
+      await log.schreib("fehler", "In der Server-Umgebung fehlt ANTHROPIC_API_KEY. Ohne ihn können wir die Anbieterseiten nicht auswerten.");
+      throw new Error("Fehlender ANTHROPIC_API_KEY");
+    }
+
     const { data: coll } = await admin
       .from("dir_collection")
       .select("name")

@@ -65,6 +65,18 @@ export function LaufKarte({
   const laeuft = lauf?.status === "laeuft";
   const logRef = useRef<HTMLDivElement>(null);
 
+  /* Welche Werkzeuge hat der SERVER? Nicht mein Rechner, der Server.
+     Genau daran ist ein Lauf schon einmal gescheitert: der Anthropic-Schluessel lag
+     lokal, aber nicht im Container. Die Karte fragt das jetzt vorher ab und sperrt
+     die Schritte, die nicht laufen koennen, statt sie anzubieten und Geld zu verbrennen. */
+  const [schluessel, setSchluessel] = useState<{ anthropic: boolean; openai: boolean } | null>(null);
+  useEffect(() => {
+    fetch("/api/admin/verzeichnis/lauf")
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setSchluessel)
+      .catch(() => setSchluessel(null));
+  }, []);
+
   /* Solange der Lauf laeuft, alle zwei Sekunden nachfragen. Kein WebSocket: ein Lauf
      dauert Minuten und wird von einem einzigen Menschen beobachtet. Polling ist hier
      die einfachere Loesung, und einfacher ist besser, wenn beides funktioniert. */
@@ -114,6 +126,10 @@ export function LaufKarte({
   }
 
   const nichtsGewaehlt = !discovery && !content && !bild;
+  const kiFehlt = schluessel !== null && !schluessel.anthropic;
+  const bildFehlt = schluessel !== null && !schluessel.openai;
+  // Ein Lauf ohne seine Werkzeuge ist kein Lauf, sondern eine teure Art, nichts zu tun.
+  const gesperrt = (kiFehlt && (discovery || content)) || (bildFehlt && bild);
 
   return (
     <div className="mt-4 rounded-2xl border bg-card">
@@ -152,7 +168,7 @@ export function LaufKarte({
         <div className="ml-auto flex flex-wrap gap-2">
           <Button
             className="gap-1.5"
-            disabled={laeuft || start || nichtsGewaehlt}
+            disabled={laeuft || start || nichtsGewaehlt || gesperrt}
             onClick={() => starte("/api/admin/verzeichnis/lauf", { collectionId, discovery, content, bild })}
           >
             {laeuft || start ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
@@ -162,7 +178,7 @@ export function LaufKarte({
           <Button
             variant="outline"
             className="gap-1.5"
-            disabled={laeuft || start || produkteVorhanden === 0}
+            disabled={laeuft || start || produkteVorhanden === 0 || kiFehlt}
             title={
               produkteVorhanden === 0
                 ? "Erst Anbieter suchen, dann können wir ihre Daten holen."
@@ -175,6 +191,23 @@ export function LaufKarte({
           </Button>
         </div>
       </div>
+
+      {(kiFehlt || bildFehlt) && (
+        <div className="border-t border-warning/40 bg-warning/10 px-4 py-3 text-sm">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+            <div>
+              <div className="font-semibold">In der Server-Umgebung fehlen Zugangsdaten.</div>
+              <p className="mt-0.5 text-muted-foreground">
+                {kiFehlt && <>Ohne <code className="font-mono text-xs">ANTHROPIC_API_KEY</code> können Anbieter nicht geprüft und keine Texte geschrieben werden. </>}
+                {bildFehlt && <>Ohne <code className="font-mono text-xs">OPENAI_API_KEY</code> kann kein Bild erzeugt werden. </>}
+                Trag sie in <code className="font-mono text-xs">/opt/toolfolio/.env</code> ein und starte den Container neu.
+                Die betroffenen Schritte sind gesperrt, damit kein Guthaben verbrannt wird.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {lauf && (
         <div className="border-t">
