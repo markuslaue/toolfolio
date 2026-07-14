@@ -18,7 +18,16 @@ ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
     NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
-    NEXT_TELEMETRY_DISABLED=1
+    NEXT_TELEMETRY_DISABLED=1 \
+    # DECKEL FUER DEN BUILD-SPEICHER.
+    #
+    # Der Build laeuft AUF dem Produktionsserver. Ohne Deckel nimmt sich Node so viel
+    # Arbeitsspeicher, wie es kriegen kann, der Kernel toetet daraufhin den LAUFENDEN
+    # Webcontainer, um Platz zu machen, und die Seite ist waehrend des Builds weg.
+    # Genau das ist zweimal passiert.
+    #
+    # 1,5 GB reichen fuer diesen Build und lassen dem laufenden Container Luft.
+    NODE_OPTIONS=--max-old-space-size=1536
 RUN npm run build
 
 FROM node:22-alpine AS runner

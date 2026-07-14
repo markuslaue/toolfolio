@@ -1,32 +1,27 @@
 #!/usr/bin/env bash
 #
-# Deploy auf VPS B (toolfolio.de). Einziger zulaessiger Weg, den Code auf den
-# Server zu bringen. Nicht aus dem Gedaechtnis nachtippen: rsync laeuft mit
-# --delete, und ein vergessenes Exclude loescht auf dem Server echte Daten.
+# Deploy auf VPS B (toolfolio.de).
 #
-#   ./scripts/deploy.sh          # sync + rebuild
-#   ./scripts/deploy.sh --sync   # nur sync, kein rebuild
+#   ./scripts/deploy.sh            # Image aus der Registry ziehen und umschalten
+#   ./scripts/deploy.sh --lokal    # NOTAUSGANG: auf dem Server bauen (langsam, belastend)
 #
 # ---------------------------------------------------------------------------
-# WARUM DIESES SKRIPT ZWEISTUFIG BAUT (2026-07-14, nach einem Ausfall):
+# WARUM HIER NICHT MEHR GEBAUT WIRD (2026-07-15, nach zwei Ausfaellen):
 #
-# Frueher stand hier nur `docker compose up -d --build`. Das laeuft SSH-seitig als
-# ein einziger Befehl: bauen und umschalten in einem. Zwei Dinge sind daran kaputt
-# gegangen, und beide gleichzeitig:
+# Der VPS hat 4 GB RAM und wenige Kerne. Ein Next.js-Build braucht davon fast alles.
+# Solange er laeuft, ist der Server so beschaeftigt, dass er KEINE Anfrage mehr
+# beantwortet: Load 44 statt 2, 59 MB freier Speicher, SSH antwortet nicht.
 #
-#   1. Wird der Aufruf abgebrochen (Timeout, Strg-C, geschlossenes Terminal), kann
-#      er genau zwischen "alten Container gestoppt" und "neuen gestartet" sterben.
-#      Dann ist die Seite WEG, und niemand merkt es, ausser den Besuchern.
-#      Genau das ist passiert: zehn Minuten Timeout, Abbruch mitten im Umschalten.
+# Die Seite war damit bei JEDEM Deploy minutenlang nicht erreichbar, obwohl der
+# Webcontainer die ganze Zeit lief. Ich habe das zweimal fuer ein Container-Problem
+# gehalten und mit besseren Skripten zu loesen versucht. Es war keins: der Server
+# erstickte schlicht am eigenen Build.
 #
-#   2. Der abgebrochene SSH-Prozess laeuft auf dem SERVER weiter. Startet man den
-#      Deploy dann erneut, bauen ZWEI docker-compose-Laeufe gleichzeitig am selben
-#      Projekt und treten sich den Container gegenseitig weg.
+# Jetzt baut GitHub Actions (.github/workflows/deploy.yml) das Image bei jedem Push
+# nach main und legt es in die GitHub-Registry. Dieses Skript zieht es und schaltet um.
+# Das dauert Sekunden und kostet den Server fast nichts.
 #
-# Deshalb jetzt: erst BAUEN (die Seite laeuft dabei weiter, das dauert), und erst
-# wenn das Image fertig ist, in einem kurzen zweiten Schritt UMSCHALTEN. Der lange
-# Teil ist damit ungefaehrlich abbrechbar, und der gefaehrliche Teil dauert Sekunden.
-# Dazu eine Sperre, damit nie zwei Deploys gleichzeitig laufen.
+# Deployen soll langweilig sein.
 # ---------------------------------------------------------------------------
 set -euo pipefail
 
@@ -35,62 +30,50 @@ ZIEL="/opt/toolfolio"
 SSH="ssh -i $HOME/.ssh/flowee_vps -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 cd "$(dirname "$0")/.."
 
-# Excludes MUESSEN verankert sein (fuehrender /), sonst schliesst z. B. "supabase"
-# auch src/lib/supabase/ aus und der Build bricht mit module-not-found ab.
-#
-# /.env ist lebenswichtig: dort liegen die Laufzeit-Secrets des Servers, die es
-# lokal nicht gibt. rsync loescht ausgeschlossene Dateien auf dem Ziel NICHT
-# (solange kein --delete-excluded gesetzt ist), das Exclude schuetzt sie also.
-EXCLUDES=(
-  --exclude '/.git'
-  --exclude '/node_modules'
-  --exclude '/.next'
-  --exclude '/.env'          # Server-Secrets, niemals anfassen
-  --exclude '/.env.local'    # lokale Entwickler-Secrets, gehoeren nicht auf den Server
-  --exclude '/.lovable-ref'
-  --exclude '/coverage'
-  --exclude '/docs'
-  --exclude '/features'
-  --exclude '/.claude'
-  --exclude '/supabase'
-  --exclude '/tsconfig.tsbuildinfo'
-  --exclude '.DS_Store'
-)
-
-# Sperre auf dem Server: nie zwei Deploys gleichzeitig. flock gibt sofort auf,
-# statt zu warten: lieber ein klarer Abbruch als zwei Builds, die sich bekaempfen.
+# Sperre auf dem Server: nie zwei Deploys gleichzeitig. flock gibt SOFORT auf, statt zu
+# warten: lieber ein klarer Abbruch als zwei Laeufe, die sich den Container wegtreten.
 LOCK="flock -n /var/lock/toolfolio-deploy.lock"
 
-echo "==> Sync nach $HOST:$ZIEL"
-rsync -az --delete -e "$SSH" "${EXCLUDES[@]}" ./ "$HOST:$ZIEL/"
+# Die Konfigurationsdateien muessen trotzdem auf den Server: docker-compose.yml sagt,
+# welches Image gezogen wird und wie es laeuft. Der Quellcode nicht mehr, der steckt
+# jetzt im Image.
+echo "==> Konfiguration nach $HOST:$ZIEL"
+rsync -az -e "$SSH" docker-compose.yml "$HOST:$ZIEL/docker-compose.yml"
 
-# Kontrolle: ohne .env startet der Container nicht, und ein stiller Fehlschlag
-# waere schlimmer als ein lauter Abbruch.
+# Ohne .env startet der Container nicht. Ein stiller Fehlschlag waere schlimmer als
+# ein lauter Abbruch.
 if ! $SSH "$HOST" "test -s $ZIEL/.env"; then
-  echo "FEHLER: $ZIEL/.env fehlt oder ist leer. Kein Rebuild." >&2
+  echo "FEHLER: $ZIEL/.env fehlt oder ist leer. Kein Deploy." >&2
   exit 1
 fi
 
-if [ "${1:-}" = "--sync" ]; then
-  echo "==> Nur Sync, wie angefordert. Kein Rebuild."
-  exit 0
+if [ "${1:-}" = "--lokal" ]; then
+  # NOTAUSGANG. Nur wenn GitHub nicht verfuegbar ist. Nimmt die Seite fuer Minuten
+  # vom Netz, deshalb nice + ionice: der Build bekommt die niedrigste Prioritaet.
+  echo "==> NOTAUSGANG: Build auf dem Server. Die Seite wird waehrenddessen sehr langsam."
+  rsync -az --delete -e "$SSH" \
+    --exclude '/.git' --exclude '/node_modules' --exclude '/.next' \
+    --exclude '/.env' --exclude '/.env.local' --exclude '/.lovable-ref' \
+    --exclude '/coverage' --exclude '/docs' --exclude '/features' \
+    --exclude '/.claude' --exclude '/supabase' --exclude '/tsconfig.tsbuildinfo' \
+    --exclude '.DS_Store' \
+    ./ "$HOST:$ZIEL/"
+  $SSH "$HOST" "cd $ZIEL && $LOCK nice -n 19 ionice -c3 docker compose -p toolfolio -f docker-compose.build.yml build" \
+    || { echo "FEHLER: Build fehlgeschlagen oder ein anderer Deploy laeuft." >&2; exit 1; }
+else
+  # Der Normalfall: fertiges Image ziehen. Sekunden, kaum Last.
+  echo "==> Neues Image ziehen"
+  $SSH "$HOST" "cd $ZIEL && $LOCK docker compose -p toolfolio pull" \
+    || { echo "FEHLER: Image konnte nicht geladen werden. Laeuft der GitHub-Build noch? Die Seite laeuft unveraendert weiter." >&2; exit 1; }
 fi
 
-# Schritt 1: BAUEN. Die alte Version laeuft dabei ungestoert weiter.
-# Das ist der lange Teil, und er ist gefahrlos abbrechbar.
-echo "==> Baue neues Image (die Seite laeuft weiter)"
-$SSH "$HOST" "cd $ZIEL && $LOCK docker compose -p toolfolio build" \
-  || { echo "FEHLER: Build fehlgeschlagen oder ein anderer Deploy laeuft. Die Seite laeuft unveraendert weiter." >&2; exit 1; }
-
-# Schritt 2: UMSCHALTEN. Kurz, weil das Image schon fertig ist.
-# nohup + setsid: der Befehl ueberlebt einen Abbruch dieser SSH-Verbindung.
-# Genau daran ist es geknallt: die Verbindung starb zwischen Stoppen und Starten.
-echo "==> Schalte um"
+echo "==> Umschalten"
 $SSH "$HOST" "cd $ZIEL && $LOCK docker compose -p toolfolio up -d"
 
-# Kontrolle: antwortet die Seite wirklich? Ein "Fertig" ohne Beleg ist wertlos.
+# Kontrolle: antwortet die Seite wirklich? Ein "Fertig" ohne Beleg ist wertlos, und
+# genau das hat mir waehrend eines Ausfalls die Wahrheit verschleiert.
 echo "==> Warte auf Antwort"
-for i in $(seq 1 30); do
+for _ in $(seq 1 30); do
   if curl -sf -m 5 -o /dev/null https://toolfolio.de/; then
     echo "==> Fertig und erreichbar: https://toolfolio.de"
     exit 0

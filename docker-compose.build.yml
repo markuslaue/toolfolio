@@ -1,0 +1,15 @@
+# NOTAUSGANG. Nur fuer `scripts/deploy.sh --lokal`, wenn GitHub nicht verfuegbar ist.
+#
+# Baut das Image AUF DEM SERVER. Das nimmt die Seite fuer Minuten praktisch vom Netz
+# (der VPS hat 4 GB RAM und erstickt am Build), deshalb ist es ausdruecklich nicht der
+# Normalweg. Der Normalweg ist GitHub Actions.
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+    image: ghcr.io/markuslaue/toolfolio:latest

@@ -1,18 +1,24 @@
 # Toolfolio - Deployment auf VPS B hinter dem vorhandenen Traefik.
 # Traefik laeuft im host-Netz mit Docker-Provider (exposedbydefault=false),
-# Certresolver "letsencrypt". Deploy: docker compose -p toolfolio up -d --build
+# Certresolver "letsencrypt".
 #
-# Laufzeit-Secrets kommen aus .env.production (NICHT committen) auf dem Server.
+# DAS IMAGE WIRD NICHT MEHR HIER GEBAUT.
+#
+# Der VPS hat 4 GB RAM. Ein Next.js-Build braucht davon fast alles, und solange er
+# laeuft, ist der Server so beschaeftigt, dass er keine Anfrage mehr beantwortet: die
+# Seite war bei JEDEM Deploy minutenlang nicht erreichbar, obwohl der Container lief.
+# Load 44 statt 2, 59 MB freier Speicher.
+#
+# Jetzt baut GitHub Actions das Image und legt es in die GitHub-Registry. Der Server
+# macht nur noch "pull" und "up": Sekunden statt Minuten, ohne Last, ohne Ausfall.
+#
+# Deploy:  bash scripts/deploy.sh
+#
+# Laufzeit-Secrets kommen aus /opt/toolfolio/.env auf dem Server (NICHT committen).
 
 services:
   web:
-    build:
-      context: .
-      args:
-        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
-    image: toolfolio-web:latest
+    image: ${TOOLFOLIO_IMAGE:-ghcr.io/markuslaue/toolfolio:latest}
     container_name: toolfolio-web
     restart: unless-stopped
     # .env liefert sowohl die Build-Args (NEXT_PUBLIC_*) per Compose-Interpolation
