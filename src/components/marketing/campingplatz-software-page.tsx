@@ -442,7 +442,7 @@ export function CampingplatzSoftwarePage() {
       {/* Sticky Sub-Nav */}
       <div className="sticky top-16 z-30 border-y border-border/70 bg-[color:var(--paper)]/85 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex items-center gap-1 overflow-x-auto py-2 text-sm">
+          <div className="flex flex-wrap items-center gap-x-1 gap-y-1 py-2 text-sm">
             <a href="#ranking" className="shrink-0 rounded-full px-3 py-1.5 font-semibold text-foreground/80 hover:text-foreground hover:bg-foreground/[0.05]">
               Tool-Ranking
             </a>
@@ -455,15 +455,6 @@ export function CampingplatzSoftwarePage() {
                 {a.label}
               </a>
             ))}
-            <button
-              type="button"
-              onClick={openFinder}
-              className="ml-auto shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-soft transition hover:opacity-90"
-              style={{ background: "#6C5CE7" }}
-            >
-              <Sparkles className="size-3.5" />
-              Passende Software finden
-            </button>
           </div>
         </div>
       </div>
