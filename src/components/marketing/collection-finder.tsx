@@ -29,7 +29,10 @@ export type CollectionFinderConfig = {
   ctaLabel: string;
   categoryQuestions: FinderQuestion[];
   products: { id: string; name: string; vendor: string; initials: string; color: string; tags: string[]; detailHref: string }[];
+  sponsoredProductId?: string;
+  sponsoredReason?: string;
 };
+
 
 // ─── Konfiguration Campingplatz-Software ──────────────────────────────────────
 
