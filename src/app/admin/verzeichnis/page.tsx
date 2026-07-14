@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, FileText, Package } from "lucide-react";
+import { ArrowRight, FileText, Package, Search } from "lucide-react";
 import { redaktionOderRaus } from "@/lib/redaktion";
 
 export const metadata: Metadata = { title: "Redaktion", robots: { index: false, follow: false } };
@@ -17,7 +17,7 @@ export default async function RedaktionPage() {
      Ein "select id, cluster_id" haette hier 292 Kategorien verschluckt, ohne Fehler. */
   const zeilen = await Promise.all(
     ((cluster as ClusterRow[]) ?? []).map(async (c) => {
-      const [gesamtZ, liveZ, ohneTextZ, collIds] = await Promise.all([
+      const [gesamtZ, liveZ, ohneTextZ, finderLiveZ, finderPruefZ, collIds] = await Promise.all([
         admin.from("dir_collection").select("*", { count: "exact", head: true }).eq("cluster_id", c.id),
         admin
           .from("dir_collection")
@@ -29,6 +29,18 @@ export default async function RedaktionPage() {
           .select("*", { count: "exact", head: true })
           .eq("cluster_id", c.id)
           .eq("content_status", "fehlt"),
+        // Der Finder-Fortschritt ist die eigentliche Steuerung des Rollouts:
+        // jede Kategorie braucht einen eigenen Fragensatz, und wir arbeiten Hub fuer Hub.
+        admin
+          .from("dir_collection")
+          .select("*", { count: "exact", head: true })
+          .eq("cluster_id", c.id)
+          .eq("finder_status", "live"),
+        admin
+          .from("dir_collection")
+          .select("*", { count: "exact", head: true })
+          .eq("cluster_id", c.id)
+          .eq("finder_status", "in_review"),
         admin.from("dir_collection").select("id").eq("cluster_id", c.id).limit(1000),
       ]);
 
@@ -47,6 +59,8 @@ export default async function RedaktionPage() {
         live: liveZ.count ?? 0,
         mitText: anzahl - (ohneTextZ.count ?? 0),
         produkte: produkte ?? 0,
+        finderLive: finderLiveZ.count ?? 0,
+        finderPruef: finderPruefZ.count ?? 0,
       };
     }),
   );
@@ -55,6 +69,7 @@ export default async function RedaktionPage() {
     collections: zeilen.reduce((s, z) => s + z.collections, 0),
     live: zeilen.reduce((s, z) => s + z.live, 0),
     produkte: zeilen.reduce((s, z) => s + z.produkte, 0),
+    finderLive: zeilen.reduce((s, z) => s + z.finderLive, 0),
   };
 
   return (
@@ -62,7 +77,7 @@ export default async function RedaktionPage() {
       <h1 className="font-display text-3xl font-semibold tracking-tight">Redaktion</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         {gesamt.collections} Kategorien in {zeilen.length} Clustern · {gesamt.live} live · {gesamt.produkte} Produkte
-        zugeordnet
+        zugeordnet · {gesamt.finderLive} Finder live
       </p>
 
       <div className="mt-8 overflow-hidden rounded-2xl border bg-card">
@@ -85,6 +100,23 @@ export default async function RedaktionPage() {
                       <Package className="size-3" /> {c.produkte} Produkte
                     </span>
                     {c.live > 0 && <span className="font-medium text-success">{c.live} live</span>}
+                  </div>
+
+                  {/* Finder-Fortschritt: die Steuerung des Rollouts. Jede Kategorie
+                      braucht einen eigenen Fragensatz, und man sieht hier auf einen
+                      Blick, wie weit dieser Cluster ist. */}
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="h-1 w-24 overflow-hidden rounded-full bg-secondary">
+                      <div
+                        className="h-full rounded-full bg-emerald-500"
+                        style={{ width: `${c.collections ? (c.finderLive / c.collections) * 100 : 0}%` }}
+                      />
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <Search className="size-3" />
+                      {c.finderLive} von {c.collections} Findern live
+                      {c.finderPruef > 0 && ` · ${c.finderPruef} in Prüfung`}
+                    </span>
                   </div>
                 </div>
                 <ArrowRight className="size-4 shrink-0 text-muted-foreground" />

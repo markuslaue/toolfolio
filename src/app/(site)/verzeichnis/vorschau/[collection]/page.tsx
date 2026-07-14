@@ -12,6 +12,10 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import { CollectionSeite, NUTZER_SCHWELLE } from "@/components/verzeichnis/collection-seite";
+import { Finder } from "@/components/verzeichnis/finder";
+import { Faq } from "@/components/verzeichnis/faq";
+import type { FinderConfig, Kandidat } from "@/lib/finder";
+import type { FaqEintrag } from "@/lib/schema";
 import { getAutor, STANDARD_AUTOR } from "@/lib/autoren";
 import { bewertungenFuer, type Produkt, type ProduktInZone, type Zone } from "@/lib/verzeichnis";
 import { createClient } from "@/lib/supabase/server";
@@ -50,7 +54,7 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
   const { data } = await admin
     .from("dir_collection")
     .select(
-      "id, name, slug, h1, intro_md, content_md, content_status, content_woerter, experten_zitat, autor_slug, status, content_erzeugt_am, hero_url, hero_autor, hero_autor_url, hero_quelle, hero_quelle_url, dir_cluster(name, slug)",
+      "id, name, slug, h1, intro_md, content_md, content_status, content_woerter, experten_zitat, autor_slug, status, content_erzeugt_am, hero_url, hero_autor, hero_autor_url, hero_quelle, hero_quelle_url, finder_config, finder_status, faq, aktualisiert_am, dir_cluster(name, slug)",
     )
     .eq("slug", collection)
     .maybeSingle();
@@ -64,14 +68,14 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
 
   const { data: cp } = await admin
     .from("dir_collection_produkt")
-    .select("zone, position, gesponsert_bis, dir_produkt(*)")
+    .select("zone, position, gesponsert_bis, tags, dir_produkt(*)")
     .eq("collection_id", data.id);
 
   const produkte: ProduktInZone[] = (
-    (cp ?? []) as unknown as { zone: Zone; position: number; gesponsert_bis: string | null; dir_produkt: Produkt }[]
+    (cp ?? []) as unknown as { zone: Zone; position: number; gesponsert_bis: string | null; tags: string[] | null; dir_produkt: Produkt }[]
   )
     .filter((r) => r.dir_produkt)
-    .map((r) => ({ ...r.dir_produkt, zone: r.zone, position: r.position, gesponsert_bis: r.gesponsert_bis }))
+    .map((r) => ({ ...r.dir_produkt, zone: r.zone, position: r.position, gesponsert_bis: r.gesponsert_bis, tags: r.tags ?? [] }))
     .sort((a, b) => a.position - b.position);
 
   const bewertungen = await bewertungenFuer(produkte.map((p) => p.id));
@@ -95,9 +99,23 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
   }
 
   const ungeprueft = produkte.filter((p) => p.status !== "veroeffentlicht").length;
-  const aktualisiert = data.content_erzeugt_am
-    ? new Date(data.content_erzeugt_am).toLocaleDateString("de-DE")
+  const aktualisiert = data.aktualisiert_am
+    ? new Date(data.aktualisiert_am as string).toLocaleDateString("de-DE")
     : null;
+
+  /* Finder und FAQ genau so wie oeffentlich. Die Vorschau muss zeigen, was live geht,
+     sonst pruefst du etwas anderes, als spaeter jemand zu sehen bekommt. */
+  const finderConfig = data.finder_config as FinderConfig | null;
+  const istIndividuell = data.finder_status === "live" && !!finderConfig?.categoryQuestions?.length;
+  const faq = ((data.faq ?? []) as FaqEintrag[]) ?? [];
+  const kandidaten: Kandidat[] = produkte.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    farbe: p.farbe,
+    kurzbeschreibung: p.kurzbeschreibung,
+    tags: p.tags,
+  }));
 
   return (
     <>
@@ -120,6 +138,20 @@ export default async function VorschauSeite({ params }: { params: Promise<{ coll
       </div>
 
       <CollectionSeite
+        finder={
+          produkte.length > 0 ? (
+            <Finder
+              collectionId={data.id}
+              collectionName={data.name}
+              kategorieFragen={finderConfig?.categoryQuestions ?? []}
+              kandidaten={kandidaten}
+              headline={finderConfig?.introHeadline ?? `Finde die passende ${data.name}`}
+              ctaLabel={finderConfig?.ctaLabel ?? "Passende Software finden"}
+              individuell={istIndividuell}
+            />
+          ) : undefined
+        }
+        faq={faq.length > 0 ? <Faq eintraege={faq} thema={data.name} /> : undefined}
         collection={{
           name: data.name,
           slug: data.slug,

@@ -193,9 +193,9 @@ export function AbosListe({
 
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  // Standard: nach Name absteigend sortiert.
+  // Standard: nach Name aufsteigend, also A nach Z.
   const [sortKey, setSortKey] = useState<SortKey>("tool");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [group, setGroup] = useState<GroupKey>("keine");
   const [view, setView] = useState<"tabelle" | "karten">("tabelle");
   const [density, setDensity] = useState<"komfort" | "kompakt">("komfort");

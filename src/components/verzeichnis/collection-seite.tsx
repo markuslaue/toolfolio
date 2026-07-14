@@ -12,6 +12,7 @@
  * Stattdessen steht dort, was wir wirklich wissen, und wo nichts steht, steht,
  * dass wir es nicht wissen. Genau das ist der Unterschied zu Capterra.
  */
+import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -379,6 +380,8 @@ export function CollectionSeite({
   nutzerJeProdukt,
   autor,
   akzent = "#12B76A",
+  finder,
+  faq,
 }: {
   collection: CollectionDaten;
   cluster: ClusterDaten;
@@ -389,6 +392,10 @@ export function CollectionSeite({
   autor: Autor | null;
   /** Akzentfarbe des Clusters. */
   akzent?: string;
+  /** Der Anfrage-Finder. Steht laut Entwurf zwischen gesponserter Zone und Tool-Liste. */
+  finder?: ReactNode;
+  /** Die FAQ. Steht am Ende des Guides, vor der Autorenbox. */
+  faq?: ReactNode;
 }) {
   const abschnitte = collection.content_md ? parseAbschnitte(collection.content_md) : [];
 
@@ -534,6 +541,12 @@ export function CollectionSeite({
         </div>
       )}
 
+      {/* Der Finder. Laut Entwurf zwischen gesponserter Zone und Tool-Liste:
+          wer schon weiss, was er will, scrollt daran vorbei zu den Tools. Wer
+          nicht weiss, was er will, bekommt hier Hilfe, bevor er sich durch acht
+          Karten arbeitet. */}
+      {finder && <div className="mx-auto max-w-7xl px-4 sm:px-6">{finder}</div>}
+
       {/* Tools */}
       <section id="ranking" className="mx-auto max-w-7xl scroll-mt-16 px-4 pb-16 pt-12 sm:px-6">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
@@ -605,6 +618,8 @@ export function CollectionSeite({
               </div>
             </aside>
           </div>
+
+          {faq && <div className="max-w-3xl">{faq}</div>}
 
           {autor && (
             <div className="mt-12 max-w-3xl">

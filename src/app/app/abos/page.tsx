@@ -20,7 +20,9 @@ export default async function AbosPage() {
     .from("abos")
     .select("*")
     .eq("user_id", account)
-    .order("naechste_abbuchung", { ascending: true, nullsFirst: false })
+    // Standard: alphabetisch nach Tool. Wer ein bestimmtes Abo sucht, sucht es
+    // beim Namen, nicht beim Abbuchungsdatum. Fristen stehen im Fristen-Waechter.
+    .order("tool", { ascending: true })
     .order("created_at", { ascending: false });
 
   const { kanalOptionen, kundenOptionen } = await ladeAboOptionen();

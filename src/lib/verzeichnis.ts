@@ -1,5 +1,8 @@
 import { createPublicClient } from "@/lib/supabase/public";
 
+import type { FinderConfig, FinderStatus } from "@/lib/finder";
+import type { FaqEintrag } from "@/lib/schema";
+
 export type Zone = "gesponsert" | "organisch" | "community";
 
 export const ZONE_LABEL: Record<Zone, string> = {
@@ -44,6 +47,12 @@ export type Collection = {
   content_woerter: number | null;
   experten_zitat: string | null;
   autor_slug: string | null;
+  /** Kategoriespezifischer Fragensatz des Finders. Null = noch keiner geschrieben. */
+  finder_config: FinderConfig | null;
+  finder_status: FinderStatus;
+  faq: FaqEintrag[];
+  /** Echtes Aktualisierungsdatum. Speist dateModified im JSON-LD. */
+  aktualisiert_am: string;
 };
 
 export type Produkt = {
@@ -67,7 +76,7 @@ export type Produkt = {
   status: "entwurf" | "ki_ungeprueft" | "redaktionell_geprueft" | "veroeffentlicht";
 };
 
-export type ProduktInZone = Produkt & { zone: Zone; position: number; gesponsert_bis: string | null };
+export type ProduktInZone = Produkt & { zone: Zone; position: number; gesponsert_bis: string | null; tags: string[] };
 
 export type Review = {
   id: string;
@@ -162,11 +171,11 @@ export async function getCollection(slug: string): Promise<{ collection: Collect
   const co = collection as Collection;
   const [{ data: cluster }, { data: cp }] = await Promise.all([
     sb.from("dir_cluster").select("*").eq("id", co.cluster_id).maybeSingle(),
-    sb.from("dir_collection_produkt").select("zone, position, gesponsert_bis, dir_produkt(*)").eq("collection_id", co.id),
+    sb.from("dir_collection_produkt").select("zone, position, gesponsert_bis, tags, dir_produkt(*)").eq("collection_id", co.id),
   ]);
-  const produkte: ProduktInZone[] = ((cp ?? []) as unknown as { zone: Zone; position: number; gesponsert_bis: string | null; dir_produkt: Produkt }[])
+  const produkte: ProduktInZone[] = ((cp ?? []) as unknown as { zone: Zone; position: number; gesponsert_bis: string | null; tags: string[] | null; dir_produkt: Produkt }[])
     .filter((r) => r.dir_produkt)
-    .map((r) => ({ ...r.dir_produkt, zone: r.zone, position: r.position, gesponsert_bis: r.gesponsert_bis }));
+    .map((r) => ({ ...r.dir_produkt, zone: r.zone, position: r.position, gesponsert_bis: r.gesponsert_bis, tags: r.tags ?? [] }));
   return { collection: co, cluster: cluster as Cluster, produkte };
 }
 
