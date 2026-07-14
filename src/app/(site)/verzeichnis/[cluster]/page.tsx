@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowRight, Layers } from "lucide-react";
 import { Breadcrumb } from "@/components/verzeichnis/breadcrumb";
-import { getCluster, alleClusterSlugs } from "@/lib/verzeichnis";
+import { getCluster, alleClusterSlugs, getCollection } from "@/lib/verzeichnis";
 
 export const revalidate = 600;
 
@@ -24,7 +24,19 @@ export async function generateMetadata({ params }: { params: Promise<{ cluster: 
 export default async function ClusterSeite({ params }: { params: Promise<{ cluster: string }> }) {
   const { cluster } = await params;
   const data = await getCluster(cluster);
-  if (!data) notFound();
+
+  /* Kein Cluster mit diesem Namen? Vielleicht ist es eine KATEGORIE.
+     Der volle Pfad lautet /verzeichnis/<cluster>/<kategorie>, aber jeder, der einen
+     Link kuerzt oder von Hand tippt, laesst den Cluster weg. Statt einer 404 leiten wir
+     dann auf den richtigen Pfad um. Eine 404 auf einer Seite, die es gibt, ist der
+     duemmste Weg, einen Besucher (und einen Backlink) zu verlieren. */
+  if (!data) {
+    const kategorie = await getCollection(cluster);
+    if (kategorie) {
+      redirect(`/verzeichnis/${kategorie.cluster.slug}/${kategorie.collection.slug}`);
+    }
+    notFound();
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
