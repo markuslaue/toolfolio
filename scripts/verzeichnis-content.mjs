@@ -74,6 +74,11 @@ SEO
 - Meta-Description: 140 bis 155 Zeichen, Keyword enthalten, mit konkretem Nutzenversprechen.
 - Mindestens 1000 Woerter im Fliesstext.
 - Struktur ueber H2 und H3. Fuenf bis acht H2-Abschnitte, darunter passende H3.
+- JEDE H2 traegt ein kurzes Label in eckigen Klammern VOR dem Titel, das den Abschnitt
+  einordnet. Format exakt so: "## [Label] Titel des Abschnitts"
+  Beispiele fuer Labels: [Grundverstaendnis], [Funktionen], [Entscheidungshilfe],
+  [Preismodelle], [Aus der Praxis], [Compliance], [Vorgehen].
+  Das Label ist ein bis zwei Woerter, deutsch, mit echten Umlauten. H3 tragen KEIN Label.
 - Keine Einleitung, die nur ankuendigt, was gleich kommt. Direkt inhaltlich einsteigen.
 
 FORMAT

@@ -97,7 +97,14 @@ function nameAus(titel, url) {
 
 /* ------------------------------ SERP holen -------------------------------- */
 
-async function serp(keyword) {
+// Deutschland, Oesterreich, Schweiz. Der DACH-Markt ist nicht identisch.
+const LOCATIONS = [
+  { code: 2276, land: "DE" },
+  { code: 2040, land: "AT" },
+  { code: 2756, land: "CH" },
+];
+
+async function serp(keyword, location) {
   const res = await fetch("https://api.dataforseo.com/v3/serp/google/organic/live/advanced", {
     method: "POST",
     headers: { Authorization: `Basic ${auth}`, "Content-Type": "application/json" },
@@ -105,18 +112,31 @@ async function serp(keyword) {
       {
         keyword,
         language_code: "de",
-        location_code: 2276, // Deutschland
+        location_code: location,
         device: "desktop",
-        depth: 20,
+        depth: 100, // statt 20: die Longtail-Anbieter stehen selten auf Seite 1
       },
     ]),
   });
   if (!res.ok) throw new Error(`DataForSEO: Status ${res.status}`);
   const json = await res.json();
   const items = json.tasks?.[0]?.result?.[0]?.items ?? [];
-  return items
-    .filter((i) => i.type === "organic" && i.url)
-    .map((i) => ({ url: i.url, titel: i.title ?? "", beschreibung: i.description ?? "", pos: i.rank_absolute }));
+
+  const raus = [];
+  for (const i of items) {
+    // Organische Treffer.
+    if (i.type === "organic" && i.url) {
+      raus.push({ url: i.url, titel: i.title ?? "", pos: i.rank_absolute, quelle: "organisch" });
+    }
+    // BEZAHLTE ANZEIGEN. Wer fuer dieses Keyword Geld ausgibt, verkauft mit sehr
+    // hoher Wahrscheinlichkeit genau dieses Produkt. Das staerkste Signal ueberhaupt,
+    // und ich hatte es im ersten Wurf schlicht weggeworfen.
+    if (i.type === "paid" && i.url) {
+      raus.push({ url: i.url, titel: i.title ?? "", pos: i.rank_absolute, quelle: "anzeige" });
+    }
+    // Verwandte Suchanfragen liefern zwar keine Anbieter, aber die Sprache des Marktes.
+  }
+  return raus;
 }
 
 /* -------------------------------- Ablauf ---------------------------------- */
@@ -131,10 +151,28 @@ if (!collection) {
   process.exit(1);
 }
 
+/**
+ * Ein Keyword sieht nur einen Ausschnitt des Marktes. Wer "Campingplatz Software"
+ * sucht, findet andere Anbieter als wer "Campingplatz Buchungssystem" sucht.
+ * Deshalb mehrere Formulierungen, plus die Kaufabsicht-Varianten.
+ */
+const SYNONYME = {
+  "campingplatz-software": [
+    "Campingplatz Verwaltungssoftware",
+    "Campingplatz Buchungssystem",
+    "Reservierungssystem Campingplatz",
+    "Stellplatzverwaltung Software",
+    "PMS Campingplatz",
+  ],
+};
+
 const keywords = [
   collection.name,
   `beste ${collection.name}`,
   `${collection.name} Vergleich`,
+  `${collection.name} Anbieter`,
+  `${collection.name} Test`,
+  ...(SYNONYME[collection.slug] ?? []),
 ];
 
 console.log(`Collection: ${collection.name}`);
@@ -142,44 +180,50 @@ console.log(`Keywords:   ${keywords.join(" | ")}\n`);
 
 const kandidaten = new Map(); // domain -> { name, url, titel, beschreibung, treffer, bestePos }
 
+let anzeigen = 0;
 for (const kw of keywords) {
-  process.stdout.write(`  "${kw}" ... `);
-  try {
-    const treffer = await serp(kw);
-    const echte = treffer.filter((t) => istProdukt(t.url));
-    console.log(`${treffer.length} Ergebnisse, davon ${echte.length} Anbieterseiten`);
-    for (const t of echte) {
-      const d = domain(t.url);
-      const vorhanden = kandidaten.get(d);
-      if (vorhanden) {
-        vorhanden.treffer += 1;
-        vorhanden.bestePos = Math.min(vorhanden.bestePos, t.pos);
-      } else {
-        kandidaten.set(d, {
-          domain: d,
-          name: nameAus(t.titel, t.url),
-          url: `https://${d}`,
-          titel: t.titel,
-          beschreibung: t.beschreibung,
-          treffer: 1,
-          bestePos: t.pos,
-        });
+  for (const loc of LOCATIONS) {
+    process.stdout.write(`  ${loc.land}  "${kw}" ... `);
+    try {
+      const treffer = await serp(kw, loc.code);
+      const echte = treffer.filter((t) => istProdukt(t.url));
+      anzeigen += echte.filter((t) => t.quelle === "anzeige").length;
+      console.log(`${treffer.length} Treffer, ${echte.length} Anbieterseiten`);
+      for (const t of echte) {
+        const d = domain(t.url);
+        const vorhanden = kandidaten.get(d);
+        if (vorhanden) {
+          vorhanden.treffer += 1;
+          vorhanden.bestePos = Math.min(vorhanden.bestePos, t.pos);
+          if (t.quelle === "anzeige") vorhanden.wirbt = true;
+        } else {
+          kandidaten.set(d, {
+            domain: d,
+            name: nameAus(t.titel, t.url),
+            url: `https://${d}`,
+            titel: t.titel,
+            treffer: 1,
+            bestePos: t.pos,
+            wirbt: t.quelle === "anzeige",
+          });
+        }
       }
+    } catch (e) {
+      console.log(`FEHLER: ${e.message}`);
     }
-  } catch (e) {
-    console.log(`FEHLER: ${e.message}`);
   }
 }
+console.log(`\n  davon aus bezahlten Anzeigen: ${anzeigen}`);
 
 // Sortierung: wer fuer mehrere Keywords rankt, ist relevanter. Danach die Position.
 const liste = [...kandidaten.values()].sort((a, b) => b.treffer - a.treffer || a.bestePos - b.bestePos);
 
 console.log(`\n${liste.length} Kandidaten:\n`);
-console.log("  TREFFER  POS  DOMAIN".padEnd(52) + "NAME");
-console.log("  " + "-".repeat(76));
+console.log("  TREFFER  POS  ANZEIGE  DOMAIN");
+console.log("  " + "-".repeat(70));
 for (const k of liste) {
   console.log(
-    `  ${String(k.treffer).padStart(4)}    ${String(k.bestePos).padStart(3)}  ${k.domain.padEnd(34)} ${k.name}`,
+    `  ${String(k.treffer).padStart(4)}    ${String(k.bestePos).padStart(3)}     ${k.wirbt ? "ja " : "   "}    ${k.domain}`,
   );
 }
 
