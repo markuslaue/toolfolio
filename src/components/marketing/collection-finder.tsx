@@ -229,18 +229,27 @@ function reasonFor(product: { tags: string[] }, tags: string[]): string {
 
 function scoreProducts(config: CollectionFinderConfig, answers: Answers) {
   const tags = collectTags(config, answers);
-  const scored = config.products.map((p, idx) => {
+  const organicPool = config.products.filter((p) => p.id !== config.sponsoredProductId);
+  const scored = organicPool.map((p, idx) => {
     const score = tags.reduce((acc, t) => acc + (p.tags.includes(t) ? 1 : 0), 0);
     return { product: p, score, organicIdx: idx, reason: reasonFor(p, tags) };
   });
   scored.sort((a, b) => (b.score - a.score) || (a.organicIdx - b.organicIdx));
   const top = scored.filter((s) => s.score > 0).slice(0, 3);
   if (top.length < 2) {
-    // Fallback: organische Reihung, falls zu wenige Treffer
     return scored.slice(0, 2);
   }
   return top;
 }
+
+function getSponsored(config: CollectionFinderConfig, answers: Answers) {
+  if (!config.sponsoredProductId) return null;
+  const product = config.products.find((p) => p.id === config.sponsoredProductId);
+  if (!product) return null;
+  const tags = collectTags(config, answers);
+  return { product, reason: reasonFor(product, tags) };
+}
+
 
 // ─── UI-Komponenten ───────────────────────────────────────────────────────────
 
