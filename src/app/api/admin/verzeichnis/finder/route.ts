@@ -4,7 +4,11 @@ import { redaktionOderFehler } from "@/lib/redaktion";
 import { erzeugeFinder } from "@/lib/verzeichnis-pipeline";
 
 /** AD-07: Lead-Formular fuer eine Kategorie entwerfen lassen. */
-const schema = z.object({ collectionId: z.string().uuid() });
+const schema = z.object({
+  collectionId: z.string().uuid(),
+  /** Aenderungswunsch der Redaktion. Wird woertlich in den Prompt uebernommen. */
+  wunsch: z.string().trim().max(1000).optional(),
+});
 
 const TOT_NACH_MS = 2 * 60 * 1000;
 
@@ -14,7 +18,7 @@ export async function POST(req: Request) {
 
   const parsed = schema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
-  const { collectionId } = parsed.data;
+  const { collectionId, wunsch } = parsed.data;
 
   // Zombie-Erkennung wie bei den anderen Laeufen: ein toter Prozess darf die Kategorie
   // nicht dauerhaft blockieren.
@@ -39,6 +43,6 @@ export async function POST(req: Request) {
     .single();
   if (error || !lauf) return NextResponse.json({ error: "Lauf konnte nicht angelegt werden." }, { status: 500 });
 
-  void erzeugeFinder(lauf.id as string, collectionId).catch(() => {});
+  void erzeugeFinder(lauf.id as string, collectionId, wunsch ?? null).catch(() => {});
   return NextResponse.json({ laufId: lauf.id });
 }

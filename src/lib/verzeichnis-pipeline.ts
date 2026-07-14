@@ -816,7 +816,12 @@ Gib NUR ein JSON-Objekt zurück, ohne Codefence:
  * abgefragt wird und WOZU, bevor er ein Formular freigibt, das Leads an zahlende
  * Kunden verteilt. Ein Feld, dessen Zweck niemand erklaeren kann, gehoert geloescht.
  */
-export async function erzeugeFinder(laufId: string, collectionId: string): Promise<void> {
+export async function erzeugeFinder(
+  laufId: string,
+  collectionId: string,
+  /** Aenderungswunsch der Redaktion. Fliesst woertlich in den Prompt. */
+  wunsch?: string | null,
+): Promise<void> {
   const admin = createAdminClient();
   const log = new Protokoll(laufId, admin);
 
@@ -828,12 +833,18 @@ export async function erzeugeFinder(laufId: string, collectionId: string): Promi
 
     const { data: coll } = await admin
       .from("dir_collection")
-      .select("id, name, slug")
+      .select("id, name, slug, finder_config")
       .eq("id", collectionId)
       .maybeSingle();
     if (!coll) throw new Error("Kategorie nicht gefunden.");
 
+    /* Der VORHERIGE Entwurf. Er kommt in den Prompt, wenn ein Aenderungswunsch da ist:
+       "mach es anders" ohne zu sagen, was vorher war, fuehrt dazu, dass das Modell bei
+       jedem Lauf bei null anfaengt und die guten Fragen mitverwirft. */
+    const vorher = (coll.finder_config as { categoryQuestions?: unknown[] } | null)?.categoryQuestions ?? null;
+
     await log.schreib("info", `Lead-Formular für ${coll.name}`, "Lead-Formular");
+    if (wunsch) await log.schreib("info", `Änderungswunsch: ${wunsch}`);
     await log.fortschritt("text", "Fragensatz entwerfen");
 
     /* Die Produkte sind die Grundlage. Ein Fragensatz, der nach Dingen fragt, die KEIN
@@ -903,6 +914,25 @@ DIE REGELN, in dieser Reihenfolge wichtig:
 
 SPRACHE: Deutsch, Du-Form, ECHTE UMLAUTE (ä ö ü ß), niemals ae/oe/ue/ss.
 Keine Gedankenstriche.
+${
+  vorher && wunsch
+    ? `
+DAS IST EINE ÜBERARBEITUNG. Der bisherige Fragensatz lautete:
+${JSON.stringify(vorher, null, 1)}
+
+DIE REDAKTION WÜNSCHT AUSDRÜCKLICH:
+"${wunsch}"
+
+Setz diesen Wunsch um. Alles, was er NICHT betrifft, behältst du bei: Wirf keine gute
+Frage weg, nur weil du neu ansetzt. Der Wunsch der Redaktion sticht jede andere Regel
+hier, ausser der Faktengrenze und der Sprache.`
+    : wunsch
+      ? `
+DIE REDAKTION WÜNSCHT AUSDRÜCKLICH: "${wunsch}"
+Setz diesen Wunsch um. Er sticht jede andere Regel hier, ausser der Faktengrenze und
+der Sprache.`
+      : ""
+}
 
 Antworte NUR mit JSON:
 {

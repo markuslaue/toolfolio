@@ -51,6 +51,7 @@ export function FinderKarte({
   const [pending, setPending] = useState(false);
   const [laufId, setLaufId] = useState<string | null>(null);
   const [offen, setOffen] = useState(false);
+  const [wunsch, setWunsch] = useState("");
 
   const fragen = entwurf?.categoryQuestions ?? [];
   const hatEntwurf = fragen.length > 0;
@@ -81,13 +82,18 @@ export function FinderKarte({
     return () => clearInterval(t);
   }, [laufId, pruefe]);
 
-  async function erzeuge() {
+  async function erzeuge(mitWunsch = false) {
     setStart(true);
     try {
       const res = await fetch("/api/admin/verzeichnis/finder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ collectionId }),
+        body: JSON.stringify({
+          collectionId,
+          // Der Wunsch geht NUR mit, wenn er auch gemeint ist. Sonst wuerde ein alter,
+          // stehengebliebener Text stillschweigend die naechste Konzeption steuern.
+          wunsch: mitWunsch && wunsch.trim() ? wunsch.trim() : undefined,
+        }),
       });
       const json = await res.json();
       if (!res.ok) {
@@ -95,6 +101,7 @@ export function FinderKarte({
         return;
       }
       setLaufId(json.laufId);
+      if (mitWunsch) setWunsch("");
     } finally {
       setStart(false);
     }
@@ -140,23 +147,22 @@ export function FinderKarte({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant={hatEntwurf ? "outline" : "default"}
-            className="gap-1.5"
-            disabled={laeuft || start || pending}
-            onClick={erzeuge}
-          >
-            {laeuft || start ? <Loader2 className="size-4 animate-spin" /> : <Wand2 className="size-4" />}
-            {laeuft ? "Entwirft ..." : hatEntwurf ? "Neu entwerfen" : "Lead-Formular entwerfen"}
-          </Button>
+          {!hatEntwurf && (
+            <Button className="gap-1.5" disabled={laeuft || start || pending} onClick={() => erzeuge(false)}>
+              {laeuft || start ? <Loader2 className="size-4 animate-spin" /> : <Wand2 className="size-4" />}
+              {laeuft ? "Konzipiert ..." : "Lead-Formular konzipieren"}
+            </Button>
+          )}
 
           {hatEntwurf && status !== "live" && (
             <Button
               className="gap-1.5"
               disabled={pending || laeuft}
-              onClick={() => aktion(() => gibFinderFrei(collectionId, collectionSlug), "Lead-Formular ist live.")}
+              onClick={() =>
+                aktion(() => gibFinderFrei(collectionId, collectionSlug), "Lead-Formular ist auf der Seite live.")
+              }
             >
-              <Check className="size-4" /> Freigeben
+              <Check className="size-4" /> Lead-Formular freischalten
             </Button>
           )}
           {status === "live" && (
@@ -277,6 +283,51 @@ export function FinderKarte({
                 wird nie pro Kategorie neu erfunden: sonst gäbe es 1.300 verschiedene Datenschutzhinweise, und einer
                 davon wäre falsch.
               </p>
+
+              {/* DER AENDERUNGSWUNSCH.
+                  Ohne ihn koennte man nur so lange neu konzipieren lassen, bis zufaellig
+                  etwas Brauchbares herauskommt. Mit ihm sagt die Redaktion, WAS anders
+                  werden soll, und der vorherige Entwurf geht mit in den Prompt: sonst
+                  faengt das Modell jedes Mal bei null an und wirft die guten Fragen mit weg. */}
+              <div className="rounded-xl border bg-card p-4">
+                <label htmlFor="wunsch" className="text-sm font-medium">
+                  Etwas anders haben wollen?
+                </label>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Schreib hin, was sich ändern soll. Der bisherige Entwurf geht mit in die Konzeption, gute Fragen
+                  bleiben also erhalten. Zum Beispiel: &bdquo;Frag nicht nach der Cloud, das können alle. Frag
+                  stattdessen nach DATEV und nach Mehrmandantenfähigkeit.&ldquo;
+                </p>
+                <textarea
+                  id="wunsch"
+                  value={wunsch}
+                  onChange={(e) => setWunsch(e.target.value)}
+                  rows={3}
+                  maxLength={1000}
+                  disabled={laeuft || start}
+                  placeholder="Änderungswunsch, in deinen Worten"
+                  className="mt-2 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+                />
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <Button
+                    variant="outline"
+                    className="gap-1.5"
+                    disabled={laeuft || start || pending || !wunsch.trim()}
+                    onClick={() => erzeuge(true)}
+                  >
+                    {laeuft || start ? <Loader2 className="size-4 animate-spin" /> : <Wand2 className="size-4" />}
+                    Mit diesem Wunsch neu konzipieren
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="gap-1.5 text-muted-foreground"
+                    disabled={laeuft || start || pending}
+                    onClick={() => erzeuge(false)}
+                  >
+                    Ohne Wunsch neu konzipieren
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </div>
