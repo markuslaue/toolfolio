@@ -194,6 +194,13 @@ export function Kuratierung({ collection, produkte }: { collection: CmsCollectio
             {produkte.length} Kandidaten · {zaehler.veroeffentlicht ?? 0} veröffentlicht ·{" "}
             {zaehler.redaktionell_geprueft ?? 0} geprüft · {zaehler.ki_ungeprueft ?? 0} ungeprüft
           </p>
+          {/* Detailseiten-Stand, immer sichtbar (nicht nur als fluechtiger Toast).
+              So sieht man auch nach einem Reload, was der Aufbereiten-Lauf gebracht hat. */}
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            Detailseiten: {produkte.filter((p) => p.detailseite_status === "veroeffentlicht").length} live ·{" "}
+            {produkte.filter((p) => p.detailseite_status === "entwurf").length} im Entwurf (warten auf Freigabe) ·{" "}
+            {produkte.filter((p) => p.detailseite_status === "keine").length} ohne Text
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           {/* Der Link auf die ECHTE Seite, und zwar nur, wenn es sie wirklich gibt.

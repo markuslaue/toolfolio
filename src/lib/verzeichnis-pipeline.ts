@@ -525,6 +525,18 @@ const ASCII_SUENDER = new RegExp(
   "gi",
 );
 
+/**
+ * ASCII-Umlaute in den BEKANNTEN falschen Woertern korrigieren, statt den Text
+ * wegzuwerfen. ASCII_SUENDER trifft nur eindeutig falsche Woerter (fuer, ueber,
+ * koennen ...), niemals korrekte wie "Dauercamper". Deshalb ist das Ersetzen von
+ * ae/oe/ue innerhalb dieser Treffer sicher.
+ */
+function korrigiereAscii(text: string): string {
+  return text.replace(ASCII_SUENDER, (w) =>
+    w.replace(/Ae/g, "Ä").replace(/ae/g, "ä").replace(/Oe/g, "Ö").replace(/oe/g, "ö").replace(/Ue/g, "Ü").replace(/ue/g, "ü"),
+  );
+}
+
 async function content(
   admin: ReturnType<typeof createAdminClient>,
   log: Protokoll,
@@ -1200,10 +1212,12 @@ export async function erzeugeDetailseiten(laufId: string, collectionId: string):
       einsatzgebiet: string | null; pro: string[]; contra: string[]; preis_hinweis: string | null;
     };
     /* NUR Produkte mit Anbieterdaten (Langbeschreibung). Ohne Fakten keine Detailseite:
-       eine Seite aus dem blossen Namen waere genau der thin content, den wir vermeiden. */
+       eine Seite aus dem blossen Namen waere genau der thin content, den wir vermeiden.
+       Und NICHT bereits veroeffentlichte anfassen: ein erneuter Lauf soll die Luecken
+       fuellen, nicht eine gepruefte, live Seite zurueck in den Entwurf werfen. */
     const produkte = (zuordnungen ?? [])
-      .map((z) => z.dir_produkt as unknown as P)
-      .filter((p) => p && p.langbeschreibung);
+      .map((z) => z.dir_produkt as unknown as P & { detailseite_status: string })
+      .filter((p) => p && p.langbeschreibung && p.detailseite_status !== "veroeffentlicht");
 
     if (produkte.length === 0) {
       throw new Error("Kein Produkt hat Anbieterdaten. Lass erst 'Anbieterdaten holen' laufen.");
@@ -1259,28 +1273,39 @@ STRUKTUR, als Markdown mit H2 (##) und wo sinnvoll H3 (###):
 
 UMFANG: 500 bis 800 Woerter. Substanz, kein Fuelltext.
 
-Antworte NUR mit JSON, ohne Codefence:
-{"detail_md":"...","meta_title":"max 60 Zeichen, mit dem Namen vorne","meta_description":"140 bis 160 Zeichen"}`,
+Format der Antwort, GENAU so, ohne Codefence, ohne JSON:
+
+META_TITLE: <max 60 Zeichen, mit dem Namen vorne>
+META_DESC: <140 bis 160 Zeichen>
+---
+<hier der komplette Markdown-Text mit ## und ###>`,
             },
           ],
         });
 
-        const roh = antwort.content[0].type === "text" ? antwort.content[0].text : "";
-        const d = JSON.parse(roh.slice(roh.indexOf("{"), roh.lastIndexOf("}") + 1));
+        /* KEIN JSON mehr. Der lange Markdown-Text mit Zeilenumbruechen und
+           Anfuehrungszeichen zerriss das JSON zuverlaessig. Stattdessen ein simples
+           Kopf/Koerper-Format mit "---" als Trenner, das nichts zerreissen kann. */
+        const roh = korrigiereAscii(antwort.content[0].type === "text" ? antwort.content[0].text : "");
+        const [kopf, ...rest] = roh.split(/\n---\n?/);
+        const body = rest.join("\n---\n").trim();
+        const metaTitle = (kopf.match(/META_TITLE:\s*(.+)/i)?.[1] ?? "").trim();
+        const metaDesc = (kopf.match(/META_DESC:\s*(.+)/i)?.[1] ?? "").trim();
 
-        const woerter = String(d.detail_md ?? "").split(/\s+/).filter(Boolean).length;
-        const suender = JSON.stringify(d).match(ASCII_SUENDER) ?? [];
-        if (woerter < 300 || suender.length > 0 || /[–—]/.test(d.detail_md)) {
-          await log.schreib("warnung", `${p.name}: Text verworfen (${woerter} Woerter${suender.length ? ", ASCII-Umlaute" : ""}).`);
+        const woerter = body.split(/\s+/).filter(Boolean).length;
+        // Nach der Korrektur duerfen keine ASCII-Umlaute mehr uebrig sein.
+        const suender = body.match(ASCII_SUENDER) ?? [];
+        if (woerter < 300 || suender.length > 0 || /[–—]/.test(body) || !body.startsWith("#")) {
+          await log.schreib("warnung", `${p.name}: verworfen (${woerter} Woerter${suender.length ? `, ASCII: ${suender[0]}` : ""}${!body.startsWith("#") ? ", kein Markdown" : ""}).`);
           continue;
         }
 
         await admin
           .from("dir_produkt")
           .update({
-            detail_md: d.detail_md,
-            detail_meta_title: d.meta_title ?? null,
-            detail_meta_description: d.meta_description ?? null,
+            detail_md: body,
+            detail_meta_title: metaTitle || null,
+            detail_meta_description: metaDesc || null,
             detail_erzeugt_am: new Date().toISOString(),
             // In den Entwurf, NICHT veroeffentlichen. Der Mensch schaltet scharf.
             detailseite_status: "entwurf",
