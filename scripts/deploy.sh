@@ -68,10 +68,15 @@ else
   # geschuetzten /opt/toolfolio/.env (GHCR_USER, GHCR_TOKEN), genau wie die anderen
   # Geheimnisse. Sie verlassen den Server nie und stehen NICHT im Image.
   echo "==> An der GitHub-Registry anmelden und Image ziehen"
+  # Die .env wird NICHT gesourct: sie ist eine Docker-Compose-env-Datei, kein
+  # Shell-Skript. Werte wie "EMAIL_FROM=Toolfolio <fristen@...>" enthalten < und >,
+  # die die Shell als Umleitung deutet und abbricht. Deshalb die zwei Werte gezielt
+  # herausschneiden, alles andere ignorieren.
   $SSH "$HOST" "cd $ZIEL && $LOCK bash -c '
-    set -a; . ./.env; set +a
-    if [ -n \"\${GHCR_TOKEN:-}\" ]; then
-      echo \"\$GHCR_TOKEN\" | docker login ghcr.io -u \"\${GHCR_USER:-markuslaue}\" --password-stdin >/dev/null
+    U=\$(grep -E \"^GHCR_USER=\" .env | head -1 | cut -d= -f2-)
+    T=\$(grep -E \"^GHCR_TOKEN=\" .env | head -1 | cut -d= -f2-)
+    if [ -n \"\$T\" ]; then
+      echo \"\$T\" | docker login ghcr.io -u \"\${U:-markuslaue}\" --password-stdin >/dev/null
     fi
     docker compose -p toolfolio pull
   '" \
