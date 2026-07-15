@@ -123,6 +123,44 @@ export async function korrigiereProdukt(
   return { ok: true };
 }
 
+/**
+ * Affiliate-Link eines Produkts setzen (A-07).
+ *
+ * Ist er gesetzt, verdient Toolfolio an einem Klick, und GENAU DANN wird der Link im
+ * Frontend als Affiliate gekennzeichnet und mit rel="sponsored" ausgezeichnet.
+ * Leer = wir sind nicht (mehr) im Programm, der Link zeigt wieder direkt zum Anbieter.
+ *
+ * DIE ZONE AENDERT SICH NICHT. Ein organisch platziertes Tool bleibt organisch, auch
+ * wenn wir an ihm verdienen. Gekennzeichnet wird der Link, nicht der Rang (Goldene Regel).
+ */
+export async function setAffiliate(produktId: string, affiliateUrl: string, collectionSlug: string): Promise<RedaktionResult> {
+  const roh = affiliateUrl.trim();
+  if (roh) {
+    try {
+      const u = new URL(roh);
+      if (u.protocol !== "https:" && u.protocol !== "http:") throw new Error();
+    } catch {
+      return { error: "Der Affiliate-Link ist keine gültige URL." };
+    }
+  }
+
+  const w = await redaktionOderFehler();
+  if (!w.ok) return { error: w.error };
+
+  const { error } = await w.admin
+    .from("dir_produkt")
+    .update({
+      affiliate_url: roh || null,
+      affiliate_seit: roh ? new Date().toISOString() : null,
+    })
+    .eq("id", produktId);
+  if (error) return { error: "Affiliate-Link konnte nicht gespeichert werden." };
+
+  await verwerfeOeffentlich(collectionSlug);
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
+  return { ok: true };
+}
+
 /** Zone eines Produkts in dieser Collection setzen (goldene Regel: gesponsert ist gekennzeichnet). */
 export async function setZone(
   produktId: string,

@@ -357,15 +357,28 @@ function ProduktZeile({
           >
             Details <ArrowRight className="size-4" />
           </Link>
-          {p.website_url && (
+          {(p.affiliate_url || p.website_url) && (
             <a
-              href={p.website_url}
+              // Ist ein Affiliate-Link gesetzt, gehen wir DARUEBER: nur so entsteht die
+              // Provision. rel="sponsored" ist dann Pflicht (Google-Vorgabe fuer bezahlte
+              // Links). Ohne Affiliate: direkt zum Anbieter, nofollow wie bisher.
+              href={p.affiliate_url ?? p.website_url ?? "#"}
               target="_blank"
-              rel="noopener noreferrer nofollow"
+              rel={p.affiliate_url ? "sponsored noopener noreferrer" : "noopener noreferrer nofollow"}
               className="inline-flex items-center justify-center gap-1.5 rounded-xl border bg-background/60 px-4 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:border-foreground/30 hover:text-foreground"
             >
               Anbieter <ExternalLink className="size-3.5" />
             </a>
+          )}
+          {/* AFFILIATE-KENNZEICHNUNG.
+              Ist ein Affiliate-Link gesetzt, verdienen wir an einem Klick, und das gehoert
+              offengelegt (§ 5a UWG). Das Tool bleibt organisch platziert: die Provision
+              aendert NICHTS an Rang oder Empfehlung. Nur der Klick bringt uns Geld, und das
+              sagen wir. */}
+          {p.affiliate_url && (
+            <span className="text-center text-[10px] leading-tight text-foreground/45 lg:text-right">
+              Affiliate-Link, wir erhalten ggf. eine Provision
+            </span>
           )}
         </div>
       </div>

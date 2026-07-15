@@ -17,6 +17,7 @@ import {
   X,
   Image as ImageIcon,
   Wand2,
+  Handshake,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ import {
   setProduktStatusViele,
   entferneAusCollection,
   korrigiereProdukt,
+  setAffiliate,
   setZone,
   gibContentFrei,
   veroeffentliche,
@@ -46,6 +48,9 @@ export type CmsProdukt = {
   preis_hinweis: string | null;
   status: ProduktStatus;
   zone: "gesponsert" | "organisch" | "community";
+  partnerprogramm: "unbekannt" | "ja" | "nein";
+  partnerprogramm_url: string | null;
+  affiliate_url: string | null;
 };
 
 export type CmsCollection = {
@@ -424,6 +429,25 @@ export function Kuratierung({ collection, produkte }: { collection: CmsCollectio
                               Gesponsert
                             </span>
                           )}
+                          {/* Hat ein Partnerprogramm, aber wir sind (noch) nicht dabei:
+                              ein Hinweis fuer die Redaktion, sich anzumelden. */}
+                          {p.partnerprogramm === "ja" && !p.affiliate_url && (
+                            <a
+                              href={p.partnerprogramm_url ?? undefined}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-semibold text-violet-800 hover:bg-violet-200"
+                              title="Der Anbieter hat ein Partnerprogramm. Anmelden und den Affiliate-Link eintragen."
+                            >
+                              <Handshake className="size-3" /> Partnerprogramm
+                            </a>
+                          )}
+                          {/* Wir sind dabei: der Affiliate-Link ist gesetzt. */}
+                          {p.affiliate_url && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">
+                              <Handshake className="size-3" /> Affiliate aktiv
+                            </span>
+                          )}
                         </div>
 
                         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
@@ -560,13 +584,19 @@ function ProduktBearbeiten({
 }) {
   const [name, setName] = useState(p.name);
   const [anbieter, setAnbieter] = useState(p.anbieter ?? "");
+  const [affiliateUrl, setAffiliateUrl] = useState(p.affiliate_url ?? "");
   const [pending, start] = useTransition();
 
   function speichern() {
     start(async () => {
-      const res = await korrigiereProdukt(p.id, name, anbieter, collectionSlug);
-      if (res.error) {
-        toast.error(res.error);
+      const r1 = await korrigiereProdukt(p.id, name, anbieter, collectionSlug);
+      if (r1.error) {
+        toast.error(r1.error);
+        return;
+      }
+      const r2 = await setAffiliate(p.id, affiliateUrl, collectionSlug);
+      if (r2.error) {
+        toast.error(r2.error);
         return;
       }
       toast.success("Gespeichert.");
@@ -575,21 +605,39 @@ function ProduktBearbeiten({
   }
 
   return (
-    <div className="flex flex-wrap items-end gap-2">
-      <div className="min-w-[180px] flex-1">
-        <label className="text-xs text-muted-foreground">Produktname</label>
-        <Input value={name} onChange={(e) => setName(e.target.value)} className="mt-1 h-8" />
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="min-w-[180px] flex-1">
+          <label className="text-xs text-muted-foreground">Produktname</label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} className="mt-1 h-8" />
+        </div>
+        <div className="min-w-[160px] flex-1">
+          <label className="text-xs text-muted-foreground">Anbieter</label>
+          <Input value={anbieter} onChange={(e) => setAnbieter(e.target.value)} className="mt-1 h-8" />
+        </div>
       </div>
-      <div className="min-w-[160px] flex-1">
-        <label className="text-xs text-muted-foreground">Anbieter</label>
-        <Input value={anbieter} onChange={(e) => setAnbieter(e.target.value)} className="mt-1 h-8" />
+      <div>
+        <label className="text-xs text-muted-foreground">
+          Affiliate-Link{" "}
+          <span className="text-muted-foreground/70">
+            (nur wenn wir beigetreten sind: der Link wird im Frontend als Affiliate gekennzeichnet)
+          </span>
+        </label>
+        <Input
+          value={affiliateUrl}
+          onChange={(e) => setAffiliateUrl(e.target.value)}
+          placeholder={p.partnerprogramm_url ? `Programm: ${p.partnerprogramm_url}` : "https://..."}
+          className="mt-1 h-8"
+        />
       </div>
-      <Button size="sm" className="h-8 gap-1" onClick={speichern} disabled={pending}>
-        {pending && <Loader2 className="size-3.5 animate-spin" />} Speichern
-      </Button>
-      <Button size="sm" variant="ghost" className="h-8" onClick={onFertig}>
-        Abbrechen
-      </Button>
+      <div className="flex gap-2">
+        <Button size="sm" className="h-8 gap-1" onClick={speichern} disabled={pending}>
+          {pending && <Loader2 className="size-3.5 animate-spin" />} Speichern
+        </Button>
+        <Button size="sm" variant="ghost" className="h-8" onClick={onFertig}>
+          Abbrechen
+        </Button>
+      </div>
     </div>
   );
 }

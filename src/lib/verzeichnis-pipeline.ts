@@ -649,6 +649,11 @@ Antworte NUR mit JSON:
  */
 const UNTERSEITEN = ["", "/preise", "/pricing", "/preis", "/funktionen", "/features", "/produkt", "/product"];
 
+/* Partnerprogramm-Seiten. Ein Affiliate-Programm liegt fast nie auf der Startseite,
+   sondern hier. Wir laden sie GETRENNT und mit Vorrang, damit die Erkennung nicht am
+   Seiten-Limit (vier Seiten) scheitert. */
+const PARTNER_SEITEN = ["/partner", "/partnerprogramm", "/affiliate", "/affiliates", "/partnerprogram", "/referral"];
+
 export async function anreichereProdukte(
   laufId: string,
   collectionId: string,
@@ -695,12 +700,25 @@ export async function anreichereProdukte(
       await log.fortschritt("anbieterdaten", `${p.name}: Unterseiten lesen`, n, produkte.length);
       /* Mehrere Unterseiten laden, nicht nur die Startseite. Preise stehen fast nie
          auf der Startseite, und Funktionslisten auch nicht. Was 404 gibt, faellt weg. */
+      const basis = p.website_url!.replace(/\/$/, "");
       const seiten: { url: string; text: string }[] = [];
       for (const pfad of UNTERSEITEN) {
-        const url = `${p.website_url!.replace(/\/$/, "")}${pfad}`;
-        const text = await holeSeite(url);
-        if (text && text.length > 300) seiten.push({ url, text });
+        const text = await holeSeite(`${basis}${pfad}`);
+        if (text && text.length > 300) seiten.push({ url: `${basis}${pfad}`, text });
         if (seiten.length >= 4) break; // Vier reichen. Mehr kostet nur Zeit und Tokens.
+      }
+
+      /* Partnerprogramm: eine der Partner-Seiten laden. Die erste, die existiert, reicht:
+         wenn es ein Programm gibt, steht es dort. Findet keine, bleibt es "unbekannt",
+         NICHT "nein": ein 404 auf /affiliate beweist nicht, dass es kein Programm gibt,
+         es kann anders heissen. Wir behaupten nur, was wir wissen. */
+      let partnerSeite: { url: string; text: string } | null = null;
+      for (const pfad of PARTNER_SEITEN) {
+        const text = await holeSeite(`${basis}${pfad}`);
+        if (text && text.length > 300) {
+          partnerSeite = { url: `${basis}${pfad}`, text };
+          break;
+        }
       }
 
       if (seiten.length === 0) {
@@ -733,6 +751,12 @@ DIE HARTEN REGELN:
   Seite als preis_quelle_url an. Steht nur "auf Anfrage", schreib genau das und lass
   die Quelle null.
 
+PARTNERPROGRAMM: ${
+        partnerSeite
+          ? `Diese Seite wurde gefunden (${partnerSeite.url}):\n${partnerSeite.text.slice(0, 2000)}`
+          : "Keine Partner- oder Affiliate-Seite gefunden. Setz partnerprogramm auf 'unbekannt', NICHT auf 'nein': ein fehlender Fund beweist nicht, dass es kein Programm gibt."
+      }
+
 SEITEN:
 ${seiten.map((s) => `--- ${s.url}\n${s.text.slice(0, 3000)}`).join("\n\n")}
 
@@ -745,7 +769,9 @@ Gib NUR ein JSON-Objekt zurück, ohne Codefence:
   "pro": ["bis zu 5 belegbare Stärken"],
   "contra": ["nur belegbare Einschränkungen, sonst leer"],
   "preis_hinweis": "wörtliche Preisangabe oder 'Auf Anfrage' oder null",
-  "preis_quelle_url": "URL der Seite mit dem Preis, sonst null"
+  "preis_quelle_url": "URL der Seite mit dem Preis, sonst null",
+  "partnerprogramm": "ja nur wenn die Partner-Seite ein echtes Partner- oder Affiliate-Programm beschreibt, sonst unbekannt",
+  "partnerprogramm_url": "die URL der Partner-Seite, wenn partnerprogramm ja ist, sonst null"
 }`,
             },
           ],
@@ -768,14 +794,22 @@ Gib NUR ein JSON-Objekt zurück, ohne Codefence:
             // Der Stand gehoert zwingend dazu: ein Preis ohne Datum ist in sechs
             // Monaten eine Falschaussage, und niemand merkt es.
             preis_stand: d.preis_hinweis ? new Date().toISOString().slice(0, 10) : null,
+            /* Partnerprogramm NUR auf 'ja' setzen, wenn die KI eins belegt hat. Ein
+               bestehendes 'ja' aus einem frueheren Lauf ueberschreiben wir nicht mit
+               'unbekannt', sonst wuerde ein erneuter Lauf ohne Partner-Seite den Befund
+               loeschen. Wir setzen nur, was wir POSITIV wissen. */
+            ...(d.partnerprogramm === "ja"
+              ? { partnerprogramm: "ja", partnerprogramm_url: d.partnerprogramm_url ?? partnerSeite?.url ?? null }
+              : {}),
           })
           .eq("id", p.id);
 
         fertig++;
         const preis = d.preis_quelle_url ? "Preis mit Quelle" : d.preis_hinweis ? "Preis ohne Quelle" : "kein Preis";
+        const partner = d.partnerprogramm === "ja" ? ", Partnerprogramm gefunden" : "";
         await log.schreib(
           "ok",
-          `${p.name}: ${seiten.length} Seiten gelesen, ${(d.features ?? []).length} Funktionen, ${(d.contra ?? []).length} Einschränkungen, ${preis}.`,
+          `${p.name}: ${seiten.length} Seiten gelesen, ${(d.features ?? []).length} Funktionen, ${(d.contra ?? []).length} Einschränkungen, ${preis}${partner}.`,
         );
       } catch (e) {
         await log.schreib("warnung", `${p.name}: ${e instanceof Error ? e.message : "Auswertung fehlgeschlagen"}`);

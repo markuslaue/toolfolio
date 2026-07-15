@@ -79,6 +79,7 @@ export type Produkt = {
   preis_hinweis: string | null;
   preis_stand: string | null;
   preis_quelle_url: string | null;
+  affiliate_url: string | null;
   status: "entwurf" | "ki_ungeprueft" | "redaktionell_geprueft" | "veroeffentlicht";
 };
 

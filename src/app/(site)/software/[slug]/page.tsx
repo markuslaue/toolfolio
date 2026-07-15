@@ -66,10 +66,20 @@ export default async function SoftwareDetail({ params }: { params: Promise<{ slu
             )}
           </div>
         </div>
-        {p.website_url && (
-          <a href={p.website_url} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
-            Zur Website <ExternalLink className="size-4" />
-          </a>
+        {(p.affiliate_url || p.website_url) && (
+          <div className="flex flex-col items-end gap-1">
+            <a
+              href={p.affiliate_url ?? p.website_url ?? "#"}
+              target="_blank"
+              rel={p.affiliate_url ? "sponsored noopener noreferrer" : "noopener noreferrer nofollow"}
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+            >
+              Zur Website <ExternalLink className="size-4" />
+            </a>
+            {p.affiliate_url && (
+              <span className="text-[10px] text-muted-foreground">Affiliate-Link, wir erhalten ggf. eine Provision</span>
+            )}
+          </div>
         )}
       </header>
 
