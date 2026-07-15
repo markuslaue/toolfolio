@@ -12,9 +12,12 @@
 
 name: Image bauen und veroeffentlichen
 
+# Der Produktionscode liegt auf dem Branch "production", NICHT auf main:
+# main gehoert dem Lovable-Prototyp (eigene, getrennte Historie). Deshalb baut dieser
+# Workflow von "production".
 on:
   push:
-    branches: [main]
+    branches: [production]
   workflow_dispatch: # von Hand ausloesbar
 
 env:
