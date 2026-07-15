@@ -227,3 +227,79 @@ export function collectionGraph({
 
   return { "@context": "https://schema.org", "@graph": graph };
 }
+
+/**
+ * Strukturierte Daten fuer eine ANBIETER-Detailseite (/software/<slug>).
+ *
+ * Dieselbe Ehrlichkeit wie ueberall: offers nur bei echtem Preis, aggregateRating nur
+ * bei echten, verifizierten Bewertungen, die auf der Seite sichtbar sind. Fehlt ein
+ * Beleg, fehlt der Knoten.
+ */
+export function produktGraph({
+  produkt,
+  bewertung,
+  breadcrumb,
+}: {
+  produkt: {
+    name: string;
+    slug: string;
+    anbieter: string | null;
+    website_url: string | null;
+    kurzbeschreibung: string | null;
+    plattformen: string[];
+    features: string[];
+    preis_hinweis: string | null;
+    preis_quelle_url: string | null;
+    detail_meta_description: string | null;
+  };
+  bewertung: { schnitt: number; anzahl: number; verifiziert: number };
+  breadcrumb: { name: string; url: string }[];
+}): Knoten {
+  const url = `${SITE}/software/${produkt.slug}`;
+  const app: Knoten = {
+    "@type": "SoftwareApplication",
+    "@id": `${url}#software`,
+    name: produkt.name,
+    url,
+    applicationCategory: "BusinessApplication",
+    operatingSystem: produkt.plattformen.length > 0 ? produkt.plattformen.join(", ") : "Web",
+  };
+  const beschreibung = produkt.detail_meta_description ?? produkt.kurzbeschreibung;
+  if (beschreibung) app.description = beschreibung;
+  if (produkt.anbieter) app.publisher = { "@type": "Organization", name: produkt.anbieter };
+  if (produkt.website_url) app.sameAs = [produkt.website_url];
+  if (produkt.features.length > 0) app.featureList = produkt.features;
+
+  const preis = echterPreis(produkt.preis_hinweis);
+  if (preis !== null) {
+    app.offers = {
+      "@type": "Offer",
+      price: preis.betrag,
+      priceCurrency: preis.waehrung,
+      url: produkt.preis_quelle_url ?? produkt.website_url ?? undefined,
+    };
+  }
+  if (bewertung.anzahl > 0 && bewertung.verifiziert > 0) {
+    app.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: bewertung.schnitt,
+      reviewCount: bewertung.anzahl,
+      bestRating: 5,
+      worstRating: 1,
+    };
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      organisation(),
+      website(),
+      app,
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${url}#breadcrumb`,
+        itemListElement: breadcrumb.map((b, i) => ({ "@type": "ListItem", position: i + 1, name: b.name, item: b.url })),
+      },
+    ],
+  };
+}

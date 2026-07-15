@@ -6,6 +6,7 @@ import { Breadcrumb } from "@/components/verzeichnis/breadcrumb";
 import { Sterne } from "@/components/verzeichnis/sterne";
 import { getProdukt, alleProduktSlugs, produktInitialen } from "@/lib/verzeichnis";
 import { ContentPiece } from "@/components/verzeichnis/content-piece";
+import { produktGraph, SITE } from "@/lib/schema";
 
 export const revalidate = 600;
 
@@ -42,12 +43,26 @@ export default async function SoftwareDetail({ params }: { params: Promise<{ slu
      dahin direkt zur Website (das steuert die Collection-Seite). */
   if (p.detailseite_status !== "veroeffentlicht") notFound();
 
+  /* Strukturierte Daten der Detailseite. Der Ranking-Baustein, der bisher fehlte:
+     SoftwareApplication mit offers (nur bei echtem Preis) und aggregateRating (nur bei
+     echten verifizierten Bewertungen), plus Brotkrumen. Serverseitig gerendert. */
+  const graph = produktGraph({
+    produkt: p,
+    bewertung,
+    breadcrumb: [
+      { name: "Verzeichnis", url: `${SITE}/verzeichnis` },
+      ...(collections[0] ? [{ name: collections[0].name, url: `${SITE}/verzeichnis/${collections[0].cluster_slug}/${collections[0].slug}` }] : []),
+      { name: p.name, url: `${SITE}/software/${p.slug}` },
+    ],
+  });
+
   const verifiziert = reviews.filter((r) => r.verifiziert);
   const offen = reviews.filter((r) => !r.verifiziert);
   const ersteCollection = collections[0];
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }} />
       <Breadcrumb
         items={[
           { name: "Verzeichnis", href: "/verzeichnis" },
