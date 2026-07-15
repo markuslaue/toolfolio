@@ -82,9 +82,11 @@ function software(p: ProduktInZone, bewertung: Bewertung | undefined): Knoten {
        Diese Route gibt es nicht. Die Produkt-Detailseiten liegen unter /software/<slug>.
        Das Markup verwies also auf 404-Seiten, und ein SoftwareApplication-Knoten mit
        toter URL ist wertlos bis schaedlich. */
-    "@id": `${SITE}/software/${p.slug}#software`,
+    // url NUR, wenn die Detailseite wirklich existiert (veroeffentlicht). Sonst zeigte
+    // das Markup auf einen 404, und ein SoftwareApplication mit toter url ist schaedlich.
+    "@id": p.detailseite_status === "veroeffentlicht" ? `${SITE}/software/${p.slug}#software` : `${SITE}/software/${p.slug}`,
     name: p.name,
-    url: `${SITE}/software/${p.slug}`,
+    ...(p.detailseite_status === "veroeffentlicht" ? { url: `${SITE}/software/${p.slug}` } : {}),
     applicationCategory: "BusinessApplication",
     operatingSystem: p.plattformen.length > 0 ? p.plattformen.join(", ") : "Web",
   };

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -18,6 +18,8 @@ import {
   Image as ImageIcon,
   Wand2,
   Handshake,
+  FileText,
+  Globe2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +33,7 @@ import {
   entferneAusCollection,
   korrigiereProdukt,
   setAffiliate,
+  setDetailseiteStatus,
   setZone,
   gibContentFrei,
   veroeffentliche,
@@ -51,6 +54,7 @@ export type CmsProdukt = {
   partnerprogramm: "unbekannt" | "ja" | "nein";
   partnerprogramm_url: string | null;
   affiliate_url: string | null;
+  detailseite_status: "keine" | "entwurf" | "veroeffentlicht";
 };
 
 export type CmsCollection = {
@@ -98,6 +102,41 @@ export function Kuratierung({ collection, produkte }: { collection: CmsCollectio
   const [nurAuffaellig, setNurAuffaellig] = useState(false);
   const [markiert, setMarkiert] = useState<Set<string>>(new Set());
   const [bearbeite, setBearbeite] = useState<string | null>(null);
+  const [detailLauf, setDetailLauf] = useState<string | null>(null);
+  const [detailStart, setDetailStart] = useState(false);
+
+  /* Der Detailseiten-Lauf erzeugt die redaktionellen Detailtexte aus den bereits
+     gezogenen Anbieterdaten. Wir pollen ihn und laden bei Ende die Seite neu. */
+  useEffect(() => {
+    if (!detailLauf) return;
+    const t = setInterval(async () => {
+      const res = await fetch(`/api/admin/verzeichnis/lauf/${detailLauf}`);
+      if (!res.ok) return;
+      const l = await res.json();
+      if (l.status !== "laeuft") {
+        setDetailLauf(null);
+        const fertig = l.ergebnis?.detailseiten;
+        if (l.status === "fehler") toast.error(l.protokoll?.filter((z: { art: string }) => z.art === "fehler").at(-1)?.text ?? "Aufbereiten fehlgeschlagen.");
+        else toast.success(`${fertig ?? 0} Detailtexte im Entwurf. Prüfe sie und schalte sie einzeln live.`);
+        router.refresh();
+      }
+    }, 3000);
+    return () => clearInterval(t);
+  }, [detailLauf, router]);
+
+  async function detailseitenAufbereiten() {
+    setDetailStart(true);
+    try {
+      const res = await fetch("/api/admin/verzeichnis/detailseiten", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ collectionId: collection.id }),
+      });
+      const j = await res.json();
+      if (!res.ok) { toast.error(j.error ?? "Start fehlgeschlagen."); return; }
+      setDetailLauf(j.laufId);
+    } finally { setDetailStart(false); }
+  }
+  const detailLaeuft = detailLauf !== null;
 
   const gefiltert = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -176,6 +215,10 @@ export function Kuratierung({ collection, produkte }: { collection: CmsCollectio
             <Link href={`/verzeichnis/vorschau/${collection.slug}`}>
               <Eye className="size-4" /> Vorschau
             </Link>
+          </Button>
+          <Button variant="outline" className="gap-1.5" disabled={detailLaeuft || detailStart} onClick={detailseitenAufbereiten}>
+            {detailLaeuft || detailStart ? <Loader2 className="size-4 animate-spin" /> : <FileText className="size-4" />}
+            {detailLaeuft ? "Bereitet auf ..." : "Detailseiten aufbereiten"}
           </Button>
           {collection.status === "veroeffentlicht" ? (
             <Button
@@ -534,6 +577,36 @@ export function Kuratierung({ collection, produkte }: { collection: CmsCollectio
                         >
                           Zurückziehen
                         </Button>
+                      )}
+
+                      {/* Detailseite: eigener Schalter, unabhaengig vom Verzeichnis-Status.
+                          Er steuert, ob /software/<slug> oeffentlich existiert. */}
+                      {p.detailseite_status === "veroeffentlicht" ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 gap-1 text-emerald-700"
+                          disabled={pending}
+                          title="Detailseite ist live. Klicken zum Offline-nehmen."
+                          onClick={() => lauf(() => setDetailseiteStatus(p.id, "entwurf", collection.slug), "Detailseite offline.")}
+                        >
+                          <Globe2 className="size-3.5" /> Detailseite live
+                        </Button>
+                      ) : p.detailseite_status === "entwurf" ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 gap-1"
+                          disabled={pending}
+                          title="Detailtext liegt vor. Klicken, um die Seite zu veroeffentlichen."
+                          onClick={() => lauf(() => setDetailseiteStatus(p.id, "veroeffentlicht", collection.slug), "Detailseite ist live.")}
+                        >
+                          <FileText className="size-3.5" /> Detailseite live schalten
+                        </Button>
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground" title="Noch kein Detailtext. Erst oben 'Detailseiten aufbereiten'.">
+                          keine Detailseite
+                        </span>
                       )}
 
                       <Button

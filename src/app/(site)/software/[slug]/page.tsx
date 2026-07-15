@@ -5,6 +5,7 @@ import { ExternalLink, BadgeCheck, Check, X, ShieldCheck, Star } from "lucide-re
 import { Breadcrumb } from "@/components/verzeichnis/breadcrumb";
 import { Sterne } from "@/components/verzeichnis/sterne";
 import { getProdukt, alleProduktSlugs, produktInitialen } from "@/lib/verzeichnis";
+import { ContentPiece } from "@/components/verzeichnis/content-piece";
 
 export const revalidate = 600;
 
@@ -15,10 +16,11 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const data = await getProdukt(slug);
-  if (!data) return { title: "Nicht gefunden" };
+  if (!data || data.produkt.detailseite_status !== "veroeffentlicht") return { title: "Nicht gefunden", robots: { index: false } };
   return {
-    title: `${data.produkt.name}: Funktionen, Preise & Bewertungen`,
-    description: data.produkt.kurzbeschreibung ?? `${data.produkt.name} im Toolfolio-Verzeichnis.`,
+    title: data.produkt.detail_meta_title ?? `${data.produkt.name}: Funktionen, Preise & Bewertungen`,
+    description: data.produkt.detail_meta_description ?? data.produkt.kurzbeschreibung ?? `${data.produkt.name} im Toolfolio-Verzeichnis.`,
+    alternates: { canonical: `https://toolfolio.de/software/${slug}` },
   };
 }
 
@@ -33,6 +35,12 @@ export default async function SoftwareDetail({ params }: { params: Promise<{ slu
   const data = await getProdukt(slug);
   if (!data) notFound();
   const { produkt: p, bewertung, reviews, collections } = data;
+
+  /* DER RIEGEL. Solange die Detailseite nicht veroeffentlicht ist, gibt es sie nicht:
+     echter 404, nicht nur noindex. Genau der von Markus gewuenschte Zustand, und
+     zugleich Schutz vor "thin content" im Index. Der Link zum Anbieter fuehrt bis
+     dahin direkt zur Website (das steuert die Collection-Seite). */
+  if (p.detailseite_status !== "veroeffentlicht") notFound();
 
   const verifiziert = reviews.filter((r) => r.verifiziert);
   const offen = reviews.filter((r) => !r.verifiziert);
@@ -84,6 +92,34 @@ export default async function SoftwareDetail({ params }: { params: Promise<{ slu
       </header>
 
       {p.langbeschreibung && <p className="mt-6 text-foreground/85 leading-relaxed">{p.langbeschreibung}</p>}
+
+      {/* Der redaktionelle Detailtext, erzeugt aus den Herstellerdaten. Er ist der
+          eigentliche Ranking-Baustein: ein SoftwareApplication-Steckbrief allein
+          reicht Google nicht. */}
+      {p.detail_md && (
+        <div className="mt-8">
+          <ContentPiece md={p.detail_md} />
+        </div>
+      )}
+
+      {/* Review-Themen. Erscheinen NUR, wenn es echte gibt. "Kunden loben X" ohne echte
+          Bewertungen waere erfundener Inhalt. Aktuell hat kein Produkt welche, der Block
+          bleibt also leer, bis Bewertungen da sind. */}
+      {p.review_themen && p.review_themen.length > 0 && (
+        <div className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-soft">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Star className="size-4 text-primary" /> Was Nutzer sagen
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {p.review_themen.map((t, i) => (
+              <div key={i} className="flex items-start gap-2 text-sm">
+                {t.art === "lob" ? <Check className="mt-0.5 size-4 shrink-0 text-emerald-600" /> : <X className="mt-0.5 size-4 shrink-0 text-rose-600" />}
+                <span>{t.thema} <span className="text-xs text-muted-foreground">({t.beleg} Nennungen)</span></span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Preis (UWG: Stand + Quelle + Link) */}
       {p.preis_hinweis && (

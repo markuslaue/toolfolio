@@ -22,7 +22,7 @@ export default async function KuratierungsSeite({ params }: { params: Promise<{ 
 
   const { data: cp } = await admin
     .from("dir_collection_produkt")
-    .select("zone, position, tags, dir_produkt(id, name, slug, anbieter, website_url, kurzbeschreibung, preis_hinweis, status, partnerprogramm, partnerprogramm_url, affiliate_url)")
+    .select("zone, position, tags, dir_produkt(id, name, slug, anbieter, website_url, kurzbeschreibung, preis_hinweis, status, partnerprogramm, partnerprogramm_url, affiliate_url, detailseite_status)")
     .eq("collection_id", data.id)
     .order("position");
 
@@ -41,6 +41,7 @@ export default async function KuratierungsSeite({ params }: { params: Promise<{ 
       partnerprogramm: "unbekannt" | "ja" | "nein";
       partnerprogramm_url: string | null;
       affiliate_url: string | null;
+      detailseite_status: "keine" | "entwurf" | "veroeffentlicht";
     } | null;
   };
 

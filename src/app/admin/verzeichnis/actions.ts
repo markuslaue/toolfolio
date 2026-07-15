@@ -399,3 +399,40 @@ export async function seiteNeuAufbauen(collectionSlug: string): Promise<Redaktio
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
+
+/* --------------------------- Detailseiten (AD-09) ------------------------- */
+
+/**
+ * Eine Anbieter-Detailseite veroeffentlichen oder zurueckziehen.
+ *
+ * Erst mit 'veroeffentlicht' existiert die Seite oeffentlich, ist indexierbar, steht in
+ * der Sitemap und bekommt den "Details"-Link. Vorher fuehrt der einzige Weg direkt zum
+ * Anbieter. Bewusst pro Produkt, damit schwache Seiten zurueckgehalten werden koennen.
+ */
+export async function setDetailseiteStatus(
+  produktId: string,
+  status: "entwurf" | "veroeffentlicht",
+  collectionSlug: string,
+): Promise<RedaktionResult> {
+  const w = await redaktionOderFehler();
+  if (!w.ok) return { error: w.error };
+
+  if (status === "veroeffentlicht") {
+    const { data: p } = await w.admin.from("dir_produkt").select("detail_md").eq("id", produktId).maybeSingle();
+    if (!p?.detail_md) return { error: "Diese Detailseite hat noch keinen Text. Erst aufbereiten." };
+  }
+
+  const { error } = await w.admin
+    .from("dir_produkt")
+    .update({ detailseite_status: status, detail_freigegeben_am: status === "veroeffentlicht" ? new Date().toISOString() : null })
+    .eq("id", produktId);
+  if (error) return { error: "Konnte nicht gespeichert werden." };
+
+  // Der oeffentliche Cache der Detailseite UND der Collection (Details-Link).
+  const { data: prod } = await w.admin.from("dir_produkt").select("slug").eq("id", produktId).maybeSingle();
+  if (prod?.slug) revalidatePath(`/software/${prod.slug}`);
+  await verwerfeOeffentlich(collectionSlug);
+  revalidatePath("/sitemap-produkte.xml");
+  revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
+  return { ok: true };
+}

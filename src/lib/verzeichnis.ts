@@ -5,6 +5,9 @@ import type { FaqEintrag } from "@/lib/schema";
 
 export type Zone = "gesponsert" | "organisch" | "community";
 
+/** Ein aus echten Bewertungen destilliertes Thema. Leer, bis es Bewertungen gibt. */
+export type ReviewThema = { art: "lob" | "kritik"; thema: string; beleg: number };
+
 export const ZONE_LABEL: Record<Zone, string> = {
   gesponsert: "Gesponsert",
   organisch: "Organisch",
@@ -80,10 +83,16 @@ export type Produkt = {
   preis_stand: string | null;
   preis_quelle_url: string | null;
   affiliate_url: string | null;
+  detailseite_status: "keine" | "entwurf" | "veroeffentlicht";
+  detail_md: string | null;
+  detail_meta_title: string | null;
+  detail_meta_description: string | null;
+  review_themen: ReviewThema[] | null;
   status: "entwurf" | "ki_ungeprueft" | "redaktionell_geprueft" | "veroeffentlicht";
 };
 
 export type ProduktInZone = Produkt & { zone: Zone; position: number; gesponsert_bis: string | null; tags: string[]; rabatt: number | null };
+// detailseite_status ist ueber Produkt bereits enthalten.
 
 export type Review = {
   id: string;
@@ -202,7 +211,9 @@ export async function getCollection(slug: string): Promise<{ collection: Collect
 
 export async function alleProduktSlugs(): Promise<string[]> {
   const sb = createPublicClient();
-  const { data } = await sb.from("dir_produkt").select("slug").eq("status", "veroeffentlicht");
+  // NUR Produkte mit veroeffentlichter Detailseite. Alles andere hat keine Seite (404),
+  // wird also nicht vorgerendert und steht nicht in der Sitemap.
+  const { data } = await sb.from("dir_produkt").select("slug").eq("detailseite_status", "veroeffentlicht");
   return (data ?? []).map((d) => d.slug as string);
 }
 

@@ -351,12 +351,17 @@ function ProduktZeile({
 
         {/* Aktionen */}
         <div className="flex items-stretch justify-end gap-2 lg:min-w-[150px] lg:flex-col">
-          <Link
-            href={`/software/${p.slug}`}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-background transition-opacity hover:opacity-90"
-          >
-            Details <ArrowRight className="size-4" />
-          </Link>
+          {/* "Details" nur, wenn die Detailseite wirklich veroeffentlicht ist. Sonst
+              fuehrt der einzige Weg direkt zum Anbieter, und die Detailseite "gibt es
+              noch nicht" (echter 404). */}
+          {p.detailseite_status === "veroeffentlicht" && (
+            <Link
+              href={`/software/${p.slug}`}
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+            >
+              Details <ArrowRight className="size-4" />
+            </Link>
+          )}
           {(p.affiliate_url || p.website_url) && (
             <a
               // Ist ein Affiliate-Link gesetzt, gehen wir DARUEBER: nur so entsteht die

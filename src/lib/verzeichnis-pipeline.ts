@@ -1162,3 +1162,145 @@ Antworte NUR mit JSON, ohne Codefence, ohne Begründungen:
       .eq("id", laufId);
   }
 }
+
+/* ------------------------------------------------- 6) Detailseiten aufbereiten */
+
+/**
+ * AD-09: Aus den GEZOGENEN Herstellerdaten einen redaktionellen Detailtext erzeugen.
+ *
+ * KEIN erneutes Crawlen: die Fakten liegen schon in der Datenbank (aus dem
+ * Anbieterdaten-Lauf). Wir formen sie zu einer Seite, die ranken kann, statt einen
+ * Steckbrief hinzuklatschen. Ein SoftwareApplication-Markup allein reicht Google nicht,
+ * es braucht echten, nuetzlichen Text.
+ *
+ * Alles bleibt 'entwurf'. Veroeffentlicht wird pro Produkt per Knopf, damit nicht
+ * hunderte duenne Seiten auf einmal in den Index kippen.
+ */
+export async function erzeugeDetailseiten(laufId: string, collectionId: string): Promise<void> {
+  const admin = createAdminClient();
+  const log = new Protokoll(laufId, admin);
+
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      await log.schreib("fehler", "In der Server-Umgebung fehlt ANTHROPIC_API_KEY.");
+      throw new Error("Fehlender ANTHROPIC_API_KEY");
+    }
+
+    const { data: coll } = await admin.from("dir_collection").select("name").eq("id", collectionId).maybeSingle();
+    const kategorie = (coll?.name as string) ?? "Software";
+
+    const { data: zuordnungen } = await admin
+      .from("dir_collection_produkt")
+      .select("dir_produkt(id, name, anbieter, kurzbeschreibung, langbeschreibung, features, plattformen, einsatzgebiet, pro, contra, preis_hinweis, preis_stand, detailseite_status)")
+      .eq("collection_id", collectionId);
+
+    type P = {
+      id: string; name: string; anbieter: string | null; kurzbeschreibung: string | null;
+      langbeschreibung: string | null; features: string[]; plattformen: string[];
+      einsatzgebiet: string | null; pro: string[]; contra: string[]; preis_hinweis: string | null;
+    };
+    /* NUR Produkte mit Anbieterdaten (Langbeschreibung). Ohne Fakten keine Detailseite:
+       eine Seite aus dem blossen Namen waere genau der thin content, den wir vermeiden. */
+    const produkte = (zuordnungen ?? [])
+      .map((z) => z.dir_produkt as unknown as P)
+      .filter((p) => p && p.langbeschreibung);
+
+    if (produkte.length === 0) {
+      throw new Error("Kein Produkt hat Anbieterdaten. Lass erst 'Anbieterdaten holen' laufen.");
+    }
+
+    await log.schreib("info", `Detailtexte fuer ${produkte.length} Anbieter (mit belegten Daten)`, "Detailseiten");
+    await log.fortschritt("text", `${produkte.length} Detailseiten aufbereiten`, 0, produkte.length);
+
+    const ki = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    let fertig = 0;
+    let n = 0;
+
+    for (const p of produkte) {
+      n++;
+      await log.fortschritt("text", `${p.name}`, n, produkte.length);
+      try {
+        const antwort = await ki.messages.create({
+          model: MODELL,
+          max_tokens: 4000,
+          messages: [
+            {
+              role: "user",
+              content: `Du schreibst die Detailseite fuer die Software "${p.name}" (Kategorie: ${kategorie}) auf Toolfolio.
+
+Du bekommst die Fakten, die wir von der Herstellerseite gezogen haben. Schreib daraus einen
+redaktionellen Text, der einem Interessenten wirklich hilft, KEINE Aufzaehlung.
+
+SPRACHE: Deutsch, Du-Form, ECHTE UMLAUTE (ä ö ü ß), niemals ae/oe/ue/ss.
+Keine Gedankenstriche. Kein Marketinggeschwaetz, keine Superlative, keine Ausrufezeichen.
+
+FAKTENGRENZE, die wichtigste Regel:
+- Nutze NUR die Fakten unten. Erfinde nichts dazu: keine Nutzerzahlen, keine Bewertungen,
+  keine Marktanteile, keine Auszeichnungen, keine Preise, die nicht dastehen.
+- Wenn eine Information fehlt, schreib nicht drumherum, lass sie weg.
+
+FAKTEN:
+Anbieter: ${p.anbieter ?? "nicht genannt"}
+Kurz: ${p.kurzbeschreibung ?? ""}
+Lang: ${p.langbeschreibung ?? ""}
+Funktionen: ${(p.features ?? []).join(", ") || "keine"}
+Plattformen: ${(p.plattformen ?? []).join(", ") || "keine Angabe"}
+Einsatzgebiet: ${p.einsatzgebiet ?? "nicht genannt"}
+Staerken (belegt): ${(p.pro ?? []).join(", ") || "keine"}
+Einschraenkungen (belegt): ${(p.contra ?? []).join(", ") || "keine"}
+Preis: ${p.preis_hinweis ?? "nicht genannt"}
+
+STRUKTUR, als Markdown mit H2 (##) und wo sinnvoll H3 (###):
+## Was ${p.name} macht
+## Fuer wen es sich eignet
+## Funktionen im Ueberblick
+## Staerken und Grenzen
+## Preis und Modell   (nur wenn ein Preis vorliegt, sonst weglassen)
+
+UMFANG: 500 bis 800 Woerter. Substanz, kein Fuelltext.
+
+Antworte NUR mit JSON, ohne Codefence:
+{"detail_md":"...","meta_title":"max 60 Zeichen, mit dem Namen vorne","meta_description":"140 bis 160 Zeichen"}`,
+            },
+          ],
+        });
+
+        const roh = antwort.content[0].type === "text" ? antwort.content[0].text : "";
+        const d = JSON.parse(roh.slice(roh.indexOf("{"), roh.lastIndexOf("}") + 1));
+
+        const woerter = String(d.detail_md ?? "").split(/\s+/).filter(Boolean).length;
+        const suender = JSON.stringify(d).match(ASCII_SUENDER) ?? [];
+        if (woerter < 300 || suender.length > 0 || /[–—]/.test(d.detail_md)) {
+          await log.schreib("warnung", `${p.name}: Text verworfen (${woerter} Woerter${suender.length ? ", ASCII-Umlaute" : ""}).`);
+          continue;
+        }
+
+        await admin
+          .from("dir_produkt")
+          .update({
+            detail_md: d.detail_md,
+            detail_meta_title: d.meta_title ?? null,
+            detail_meta_description: d.meta_description ?? null,
+            detail_erzeugt_am: new Date().toISOString(),
+            // In den Entwurf, NICHT veroeffentlichen. Der Mensch schaltet scharf.
+            detailseite_status: "entwurf",
+          })
+          .eq("id", p.id);
+
+        fertig++;
+        await log.schreib("ok", `${p.name}: ${woerter} Woerter`);
+      } catch (e) {
+        await log.schreib("warnung", `${p.name}: ${e instanceof Error ? e.message : "Fehler"}`);
+      }
+    }
+
+    await log.schreib("ok", `Fertig: ${fertig} Detailtexte im Entwurf. Pruefen und pro Produkt veroeffentlichen.`, "Fertig");
+    await admin
+      .from("dir_lauf")
+      .update({ status: "fertig", beendet_am: new Date().toISOString(), ergebnis: { detailseiten: fertig } })
+      .eq("id", laufId);
+  } catch (e) {
+    await log.schreib("fehler", `Abbruch: ${e instanceof Error ? e.message : "Unbekannter Fehler"}`);
+    await admin.from("dir_lauf").update({ status: "fehler", beendet_am: new Date().toISOString() }).eq("id", laufId);
+  }
+}

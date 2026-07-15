@@ -16,7 +16,7 @@ export async function GET() {
   const { data } = await sb
     .from("dir_produkt")
     .select("slug")
-    .eq("status", "veroeffentlicht")
+    .eq("detailseite_status", "veroeffentlicht")
     .limit(50000);
 
   const eintraege: SitemapEintrag[] = (data ?? []).map((p) => ({
