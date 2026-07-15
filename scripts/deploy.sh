@@ -62,9 +62,20 @@ if [ "${1:-}" = "--lokal" ]; then
     || { echo "FEHLER: Build fehlgeschlagen oder ein anderer Deploy laeuft." >&2; exit 1; }
 else
   # Der Normalfall: fertiges Image ziehen. Sekunden, kaum Last.
-  echo "==> Neues Image ziehen"
-  $SSH "$HOST" "cd $ZIEL && $LOCK docker compose -p toolfolio pull" \
-    || { echo "FEHLER: Image konnte nicht geladen werden. Laeuft der GitHub-Build noch? Die Seite laeuft unveraendert weiter." >&2; exit 1; }
+  #
+  # Das Paket ist PRIVAT (schuetzt unseren kompilierten Code). Der Server meldet sich
+  # deshalb vorher mit einem Read-only-Token an. Token und Nutzer stehen in der
+  # geschuetzten /opt/toolfolio/.env (GHCR_USER, GHCR_TOKEN), genau wie die anderen
+  # Geheimnisse. Sie verlassen den Server nie und stehen NICHT im Image.
+  echo "==> An der GitHub-Registry anmelden und Image ziehen"
+  $SSH "$HOST" "cd $ZIEL && $LOCK bash -c '
+    set -a; . ./.env; set +a
+    if [ -n \"\${GHCR_TOKEN:-}\" ]; then
+      echo \"\$GHCR_TOKEN\" | docker login ghcr.io -u \"\${GHCR_USER:-markuslaue}\" --password-stdin >/dev/null
+    fi
+    docker compose -p toolfolio pull
+  '" \
+    || { echo "FEHLER: Image konnte nicht geladen werden. Ist GHCR_TOKEN in der Server-.env gesetzt und das Paket erreichbar? Die Seite laeuft unveraendert weiter." >&2; exit 1; }
 fi
 
 echo "==> Umschalten"
