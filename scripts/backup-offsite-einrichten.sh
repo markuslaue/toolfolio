@@ -6,16 +6,20 @@
 # Schritt nicht automatisierbar ist: die Anmeldung bei Google braucht einen Browser mit
 # deinem Konto. Alles davor und danach macht dieses Skript.
 #
-#   bash scripts/backup-offsite-einrichten.sh vorbereiten   # rclone + Passwort anlegen
-#   bash scripts/backup-offsite-einrichten.sh verbinden     # Google-Token eintragen
-#   bash scripts/backup-offsite-einrichten.sh testen        # kompletter Probelauf
+#   bash scripts/backup-offsite-einrichten.sh vorbereiten      # rclone auf dem Server
+#   bash scripts/backup-offsite-einrichten.sh passwort-setzen  # Passwort blind eingeben
+#   bash scripts/backup-offsite-einrichten.sh verbinden        # Google-Token eintragen
+#   bash scripts/backup-offsite-einrichten.sh testen           # kompletter Probelauf
 #
 # ---------------------------------------------------------------------------
-# DAS PASSWORT: wird in Schritt 1 erzeugt und EINMAL angezeigt. Es liegt danach in der
-# .env auf dem Server. Es gehoert zusaetzlich in deinen Passwortmanager, und zwar sofort.
-# Stirbt der Server und existiert das Passwort nur dort, sind alle Kopien bei Google
-# unlesbarer Datenmuell. Das ist der haeufigste Weg, wie verschluesselte Sicherungen
-# wertlos werden.
+# DAS PASSWORT wird NIE angezeigt, weder beim Setzen noch spaeter. Es wird im Passwort-
+# manager erzeugt und hier blind eingetippt. Die erste Fassung dieses Skripts hat es
+# erzeugt und ausgedruckt, und prompt lag es in einem Terminal-Protokoll und in einem
+# Chatfenster. Was auf dem Bildschirm steht, ist nicht mehr geheim.
+#
+# Es liegt danach in der .env auf dem Server UND gehoert in den Passwortmanager. Stirbt
+# der Server und existiert es nur dort, sind alle Kopien bei Google unlesbarer Datenmuell.
+# Das ist der haeufigste Weg, wie verschluesselte Sicherungen wertlos werden.
 # ---------------------------------------------------------------------------
 
 set -euo pipefail
@@ -29,36 +33,72 @@ schritt="${1:-}"
 
 case "$schritt" in
 
+passwort-setzen)
+  # Passwort selbst festlegen, ohne dass es je auf dem Bildschirm steht.
+  #
+  # WARUM ES DIESEN WEG GIBT: "vorbereiten" erzeugt das Passwort und DRUCKT es. Das ist
+  # bequem, aber alles, was auf dem Bildschirm steht, landet frueher oder spaeter in einem
+  # Screenshot, einem Chat oder einem Terminal-Protokoll. Wer sein Passwort ohnehin im
+  # Passwortmanager erzeugt, soll es dort erzeugen und hier nur noch blind eintippen.
+  #
+  # read -s: keine Ausgabe beim Tippen. Uebergabe an den Server per stdin, nicht als
+  # Argument, sonst stuende es drueben in der Prozessliste.
+  echo "Erzeuge das Passwort in deinem Passwortmanager (mindestens 24 Zeichen)."
+  echo "Bitte OHNE die Zeichen \$ \" ' und ohne Leerzeichen, damit nichts falsch gelesen wird."
+  echo
+  read -r -s -p "Passwort:            " P1; echo
+  read -r -s -p "Zur Sicherheit noch einmal: " P2; echo
+  if [ "$P1" != "$P2" ]; then echo "Die beiden Eingaben sind nicht gleich. Nichts geaendert." >&2; exit 1; fi
+  if [ ${#P1} -lt 24 ]; then echo "Zu kurz (${#P1} Zeichen, mindestens 24). Nichts geaendert." >&2; exit 1; fi
+
+  printf '%s' "$P1" | $SSH "$HOST" "
+    cat > /tmp/.p
+    # Alte Zeile raus, neue rein. Ohne das haette die .env zwei Zeilen und
+    # backup-db.sh naehme die erste, also die alte.
+    sed -i '/^BACKUP_PASSPHRASE=/d' $ZIEL/.env
+    printf 'BACKUP_PASSPHRASE=%s\n' \"\$(cat /tmp/.p)\" >> $ZIEL/.env
+    grep -q '^BACKUP_RCLONE_ZIEL=' $ZIEL/.env || printf 'BACKUP_RCLONE_ZIEL=gdrive:$DRIVE_ORDNER\n' >> $ZIEL/.env
+    shred -u /tmp/.p 2>/dev/null || rm -f /tmp/.p
+    L=\$(grep -c '^BACKUP_PASSPHRASE=' $ZIEL/.env)
+    N=\$(grep '^BACKUP_PASSPHRASE=' $ZIEL/.env | head -1 | cut -d= -f2- | wc -c)
+    echo \"Gesetzt: \$L Eintrag, \$((N-1)) Zeichen angekommen.\"
+  "
+  unset P1 P2
+  echo
+  echo "Vergleiche die Zeichenzahl oben mit deinem Passwortmanager. Stimmt sie, ist es"
+  echo "unveraendert angekommen. Der Wert selbst wurde absichtlich nirgends ausgegeben."
+  ;;
+
 vorbereiten)
   echo "==> Installiere rclone auf dem Server"
   $SSH "$HOST" 'command -v rclone >/dev/null 2>&1 || (curl -fsSL https://rclone.org/install.sh | bash >/dev/null 2>&1); rclone version | head -1'
 
-  echo "==> Lege Verschluesselungspasswort an (nur, falls noch keines existiert)"
-  # Wird auf dem Server erzeugt, damit es nie ueber einen zweiten Weg wandert.
-  # 32 Byte aus dem Zufallsgenerator des Systems, base64 kodiert.
-  PASS=$($SSH "$HOST" "
-    if grep -q '^BACKUP_PASSPHRASE=' $ZIEL/.env 2>/dev/null; then
-      grep '^BACKUP_PASSPHRASE=' $ZIEL/.env | head -1 | cut -d= -f2-
-    else
-      P=\$(openssl rand -base64 32 | tr -d '\n')
-      printf 'BACKUP_PASSPHRASE=%s\n' \"\$P\" >> $ZIEL/.env
-      printf 'BACKUP_RCLONE_ZIEL=gdrive:$DRIVE_ORDNER\n' >> $ZIEL/.env
-      echo \"\$P\"
-    fi")
+  # HIER STAND EINMAL: Passwort auf dem Server erzeugen und ausdrucken. Das war bequem
+  # und falsch. Ein Passwort, das ueber den Bildschirm geht, liegt danach im Terminal-
+  # Protokoll, im Screenshot und im Zweifel in einem Chatfenster. Genau so ist es beim
+  # ersten Lauf auch passiert. Das Passwort wird jetzt in "passwort-setzen" blind
+  # eingegeben und nirgends ausgegeben.
+  echo "==> Trage das Sicherungsziel ein"
+  $SSH "$HOST" "grep -q '^BACKUP_RCLONE_ZIEL=' $ZIEL/.env || printf 'BACKUP_RCLONE_ZIEL=gdrive:$DRIVE_ORDNER\n' >> $ZIEL/.env; echo ok"
 
   cat <<ENDE
 
   ------------------------------------------------------------------
-  DAS VERSCHLUESSELUNGSPASSWORT. Jetzt in den Passwortmanager, unter
-  einem Namen wie "Toolfolio Datenbanksicherung":
+  NAECHSTER SCHRITT: das Verschluesselungspasswort festlegen.
 
-      $PASS
+  Erzeuge es in deinem Passwortmanager (mindestens 24 Zeichen, ohne
+  \$ " ' und ohne Leerzeichen), lege es dort unter einem Namen wie
+  "Toolfolio Datenbanksicherung" ab, und trage es dann hier ein:
+
+      bash scripts/backup-offsite-einrichten.sh passwort-setzen
+
+  Es wird beim Tippen nicht angezeigt und nirgends ausgegeben.
 
   Ohne dieses Passwort ist keine einzige Kopie bei Google wiederher-
   stellbar. Auch nicht von mir, auch nicht von Google.
   ------------------------------------------------------------------
 
-  Naechster Schritt, und den musst du machen, weil Google deinen
+  Und danach die Google-Anmeldung, die musst du machen, weil Google deinen
   Browser und dein Konto sehen will:
 
   1. rclone auf diesem Mac installieren, falls noch nicht da:
@@ -121,7 +161,7 @@ testen)
   ;;
 
 *)
-  echo "Aufruf: $0 vorbereiten | verbinden '<token>' | testen" >&2
+  echo "Aufruf: $0 vorbereiten | passwort-setzen | verbinden '<token>' | testen" >&2
   exit 1
   ;;
 esac
