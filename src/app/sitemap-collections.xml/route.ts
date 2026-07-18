@@ -24,7 +24,8 @@ export async function GET() {
       .from("dir_collection")
       .select("slug, aktualisiert_am, dir_cluster(slug)")
       .eq("status", "veroeffentlicht")
-      .eq("content_status", "geprueft")
+      // Beide Freigabewege zaehlen: gelesen oder vom Gate durchgelassen.
+      .in("content_status", ["geprueft", "auto_freigegeben"])
       .limit(50000),
   ]);
 

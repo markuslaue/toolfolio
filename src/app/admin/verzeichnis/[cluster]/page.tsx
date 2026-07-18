@@ -142,6 +142,8 @@ export default async function ClusterRedaktion({
                       <span className="inline-flex items-center gap-1">
                         {x.content_status === "geprueft" ? (
                           <Check className="size-3 text-success" />
+                        ) : x.content_status === "auto_freigegeben" ? (
+                          <Check className="size-3 text-sky-600" />
                         ) : x.content_status === "ki_ungeprueft" ? (
                           <AlertTriangle className="size-3 text-warning" />
                         ) : (

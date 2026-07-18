@@ -7,7 +7,7 @@ import { getAutor, STANDARD_AUTOR } from "@/lib/autoren";
 import { collectionGraph, SITE, type FaqEintrag } from "@/lib/schema";
 import { type Kandidat } from "@/lib/finder";
 import {
-  getCollection, alleCollectionPfade, bewertungenFuer, organischerScore,
+  getCollection, alleCollectionPfade, bewertungenFuer, organischerScore, istFreigegeben,
   type Zone, type ProduktInZone,
 } from "@/lib/verzeichnis";
 
@@ -33,7 +33,7 @@ export async function generateMetadata({
   /* Nur redaktionell freigegebener Text wird indexierbar ausgeliefert. Ein ungepruefter
      KI-Text im Index ist schlimmer als gar kein Text: er steht dort unter unserem Namen,
      und gelesen hat ihn niemand. */
-  const freigegeben = data.collection.content_status === "geprueft";
+  const freigegeben = istFreigegeben(data.collection.content_status);
 
   return {
     title: titel,
@@ -100,7 +100,7 @@ export default async function CollectionRoute({
   const gesponsertProdukt = sortiert.find((p) => p.zone === "gesponsert") ?? null;
 
   const faq = (data.collection.faq ?? []) as FaqEintrag[];
-  const freigegeben = data.collection.content_status === "geprueft";
+  const freigegeben = istFreigegeben(data.collection.content_status);
 
   /* Schema-Markup nur bei redaktioneller Freigabe. Ungeprueften Text auszuzeichnen
      hiesse, Google um eine hervorgehobene Darstellung von etwas zu bitten, das wir

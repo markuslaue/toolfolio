@@ -62,7 +62,7 @@ export type CmsCollection = {
   name: string;
   slug: string;
   status: "entwurf" | "veroeffentlicht";
-  content_status: "fehlt" | "ki_ungeprueft" | "geprueft";
+  content_status: "fehlt" | "ki_ungeprueft" | "geprueft" | "auto_freigegeben";
   content_woerter: number | null;
   hero_url: string | null;
   cluster: { name: string; slug: string };
@@ -259,13 +259,19 @@ export function Kuratierung({ collection, produkte }: { collection: CmsCollectio
           "mt-6 rounded-2xl border p-4",
           collection.content_status === "geprueft"
             ? "border-success/30 bg-success/5"
-            : "border-warning/40 bg-warning/10",
+            /* Automatisch freigegeben ist freigegeben, aber eben nicht gelesen. Blau
+               statt gruen, damit man den Unterschied SIEHT und nicht suchen muss. */
+            : collection.content_status === "auto_freigegeben"
+              ? "border-sky-500/30 bg-sky-500/5"
+              : "border-warning/40 bg-warning/10",
         )}
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-start gap-3">
             {collection.content_status === "geprueft" ? (
               <Check className="mt-0.5 size-5 shrink-0 text-success" />
+            ) : collection.content_status === "auto_freigegeben" ? (
+              <Check className="mt-0.5 size-5 shrink-0 text-sky-600" />
             ) : (
               <AlertTriangle className="mt-0.5 size-5 shrink-0 text-warning" />
             )}
@@ -273,16 +279,20 @@ export function Kuratierung({ collection, produkte }: { collection: CmsCollectio
               <div className="font-semibold">
                 {collection.content_status === "geprueft"
                   ? "Text ist freigegeben"
-                  : collection.content_status === "ki_ungeprueft"
-                    ? "Text ist von der KI, noch nicht geprüft"
-                    : "Es gibt noch keinen Text"}
+                  : collection.content_status === "auto_freigegeben"
+                    ? "Automatisch freigegeben, noch nicht gelesen"
+                    : collection.content_status === "ki_ungeprueft"
+                      ? "Text ist von der KI, noch nicht geprüft"
+                      : "Es gibt noch keinen Text"}
               </div>
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {collection.content_status === "ki_ungeprueft"
                   ? `${collection.content_woerter ?? 0} Wörter. Lies ihn in der Vorschau. Ohne Freigabe lässt die Datenbank das Veröffentlichen nicht zu.`
                   : collection.content_status === "geprueft"
                     ? `${collection.content_woerter ?? 0} Wörter, redaktionell abgenommen.`
-                    : "Erst erzeugen, dann prüfen, dann veröffentlichen."}
+                    : collection.content_status === "auto_freigegeben"
+                      ? `${collection.content_woerter ?? 0} Wörter. Das nächtliche Gate hat die Seite durchgelassen und live geschaltet. Gelesen hat sie noch niemand.`
+                      : "Erst erzeugen, dann prüfen, dann veröffentlichen."}
               </p>
             </div>
           </div>

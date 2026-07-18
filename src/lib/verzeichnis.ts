@@ -33,6 +33,32 @@ export type Kategorie = {
   slug: string;
 };
 
+/**
+ * Freigabezustand des Textes.
+ *
+ * 'geprueft'         Ein Mensch hat gelesen und freigegeben.
+ * 'auto_freigegeben' Das naechtliche Qualitaets-Gate hat freigegeben, kein Mensch.
+ *
+ * Die beiden werden bewusst UNTERSCHIEDEN, aber gleich BEHANDELT: beide sind
+ * freigegeben, nur die Herkunft ist eine andere. Wer nachtraeglich wissen will,
+ * welche Seiten nie ein Mensch gesehen hat, kann das an genau diesem Feld ablesen.
+ */
+export type ContentStatus = "fehlt" | "ki_ungeprueft" | "geprueft" | "auto_freigegeben";
+
+/**
+ * Darf dieser Text indexierbar ausgeliefert und ausgezeichnet werden?
+ *
+ * AN EINER STELLE, und das hat einen Grund: Als 'auto_freigegeben' dazukam, pruefte
+ * der Code an fuenf Stellen verstreut auf === "geprueft". Die ersten automatisch
+ * gebauten Seiten gingen daraufhin live, aber mit noindex, ohne Markup und ohne
+ * Eintrag in der Sitemap. Sie waren fuer Google unsichtbar, und niemand haette es
+ * gemerkt. Ein verstreuter Vergleich ist eine Frage, die irgendwann jemand vergisst
+ * mitzupflegen.
+ */
+export function istFreigegeben(status: ContentStatus | string | null | undefined): boolean {
+  return status === "geprueft" || status === "auto_freigegeben";
+}
+
 export type Collection = {
   id: string;
   cluster_id: string;
@@ -46,7 +72,7 @@ export type Collection = {
   fokus_keyword: string | null;
   intro_md: string | null;
   content_md: string | null;
-  content_status: "fehlt" | "ki_ungeprueft" | "geprueft";
+  content_status: ContentStatus;
   content_woerter: number | null;
   experten_zitat: string | null;
   autor_slug: string | null;
