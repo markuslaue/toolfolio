@@ -176,6 +176,57 @@ vorbereiten)
 ENDE
   ;;
 
+anmelden)
+  # Anmeldung bei Google UND Eintragen auf dem Server in einem Schritt.
+  #
+  # WARUM ZUSAMMEN: Trennt man beides, muss der Token durch die Zwischenablage, und was
+  # durch die Zwischenablage geht, landet im Terminal-Protokoll und im Zweifel in einem
+  # Chatfenster. Genau so ist der erste Token verbrannt. Hier wird er direkt aus rclone
+  # entgegengenommen und an den Server weitergereicht, ohne Zwischenstation.
+  RCLONE="$HOME/bin/rclone"; [ -x "$RCLONE" ] || RCLONE="$(command -v rclone || true)"
+  [ -n "$RCLONE" ] || { echo "rclone nicht gefunden." >&2; exit 1; }
+
+  ENVL="$HOME/toolfolio/.env.local"
+  # Mehrere Schreibweisen zulassen. Wer die Werte von Hand eintraegt, benennt sie so, wie
+  # es ihm einfaellt, und daran soll die Einrichtung nicht scheitern.
+  hole() { grep -E "^($1)=" "$ENVL" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '\r\n'; }
+  CID=$(hole "GOOGLE_DRIVE_CLIENT_ID|OAUTH_CLIENT_ID|GOOGLE_CLIENT_ID")
+  CSE=$(hole "GOOGLE_DRIVE_CLIENT_SECRET|OAUTH_CLIENT_SCHLÜSSEL|OAUTH_CLIENT_SECRET|GOOGLE_CLIENT_SECRET")
+  [ -n "$CID" ] && [ -n "$CSE" ] || { echo "GOOGLE_DRIVE_CLIENT_ID / _SECRET fehlen in $ENVL." >&2; exit 1; }
+  echo "Eigene Google-Kennung gefunden (ID ${#CID} Zeichen, Geheimnis ${#CSE} Zeichen)."
+  echo
+  echo "Es oeffnet sich gleich ein Browserfenster. Melde dich an und bestaetige."
+  echo
+
+  # --drive-scope drive.file: rclone sieht ausschliesslich Dateien, die es selbst anlegt.
+  # Ohne diesen Schalter fordert es Vollzugriff auf das gesamte Drive an.
+  AUSGABE=$("$RCLONE" authorize "drive" \
+    --drive-scope drive.file \
+    --drive-client-id "$CID" \
+    --drive-client-secret "$CSE" 2>/dev/null) || { echo "Anmeldung abgebrochen." >&2; exit 1; }
+
+  TOKEN=$(printf '%s\n' "$AUSGABE" | grep -m1 '^{')
+  unset AUSGABE
+  [ -n "$TOKEN" ] || { echo "Kein Token von rclone erhalten." >&2; exit 1; }
+  echo "Token erhalten (${#TOKEN} Zeichen), wird direkt auf den Server geschrieben."
+
+  # client_id und client_secret gehoeren MIT in die Konfiguration. Ohne sie faellt rclone
+  # beim naechsten Erneuern auf die geteilte Sammelkennung zurueck, und die wird 2026
+  # abgeschaltet.
+  printf '[gdrive]\ntype = drive\nscope = drive.file\nclient_id = %s\nclient_secret = %s\ntoken = %s\n' \
+    "$CID" "$CSE" "$TOKEN" \
+    | $SSH "$HOST" "
+        mkdir -p /root/.config/rclone
+        cat > /root/.config/rclone/rclone.conf
+        chmod 600 /root/.config/rclone/rclone.conf
+        rclone mkdir gdrive:$DRIVE_ORDNER && echo 'Ordner $DRIVE_ORDNER in Drive angelegt.'
+        rclone lsd gdrive: >/dev/null 2>&1 && echo 'Verbindung steht.'
+      "
+  unset TOKEN CID CSE
+  echo
+  echo "Fertig. Jetzt pruefen: bash $0 testen"
+  ;;
+
 verbinden)
   TOKEN="${2:-}"
   if [ -z "$TOKEN" ]; then
@@ -230,7 +281,7 @@ testen)
   ;;
 
 *)
-  echo "Aufruf: $0 vorbereiten | passwort-setzen | passwort-pruefen | verbinden '<token>' | testen" >&2
+  echo "Aufruf: $0 vorbereiten | passwort-setzen | passwort-pruefen | anmelden | verbinden '<token>' | testen" >&2
   exit 1
   ;;
 esac
