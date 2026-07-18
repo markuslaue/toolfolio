@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BookOpen, FileText, Package, Users, Receipt, AlertTriangle } from "lucide-react";
+import { ArrowRight, BookOpen, FileText, Package, Users, Receipt, AlertTriangle, DatabaseBackup } from "lucide-react";
 import { redaktionOderRaus } from "@/lib/redaktion";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
@@ -62,6 +62,16 @@ export default async function AdminDashboard() {
       zaehle("abos"),
     ]);
 
+  const [{ data: sicherung }, { count: sicherungenGesamt }] = await Promise.all([
+    admin.from("system_backup").select("*").order("erstellt_am", { ascending: false }).limit(1).maybeSingle(),
+    admin.from("system_backup").select("*", { count: "exact", head: true }),
+  ]);
+  const letzteSicherung = sicherung as {
+    ok: boolean; datei: string; groesse_bytes: number | null; tabellen: number | null;
+    dauer_sekunden: number | null; fehler: string | null; erstellt_am: string;
+  } | null;
+  const sicherungen = sicherungenGesamt ?? 0;
+
   const collAnzahl = collGesamt.count ?? 0;
   const live = collLive.count ?? 0;
   const mitText = collAnzahl - (collOhneText.count ?? 0);
@@ -116,6 +126,74 @@ export default async function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* SICHERUNGSSTATUS.
+          Der Punkt der ganzen Uebung: eine Sicherung, von der niemand weiss, ob sie
+          laeuft, ist keine Sicherung. Wird der letzte Eintrag aelter als 26 Stunden,
+          ist die naechtliche Sicherung ausgefallen, und das steht hier in Rot.
+          Schweigen ist hier ein Alarm, kein "alles gut". */}
+      <h2 className="mt-10 font-display text-lg font-semibold">Datensicherung</h2>
+      {(() => {
+        if (!letzteSicherung) {
+          return (
+            <div className="mt-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+                <div>
+                  <div className="font-semibold">Noch keine Sicherung gelaufen.</div>
+                  <p className="mt-0.5 text-muted-foreground">
+                    Sobald der nächtliche Lauf das erste Mal durch ist, steht hier, wann und wie groß.
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        const alterStunden = (Date.now() - new Date(letzteSicherung.erstellt_am).getTime()) / 3_600_000;
+        const veraltet = alterStunden > 26;
+        const schlecht = !letzteSicherung.ok || veraltet;
+        return (
+          <div
+            className={`mt-3 rounded-2xl border p-4 text-sm ${
+              schlecht ? "border-destructive/40 bg-destructive/10" : "border-success/30 bg-success/5"
+            }`}
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex items-start gap-2">
+                <DatabaseBackup className={`mt-0.5 size-4 shrink-0 ${schlecht ? "text-destructive" : "text-success"}`} />
+                <div>
+                  <div className="font-semibold">
+                    {!letzteSicherung.ok
+                      ? "Die letzte Sicherung ist fehlgeschlagen."
+                      : veraltet
+                        ? `Letzte Sicherung ist ${Math.floor(alterStunden)} Stunden alt.`
+                        : "Sicherung läuft."}
+                  </div>
+                  <p className="mt-0.5 text-muted-foreground">
+                    {new Date(letzteSicherung.erstellt_am).toLocaleString("de-DE")} · {letzteSicherung.datei}
+                    {letzteSicherung.groesse_bytes
+                      ? ` · ${(Number(letzteSicherung.groesse_bytes) / 1_048_576).toFixed(1)} MB`
+                      : ""}
+                    {letzteSicherung.tabellen ? ` · ${letzteSicherung.tabellen} Tabellen` : ""}
+                    {letzteSicherung.dauer_sekunden ? ` · ${letzteSicherung.dauer_sekunden}s` : ""}
+                  </p>
+                  {letzteSicherung.fehler && (
+                    <p className="mt-1 text-destructive">{letzteSicherung.fehler}</p>
+                  )}
+                  {veraltet && letzteSicherung.ok && (
+                    <p className="mt-1 text-destructive">
+                      Der nächtliche Lauf hat sich nicht gemeldet. Bitte den Cronjob auf dem Server prüfen.
+                    </p>
+                  )}
+                </div>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {sicherungen} {sicherungen === 1 ? "Sicherung" : "Sicherungen"} protokolliert
+              </span>
+            </div>
+          </div>
+        );
+      })()}
 
       <h2 className="mt-10 font-display text-lg font-semibold">Betrieb</h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

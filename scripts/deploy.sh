@@ -39,6 +39,9 @@ LOCK="flock -n /var/lock/toolfolio-deploy.lock"
 # jetzt im Image.
 echo "==> Konfiguration nach $HOST:$ZIEL"
 rsync -az -e "$SSH" docker-compose.yml "$HOST:$ZIEL/docker-compose.yml"
+# Das Sicherungsskript gehoert versioniert ins Repo, laeuft aber auf dem Server.
+rsync -az -e "$SSH" scripts/backup-db.sh "$HOST:$ZIEL/backup-db.sh"
+$SSH "$HOST" "chmod +x $ZIEL/backup-db.sh"
 
 # Ohne .env startet der Container nicht. Ein stiller Fehlschlag waere schlimmer als
 # ein lauter Abbruch.
