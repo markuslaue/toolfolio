@@ -54,6 +54,11 @@ ENV_DATEI="/opt/toolfolio/.env"
 # pg_dump per Docker: der Server hat keinen Postgres-Client, und so ist die Version
 # unabhaengig vom Betriebssystem festgelegt. 17 kann auch aeltere Server dumpen.
 PG_IMAGE="postgres:17-alpine"
+# --network host ist hier NICHT optional, sondern der Unterschied zwischen laeuft und
+# laeuft nicht: Supabase loest die direkte Datenbank-Adresse nur noch nach IPv6 auf. Der
+# Server kann IPv6, das Standard-Docker-Netz nicht. Ohne das scheitert jeder Lauf mit
+# "Network unreachable", und zwar jede Nacht gleich.
+PG_NETZ="--network host"
 MIN_BYTES=20000        # Darunter stimmt etwas nicht, selbst eine leere App ist groesser.
 MAIL_AN="markus.laue@ommm.de"
 
@@ -122,7 +127,7 @@ schreibe_status() {
     "$TAG_NR" "$(basename "$DATEI")" "$ok" "${GROESSE:-0}" "$dauer" "$TABELLEN" \
     "$(sql_text "$fehler")" \
     "${OFFSITE_OK:-NULL}" "$(sql_text "$RCLONE_ZIEL")" "${OFFSITE_BYTES:-0}" "$(sql_text "${OFFSITE_FEHLER:-}")")
-  docker run --rm -i "$PG_IMAGE" psql "$DB_URL" -v ON_ERROR_STOP=1 -c "$sql" >/dev/null 2>&1 || true
+  docker run --rm $PG_NETZ -i "$PG_IMAGE" psql "$DB_URL" -v ON_ERROR_STOP=1 -c "$sql" >/dev/null 2>&1 || true
 }
 
 if [ -z "$DB_URL" ]; then
@@ -135,7 +140,7 @@ echo "==> Sichere nach $DATEI"
 # --no-owner/--no-privileges: der Dump soll auf JEDER Datenbank einspielbar sein, nicht
 # nur auf einer mit identischen Rollen. --schema: public sind unsere Daten, auth sind die
 # Konten (ohne die waere eine Wiederherstellung wertlos), storage die Datei-Metadaten.
-if ! docker run --rm "$PG_IMAGE" pg_dump "$DB_URL" \
+if ! docker run --rm $PG_NETZ "$PG_IMAGE" pg_dump "$DB_URL" \
       --no-owner --no-privileges --quote-all-identifiers \
       --schema=public --schema=auth --schema=storage \
       2>/tmp/backup-fehler.log | gzip -9 > "$TMP"; then
