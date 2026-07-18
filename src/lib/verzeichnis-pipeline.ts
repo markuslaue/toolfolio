@@ -829,7 +829,9 @@ Antworte NUR mit JSON:
     ],
   });
 
-  const roh = antwort;
+  // Bekannte ASCII-Schreibweisen sofort korrigieren, statt 1800 gute Woerter wegen
+  // eines "fuer" zu verwerfen. Siehe korrigiereAscii().
+  const roh = korrigiereAscii(antwort);
   const inhalt = JSON.parse(roh.slice(roh.indexOf("{"), roh.lastIndexOf("}") + 1));
 
   const woerter = String(inhalt.content_md).split(/\s+/).filter(Boolean).length;
@@ -843,6 +845,9 @@ Antworte NUR mit JSON:
   if (!Array.isArray(inhalt.faq) || inhalt.faq.length < 5) fehler.push("weniger als 5 FAQ-Einträge");
 
   const alles = [inhalt.content_md, inhalt.experten_zitat, ...(inhalt.faq ?? []).flatMap((f: { frage: string; antwort: string }) => [f.frage, f.antwort])].join("\n");
+  // Auch hier: bekannte ASCII-Schreibweisen sind schon oben korrigiert worden. Was
+  // hier noch auftaucht, ist ein Wort, das die Korrektur nicht kennt, und das gehoert
+  // gemeldet statt still durchgelassen.
   const suender = alles.match(ASCII_SUENDER) ?? [];
   if (suender.length) fehler.push(`ASCII-Umlaute: ${[...new Set(suender)].slice(0, 4).join(", ")}`);
   if (/[–—]/.test(alles)) fehler.push("enthält Gedankenstriche");
@@ -1238,7 +1243,14 @@ Antworte NUR mit JSON:
       ],
     });
 
-    const roh = antwort;
+    /* ERST KORRIGIEREN, DANN PRUEFEN.
+       Vorher flog ein vollstaendiger Entwurf samt Tagging in den Muell, weil irgendwo
+       "koennen" statt "können" stand. Das ist kein Qualitaetsmangel, sondern ein
+       Tippfehler mit eindeutiger Loesung, und dafuer gibt es korrigiereAscii(). Es
+       geworfen zu lassen kostete einen kompletten Lauf und half niemandem.
+       Die Pruefung bleibt danach scharf: was die Korrektur NICHT kennt, faellt weiter
+       durch. */
+    const roh = korrigiereAscii(antwort);
     const entwurf = JSON.parse(roh.slice(roh.indexOf("{"), roh.lastIndexOf("}") + 1));
 
     /* Harte Pruefung. Ein Formular, das Leads an zahlende Kunden verteilt, darf nicht
