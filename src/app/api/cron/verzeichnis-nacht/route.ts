@@ -70,6 +70,16 @@ export async function POST(req: NextRequest) {
   // Optional auf einen Hub begrenzen: ?cluster=bau-und-handwerk
   const clusterSlug = url.searchParams.get("cluster");
 
+  /* Wie viele stehen ueberhaupt bereit? "anzahl" ist eine Obergrenze, keine Zusage.
+     Ohne diese Zahl in der Antwort erwartet der Aufrufer 45 und bekommt 40, und merkt
+     den Unterschied erst Stunden spaeter. */
+  let bereit = admin
+    .from("dir_warteschlange")
+    .select("collection_id, dir_collection!inner(dir_cluster!inner(slug))", { count: "exact", head: true })
+    .eq("zustand", "offen");
+  if (clusterSlug) bereit = bereit.eq("dir_collection.dir_cluster.slug", clusterSlug);
+  const { count: wartend } = await bereit;
+
   /* Bewusst NICHT awaiten. Siehe Kopf der Datei. */
   void baueNacht(anzahl, endeUm, clusterSlug)
     .then((bericht) => meldeErgebnis(bericht))
@@ -83,7 +93,14 @@ export async function POST(req: NextRequest) {
       }).catch(() => {}),
     );
 
-  return NextResponse.json({ gestartet: true, anzahl, cluster: clusterSlug ?? "alle", endeUm: endeUm.toISOString() });
+  return NextResponse.json({
+    gestartet: true,
+    eingeplant: Math.min(anzahl, wartend ?? 0),
+    obergrenze: anzahl,
+    wartend: wartend ?? 0,
+    cluster: clusterSlug ?? "alle",
+    endeUm: endeUm.toISOString(),
+  });
 }
 
 /**
@@ -107,7 +124,7 @@ async function meldeErgebnis(b: NachtBericht) {
     to: MAIL_AN,
     subject: `Verzeichnis: ${b.veroeffentlicht} neue Kategorien live`,
     html: `
-      <p>Der nächtliche Aufbau ist durch. Er hat ${Math.round(b.dauer_sekunden / 60)} Minuten gebraucht.</p>
+      <p>Der nächtliche Aufbau ist durch. ${b.eingeplant} Kategorien waren eingeplant, gebraucht hat er ${Math.round(b.dauer_sekunden / 60)} Minuten.</p>
       <ul>
         <li><b>${b.veroeffentlicht}</b> veröffentlicht</li>
         <li><b>${b.durchgefallen}</b> durchgefallen (bleiben Entwurf, warten auf dich)</li>

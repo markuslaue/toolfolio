@@ -32,6 +32,8 @@ const RESERVE_MS = 35 * 60 * 1000;
 const MAX_VERSUCHE = 3;
 
 export type NachtBericht = {
+  /** Wie viele Kategorien beim Start tatsaechlich eingeplant waren. */
+  eingeplant: number;
   gebaut: number;
   veroeffentlicht: number;
   durchgefallen: number;
@@ -290,7 +292,7 @@ export async function baueNacht(anzahl: number, endeUm: Date, clusterSlug?: stri
   const admin = createAdminClient();
   const start = Date.now();
   const bericht: NachtBericht = {
-    gebaut: 0, veroeffentlicht: 0, durchgefallen: 0, fehler: 0,
+    eingeplant: 0, gebaut: 0, veroeffentlicht: 0, durchgefallen: 0, fehler: 0,
     uebersprungen_zeit: 0, dauer_sekunden: 0, kategorien: [],
   };
 
@@ -308,6 +310,12 @@ export async function baueNacht(anzahl: number, endeUm: Date, clusterSlug?: stri
     // Rang allein genuegt: er kodiert Cluster-Reihenfolge und Position darin.
     .order("rang", { ascending: true })
     .limit(anzahl);
+
+  /* Die Liste steht ab hier fest. Wer waehrend des Laufs dazukommt (etwa durch einen
+     Umzug in diesen Hub), wird NICHT mehr aufgenommen und kommt beim naechsten Mal
+     dran. Das ist so gewollt, eine Liste, die sich mitten im Lauf aendert, waere nicht
+     vorhersagbar. Es muss aber sichtbar sein, sonst erwartet jemand 49 und bekommt 42. */
+  bericht.eingeplant = (naechste ?? []).length;
 
   for (const eintrag of naechste ?? []) {
     const collectionId = eintrag.collection_id as string;
