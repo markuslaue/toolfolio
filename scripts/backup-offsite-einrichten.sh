@@ -46,10 +46,35 @@ passwort-setzen)
   echo "Erzeuge das Passwort in deinem Passwortmanager (mindestens 24 Zeichen)."
   echo "Bitte OHNE die Zeichen \$ \" ' und ohne Leerzeichen, damit nichts falsch gelesen wird."
   echo
-  read -r -s -p "Passwort:            " P1; echo
+  read -r -s -p "Passwort:                   " P1; echo
   read -r -s -p "Zur Sicherheit noch einmal: " P2; echo
-  if [ "$P1" != "$P2" ]; then echo "Die beiden Eingaben sind nicht gleich. Nichts geaendert." >&2; exit 1; fi
-  if [ ${#P1} -lt 24 ]; then echo "Zu kurz (${#P1} Zeichen, mindestens 24). Nichts geaendert." >&2; exit 1; fi
+
+  if [ "$P1" != "$P2" ]; then
+    # Beim Blindtippen ist "nicht gleich" eine nutzlose Auskunft. Die Laengen zu nennen
+    # verraet das Passwort nicht, sagt aber sofort, WAS passiert ist: gleiche Laenge heisst
+    # Vertipper, unterschiedliche Laenge heisst meist ein abgeschnittener oder doppelter
+    # Einfuegevorgang. Haeufigster Fall: die Zwischenablage enthaelt einen Zeilenumbruch,
+    # dann beendet der schon die erste Eingabe und der Rest landet in der zweiten.
+    echo >&2
+    echo "Die beiden Eingaben sind nicht gleich. Nichts geaendert." >&2
+    echo "  erste Eingabe:  ${#P1} Zeichen" >&2
+    echo "  zweite Eingabe: ${#P2} Zeichen" >&2
+    if [ ${#P1} -eq ${#P2} ]; then
+      echo "  Gleiche Laenge, also vermutlich ein Vertipper. Einfach noch einmal." >&2
+    else
+      echo "  Unterschiedliche Laenge. Falls du eingefuegt hast: kopiere das Passwort" >&2
+      echo "  noch einmal OHNE den Zeilenumbruch am Ende (im Passwortmanager die Funktion" >&2
+      echo "  \"Passwort kopieren\" nutzen, nicht im Textfeld markieren)." >&2
+    fi
+    unset P1 P2
+    exit 1
+  fi
+
+  if [ ${#P1} -lt 24 ]; then
+    echo "Zu kurz (${#P1} Zeichen, mindestens 24). Nichts geaendert." >&2
+    unset P1 P2
+    exit 1
+  fi
 
   printf '%s' "$P1" | $SSH "$HOST" "
     cat > /tmp/.p
