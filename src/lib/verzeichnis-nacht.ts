@@ -277,10 +277,16 @@ async function veroeffentlicheAutomatisch(
 /**
  * Eine Nacht.
  *
- * @param anzahl   Wie viele Kategorien hoechstens gebaut werden sollen.
- * @param endeUm   Zeitpunkt, ab dem keine NEUE Kategorie mehr begonnen wird.
+ * @param anzahl      Wie viele Kategorien hoechstens gebaut werden sollen.
+ * @param endeUm      Zeitpunkt, ab dem keine NEUE Kategorie mehr begonnen wird.
+ * @param clusterSlug Nur Kategorien dieses Hubs. Ohne Angabe: der Reihe nach.
+ *
+ * Der Hub-Filter ist ausdruecklich und verlaesst sich NICHT auf die Rangfolge. Wer
+ * "bau mir Bau und Handwerk" sagt, meint genau diesen Hub, und nicht "die naechsten
+ * 42 in der Schlange, die zufaellig gerade aus diesem Hub kommen". Ein Rang, den
+ * jemand zwischendurch anfasst, wuerde sonst still etwas anderes bauen.
  */
-export async function baueNacht(anzahl: number, endeUm: Date): Promise<NachtBericht> {
+export async function baueNacht(anzahl: number, endeUm: Date, clusterSlug?: string | null): Promise<NachtBericht> {
   const admin = createAdminClient();
   const start = Date.now();
   const bericht: NachtBericht = {
@@ -290,11 +296,15 @@ export async function baueNacht(anzahl: number, endeUm: Date): Promise<NachtBeri
 
   await fuelleWarteschlange(admin);
 
-  const { data: naechste } = await admin
+  let abfrage = admin
     .from("dir_warteschlange")
-    .select("collection_id, versuche, dir_collection(name, slug)")
+    .select("collection_id, versuche, dir_collection!inner(name, slug, dir_cluster!inner(slug))")
     .eq("zustand", "offen")
-    .lt("versuche", MAX_VERSUCHE)
+    .lt("versuche", MAX_VERSUCHE);
+
+  if (clusterSlug) abfrage = abfrage.eq("dir_collection.dir_cluster.slug", clusterSlug);
+
+  const { data: naechste } = await abfrage
     // Rang allein genuegt: er kodiert Cluster-Reihenfolge und Position darin.
     .order("rang", { ascending: true })
     .limit(anzahl);

@@ -26,7 +26,10 @@ const ENDE_STUNDE = 7;
 const ENDE_MINUTE = 30;
 
 const STANDARD_ANZAHL = 10;
-const MAX_ANZAHL = 25;
+/* Grenze nach oben. Sie ist bewusst da: ein Vertipper in der Adresse ("anzahl=1000")
+   wuerde sonst eine Nacht starten, die tausend Kategorien baut und ueber tausend
+   Dollar kostet. Ein ganzer Hub passt darunter (der groesste hat 143). */
+const MAX_ANZAHL = 150;
 
 const MAIL_AN = "markus.laue@ommm.de";
 
@@ -64,8 +67,11 @@ export async function POST(req: NextRequest) {
   // Startet der Lauf nach dem Ende (Handstart am Nachmittag), gilt das Ende von morgen.
   if (endeUm.getTime() <= Date.now()) endeUm.setDate(endeUm.getDate() + 1);
 
+  // Optional auf einen Hub begrenzen: ?cluster=bau-und-handwerk
+  const clusterSlug = url.searchParams.get("cluster");
+
   /* Bewusst NICHT awaiten. Siehe Kopf der Datei. */
-  void baueNacht(anzahl, endeUm)
+  void baueNacht(anzahl, endeUm, clusterSlug)
     .then((bericht) => meldeErgebnis(bericht))
     .catch((e) =>
       sendEmail({
@@ -77,7 +83,7 @@ export async function POST(req: NextRequest) {
       }).catch(() => {}),
     );
 
-  return NextResponse.json({ gestartet: true, anzahl, endeUm: endeUm.toISOString() });
+  return NextResponse.json({ gestartet: true, anzahl, cluster: clusterSlug ?? "alle", endeUm: endeUm.toISOString() });
 }
 
 /**
