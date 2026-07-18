@@ -261,6 +261,12 @@ export async function veroeffentliche(collectionId: string, collectionSlug: stri
 
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   revalidatePath("/verzeichnis", "layout");
+  /* UND DIE SITEMAP. Sie hat revalidate = 3600, eine frisch freigegebene Kategorie stand
+     also bis zu eine Stunde nicht drin. Bei den Produkt-Detailseiten war das schon
+     richtig gemacht (setDetailseiteStatus), bei den Collections fehlte das Gegenstueck.
+     Eine Sitemap, die den neuesten Stand nicht kennt, verfehlt ihren einzigen Zweck. */
+  revalidatePath("/sitemap-collections.xml");
+  revalidatePath("/sitemap.xml");
   return { ok: true };
 }
 
