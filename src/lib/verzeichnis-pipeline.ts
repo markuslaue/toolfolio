@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { entschluessele } from "@/lib/crypto";
 import { erzeugeHero } from "@/lib/hero-bild";
+import { frageKi, Verbrauch, MODELL_GROSS, MODELL_KLEIN } from "@/lib/ki-aufruf";
 
 /**
  * AD-06: Eine Kategorie komplett loslegen, aus dem Backend.
@@ -56,7 +57,7 @@ type Zeile = { zeit: string; art: Art; text: string };
  * Wer 161 Domains pruefen laesst, will nicht Protokollzeilen zaehlen, sondern
  * "47 von 161" lesen.
  */
-export type Phase = "suchen" | "pruefen" | "text" | "bild" | "anbieterdaten";
+export type Phase = "suchen" | "pruefen" | "text" | "bild" | "anbieterdaten" | "preise";
 
 class Protokoll {
   private zeilen: Zeile[] = [];
@@ -90,6 +91,11 @@ class Protokoll {
 }
 
 /* --------------------------------------------------------------- Hilfsmittel */
+
+/** Verbrauch in eine speicherbare Form. Rohe Token IMMER mit, siehe ki-aufruf.ts. */
+function kiBericht(v: Verbrauch) {
+  return { ...v.summe(), usd: v.kostenUsd(), posten: v.liste() };
+}
 
 function domainVon(url: string): string {
   try {
@@ -145,12 +151,69 @@ async function holeSeite(url: string): Promise<string | null> {
   }
 }
 
+/**
+ * Wie holeSeite, aber gibt auch die Links zurueck.
+ *
+ * Fuer die Preissuche ist das der Unterschied zwischen Raten und Wissen: statt blind
+ * /preise, /pricing, /kosten durchzuprobieren und meist 404 zu ernten, liest man die
+ * Navigation der Seite und geht dorthin, wo der Hersteller seine Preise selbst verlinkt.
+ */
+async function holeSeiteMitLinks(url: string): Promise<{ text: string; links: string[] } | null> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 12_000);
+  try {
+    const res = await fetch(url, {
+      signal: ctrl.signal,
+      redirect: "follow",
+      headers: { "User-Agent": "ToolfolioBot/1.0 (+https://toolfolio.de)" },
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+
+    const links: string[] = [];
+    for (const m of html.matchAll(/<a\b[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]{0,120}?)<\/a>/gi)) {
+      const ziel = m[1];
+      const beschriftung = m[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      // Nur was nach Preis klingt, und zwar in der Adresse ODER in der Beschriftung.
+      if (!PREIS_WORT.test(ziel) && !PREIS_WORT.test(beschriftung)) continue;
+      try {
+        const absolut = new URL(ziel, res.url);
+        // Nur dieselbe Domain. Ein Link auf einen Wiederverkaeufer ist nicht die Preisliste.
+        if (absolut.hostname.replace(/^www\./, "") !== new URL(res.url).hostname.replace(/^www\./, "")) continue;
+        if (!links.includes(absolut.href)) links.push(absolut.href);
+      } catch { /* kaputter Link, weiter */ }
+    }
+
+    const text = html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 4000);
+
+    return { text, links: links.slice(0, 4) };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+/** Woran man eine Preisseite erkennt, in Adresse oder Linktext. */
+const PREIS_WORT = /preis|pricing|kosten|tarif|plaene|plane|plans|paket|abo|lizenz/i;
+
+/** Notnagel, wenn die Startseite keinen Preislink hat. Reihenfolge = Haeufigkeit im DACH-Markt. */
+const PREIS_PFADE = ["/preise", "/pricing", "/preis", "/kosten", "/tarife", "/preisliste"];
+
 /* ------------------------------------------------------------------ Der Lauf */
 
 export type LaufOptionen = {
   discovery: boolean;
   content: boolean;
   bild: boolean;
+  /** Gezielte Preissuche: Startseite nach Preislink lesen, diese eine Seite auswerten. */
+  preise?: boolean;
 };
 
 /**
@@ -177,6 +240,7 @@ function fehlendeSchluessel(opt: LaufOptionen): string[] {
 }
 
 export async function fuehreLaufAus(laufId: string, collectionId: string, opt: LaufOptionen): Promise<void> {
+  const verbrauch = new Verbrauch();
   const admin = createAdminClient();
   const log = new Protokoll(laufId, admin);
 
@@ -205,16 +269,23 @@ export async function fuehreLaufAus(laufId: string, collectionId: string, opt: L
     /* ------------------------------------------------------ 1) Discovery */
     if (opt.discovery) {
       await log.schreib("info", "Phase 1: Anbieter suchen", "Discovery");
-      const gefunden = await discovery(admin, log, coll.id as string, coll.name as string);
+      const gefunden = await discovery(admin, log, coll.id as string, coll.name as string, verbrauch);
       ergebnis.discovery = gefunden;
     } else {
       await log.schreib("info", "Discovery übersprungen.");
     }
 
+    /* --------------------------------------------------- 1b) Preissuche */
+    if (opt.preise) {
+      await log.schreib("info", "Phase 1b: Preise bei den Anbietern suchen", "Preise");
+      const pr = await preise(admin, log, coll.id as string, coll.name as string, verbrauch);
+      ergebnis.preise = pr;
+    }
+
     /* -------------------------------------------------------- 2) Content */
     if (opt.content) {
       await log.schreib("info", "Phase 2: Text, FAQ und Meta schreiben", "Content");
-      const c = await content(admin, log, coll.id as string, coll.name as string, (coll.fokus_keyword as string) ?? null);
+      const c = await content(admin, log, coll.id as string, coll.name as string, (coll.fokus_keyword as string) ?? null, verbrauch);
       ergebnis.content = c;
     } else {
       await log.schreib("info", "Content übersprungen.");
@@ -236,10 +307,11 @@ export async function fuehreLaufAus(laufId: string, collectionId: string, opt: L
       await log.schreib("info", "Bild übersprungen.");
     }
 
+    await log.schreib("info", `Verbrauch: ${verbrauch.zeile()}`);
     await log.schreib("ok", "Lauf abgeschlossen. Nichts davon ist veröffentlicht: erst prüfen, dann freigeben.", "Fertig");
     await admin
       .from("dir_lauf")
-      .update({ status: "fertig", beendet_am: new Date().toISOString(), ergebnis })
+      .update({ status: "fertig", beendet_am: new Date().toISOString(), ergebnis: { ...ergebnis, ki: kiBericht(verbrauch) } })
       .eq("id", laufId);
   } catch (e) {
     const text = e instanceof Error ? e.message : "Unbekannter Fehler.";
@@ -258,6 +330,7 @@ async function discovery(
   log: Protokoll,
   collectionId: string,
   kategorie: string,
+  verbrauch: Verbrauch,
 ) {
   /* Die DataForSEO-Zugangsdaten liegen verschluesselt in integration_secret, einer
      Tabelle OHNE Lese-Policy. Nur die Service-Role kommt heran, und sie verlassen
@@ -406,9 +479,11 @@ async function discovery(
     }
 
     try {
-      const antwort = await ki.messages.create({
-        model: MODELL,
-        max_tokens: 1200,
+      const antwort = await frageKi({
+        ki, verbrauch, zweck: "discovery",
+        melde: (t) => log.schreib("warnung", t),
+        modell: MODELL_KLEIN,
+        maxTokens: 1200,
         messages: [
           {
             role: "user",
@@ -440,7 +515,7 @@ Gib NUR ein JSON-Objekt zurück, ohne Codefence:
         ],
       });
 
-      const roh = antwort.content[0].type === "text" ? antwort.content[0].text : "";
+      const roh = antwort;
       const p = JSON.parse(roh.slice(roh.indexOf("{"), roh.lastIndexOf("}") + 1));
 
       if (!p.ist_produkt) {
@@ -531,6 +606,148 @@ const ASCII_SUENDER = new RegExp(
  * koennen ...), niemals korrekte wie "Dauercamper". Deshalb ist das Ersetzen von
  * ae/oe/ue innerhalb dieser Treffer sicher.
  */
+/**
+ * Gezielte Preissuche, die schlanke Schwester der Anreicherung.
+ *
+ * WARUM ES SIE GIBT: Die Discovery liest nur die Startseite, und dort steht der Preis
+ * fast nie. Die volle Anreicherung findet ihn, klappert dafuer aber bis zu 14 Seiten je
+ * Anbieter ab, was bei 40 Anbietern 560 fremde Seiten sind. Fuer einen naechtlichen Lauf
+ * ueber zehn Kategorien ist das zu viel Last, fuer fremde Server wie fuer uns.
+ *
+ * Diese Phase holt genau das, wonach am haeufigsten gesucht wird: den Preis. Sie liest
+ * die Startseite EINMAL, folgt dem Preislink des Herstellers und wertet diese eine Seite
+ * aus. Zwei bis drei Abrufe je Anbieter statt vierzehn.
+ *
+ * EHRLICHKEIT DER DATEN (Leitplanke 5): Was hier entsteht, ist ein LISTENPREIS aus einer
+ * belegten Quelle, kein verifizierter Preis. Deshalb wird die Quell-URL zwingend
+ * mitgespeichert und das Datum dazu. Ein Preis ohne Quelle waere in sechs Monaten eine
+ * Behauptung, die niemand mehr pruefen kann, und genau das werfen wir der Branche vor.
+ */
+async function preise(
+  admin: ReturnType<typeof createAdminClient>,
+  log: Protokoll,
+  collectionId: string,
+  kategorie: string,
+  verbrauch: Verbrauch,
+): Promise<{ gefunden: number; ohne: number }> {
+  const ki = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  const { data: zuordnungen } = await admin
+    .from("dir_collection_produkt")
+    .select("dir_produkt(id, name, website_url, preis_quelle_url)")
+    .eq("collection_id", collectionId);
+
+  const produkte = (zuordnungen ?? [])
+    .map((z) => z.dir_produkt as unknown as { id: string; name: string; website_url: string | null; preis_quelle_url: string | null })
+    // Wer schon einen belegten Preis hat, wird nicht erneut belaestigt.
+    .filter((p) => p && p.website_url && !p.preis_quelle_url);
+
+  if (produkte.length === 0) {
+    await log.schreib("info", "Keine Anbieter ohne belegten Preis. Nichts zu tun.");
+    return { gefunden: 0, ohne: 0 };
+  }
+
+  await log.schreib("info", `Preissuche bei ${produkte.length} Anbietern.`);
+  let gefunden = 0;
+  let ohne = 0;
+  let n = 0;
+
+  for (const p of produkte) {
+    n++;
+    await log.fortschritt("preise", p.name, n, produkte.length);
+
+    try {
+      const start = await holeSeiteMitLinks(p.website_url!);
+      if (!start) { ohne++; continue; }
+
+      /* Erst die Links, die der Hersteller SELBST als Preisseite ausweist. Erst wenn es
+         keine gibt, die ueblichen Pfade raten, und auch das nur zweimal. Wer 6 Pfade
+         durchprobiert, erzeugt bei 40 Anbietern 240 Anfragen fuer meist nichts. */
+      const kandidaten = [...start.links];
+      if (kandidaten.length === 0) {
+        for (const pfad of PREIS_PFADE.slice(0, 2)) {
+          try { kandidaten.push(new URL(pfad, p.website_url!).href); } catch { /* egal */ }
+        }
+      }
+
+      let quelle: string | null = null;
+      let seitentext: string | null = null;
+      for (const k of kandidaten.slice(0, 2)) {
+        const s = await holeSeite(k);
+        if (s && s.length > 200) { quelle = k; seitentext = s; break; }
+      }
+
+      if (!seitentext) {
+        // Kein Preis gefunden ist ein gueltiges Ergebnis, keine Stoerung. Es wird
+        // spaeter als "keine Angabe" angezeigt, nicht als Preis geraten.
+        ohne++;
+        continue;
+      }
+
+      const antwort = await frageKi({
+        ki, verbrauch, zweck: "preise",
+        melde: (t) => log.schreib("warnung", t),
+        modell: MODELL_KLEIN,
+        maxTokens: 800,
+        messages: [
+          {
+            role: "user",
+            content: `Lies die Preisseite von "${p.name}" (Kategorie: ${kategorie}) und gib die Preisangabe zurück.
+
+SPRACHE: Deutsch, Du-Form, ECHTE UMLAUTE (ä ö ü ß), niemals ae/oe/ue/ss.
+Keine Gedankenstriche.
+
+DIE HARTEN REGELN:
+- Gib NUR wieder, was wirklich dasteht. Rechne nichts um, schätze nichts, runde nichts.
+- Steht dort kein Preis, sondern nur "Auf Anfrage", "Individuell" oder ein Kontaktformular,
+  dann ist genau das die Antwort. Das ist kein Fehlschlag.
+- Steht überhaupt nichts zu Preisen auf der Seite, gib null zurück.
+- Nenne den EINSTIEGSPREIS, also den günstigsten regulären Tarif. Testphasen und
+  Aktionsrabatte sind kein Einstiegspreis.
+- Schreib die Abrechnungseinheit dazu, wenn sie dasteht (pro Monat, pro Nutzer und Monat,
+  pro Jahr, einmalig).
+
+SEITE:
+${seitentext}
+
+Antworte NUR mit diesem JSON, ohne Text davor oder danach:
+{"preis_hinweis": "z.B. 'ab 49,00 EUR pro Monat' oder 'Auf Anfrage' oder null",
+ "ist_preisseite": true/false}`,
+          },
+        ],
+      });
+
+      const roh = antwort;
+      const d = JSON.parse(roh.slice(roh.indexOf("{"), roh.lastIndexOf("}") + 1));
+
+      if (!d.preis_hinweis || !d.ist_preisseite) { ohne++; continue; }
+
+      await admin
+        .from("dir_produkt")
+        .update({
+          preis_hinweis: d.preis_hinweis,
+          preis_quelle_url: quelle,
+          // Ohne Datum ist ein Preis in sechs Monaten wertlos, weil niemand weiss,
+          // wie alt er ist.
+          preis_stand: new Date().toISOString().slice(0, 10),
+        })
+        .eq("id", p.id);
+
+      gefunden++;
+      await log.schreib("ok", `${p.name}: ${d.preis_hinweis}`);
+    } catch {
+      // Ein Anbieter ohne Preis ist kein Grund, die anderen 39 fallen zu lassen.
+      ohne++;
+    }
+  }
+
+  await log.schreib(
+    "info",
+    `Preise: ${gefunden} mit belegter Quelle, ${ohne} ohne Angabe. Ohne Angabe heisst ohne Angabe, dort wird nichts geschätzt.`,
+  );
+  return { gefunden, ohne };
+}
+
 function korrigiereAscii(text: string): string {
   return text.replace(ASCII_SUENDER, (w) =>
     w.replace(/Ae/g, "Ä").replace(/ae/g, "ä").replace(/Oe/g, "Ö").replace(/oe/g, "ö").replace(/Ue/g, "Ü").replace(/ue/g, "ü"),
@@ -543,13 +760,16 @@ async function content(
   collectionId: string,
   name: string,
   fokus: string | null,
+  verbrauch: Verbrauch,
 ) {
   await log.fortschritt("text", "Guide, FAQ, Experten-Zitat und Meta schreiben");
   const ki = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  const antwort = await ki.messages.create({
-    model: MODELL,
-    max_tokens: 16000,
+  const antwort = await frageKi({
+    ki, verbrauch, zweck: "content",
+    melde: (t) => log.schreib("warnung", t),
+    modell: MODELL_GROSS,
+    maxTokens: 16000,
     messages: [
       {
         role: "user",
@@ -599,7 +819,7 @@ Antworte NUR mit JSON:
     ],
   });
 
-  const roh = antwort.content[0].type === "text" ? antwort.content[0].text : "";
+  const roh = antwort;
   const inhalt = JSON.parse(roh.slice(roh.indexOf("{"), roh.lastIndexOf("}") + 1));
 
   const woerter = String(inhalt.content_md).split(/\s+/).filter(Boolean).length;
@@ -671,6 +891,7 @@ export async function anreichereProdukte(
   collectionId: string,
   nurIds: string[] | null,
 ): Promise<void> {
+  const verbrauch = new Verbrauch();
   const admin = createAdminClient();
   const log = new Protokoll(laufId, admin);
 
@@ -740,9 +961,11 @@ export async function anreichereProdukte(
       }
 
       try {
-        const antwort = await ki.messages.create({
-          model: MODELL,
-          max_tokens: 2500,
+        const antwort = await frageKi({
+          ki, verbrauch, zweck: "anbieterdaten",
+          melde: (t) => log.schreib("warnung", t),
+          modell: MODELL_KLEIN,
+          maxTokens: 2500,
           messages: [
             {
               role: "user",
@@ -789,7 +1012,7 @@ Gib NUR ein JSON-Objekt zurück, ohne Codefence:
           ],
         });
 
-        const roh = antwort.content[0].type === "text" ? antwort.content[0].text : "";
+        const roh = antwort;
         const d = JSON.parse(roh.slice(roh.indexOf("{"), roh.lastIndexOf("}") + 1));
 
         await admin
@@ -832,7 +1055,7 @@ Gib NUR ein JSON-Objekt zurück, ohne Codefence:
     await log.schreib("ok", `Anbieterdaten fertig: ${fertig} angereichert, ${leer} ohne Ergebnis.`, "Fertig");
     await admin
       .from("dir_lauf")
-      .update({ status: "fertig", beendet_am: new Date().toISOString(), ergebnis: { fertig, leer } })
+      .update({ status: "fertig", beendet_am: new Date().toISOString(), ergebnis: { fertig, leer, ki: kiBericht(verbrauch) } })
       .eq("id", laufId);
   } catch (e) {
     await log.schreib("fehler", `Abbruch: ${e instanceof Error ? e.message : "Unbekannter Fehler"}`);
@@ -868,6 +1091,7 @@ export async function erzeugeFinder(
   /** Aenderungswunsch der Redaktion. Fliesst woertlich in den Prompt. */
   wunsch?: string | null,
 ): Promise<void> {
+  const verbrauch = new Verbrauch();
   const admin = createAdminClient();
   const log = new Protokoll(laufId, admin);
 
@@ -914,9 +1138,11 @@ export async function erzeugeFinder(
 
     const ki = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    const antwort = await ki.messages.create({
-      model: MODELL,
-      max_tokens: 6000,
+    const antwort = await frageKi({
+      ki, verbrauch, zweck: "finder-fragen",
+      melde: (t) => log.schreib("warnung", t),
+      modell: MODELL_GROSS,
+      maxTokens: 6000,
       messages: [
         {
           role: "user",
@@ -1002,7 +1228,7 @@ Antworte NUR mit JSON:
       ],
     });
 
-    const roh = antwort.content[0].type === "text" ? antwort.content[0].text : "";
+    const roh = antwort;
     const entwurf = JSON.parse(roh.slice(roh.indexOf("{"), roh.lastIndexOf("}") + 1));
 
     /* Harte Pruefung. Ein Formular, das Leads an zahlende Kunden verteilt, darf nicht
@@ -1058,9 +1284,11 @@ Antworte NUR mit JSON:
         produkte.length,
       );
 
-      const tagAntwort = await ki.messages.create({
-        model: MODELL,
-        max_tokens: 3000,
+      const tagAntwort = await frageKi({
+        ki, verbrauch, zweck: "finder-tags",
+        melde: (t) => log.schreib("warnung", t),
+        modell: MODELL_KLEIN,
+        maxTokens: 3000,
         messages: [
           {
             role: "user",
@@ -1086,7 +1314,7 @@ Antworte NUR mit JSON, ohne Codefence, ohne Begründungen:
         ],
       });
 
-      const tagRoh = tagAntwort.content[0].type === "text" ? tagAntwort.content[0].text : "";
+      const tagRoh = tagAntwort;
       let teilJson: { produkte?: { id: string; tags?: string[] }[] };
       try {
         teilJson = JSON.parse(tagRoh.slice(tagRoh.indexOf("{"), tagRoh.lastIndexOf("}") + 1));
@@ -1153,6 +1381,7 @@ Antworte NUR mit JSON, ohne Codefence, ohne Begründungen:
       })
       .eq("id", collectionId);
 
+    await log.schreib("info", `Verbrauch: ${verbrauch.zeile()}`);
     await log.schreib(
       "ok",
       `Fertig: ${fragen.length} Fragen, ${ausschluesse} Ausschlusskriterien. Status: in Prüfung. Lies die Begründungen und gib frei.`,
@@ -1163,7 +1392,7 @@ Antworte NUR mit JSON, ohne Codefence, ohne Begründungen:
       .update({
         status: "fertig",
         beendet_am: new Date().toISOString(),
-        ergebnis: { fragen: fragen.length, tags: vokabular.length, tote_kriterien: tot },
+        ergebnis: { fragen: fragen.length, tags: vokabular.length, tote_kriterien: tot, ki: kiBericht(verbrauch) },
       })
       .eq("id", laufId);
   } catch (e) {
@@ -1189,6 +1418,7 @@ Antworte NUR mit JSON, ohne Codefence, ohne Begründungen:
  * hunderte duenne Seiten auf einmal in den Index kippen.
  */
 export async function erzeugeDetailseiten(laufId: string, collectionId: string): Promise<void> {
+  const verbrauch = new Verbrauch();
   const admin = createAdminClient();
   const log = new Protokoll(laufId, admin);
 
@@ -1234,9 +1464,11 @@ export async function erzeugeDetailseiten(laufId: string, collectionId: string):
       n++;
       await log.fortschritt("text", `${p.name}`, n, produkte.length);
       try {
-        const antwort = await ki.messages.create({
-          model: MODELL,
-          max_tokens: 4000,
+        const antwort = await frageKi({
+          ki, verbrauch, zweck: "detailseite",
+          melde: (t) => log.schreib("warnung", t),
+          modell: MODELL_KLEIN,
+          maxTokens: 4000,
           messages: [
             {
               role: "user",
@@ -1286,7 +1518,7 @@ META_DESC: <140 bis 160 Zeichen>
         /* KEIN JSON mehr. Der lange Markdown-Text mit Zeilenumbruechen und
            Anfuehrungszeichen zerriss das JSON zuverlaessig. Stattdessen ein simples
            Kopf/Koerper-Format mit "---" als Trenner, das nichts zerreissen kann. */
-        const roh = korrigiereAscii(antwort.content[0].type === "text" ? antwort.content[0].text : "");
+        const roh = korrigiereAscii(antwort);
         const [kopf, ...rest] = roh.split(/\n---\n?/);
         const body = rest.join("\n---\n").trim();
         const metaTitle = (kopf.match(/META_TITLE:\s*(.+)/i)?.[1] ?? "").trim();
@@ -1322,7 +1554,7 @@ META_DESC: <140 bis 160 Zeichen>
     await log.schreib("ok", `Fertig: ${fertig} Detailtexte im Entwurf. Pruefen und pro Produkt veroeffentlichen.`, "Fertig");
     await admin
       .from("dir_lauf")
-      .update({ status: "fertig", beendet_am: new Date().toISOString(), ergebnis: { detailseiten: fertig } })
+      .update({ status: "fertig", beendet_am: new Date().toISOString(), ergebnis: { detailseiten: fertig, ki: kiBericht(verbrauch) } })
       .eq("id", laufId);
   } catch (e) {
     await log.schreib("fehler", `Abbruch: ${e instanceof Error ? e.message : "Unbekannter Fehler"}`);
