@@ -69,6 +69,8 @@ export default async function AdminDashboard() {
   const letzteSicherung = sicherung as {
     ok: boolean; datei: string; groesse_bytes: number | null; tabellen: number | null;
     dauer_sekunden: number | null; fehler: string | null; erstellt_am: string;
+    offsite_ok: boolean | null; offsite_ziel: string | null;
+    offsite_bytes: number | null; offsite_fehler: string | null;
   } | null;
   const sicherungen = sicherungenGesamt ?? 0;
 
@@ -185,6 +187,32 @@ export default async function AdminDashboard() {
                       Der nächtliche Lauf hat sich nicht gemeldet. Bitte den Cronjob auf dem Server prüfen.
                     </p>
                   )}
+
+                  {/* ZWEITKOPIE, eigene Zeile mit eigenem Status.
+                      Sie kann scheitern, waehrend die Sicherung selbst in Ordnung ist.
+                      Genau dieser Fall darf nicht unter den Tisch fallen: eine Sicherung,
+                      die nur auf dem Server liegt, ist beim Serverausfall weg, und das ist
+                      der Fall, fuer den man Sicherungen ueberhaupt hat. */}
+                  <p className="mt-1.5 text-muted-foreground">
+                    {letzteSicherung.offsite_ok === null ? (
+                      <>
+                        Zweitkopie: nicht eingerichtet. Die Sicherungen liegen nur auf dem Server.
+                      </>
+                    ) : letzteSicherung.offsite_ok ? (
+                      <>
+                        Zweitkopie: verschlüsselt in {letzteSicherung.offsite_ziel ?? "der Zweitablage"}
+                        {letzteSicherung.offsite_bytes
+                          ? ` · ${(Number(letzteSicherung.offsite_bytes) / 1_048_576).toFixed(1)} MB`
+                          : ""}
+                      </>
+                    ) : (
+                      <span className="text-destructive">
+                        Zweitkopie fehlgeschlagen
+                        {letzteSicherung.offsite_fehler ? `: ${letzteSicherung.offsite_fehler}` : "."}{" "}
+                        Die Sicherung auf dem Server ist in Ordnung, es gibt aber gerade keine Kopie außerhalb.
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
               <span className="text-xs text-muted-foreground">
