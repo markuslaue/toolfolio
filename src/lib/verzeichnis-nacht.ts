@@ -150,7 +150,15 @@ async function baueEine(
       // und dann steht im Bericht, WORAN es lag, statt eines nackten "Fehler".
     }
 
-    /* 3) Urteil. */
+    /* 3) Anbieter und Finder freigeben, BEVOR das Gate urteilt.
+       Sonst prueft das Gate einen Zustand, den es selbst noch verhindert: die Anbieter
+       stehen auf 'ki_ungeprueft' und sind fuer den anonymen Client unsichtbar, der
+       Finder auf 'in_review' und damit auf der Seite nicht vorhanden. Genau so ist eine
+       Seite mit 34 Anbietern in der Datenbank und null Anbietern auf dem Bildschirm
+       entstanden. */
+    await gibInhalteFrei(admin, collectionId);
+
+    /* 4) Urteil, gemessen an dem, was ein Besucher sieht. */
     const gate = await pruefeCollection(collectionId);
 
     await admin
@@ -165,11 +173,51 @@ async function baueEine(
       return { ergebnis: "durchgefallen", grund: gate.zusammenfassung };
     }
 
-    /* 4) Veroeffentlichen. */
+    /* 5) Veroeffentlichen. */
     return await veroeffentlicheAutomatisch(admin, collectionId, name);
   } catch (e) {
     return { ergebnis: "fehler", grund: e instanceof Error ? e.message : "Unbekannter Fehler" };
   }
+}
+
+/**
+ * Anbieter und Auswahl-Assistent sichtbar machen.
+ *
+ * Freigegeben werden NUR die Anbieter dieser Kategorie, die noch auf 'ki_ungeprueft'
+ * stehen. Wer schon 'redaktionell_geprueft' ist, wird nicht angefasst: die Maschine
+ * fasst die Arbeit eines Menschen nicht an, auch nicht "nur zum Hochstufen".
+ *
+ * auto_freigegeben_am haelt fest, dass hier keine Redaktion beteiligt war. Ohne diese
+ * Spur waere hinterher nicht mehr feststellbar, welche Anbieterdatensaetze nie ein
+ * Mensch gesehen hat, und genau das will man wissen, wenn einer davon falsch ist.
+ */
+async function gibInhalteFrei(
+  admin: ReturnType<typeof createAdminClient>,
+  collectionId: string,
+): Promise<void> {
+  const { data: zuordnungen } = await admin
+    .from("dir_collection_produkt")
+    .select("produkt_id")
+    .eq("collection_id", collectionId);
+
+  const ids = (zuordnungen ?? []).map((z) => z.produkt_id as string);
+  if (ids.length > 0) {
+    // In Haeppchen: ein "in" mit mehreren hundert UUIDs laeuft in Laengengrenzen der
+    // Anfrage, und zwar still.
+    for (let i = 0; i < ids.length; i += 100) {
+      await admin
+        .from("dir_produkt")
+        .update({ status: "veroeffentlicht", auto_freigegeben_am: new Date().toISOString() })
+        .in("id", ids.slice(i, i + 100))
+        .eq("status", "ki_ungeprueft");
+    }
+  }
+
+  await admin
+    .from("dir_collection")
+    .update({ finder_status: "live" })
+    .eq("id", collectionId)
+    .eq("finder_status", "in_review");
 }
 
 /**

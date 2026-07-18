@@ -1,5 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicClient } from "@/lib/supabase/public";
 
 /**
  * AD-11: Was eine Kategorie erfuellen muss, um ohne Menschen live zu gehen.
@@ -84,7 +85,7 @@ export async function pruefeCollection(collectionId: string): Promise<GateErgebn
 
   const { data: coll } = await admin
     .from("dir_collection")
-    .select("id, name, slug, intro_md, content_md, faq, hero_url, meta_title, meta_description, finder_config, content_status")
+    .select("id, name, slug, intro_md, content_md, faq, hero_url, meta_title, meta_description, finder_config, finder_status, content_status")
     .eq("id", collectionId)
     .maybeSingle();
 
@@ -96,7 +97,15 @@ export async function pruefeCollection(collectionId: string): Promise<GateErgebn
     };
   }
 
-  const { data: zuordnungen } = await admin
+  /* MIT DEM ANONYMEN CLIENT, und das ist der Kern der Sache.
+     Beim ersten Anlauf zaehlte hier der Admin-Client: 34 Anbieter in der Tabelle,
+     Gate bestanden, veroeffentlicht, und der Besucher sah eine leere Seite. Die
+     Anbieter standen auf 'ki_ungeprueft', und die RLS blendet die aus.
+
+     Ein Gate darf nicht pruefen, was wir GESPEICHERT haben, sondern was ANKOMMT.
+     Der anonyme Client sieht genau das, was auch der Besucher sieht. */
+  const oeffentlich = createPublicClient();
+  const { data: zuordnungen } = await oeffentlich
     .from("dir_collection_produkt")
     .select("zone, dir_produkt(id, name, kurzbeschreibung, features, website_url)")
     .eq("collection_id", collectionId);
@@ -128,6 +137,13 @@ export async function pruefeCollection(collectionId: string): Promise<GateErgebn
 
     pruef("Auswahl-Assistent", `mindestens ${SCHWELLEN.MIN_FINDER_FRAGEN} Fragen`, String(fragen.length),
       fragen.length >= SCHWELLEN.MIN_FINDER_FRAGEN),
+
+    /* Fragen zu HABEN reicht nicht, sie muessen ausgeliefert werden. Die Seite zeigt
+       den Finder nur bei finder_status 'live'. Beim ersten Anlauf stand er auf
+       'in_review', das Formular fehlte auf der Seite und niemand hat es bemerkt,
+       weil das Gate nur die Fragen gezaehlt hat. */
+    pruef("Auswahl-Assistent sichtbar", "live", String(coll.finder_status ?? "fehlt"),
+      coll.finder_status === "live"),
 
     pruef("Hintergrundbild", "vorhanden", coll.hero_url ? "vorhanden" : "fehlt",
       Boolean(coll.hero_url)),
