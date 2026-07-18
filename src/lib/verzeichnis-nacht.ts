@@ -50,24 +50,25 @@ export type NachtBericht = {
  * erst hinterher.
  */
 async function fuelleWarteschlange(admin: ReturnType<typeof createAdminClient>): Promise<number> {
-  const { data: offen } = await admin
-    .from("dir_warteschlange")
-    .select("collection_id", { count: "exact", head: true })
-    .eq("zustand", "offen");
-  void offen;
-
   const { count } = await admin
     .from("dir_warteschlange")
     .select("collection_id", { count: "exact", head: true })
     .eq("zustand", "offen");
   if ((count ?? 0) > 0) return 0;
 
+  /* HUB FUER HUB, nicht alphabetisch quer durch alles.
+     Ein fertiger Hub verlinkt intern sauber und wirkt thematisch geschlossen. Baut man
+     stattdessen alphabetisch ueber alle 26 Cluster, sind 26 Hubs monatelang halbfertig,
+     und keiner davon traegt die anderen. */
+  const { data: cluster } = await admin.from("dir_cluster").select("id, name").order("name");
+  const clusterRang = new Map((cluster ?? []).map((c, i) => [c.id as string, i]));
+
   const { data: kandidaten } = await admin
     .from("dir_collection")
-    .select("id")
+    .select("id, name, cluster_id")
     .eq("status", "entwurf")
     .is("content_md", null)
-    .limit(500);
+    .limit(2000);
 
   if (!kandidaten || kandidaten.length === 0) return 0;
 
@@ -76,8 +77,30 @@ async function fuelleWarteschlange(admin: ReturnType<typeof createAdminClient>):
   const neu = kandidaten.filter((k) => !bekannt.has(k.id as string));
   if (neu.length === 0) return 0;
 
-  await admin.from("dir_warteschlange").insert(neu.map((k) => ({ collection_id: k.id as string })));
-  return neu.length;
+  /* Der Rang kodiert beides: Cluster-Reihenfolge in Tausenderschritten, darin die
+     alphabetische Position der Kategorie. Damit reicht ein schlichtes "order by rang",
+     und die Reihenfolge ist von aussen lesbar statt in einer Sortierlogik versteckt. */
+  const nachCluster = new Map<string, { id: string; name: string }[]>();
+  for (const k of neu) {
+    const cid = (k.cluster_id as string) ?? "";
+    if (!nachCluster.has(cid)) nachCluster.set(cid, []);
+    nachCluster.get(cid)!.push({ id: k.id as string, name: (k.name as string) ?? "" });
+  }
+
+  const zeilen: { collection_id: string; rang: number }[] = [];
+  for (const [cid, liste] of nachCluster) {
+    // Cluster ohne Zuordnung ganz nach hinten, statt sie stillschweigend vorzuziehen.
+    const basis = (clusterRang.get(cid) ?? 999) * 10_000;
+    liste.sort((a, b) => a.name.localeCompare(b.name, "de"));
+    liste.forEach((c, i) => zeilen.push({ collection_id: c.id, rang: basis + i }));
+  }
+
+  // In Haeppchen einfuegen: ein Insert mit 1300 Zeilen laeuft in Grenzen, die man
+  // erst bemerkt, wenn er stillschweigend nur die Haelfte schreibt.
+  for (let i = 0; i < zeilen.length; i += 200) {
+    await admin.from("dir_warteschlange").insert(zeilen.slice(i, i + 200));
+  }
+  return zeilen.length;
 }
 
 /** Einen Lauf-Datensatz anlegen. gestartet_von bleibt leer: es war kein Mensch. */
@@ -224,8 +247,8 @@ export async function baueNacht(anzahl: number, endeUm: Date): Promise<NachtBeri
     .select("collection_id, versuche, dir_collection(name, slug)")
     .eq("zustand", "offen")
     .lt("versuche", MAX_VERSUCHE)
+    // Rang allein genuegt: er kodiert Cluster-Reihenfolge und Position darin.
     .order("rang", { ascending: true })
-    .order("erstellt_am", { ascending: true })
     .limit(anzahl);
 
   for (const eintrag of naechste ?? []) {
