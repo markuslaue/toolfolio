@@ -199,11 +199,29 @@ export async function getCluster(slug: string): Promise<{ cluster: Cluster; coll
 export async function alleCollectionPfade(): Promise<{ cluster: string; collection: string }[]> {
   const sb = createPublicClient();
   const { data } = await sb.from("dir_collection").select("slug, dir_cluster(slug)");
-  return (data ?? []).map((d) => {
-    const dc = (d as unknown as { slug: string; dir_cluster: { slug: string } | { slug: string }[] }).dir_cluster;
-    const cluster = Array.isArray(dc) ? dc[0]?.slug : dc?.slug;
-    return { cluster: cluster as string, collection: (d as { slug: string }).slug };
-  });
+  return (data ?? [])
+    .map((d) => {
+      const dc = (d as unknown as { slug: string; dir_cluster: { slug: string } | { slug: string }[] }).dir_cluster;
+      const cluster = Array.isArray(dc) ? dc[0]?.slug : dc?.slug;
+      return { cluster, collection: (d as { slug: string }).slug };
+    })
+    /* OHNE HUB KEINE ADRESSE.
+       Eine veroeffentlichte Kategorie, deren Hub im Entwurf steht, liefert hier
+       undefined, und Next bricht den GESAMTEN Build ab: "A required parameter
+       (cluster) was not provided". Eine einzige widerspruechliche Zeile in der
+       Datenbank legt damit das ganze Deployment lahm.
+
+       Das ist zu zerbrechlich. Die Zeile wird uebersprungen: die Seite ist dann
+       ohnehin nicht erreichbar (die RLS blendet den Hub aus), aber alle anderen
+       1.270 Seiten bauen sich. Der Widerspruch selbst gehoert behoben, nicht
+       verschwiegen, deshalb steht er im Build-Log. */
+    .filter((p): p is { cluster: string; collection: string } => {
+      if (!p.cluster) {
+        console.warn(`[Verzeichnis] "${p.collection}" ist veroeffentlicht, aber ihr Hub nicht. Seite wird nicht gebaut.`);
+        return false;
+      }
+      return true;
+    });
 }
 
 export async function getCollection(slug: string): Promise<{ collection: Collection; cluster: Cluster; produkte: ProduktInZone[] } | null> {
