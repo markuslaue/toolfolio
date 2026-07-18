@@ -155,8 +155,13 @@ vorbereiten)
   1. rclone auf diesem Mac installieren, falls noch nicht da:
          brew install rclone
 
-  2. Anmeldung starten:
-         rclone authorize "drive"
+  2. Anmeldung starten, MIT dem Bereichs-Schalter:
+         rclone authorize "drive" --drive-scope drive.file
+
+     Der Schalter ist nicht schmueckendes Beiwerk. Ohne ihn fordert
+     rclone Vollzugriff auf das GESAMTE Drive an, und der Eintrag
+     "scope = drive.file" in der Konfigurationsdatei aendert daran
+     nichts: den Zugriffsumfang bestimmt der Token, nicht die Datei.
 
      Es oeffnet sich ein Browserfenster. Melde dich mit dem Google-
      Konto an, in dessen Drive die Sicherungen liegen sollen, und
@@ -177,6 +182,19 @@ verbinden)
     echo "Es fehlt der Token-Block aus 'rclone authorize \"drive\"'." >&2
     exit 1
   fi
+
+  # Gegenprobe auf den Zugriffsumfang. Ein Token mit Vollzugriff sieht von aussen genauso
+  # aus wie ein eingeschraenkter, man merkt den Unterschied also nie von allein. Google
+  # nennt den gewaehrten Umfang im Feld "scope", sofern es mitgeliefert wird.
+  case "$TOKEN" in
+    *"auth/drive.file"*) : ;;
+    *"auth/drive"*)
+      echo "ACHTUNG: Dieser Token gilt fuer das GESAMTE Drive, nicht nur fuer die" >&2
+      echo "Sicherungsdateien. Bitte den Zugriff unter myaccount.google.com/connections" >&2
+      echo "entfernen und neu anmelden mit:" >&2
+      echo "    rclone authorize \"drive\" --drive-scope drive.file" >&2
+      exit 1 ;;
+  esac
 
   echo "==> Trage Google-Drive-Zugang auf dem Server ein"
   # Die Konfiguration liegt nur auf dem Server, mit Rechten 600. Sie ist ein Zugang zu
