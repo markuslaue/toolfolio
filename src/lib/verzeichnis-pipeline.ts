@@ -105,9 +105,19 @@ function domainVon(url: string): string {
   }
 }
 
+/* Subdomains, hinter denen nie ein Produkt liegt, sondern Inhalt UEBER Produkte.
+   Aufgefallen an "blog.analytics-toolkit.com", das als A/B-Testing-Anbieter im
+   Verzeichnis landete. Die KI-Pruefung sagt zwar "Blogs sind kein Produkt", aber ein
+   Blog UEBER A/B-Testing liest sich streckenweise wie ein Anbieter, der seine Loesung
+   erklaert. Diese Unterscheidung an der Adresse zu treffen ist zuverlaessiger und
+   kostet keinen Aufruf. */
+const KEINE_SUBDOMAIN = ["blog.", "news.", "magazin.", "ratgeber.", "docs.", "help.",
+  "support.", "hilfe.", "wiki.", "forum.", "community.", "status.", "shop."];
+
 function istMoeglichesProdukt(url: string): boolean {
   const d = domainVon(url);
   if (!d) return false;
+  if (KEINE_SUBDOMAIN.some((k) => d.startsWith(k))) return false;
   return !KEIN_PRODUKT.some((k) => d.includes(k));
 }
 
