@@ -442,3 +442,52 @@ export async function setDetailseiteStatus(
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   return { ok: true };
 }
+
+/**
+ * AD-11: Eine durchgefallene Kategorie zurueck in die Warteschlange.
+ *
+ * WARUM ES DAS BRAUCHT: Der naechtliche Lauf holt sich nur, was auf 'offen' steht.
+ * Was einmal durchgefallen ist, bleibt liegen, und zwar fuer immer. Das ist richtig,
+ * solange der Grund an der Kategorie liegt (eine Nische ohne acht Anbieter soll nicht
+ * jede Nacht Geld verbrennen). Es ist falsch herum, wenn der Grund bei UNS lag:
+ * Gastronomie Software ist an einem ASCII-Umlaut gescheitert, den wir behoben haben,
+ * und waere ohne diesen Knopf nie wieder angefasst worden.
+ *
+ * Der Versuchszaehler wird bewusst zurueckgesetzt: Es ist ein neuer Anlauf unter neuen
+ * Bedingungen, kein weiterer Versuch unter den alten.
+ */
+export async function reiheWiederEin(collectionId: string): Promise<RedaktionResult> {
+  const w = await redaktionOderFehler();
+  if (!w.ok) return { error: w.error };
+
+  const { error } = await w.admin
+    .from("dir_warteschlange")
+    .update({ zustand: "offen", versuche: 0, letzter_fehler: null })
+    .eq("collection_id", collectionId)
+    .in("zustand", ["durchgefallen", "fehler"]);
+
+  if (error) return { error: "Konnte nicht wieder eingereiht werden." };
+  revalidatePath("/admin/verzeichnis");
+  return { ok: true };
+}
+
+/**
+ * Alle durchgefallenen auf einmal. Der Fall dafuer ist immer derselbe: eine
+ * Fehlerursache wurde behoben, und jetzt sollen alle Kategorien, die daran gescheitert
+ * sind, einen zweiten Anlauf bekommen. Einzeln waere das bei zwanzig Stueck Klickarbeit,
+ * die niemand macht, und dann bleiben sie eben liegen.
+ */
+export async function reiheAlleWiederEin(): Promise<RedaktionResult & { anzahl?: number }> {
+  const w = await redaktionOderFehler();
+  if (!w.ok) return { error: w.error };
+
+  const { data, error } = await w.admin
+    .from("dir_warteschlange")
+    .update({ zustand: "offen", versuche: 0, letzter_fehler: null })
+    .in("zustand", ["durchgefallen", "fehler"])
+    .select("collection_id");
+
+  if (error) return { error: "Konnte nicht wieder eingereiht werden." };
+  revalidatePath("/admin/verzeichnis");
+  return { ok: true, anzahl: data?.length ?? 0 };
+}

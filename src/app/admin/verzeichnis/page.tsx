@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, FileText, Package, Search } from "lucide-react";
 import { redaktionOderRaus } from "@/lib/redaktion";
+import { reiheWiederEin, reiheAlleWiederEin } from "./actions";
 
 export const metadata: Metadata = { title: "Redaktion", robots: { index: false, follow: false } };
 
@@ -97,8 +98,19 @@ export default async function RedaktionPage() {
 
           {prueflliste.length > 0 && (
             <div className="mt-4 overflow-hidden rounded-2xl border bg-card">
-              <div className="border-b bg-muted/40 px-4 py-2.5 text-sm font-semibold">
-                Wartet auf dich: {prueflliste.length} {prueflliste.length === 1 ? "Kategorie" : "Kategorien"}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-muted/40 px-4 py-2.5 text-sm">
+                <span className="font-semibold">
+                  Wartet auf dich: {prueflliste.length} {prueflliste.length === 1 ? "Kategorie" : "Kategorien"}
+                </span>
+                {/* Fuer den haeufigsten Fall: eine Fehlerursache ist behoben, und alle,
+                    die daran gescheitert sind, sollen einen zweiten Anlauf bekommen.
+                    Einzeln waere das Klickarbeit, die niemand macht, und dann bleiben
+                    sie eben liegen. */}
+                <form action={async () => { "use server"; await reiheAlleWiederEin(); }}>
+                  <button type="submit" className="rounded-lg border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-accent">
+                    Alle erneut versuchen
+                  </button>
+                </form>
               </div>
               <ul className="divide-y">
                 {prueflliste.map((e) => {
@@ -113,8 +125,15 @@ export default async function RedaktionPage() {
                         >
                           {c?.name ?? "Unbekannt"}
                         </Link>
-                        <span className="text-xs text-muted-foreground">
-                          {e.versuche} {e.versuche === 1 ? "Versuch" : "Versuche"}
+                        <span className="flex items-center gap-3">
+                          <span className="text-xs text-muted-foreground">
+                            {e.versuche} {e.versuche === 1 ? "Versuch" : "Versuche"}
+                          </span>
+                          <form action={async () => { "use server"; await reiheWiederEin(e.collection_id); }}>
+                            <button type="submit" className="rounded-lg border bg-card px-2.5 py-1 text-xs font-semibold hover:bg-accent">
+                              Erneut versuchen
+                            </button>
+                          </form>
                         </span>
                       </div>
 
