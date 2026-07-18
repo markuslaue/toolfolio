@@ -33,6 +33,31 @@ schritt="${1:-}"
 
 case "$schritt" in
 
+passwort-pruefen)
+  # Liegt auf dem Server wirklich das Passwort aus meinem Passwortmanager?
+  #
+  # Das ist die Frage, die vor einer Wiederherstellung zaehlt, und man will sie nicht
+  # dadurch beantworten, dass man beide Werte nebeneinander legt. Verglichen werden
+  # deshalb PRUEFSUMMEN: aus dem eingetippten Passwort wird lokal eine SHA-256 gebildet,
+  # auf dem Server aus dem gespeicherten Wert dieselbe. Gleiche Pruefsumme heisst gleiches
+  # Passwort. Aus der Pruefsumme laesst sich das Passwort nicht zurueckrechnen, sie darf
+  # also gefahrlos ueber die Leitung und auf den Bildschirm.
+  read -r -s -p "Passwort zur Probe: " PP; echo
+  MEINE=$(printf '%s' "$PP" | shasum -a 256 | cut -c1-64)
+  unset PP
+  SERVERS=$($SSH "$HOST" "grep '^BACKUP_PASSPHRASE=' $ZIEL/.env | head -1 | cut -d= -f2- | tr -d '\n' | sha256sum | cut -c1-64")
+  echo
+  if [ -z "$SERVERS" ]; then
+    echo "Auf dem Server ist ueberhaupt kein Passwort hinterlegt."
+  elif [ "$MEINE" = "$SERVERS" ]; then
+    echo "Stimmt ueberein. Mit diesem Passwort lassen sich die Kopien bei Google oeffnen."
+  else
+    echo "STIMMT NICHT UEBEREIN."
+    echo "Auf dem Server liegt ein anderes Passwort als das, was du gerade eingegeben hast."
+    echo "Setze es neu: bash $0 passwort-setzen"
+  fi
+  ;;
+
 passwort-setzen)
   # Passwort selbst festlegen, ohne dass es je auf dem Bildschirm steht.
   #
@@ -47,6 +72,7 @@ passwort-setzen)
   echo "Bitte OHNE die Zeichen \$ \" ' und ohne Leerzeichen, damit nichts falsch gelesen wird."
   echo
   read -r -s -p "Passwort:                   " P1; echo
+  echo "   (auch hier wieder einfuegen, ein blosses Enter reicht nicht)"
   read -r -s -p "Zur Sicherheit noch einmal: " P2; echo
 
   if [ "$P1" != "$P2" ]; then
@@ -186,7 +212,7 @@ testen)
   ;;
 
 *)
-  echo "Aufruf: $0 vorbereiten | passwort-setzen | verbinden '<token>' | testen" >&2
+  echo "Aufruf: $0 vorbereiten | passwort-setzen | passwort-pruefen | verbinden '<token>' | testen" >&2
   exit 1
   ;;
 esac
