@@ -259,6 +259,19 @@ export async function veroeffentliche(collectionId: string, collectionSlug: stri
     revalidatePath(`/verzeichnis/${clusterSlug}`);
   }
 
+  /* Die Warteschlange nachziehen.
+     Wer eine durchgefallene Kategorie von Hand freischaltet, hat das Urteil des Gates
+     ueberstimmt, und damit ist die Sache erledigt. Bleibt der Eintrag auf
+     'durchgefallen', steht die Kategorie weiter in der Pruefliste und bittet um einen
+     erneuten Versuch, den niemand mehr braucht. Eine Liste, die erledigte Dinge zeigt,
+     wird nicht mehr gelesen. */
+  await w.admin
+    .from("dir_warteschlange")
+    .update({ zustand: "fertig", letzter_fehler: null })
+    .eq("collection_id", collectionId)
+    .neq("zustand", "laeuft");
+
+  revalidatePath("/admin/verzeichnis");
   revalidatePath(`/admin/verzeichnis/collection/${collectionSlug}`);
   revalidatePath("/verzeichnis", "layout");
   /* UND DIE SITEMAP. Sie hat revalidate = 3600, eine frisch freigegebene Kategorie stand

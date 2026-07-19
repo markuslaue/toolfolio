@@ -37,8 +37,16 @@ export default async function RedaktionPage() {
 
   /* Der naechtliche Aufbau. Zaehlungen als head-Abfragen, damit die Seite nicht
      tausend Zeilen laedt, um vier Zahlen zu zeigen. */
+  /* ZWEITE SICHERUNG neben veroeffentliche().
+     Was live ist, gehoert nicht in eine Liste offener Aufgaben, ganz gleich wie es
+     dorthin gekommen ist. Der Filter hier faengt auch Wege ab, die die Warteschlange
+     nicht nachziehen (Direktbearbeitung in der Datenbank etwa). */
   const zaehleWarteschlange = (zustand: string) =>
-    admin.from("dir_warteschlange").select("collection_id", { count: "exact", head: true }).eq("zustand", zustand);
+    admin
+      .from("dir_warteschlange")
+      .select("collection_id, dir_collection!inner(status)", { count: "exact", head: true })
+      .eq("zustand", zustand)
+      .neq("dir_collection.status", "veroeffentlicht");
 
   const [wOffen, wFertig, wDurch, wFehler, { data: durchgefallen }] = await Promise.all([
     zaehleWarteschlange("offen"),
@@ -47,8 +55,9 @@ export default async function RedaktionPage() {
     zaehleWarteschlange("fehler"),
     admin
       .from("dir_warteschlange")
-      .select("collection_id, letzter_fehler, versuche, zuletzt_am, dir_collection(name, slug, gate_bericht, dir_cluster(slug))")
+      .select("collection_id, letzter_fehler, versuche, zuletzt_am, dir_collection!inner(name, slug, status, gate_bericht, dir_cluster(slug))")
       .in("zustand", ["durchgefallen", "fehler"])
+      .neq("dir_collection.status", "veroeffentlicht")
       .order("zuletzt_am", { ascending: false })
       .limit(20),
   ]);
@@ -60,6 +69,7 @@ export default async function RedaktionPage() {
     dir_collection: {
       name: string;
       slug: string;
+      status: string;
       gate_bericht: { pruefungen?: { name: string; soll: string; ist: string; bestanden: boolean }[] } | null;
       dir_cluster: { slug: string } | null;
     } | null;
