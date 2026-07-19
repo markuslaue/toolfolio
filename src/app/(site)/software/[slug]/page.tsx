@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ausgangsLink } from "@/lib/ausgang";
 import { ExternalLink, BadgeCheck, Check, X, ShieldCheck, Star } from "lucide-react";
 import { Breadcrumb } from "@/components/verzeichnis/breadcrumb";
 import { Sterne } from "@/components/verzeichnis/sterne";
@@ -92,7 +93,8 @@ export default async function SoftwareDetail({ params }: { params: Promise<{ slu
         {(p.affiliate_url || p.website_url) && (
           <div className="flex flex-col items-end gap-1">
             <a
-              href={p.affiliate_url ?? p.website_url ?? "#"}
+              /* Ueber den Ausgang: zaehlen und UTM anhaengen. Siehe lib/ausgang.ts. */
+              href={ausgangsLink(p.slug, null, null)}
               target="_blank"
               rel={p.affiliate_url ? "sponsored noopener noreferrer" : "noopener noreferrer nofollow"}
               className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"

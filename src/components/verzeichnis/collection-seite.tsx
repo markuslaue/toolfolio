@@ -31,6 +31,7 @@ import {
 import { ExpertenZitat, AutorBox } from "@/components/verzeichnis/experte";
 import { HeroHintergrund, type HeroBild } from "@/components/verzeichnis/hero-hintergrund";
 import { produktInitialen, type ProduktInZone, type Bewertung, type Zone } from "@/lib/verzeichnis";
+import { ausgangsLink } from "@/lib/ausgang";
 import type { Autor } from "@/lib/autoren";
 
 /* -------------------------------- Typen ---------------------------------- */
@@ -176,6 +177,7 @@ function ProduktZeile({
   rang,
   bewertung,
   nutzer,
+  vonSlug,
 }: {
   p: ProduktInZone;
   /** Platz in der organischen Rangliste. Die Anzeige oben hat KEINEN Rang: sie ist
@@ -184,6 +186,9 @@ function ProduktZeile({
   bewertung?: Bewertung;
   /** Wie viele Toolfolio-Konten das Tool einsetzen. null = unter der Schwelle. */
   nutzer: number | null;
+  /** Slug der Kategorieseite. Kommt aus dem Server, nicht aus dem Referrer:
+      der waere manipulierbar und bei manchen Browsereinstellungen gar nicht da. */
+  vonSlug: string;
 }) {
   const ton = PALETTE[((rang ?? 1) - 1) % PALETTE.length];
   const gesponsert = p.zone === "gesponsert";
@@ -364,10 +369,16 @@ function ProduktZeile({
           )}
           {(p.affiliate_url || p.website_url) && (
             <a
-              // Ist ein Affiliate-Link gesetzt, gehen wir DARUEBER: nur so entsteht die
-              // Provision. rel="sponsored" ist dann Pflicht (Google-Vorgabe fuer bezahlte
-              // Links). Ohne Affiliate: direkt zum Anbieter, nofollow wie bisher.
-              href={p.affiliate_url ?? p.website_url ?? "#"}
+              /* UEBER DEN AUSGANG, nicht direkt.
+                 Dort wird der Klick gezaehlt und UTM angehaengt, damit der Anbieter in
+                 SEINEM Werkzeug sieht, dass der Besucher von uns kam. Ohne das taucht
+                 Toolfolio dort nur als eines von vielen Referrals auf und niemand
+                 rechnet uns die Reichweite zu.
+
+                 Welche Zieladresse benutzt wird (Affiliate oder direkt), entscheidet der
+                 Ausgang serverseitig. rel bleibt hier: "sponsored" ist bei bezahlten
+                 Links Google-Vorgabe, und das gilt fuer den sichtbaren Link. */
+              href={ausgangsLink(p.slug, vonSlug, p.zone)}
               target="_blank"
               rel={p.affiliate_url ? "sponsored noopener noreferrer" : "noopener noreferrer nofollow"}
               className="inline-flex items-center justify-center gap-1.5 rounded-xl border bg-background/60 px-4 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:border-foreground/30 hover:text-foreground"
@@ -613,6 +624,7 @@ export function CollectionSeite({
                 p={p}
                 bewertung={bewertungen.get(p.id)}
                 nutzer={nutzerJeProdukt.get(p.id) ?? null}
+                vonSlug={collection.slug}
               />
             ))}
           </div>
@@ -661,6 +673,7 @@ export function CollectionSeite({
                 rang={z === "organisch" ? i + 1 : undefined}
                 bewertung={bewertungen.get(p.id)}
                 nutzer={nutzerJeProdukt.get(p.id) ?? null}
+                vonSlug={collection.slug}
               />
             ));
           })}
