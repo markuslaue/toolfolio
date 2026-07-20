@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, MousePointerClick, Smartphone, Monitor } from "lucide-react";
+import { ArrowRight, MousePointerClick, Smartphone, Monitor, Search } from "lucide-react";
 import { redaktionOderRaus } from "@/lib/redaktion";
 
 export const metadata: Metadata = { title: "Statistik", robots: { index: false, follow: false } };
@@ -51,7 +51,8 @@ export default async function StatistikPage({
 
   const seit = new Date(Date.now() - tage * 86_400_000).toISOString();
 
-  const [{ data: klicks }, { data: produkte }, { data: collections }] = await Promise.all([
+  const seitDatum = seit.slice(0, 10);
+  const [{ data: klicks }, { data: produkte }, { data: collections }, { data: suchdaten }, { data: letzterAbruf }] = await Promise.all([
     admin
       .from("dir_klick")
       .select("produkt_id, collection_id, zone, ist_affiliate, geraet, utm_source, erstellt_am")
@@ -59,6 +60,17 @@ export default async function StatistikPage({
       .limit(50000),
     admin.from("dir_produkt").select("id, name, slug"),
     admin.from("dir_collection").select("id, name, slug"),
+    admin
+      .from("dir_suchdaten")
+      .select("collection_id, suchanfrage, impressionen, klicks, position")
+      .gte("datum", seitDatum)
+      .limit(50000),
+    admin
+      .from("system_suchdaten_lauf")
+      .select("bis, zeilen, ok, erstellt_am")
+      .order("erstellt_am", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   const alle = (klicks ?? []) as Klick[];
@@ -97,6 +109,32 @@ export default async function StatistikPage({
 
   const gesamt = alle.length;
   const affiliateKlicks = alle.filter((k) => k.ist_affiliate).length;
+
+  /* Suchanfragen zusammenfassen. Dieselbe Anfrage taucht je Tag einmal auf, also
+     ueber die Tage summieren. Die Position wird gewichtet gemittelt: ein Tag mit
+     1000 Impressionen sagt mehr ueber die tatsaechliche Position aus als einer mit
+     zweien, und ein ungewichteter Mittelwert wuerde das verschleiern. */
+  type SuchZeile = { collection_id: string | null; suchanfrage: string; impressionen: number; klicks: number; position: number | null };
+  const suchAlle = (suchdaten ?? []) as SuchZeile[];
+  const jeAnfrage = new Map<string, { impressionen: number; klicks: number; posSumme: number }>();
+  let impressionenGesamt = 0;
+  for (const z of suchAlle) {
+    const a = jeAnfrage.get(z.suchanfrage) ?? { impressionen: 0, klicks: 0, posSumme: 0 };
+    a.impressionen += z.impressionen;
+    a.klicks += z.klicks;
+    a.posSumme += (z.position ?? 0) * z.impressionen;
+    jeAnfrage.set(z.suchanfrage, a);
+    impressionenGesamt += z.impressionen;
+  }
+  const topAnfragen = [...jeAnfrage.entries()]
+    .map(([anfrage, v]) => ({
+      anfrage,
+      impressionen: v.impressionen,
+      klicks: v.klicks,
+      position: v.impressionen > 0 ? v.posSumme / v.impressionen : null,
+    }))
+    .sort((a, b) => b.impressionen - a.impressionen)
+    .slice(0, 25);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
@@ -178,6 +216,65 @@ export default async function StatistikPage({
               ))}
             </ul>
           </div>
+        </>
+      )}
+
+      {/* SUCHANFRAGEN, die zweite Haelfte des Anbieterberichts.
+          dir_klick sagt, wie viele geklickt haben. Das hier sagt, womit sie ueberhaupt
+          gekommen sind. Erst zusammen ergibt es eine Aussage. */}
+      <h2 className="mt-10 font-display text-lg font-semibold">Woher der Traffic kam</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Suchanfragen aus der Google Search Console.{" "}
+        {letzterAbruf
+          ? `Zuletzt abgerufen bis ${new Date((letzterAbruf as { bis: string }).bis).toLocaleDateString("de-DE")}.`
+          : "Noch kein Abruf gelaufen."}
+      </p>
+
+      {topAnfragen.length === 0 ? (
+        <div className="mt-3 rounded-2xl border bg-card p-6 text-sm text-muted-foreground">
+          <p className="font-semibold text-foreground">Noch keine Suchdaten in diesem Zeitraum.</p>
+          <p className="mt-1">
+            Google muss die Seiten erst indexieren und ausliefern, bevor hier etwas steht. Bei frisch
+            veröffentlichten Kategorien dauert das erfahrungsgemäß vier bis acht Wochen.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            <Kachel label="Impressionen" wert={impressionenGesamt.toLocaleString("de-DE")} icon={Search} />
+            <Kachel
+              label="Klicks aus der Suche"
+              wert={suchAlle.reduce((s, z) => s + z.klicks, 0).toLocaleString("de-DE")}
+            />
+            <Kachel label="verschiedene Suchanfragen" wert={jeAnfrage.size.toLocaleString("de-DE")} />
+          </div>
+
+          <div className="mt-4 overflow-hidden rounded-2xl border bg-card">
+            <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 border-b bg-muted/40 px-4 py-2 text-xs font-semibold text-muted-foreground">
+              <span>Suchanfrage</span>
+              <span className="text-right">Impr.</span>
+              <span className="text-right">Klicks</span>
+              <span className="text-right">Pos.</span>
+            </div>
+            <ul className="divide-y">
+              {topAnfragen.map((a) => (
+                <li key={a.anfrage} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-4 py-2.5 text-sm">
+                  <span className="truncate">{a.anfrage}</span>
+                  <span className="text-right tabular-nums">{a.impressionen.toLocaleString("de-DE")}</span>
+                  <span className="text-right tabular-nums">{a.klicks}</span>
+                  <span className="text-right tabular-nums text-muted-foreground">
+                    {a.position ? a.position.toFixed(1).replace(".", ",") : "-"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <p className="mt-2 text-xs text-muted-foreground">
+            Google lässt sehr seltene Suchanfragen aus Datenschutzgründen weg. Die Summe der
+            einzelnen Zeilen ist deshalb immer kleiner als die Gesamtzahl oben. Das ist kein
+            Rechenfehler.
+          </p>
         </>
       )}
 
