@@ -14,6 +14,8 @@ const jakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+import { SelfCanonical } from "@/components/self-canonical";
+
 export const metadata: Metadata = {
   // Basis fuer alle relativen URLs in Metadaten (Canonical, Open Graph).
   metadataBase: new URL("https://toolfolio.de"),
@@ -35,7 +37,10 @@ export default function RootLayout({
       lang="de"
       className={`${bricolage.variable} ${jakarta.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <SelfCanonical />
+        {children}
+      </body>
     </html>
   );
 }
