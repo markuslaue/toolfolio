@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, Users, Building2, Wrench } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Building2, Wrench, BarChart3 } from "lucide-react";
 import { ToolfolioIcon } from "@/components/brand";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 const items = [
   { href: "/admin", label: "Übersicht", icon: LayoutDashboard },
   { href: "/admin/verzeichnis", label: "Verzeichnis", icon: BookOpen },
+  { href: "/admin/statistik", label: "Statistik", icon: BarChart3 },
   { href: "/admin/anbieter", label: "Anbieter", icon: Building2, bald: true },
   { href: "/admin/nutzer", label: "Nutzer", icon: Users, bald: true },
   { href: "/admin/betrieb", label: "Betrieb", icon: Wrench, bald: true },
