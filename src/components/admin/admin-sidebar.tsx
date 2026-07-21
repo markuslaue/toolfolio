@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
  * das monatelang eine 404 war, weil der Link vor der Seite da war).
  */
 const items = [
-  { href: "/admin", label: "Übersicht", icon: LayoutDashboard },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/verzeichnis", label: "Verzeichnis", icon: BookOpen },
   { href: "/admin/statistik", label: "Statistik", icon: BarChart3 },
   { href: "/admin/anbieter", label: "Anbieter", icon: Building2, bald: true },
