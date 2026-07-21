@@ -15,6 +15,8 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  // Basis fuer alle relativen URLs in Metadaten (Canonical, Open Graph).
+  metadataBase: new URL("https://toolfolio.de"),
   title: {
     default: "Toolfolio - Software-Kosten im Griff",
     template: "%s | Toolfolio",

@@ -6,6 +6,7 @@ import { getHub } from "@/lib/verzeichnis";
 export const revalidate = 600;
 
 export const metadata: Metadata = {
+  alternates: { canonical: "https://toolfolio.de/verzeichnis" },
   title: "Software-Verzeichnis: Tools vergleichen, Preise & Bewertungen",
   description:
     "Das Toolfolio-Verzeichnis: Software nach Kategorien vergleichen, mit Preisangaben (Stand und Quelle) und ehrlichen, teils verifizierten Bewertungen. Fuer Agenturen, Freelancer und Teams im DACH-Raum.",

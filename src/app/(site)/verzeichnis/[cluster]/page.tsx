@@ -18,6 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ cluster: 
   return {
     title: data.cluster.meta_title ?? data.cluster.name,
     description: data.cluster.meta_description ?? undefined,
+    // Selbstreferenzierendes Canonical: die Seite ist ihr eigenes Original.
+    alternates: { canonical: `https://toolfolio.de/verzeichnis/${cluster}` },
   };
 }
 

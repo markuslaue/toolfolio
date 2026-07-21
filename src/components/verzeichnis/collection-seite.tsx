@@ -32,6 +32,7 @@ import { ExpertenZitat, AutorBox } from "@/components/verzeichnis/experte";
 import { HeroHintergrund, type HeroBild } from "@/components/verzeichnis/hero-hintergrund";
 import { produktInitialen, type ProduktInZone, type Bewertung, type Zone } from "@/lib/verzeichnis";
 import { ausgangsLink } from "@/lib/ausgang";
+import { verlinke, neuerLinkKontext, type LinkKontext } from "@/lib/interne-links";
 import type { Autor } from "@/lib/autoren";
 
 /* -------------------------------- Typen ---------------------------------- */
@@ -130,19 +131,30 @@ function parseAbschnitte(md: string): Abschnitt[] {
   return out;
 }
 
-function fett(text: string): React.ReactNode[] {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((t, i) =>
-    t.startsWith("**") && t.endsWith("**") ? (
-      <strong key={i} className="font-semibold text-foreground">
-        {t.slice(2, -2)}
-      </strong>
-    ) : (
-      <span key={i}>{t}</span>
-    ),
-  );
+function fett(text: string): ReactNode[] {
+  // Nicht-fette Teile bleiben ROHE Strings, damit die interne Verlinkung sie noch
+  // sehen kann. In <span> gewickelt waeren sie fuer den Linker unsichtbar.
+  return text
+    .split(/(\*\*[^*]+\*\*)/g)
+    .filter((t) => t !== "")
+    .map((t, i) =>
+      t.startsWith("**") && t.endsWith("**") ? (
+        <strong key={`b${i}`} className="font-semibold text-foreground">
+          {t.slice(2, -2)}
+        </strong>
+      ) : (
+        t
+      ),
+    );
 }
 
-function Bloecke({ bloecke }: { bloecke: Block[] }) {
+/** Fliesstext mit Fett-Auszeichnung UND interner Verlinkung (nur wenn ein Kontext da ist). */
+function renderInline(text: string, ctx?: LinkKontext): ReactNode[] {
+  const teile = fett(text);
+  return ctx ? verlinke(teile, ctx) : teile;
+}
+
+function Bloecke({ bloecke, ctx }: { bloecke: Block[]; ctx?: LinkKontext }) {
   return (
     <>
       {bloecke.map((b, i) => {
@@ -156,13 +168,13 @@ function Bloecke({ bloecke }: { bloecke: Block[] }) {
           return (
             <ul key={i} className="mt-3 list-disc space-y-1.5 pl-5 text-foreground/70">
               {b.punkte.map((p, j) => (
-                <li key={j}>{fett(p)}</li>
+                <li key={j}>{renderInline(p, ctx)}</li>
               ))}
             </ul>
           );
         return (
           <p key={i} className="mt-4 leading-relaxed text-foreground/70">
-            {fett(b.text)}
+            {renderInline(b.text, ctx)}
           </p>
         );
       })}
@@ -433,6 +445,9 @@ export function CollectionSeite({
   faq?: ReactNode;
 }) {
   const abschnitte = collection.content_md ? parseAbschnitte(collection.content_md) : [];
+  /* Ein Kontext pro Seite: er merkt sich, welcher Begriff schon verlinkt ist (max. einmal
+     pro Seite) und verhindert Selbstlinks auf genau diese Seite. */
+  const linkCtx = neuerLinkKontext(`/verzeichnis/${cluster.slug}/${collection.slug}`);
 
   const zonen: Zone[] = ["gesponsert", "organisch", "community"];
   const jeZone = (z: Zone) => produkte.filter((p) => p.zone === z);
@@ -499,7 +514,7 @@ export function CollectionSeite({
 
               {collection.intro_md && (
                 <p className="mt-5 max-w-2xl text-base leading-relaxed text-foreground/70 sm:text-lg">
-                  {collection.intro_md}
+                  {renderInline(collection.intro_md, linkCtx)}
                 </p>
               )}
 
@@ -693,7 +708,7 @@ export function CollectionSeite({
               {abschnitte.map((a, i) => (
                 <div key={a.id} className={i > 0 ? "mt-14" : ""}>
                   <SectionHeader eyebrow={a.eyebrow} titel={a.titel} id={a.id} />
-                  <Bloecke bloecke={a.bloecke} />
+                  <Bloecke bloecke={a.bloecke} ctx={linkCtx} />
                   {autor && collection.experten_zitat && i === zitatNach && (
                     <ExpertenZitat autor={autor} zitat={collection.experten_zitat} thema={collection.name} />
                   )}
