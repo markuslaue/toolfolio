@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Eye, MousePointerClick, ArrowUpRight, TrendingUp, ExternalLink } from "lucide-react";
+import { ArrowLeft, Eye, MousePointerClick, ArrowUpRight, ExternalLink } from "lucide-react";
 import { redaktionOderRaus } from "@/lib/redaktion";
 import { zeitraum, anfragenJeCollection, klicksJeProdukt } from "@/lib/statistik";
 import { letztesRanking } from "@/lib/ranking";
-import { aktualisiereRanking } from "../../actions";
+import { RankingButton } from "./ranking-button";
 
 export const metadata: Metadata = { title: "Kategorie-Statistik", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -114,11 +114,7 @@ export default async function CollectionStatistik({
           Search Console noch schweigt: sie zeigt die Position, selbst ohne Impressionen. */}
       <div className="mt-8 flex items-center justify-between gap-3">
         <h2 className="font-display text-lg font-semibold">Ranking bei Google</h2>
-        <form action={async () => { "use server"; await aktualisiereRanking(collectionId, slug); }}>
-          <button type="submit" className="inline-flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-accent">
-            <TrendingUp className="size-3.5" /> {ranking.length ? "Aktualisieren" : "Jetzt abfragen"}
-          </button>
-        </form>
+        <RankingButton collectionId={collectionId} slug={slug} schonDa={ranking.length > 0} />
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         Keyword: {(coll.fokus_keyword as string) || (coll.name as string)}. Kostet pro Abfrage ein paar Cent, deshalb auf Knopfdruck statt automatisch.
