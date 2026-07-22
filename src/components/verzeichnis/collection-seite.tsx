@@ -32,7 +32,7 @@ import { ExpertenZitat, AutorBox } from "@/components/verzeichnis/experte";
 import { HeroHintergrund, type HeroBild } from "@/components/verzeichnis/hero-hintergrund";
 import { produktInitialen, type ProduktInZone, type Bewertung, type Zone } from "@/lib/verzeichnis";
 import { ausgangsLink } from "@/lib/ausgang";
-import { verlinke, neuerLinkKontext, type LinkKontext } from "@/lib/interne-links";
+import { verlinke, neuerLinkKontext, type LinkKontext, type InternerLink } from "@/lib/interne-links";
 import type { Autor } from "@/lib/autoren";
 
 /* -------------------------------- Typen ---------------------------------- */
@@ -427,6 +427,7 @@ export function CollectionSeite({
   finder,
   finderCta,
   faq,
+  linkZiele = [],
 }: {
   collection: CollectionDaten;
   cluster: ClusterDaten;
@@ -443,11 +444,13 @@ export function CollectionSeite({
   finderCta?: string;
   /** Die FAQ. Steht am Ende des Guides, vor der Autorenbox. */
   faq?: ReactNode;
+  /** Alle veroeffentlichten Kollektionen als moegliche interne Linkziele. */
+  linkZiele?: InternerLink[];
 }) {
   const abschnitte = collection.content_md ? parseAbschnitte(collection.content_md) : [];
   /* Ein Kontext pro Seite: er merkt sich, welcher Begriff schon verlinkt ist (max. einmal
      pro Seite) und verhindert Selbstlinks auf genau diese Seite. */
-  const linkCtx = neuerLinkKontext(`/verzeichnis/${cluster.slug}/${collection.slug}`);
+  const linkCtx = neuerLinkKontext(`/verzeichnis/${cluster.slug}/${collection.slug}`, linkZiele);
 
   const zonen: Zone[] = ["gesponsert", "organisch", "community"];
   const jeZone = (z: Zone) => produkte.filter((p) => p.zone === z);

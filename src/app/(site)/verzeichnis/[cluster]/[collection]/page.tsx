@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CollectionSeite, NUTZER_SCHWELLE } from "@/components/verzeichnis/collection-seite";
+import { ladeLinkZiele } from "@/lib/link-ziele";
 import { Finder } from "@/components/verzeichnis/finder";
 import { Faq } from "@/components/verzeichnis/faq";
 import { getAutor, STANDARD_AUTOR } from "@/lib/autoren";
@@ -63,6 +64,7 @@ export default async function CollectionRoute({
 
   const bew = await bewertungenFuer(data.produkte.map((p) => p.id));
   const autor = getAutor(data.collection.autor_slug ?? STANDARD_AUTOR);
+  const linkZiele = await ladeLinkZiele();
 
   /* Sortierung: die gesponserte Zone zuerst (sie ist gekennzeichnet), darunter die
      organische, und die ist serverseitig sortiert, unabhaengig von jeder Bezahlung. */
@@ -128,6 +130,7 @@ export default async function CollectionRoute({
       )}
 
       <CollectionSeite
+        linkZiele={linkZiele}
         collection={{
           name: data.collection.name,
           slug: data.collection.slug,

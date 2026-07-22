@@ -4,71 +4,71 @@ import type { ReactNode } from "react";
 /**
  * AD-16: Automatische interne Verlinkung im Fliesstext.
  *
- * ---------------------------------------------------------------------------
- * DIE REGELN, und sie sind bewusst streng, weil interne Links sonst mehr schaden
- * als nutzen (Google straft ueberoptimierte, sich wiederholende Ankertexte ab):
+ * DIE LOGIK: Jede veroeffentlichte Kollektion ist ein Linkziel unter ihrem Namen.
+ * Taucht "Bibliothekssoftware" im Text irgendeiner ANDEREN Seite auf, wird die erste
+ * Fundstelle zum Link auf die Bibliothekssoftware-Seite. Das gilt fuer alle Kollektionen,
+ * ohne Handpflege: die Zielliste kommt aus der Datenbank.
  *
- *   - Jeder Begriff verlinkt HOECHSTENS EINMAL pro Seite auf sein Ziel. Der zweite,
- *     dritte Treffer bleibt normaler Text.
- *   - NUR im Fliesstext (Absaetze, Listen). Niemals in Ueberschriften, niemals in
- *     Navigation, Header oder Footer. Diese Funktion wird ausschliesslich vom
- *     Body-Renderer aufgerufen, die anderen Bereiche sehen sie nie.
- *   - Eine Seite verlinkt NIE auf sich selbst. Steht das Ziel eines Begriffs auf der
- *     Seite, auf der wir gerade sind, bleibt der Begriff normaler Text.
+ * ---------------------------------------------------------------------------
+ * DIE REGELN, streng, weil interne Links sonst mehr schaden als nutzen:
+ *   - Jeder Begriff verlinkt HOECHSTENS EINMAL pro Seite. Danach normaler Text.
+ *   - NUR im Fliesstext (Absaetze, Listen). Nie in Ueberschriften, Header, Footer,
+ *     Navigation. Der Linker wird ausschliesslich vom Body-Renderer aufgerufen.
+ *   - Eine Seite verlinkt NIE auf sich selbst.
+ *   - Nur auf VEROEFFENTLICHTE Ziele. Ein Link auf einen Entwurf waere ein 404.
+ *   - Hoechstens MAX_PRO_SEITE Links je Seite, damit aus einem Ratgeber keine
+ *     Linkwueste wird (Google straft ueberoptimierte interne Verlinkung ab).
  * ---------------------------------------------------------------------------
  */
 
 export type InternerLink = { begriff: string; url: string };
 
-/**
- * Die Zuordnung Begriff -> Ziel-URL. Eine Stelle, hier gepflegt.
- *
- * WICHTIG: Nur auf Ziele verlinken, die es WIRKLICH gibt. Ein interner Link auf eine
- * 404-Seite ist schlechter als kein Link. Deshalb steht hier nur, was existiert.
- */
-export const INTERNE_LINKS: InternerLink[] = [
-  // Sobald ein Ziel eine LIVE-Seite ist, hier die Zeile einkommentieren, dann verlinkt
-  // der Begriff automatisch. Aktuell existiert keines der drei Ziele als erreichbare Seite:
-  //
-  //   - "Fitnessstudio Software" ist noch ein Entwurf (404, bis der Aufbau sie live setzt).
-  //   - /hyrox und /crossfit gibt es noch gar nicht.
-  //
-  // { begriff: "Fitnessstudio", url: "/verzeichnis/gastro-hotel-und-freizeit/fitnessstudio-software" },
-  // { begriff: "Hyrox", url: "/hyrox" },
-  // { begriff: "Crossfit", url: "/crossfit" },
-];
+/** So viele interne Links pro Seite hoechstens. Bewusst konservativ. */
+export const MAX_PRO_SEITE = 12;
 
-// Nach Laenge absteigend: laengere Begriffe zuerst, damit "Fitnessstudio Software"
-// nicht vorschnell an "Fitnessstudio" verloren geht.
-const SORTIERT = [...INTERNE_LINKS].sort((a, b) => b.begriff.length - a.begriff.length);
+type Ziel = { begriff: string; url: string; re: RegExp };
 
-/** Kontext fuer eine Seite: welcher Pfad ist das hier, und welche Begriffe sind schon vergeben. */
-export type LinkKontext = { aktuellerPfad: string; benutzt: Set<string> };
-
-export function neuerLinkKontext(aktuellerPfad: string): LinkKontext {
-  return { aktuellerPfad, benutzt: new Set() };
-}
+export type LinkKontext = {
+  aktuellerPfad: string;
+  ziele: Ziel[];
+  benutzt: Set<string>;
+  uebrig: number;
+};
 
 function maskiere(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
- * Verlinkt in einem Stueck Fliesstext den JEWEILS ERSTEN, noch nicht vergebenen Begriff.
- *
- * Bekommt bereits fertige ReactNodes (z. B. aus der Fett-Auszeichnung) und ersetzt nur
- * innerhalb der reinen Text-Teile. Fett-, Kursiv- oder sonstige Knoten bleiben unberuehrt:
- * ein Link soll nicht mitten in eine andere Auszeichnung hineinbrechen.
+ * Kontext fuer eine Seite. `ziele` sind die moeglichen Linkbegriffe (Kollektionsnamen).
+ * Laengere Begriffe zuerst, damit "CRM Software" nicht vorschnell an "CRM" verloren geht.
+ */
+export function neuerLinkKontext(aktuellerPfad: string, ziele: InternerLink[]): LinkKontext {
+  const sortiert: Ziel[] = [...ziele]
+    // Sehr kurze Namen (1-2 Zeichen) waeren zu aggressiv und treffen Abkuerzungen im Text.
+    .filter((z) => z.begriff.trim().length >= 3)
+    .sort((a, b) => b.begriff.length - a.begriff.length)
+    .map((z) => ({
+      ...z,
+      re: new RegExp(`(^|[^\\p{L}])(${maskiere(z.begriff)})(?=$|[^\\p{L}])`, "iu"),
+    }));
+  return { aktuellerPfad, ziele: sortiert, benutzt: new Set(), uebrig: MAX_PRO_SEITE };
+}
+
+/**
+ * Verlinkt in einem Stueck Fliesstext die jeweils ersten, noch nicht vergebenen Begriffe.
+ * Bekommt fertige ReactNodes (z. B. aus der Fett-Auszeichnung) und ersetzt nur innerhalb
+ * der reinen Text-Teile. Bereits ausgezeichnete Knoten (fett) bleiben unberuehrt.
  */
 export function verlinke(teile: ReactNode[], ctx: LinkKontext): ReactNode[] {
+  if (ctx.uebrig <= 0 || ctx.ziele.length === 0) return teile;
   let aktuell = teile;
 
-  for (const { begriff, url } of SORTIERT) {
+  for (const { begriff, url, re } of ctx.ziele) {
+    if (ctx.uebrig <= 0) break;
     if (ctx.benutzt.has(begriff)) continue;
-    // Kein Selbstlink: zeigt der Begriff auf die Seite, auf der wir sind, ueberspringen.
-    if (url === ctx.aktuellerPfad) continue;
+    if (url === ctx.aktuellerPfad) continue; // kein Selbstlink
 
-    const re = new RegExp(`(^|[^\\p{L}])(${maskiere(begriff)})(?=$|[^\\p{L}])`, "iu");
     const naechste: ReactNode[] = [];
     let vergeben = false;
 
@@ -82,17 +82,22 @@ export function verlinke(teile: ReactNode[], ctx: LinkKontext): ReactNode[] {
         naechste.push(teil);
         continue;
       }
-      const vor = teil.slice(0, m.index) + m[1]; // Vorzeichen (Leerzeichen o. Satzanfang) behalten
+      const vor = teil.slice(0, m.index) + m[1]; // Vorzeichen (Leerzeichen/Satzanfang) behalten
       const treffer = m[2];
       const nach = teil.slice(m.index + m[0].length);
       if (vor) naechste.push(vor);
       naechste.push(
-        <Link key={`il-${begriff}`} href={url} className="text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary">
+        <Link
+          key={`il-${begriff}`}
+          href={url}
+          className="text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary"
+        >
           {treffer}
         </Link>,
       );
       if (nach) naechste.push(nach);
       ctx.benutzt.add(begriff);
+      ctx.uebrig -= 1;
       vergeben = true;
     }
     aktuell = naechste;
