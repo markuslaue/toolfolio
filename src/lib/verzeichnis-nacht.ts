@@ -2,6 +2,7 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fuehreLaufAus, erzeugeFinder } from "@/lib/verzeichnis-pipeline";
+import { erzeugeHero } from "@/lib/hero-bild";
 import { pruefeCollection } from "@/lib/verzeichnis-gate";
 
 /**
@@ -358,5 +359,88 @@ export async function baueNacht(anzahl: number, endeUm: Date, clusterSlug?: stri
   }
 
   bericht.dauer_sekunden = Math.round((Date.now() - start) / 1000);
+  return bericht;
+}
+
+
+/**
+ * AD-17: Nur die fehlenden Bilder nachholen.
+ *
+ * Faellt eine Kategorie ALLEIN am Bild durch (etwa weil das OpenAI-Guthaben leer war),
+ * ist der teure Teil laengst getan: Anbieter, Text und Formular stehen. Sie komplett neu
+ * zu bauen waere Verschwendung, es fehlt nur das Bild. Diese Funktion erzeugt genau das
+ * nach und veroeffentlicht, wenn das Gate dann besteht. Sie ruehrt nur Kategorien an,
+ * deren Durchfallgrund das Bild war.
+ */
+export type BilderBericht = {
+  versucht: number;
+  live: number;
+  fehlgeschlagen: number;
+  kategorien: { name: string; ergebnis: string; grund?: string }[];
+};
+
+export async function holeBilderNach(): Promise<BilderBericht> {
+  const admin = createAdminClient();
+  const bericht: BilderBericht = { versucht: 0, live: 0, fehlgeschlagen: 0, kategorien: [] };
+
+  const { data } = await admin
+    .from("dir_warteschlange")
+    .select("collection_id, letzter_fehler, dir_collection(id, name, slug, hero_url, dir_cluster(name, slug))")
+    .eq("zustand", "durchgefallen");
+
+  const offen = (data ?? []).filter((w) => (w.letzter_fehler ?? "").includes("Hintergrundbild"));
+
+  for (const w of offen) {
+    const c = w.dir_collection as unknown as
+      | { id: string; name: string; slug: string; hero_url: string | null; dir_cluster: { name: string; slug: string } | null }
+      | null;
+    if (!c) continue;
+    bericht.versucht++;
+    try {
+      if (!c.hero_url) {
+        const res = await erzeugeHero(c.id, c.slug, c.name, c.dir_cluster?.name ?? "Software");
+        if (!res.ok) {
+          bericht.fehlgeschlagen++;
+          bericht.kategorien.push({ name: c.name, ergebnis: "fehler", grund: res.fehler });
+          continue;
+        }
+      }
+      // Anbieter und Finder freigeben (falls noch noetig), dann das Gate an der
+      // ausgelieferten Seite pruefen und veroeffentlichen.
+      await gibInhalteFrei(admin, c.id);
+      const gate = await pruefeCollection(c.id);
+      await admin
+        .from("dir_collection")
+        .update({ gate_bericht: { ...gate, geprueft_am: new Date().toISOString() } })
+        .eq("id", c.id);
+
+      if (!gate.bestanden) {
+        bericht.fehlgeschlagen++;
+        bericht.kategorien.push({ name: c.name, ergebnis: "durchgefallen", grund: gate.zusammenfassung });
+        await admin
+          .from("dir_warteschlange")
+          .update({ letzter_fehler: gate.zusammenfassung, zuletzt_am: new Date().toISOString() })
+          .eq("collection_id", c.id);
+        continue;
+      }
+
+      const r = await veroeffentlicheAutomatisch(admin, c.id, c.name);
+      if (r.ergebnis === "veroeffentlicht") {
+        bericht.live++;
+        bericht.kategorien.push({ name: c.name, ergebnis: "live" });
+        await admin
+          .from("dir_warteschlange")
+          .update({ zustand: "fertig", letzter_fehler: null, zuletzt_am: new Date().toISOString() })
+          .eq("collection_id", c.id);
+      } else {
+        bericht.fehlgeschlagen++;
+        bericht.kategorien.push({ name: c.name, ergebnis: "fehler", grund: r.grund });
+      }
+    } catch (e) {
+      bericht.fehlgeschlagen++;
+      bericht.kategorien.push({ name: c.name, ergebnis: "fehler", grund: e instanceof Error ? e.message : "Unbekannter Fehler" });
+    }
+  }
+
   return bericht;
 }
